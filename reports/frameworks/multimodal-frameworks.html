@@ -1,673 +1,460 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>多模态 AI 框架分析</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
-<style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多模态 AI 框架分析</title>
+    <style>
 body {
-    background: #0f172a; color: #e2e8f0;
+    background: #0f172a;
+    color: #e2e8f0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+    line-height: 1.8;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
 }
-.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
-.top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav a:hover { text-decoration: underline; }
-.top-nav .sep { color: #475569; }
-.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
-.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
-.meta .info { color: #94a3b8; font-size: .85rem; }
-.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
-.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: #93c5fd; text-decoration: none; }
-.toc a:hover { color: #bfdbfe; }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-a { color: #60a5fa; }
-code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
-pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; }
+h4 { color: #a5b4fc; }
+a { color: #60a5fa; text-decoration: none; }
+code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
+pre code { background: none; padding: 0; color: #e2e8f0; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
+th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
 tr:nth-child(even) { background: #1e293b44; }
+tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
-.footer a { color: #60a5fa; }
-@media print {
-    body { background: #fff; color: #000; max-width: 100%; }
-    .top-nav, .toc { display: none; }
-    pre { border-left: 3px solid #ccc; }
-}
+strong { color: #f8fafc; }
+em { color: #94a3b8; }
+ul, ol { padding-left: 1.5rem; }
+li { margin: 0.3rem 0; }
+p { margin: 0.8rem 0; }
 </style>
 </head>
 <body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:#94a3b8">🏗️ 框架</span>
-</div>
-<div class="meta">
 <h1>多模态 AI 框架分析</h1>
-<div class="info">2026-03-14 · 分类: 🏗️ 框架</div>
-<div class="tags"><span class="tag">多模态</span><span class="tag">Vision</span><span class="tag">Whisper</span></div>
-</div>
 
-<h1 id="ai">多模态 AI 框架分析</h1>
-<blockquote>
-<p>发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
-</blockquote>
-<hr />
-<h2 id="executive-summary">Executive Summary</h2>
+<p>> 发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
+
+<hr>
+
+<h2>Executive Summary</h2>
+
 <p>多模态 AI 正在从实验室走向生产，视觉、音频、视频等模态的理解和生成能力成为 AI 系统的核心竞争力。本报告系统分析主流多模态模型和应用框架，涵盖视觉理解、音频处理、视频理解、多模态融合策略和框架选型建议。</p>
-<p><strong>核心结论：</strong>
-- 视觉理解已形成 GPT-4V、Claude Vision、Gemini 三强格局，各有侧重
-- Whisper 系列统治语音转文字，Gemini Audio 提供端到端音频理解
-- 视频理解仍在快速发展中，Gemini 和 GPT-4V 领先但仍有明显局限
-- 多模态融合策略的选择决定了应用的灵活性和性能天花板</p>
-<hr />
-<h2 id="1">1. 视觉理解</h2>
-<h3 id="11">1.1 主流视觉模型对比</h3>
+
+<p><strong>核心结论：</strong></p>
+<li>视觉理解已形成 GPT-4V、Claude Vision、Gemini 三强格局，各有侧重</li>
+<li>Whisper 系列统治语音转文字，Gemini Audio 提供端到端音频理解</li>
+<li>视频理解仍在快速发展中，Gemini 和 GPT-4V 领先但仍有明显局限</li>
+<li>多模态融合策略的选择决定了应用的灵活性和性能天花板</li>
+
+<hr>
+
+<h2>1. 视觉理解</h2>
+
+<h3>1.1 主流视觉模型对比</h3>
+
 <table>
-<thead>
-<tr>
-<th>模型</th>
-<th>上下文窗口</th>
-<th>最大图像</th>
-<th>OCR</th>
-<th>图表理解</th>
-<th>多图对比</th>
-<th>价格</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>GPT-4o</td>
-<td>128K</td>
-<td>2048×2048</td>
-<td>优秀</td>
-<td>优秀</td>
-<td>支持</td>
-<td>$2.50/1M input</td>
-</tr>
-<tr>
-<td>Claude Sonnet 4</td>
-<td>200K</td>
-<td>1568×1568</td>
-<td>优秀</td>
-<td>良好</td>
-<td>支持</td>
-<td>$3.00/1M input</td>
-</tr>
-<tr>
-<td>Gemini 2.0 Flash</td>
-<td>1M</td>
-<td>3072×3072</td>
-<td>优秀</td>
-<td>优秀</td>
-<td>支持</td>
-<td>$0.10/1M input</td>
-</tr>
-<tr>
-<td>LLaVA-NeXT (开源)</td>
-<td>4K-32K</td>
-<td>可变</td>
-<td>一般</td>
-<td>一般</td>
-<td>支持</td>
-<td>自部署成本</td>
-</tr>
-</tbody>
+<tr><th>模型</th><th>上下文窗口</th><th>最大图像</th><th>OCR</th><th>图表理解</th><th>多图对比</th><th>价格</th></tr>
+<tr><td>GPT-4o</td><td>128K</td><td>2048×2048</td><td>优秀</td><td>优秀</td><td>支持</td><td>$2.50/1M input</td></tr>
+<tr><td>Claude Sonnet 4</td><td>200K</td><td>1568×1568</td><td>优秀</td><td>良好</td><td>支持</td><td>$3.00/1M input</td></tr>
+<tr><td>Gemini 2.0 Flash</td><td>1M</td><td>3072×3072</td><td>优秀</td><td>优秀</td><td>支持</td><td>$0.10/1M input</td></tr>
+<tr><td>LLaVA-NeXT (开源)</td><td>4K-32K</td><td>可变</td><td>一般</td><td>一般</td><td>支持</td><td>自部署成本</td></tr>
 </table>
-<h3 id="12-gpt-4v-gpt-4o">1.2 GPT-4V / GPT-4o</h3>
+
+<h3>1.2 GPT-4V / GPT-4o</h3>
+
 <p>OpenAI 的视觉能力通过图片输入实现：</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">openai</span>
 
-<span class="n">response</span> <span class="o">=</span> <span class="n">openai</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
-    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span>
-        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;描述这张图片中的场景，并识别所有文字&quot;</span>
-            <span class="p">},</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;image_url&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;image_url&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://example.com/image.jpg&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span>  <span class="c1"># &quot;low&quot; | &quot;high&quot; | &quot;auto&quot;</span>
-                <span class="p">}</span>
-            <span class="p">}</span>
-        <span class="p">]</span>
-    <span class="p">}]</span>
-<span class="p">)</span>
-</code></pre></div>
+<pre><code>
+import openai
 
-<p><strong>能力特点：</strong>
-- <strong>OCR 能力强</strong>：印刷体和手写体识别效果好
-- <strong>图表理解</strong>：能准确解读数据图表、流程图、架构图
-- <strong>空间推理</strong>：理解物体位置和关系
-- <strong>多图分析</strong>：支持同时上传多张图片进行对比</p>
-<p><strong>局限性：</strong>
-- 细粒度视觉任务（像素级）能力有限
-- 对遮挡、模糊图像的处理不够鲁棒
-- 无法生成或编辑图像（需 DALL-E）</p>
-<h3 id="13-claude-vision">1.3 Claude Vision</h3>
+response = openai.chat.completions.create(
+    model="gpt-4o",
+    messages=[{
+        "role": "user",
+        "content": [
+            {
+                "type": "text",
+                "text": "描述这张图片中的场景，并识别所有文字"
+            },
+            {
+                "type": "image_url",
+                "image_url": {
+                    "url": "https://example.com/image.jpg",
+                    "detail": "high"  # "low" | "high" | "auto"
+                }
+            }
+        ]
+    }]
+)
+</code></pre>
+
+<p><strong>能力特点：</strong></p>
+<li><strong>OCR 能力强</strong>：印刷体和手写体识别效果好</li>
+<li><strong>图表理解</strong>：能准确解读数据图表、流程图、架构图</li>
+<li><strong>空间推理</strong>：理解物体位置和关系</li>
+<li><strong>多图分析</strong>：支持同时上传多张图片进行对比</li>
+
+<p><strong>局限性：</strong></p>
+<li>细粒度视觉任务（像素级）能力有限</li>
+<li>对遮挡、模糊图像的处理不够鲁棒</li>
+<li>无法生成或编辑图像（需 DALL-E）</li>
+
+<h3>1.3 Claude Vision</h3>
+
 <p>Anthropic 的视觉能力集成在 Messages API 中：</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">anthropic</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">anthropic</span><span class="o">.</span><span class="n">Anthropic</span><span class="p">()</span>
+<pre><code>
+import anthropic
 
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;image.png&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">image_data</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+client = anthropic.Anthropic()
 
-<span class="n">message</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-sonnet-4-20250514&quot;</span><span class="p">,</span>
-    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
-    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span>
-        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;base64&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;media_type&quot;</span><span class="p">:</span> <span class="s2">&quot;image/png&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">image_data</span>
-                <span class="p">}</span>
-            <span class="p">},</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;分析这张架构图的设计模式&quot;</span>
-            <span class="p">}</span>
-        <span class="p">]</span>
-    <span class="p">}]</span>
-<span class="p">)</span>
-</code></pre></div>
+with open("image.png", "rb") as f:
+    image_data = base64.b64encode(f.read()).decode()
 
-<p><strong>能力特点：</strong>
-- <strong>文档理解</strong>：长文档和复杂表格的解析能力突出
-- <strong>代码图表</strong>：对 UML、ER 图、架构图的理解精准
-- <strong>安全识别</strong>：内容审核和敏感信息检测
-- <strong>200K 上下文</strong>：可在超长上下文中嵌入多张图片</p>
-<p><strong>局限性：</strong>
-- 不支持图片生成
-- 对艺术风格和审美的理解相对较弱
-- 手写体 OCR 不如 GPT-4o</p>
-<h3 id="14-gemini-vision">1.4 Gemini Vision</h3>
+message = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    max_tokens=1024,
+    messages=[{
+        "role": "user",
+        "content": [
+            {
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": "image/png",
+                    "data": image_data
+                }
+            },
+            {
+                "type": "text",
+                "text": "分析这张架构图的设计模式"
+            }
+        ]
+    }]
+)
+</code></pre>
+
+<p><strong>能力特点：</strong></p>
+<li><strong>文档理解</strong>：长文档和复杂表格的解析能力突出</li>
+<li><strong>代码图表</strong>：对 UML、ER 图、架构图的理解精准</li>
+<li><strong>安全识别</strong>：内容审核和敏感信息检测</li>
+<li><strong>200K 上下文</strong>：可在超长上下文中嵌入多张图片</li>
+
+<p><strong>局限性：</strong></p>
+<li>不支持图片生成</li>
+<li>对艺术风格和审美的理解相对较弱</li>
+<li>手写体 OCR 不如 GPT-4o</li>
+
+<h3>1.4 Gemini Vision</h3>
+
 <p>Google 的 Gemini 系列在多模态方面投入最大：</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">google.generativeai</span> <span class="k">as</span> <span class="nn">genai</span>
 
-<span class="n">genai</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">)</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">genai</span><span class="o">.</span><span class="n">GenerativeModel</span><span class="p">(</span><span class="s1">&#39;gemini-2.0-flash&#39;</span><span class="p">)</span>
+<pre><code>
+import google.generativeai as genai
 
-<span class="n">response</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">generate_content</span><span class="p">([</span>
-    <span class="s2">&quot;识别图中所有表格并提取数据为 JSON 格式&quot;</span><span class="p">,</span>
-    <span class="n">genai</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span><span class="s2">&quot;document.png&quot;</span><span class="p">)</span>
-<span class="p">])</span>
-</code></pre></div>
+genai.configure(api_key="...")
+model = genai.GenerativeModel('gemini-2.0-flash')
 
-<p><strong>能力特点：</strong>
-- <strong>原生多模态</strong>：从预训练阶段就融合文本和视觉
-- <strong>超大上下文</strong>：1M tokens，可处理大量图片
-- <strong>视频原生支持</strong>：可直接分析视频帧序列
-- <strong>成本优势</strong>：Gemini Flash 系列价格远低于竞品</p>
-<p><strong>局限性：</strong>
-- API 稳定性不如 OpenAI
-- 部分地区可用性受限
-- 社区生态相对较小</p>
-<h3 id="15">1.5 开源视觉模型</h3>
+response = model.generate_content([
+    "识别图中所有表格并提取数据为 JSON 格式",
+    genai.upload_file("document.png")
+])
+</code></pre>
+
+<p><strong>能力特点：</strong></p>
+<li><strong>原生多模态</strong>：从预训练阶段就融合文本和视觉</li>
+<li><strong>超大上下文</strong>：1M tokens，可处理大量图片</li>
+<li><strong>视频原生支持</strong>：可直接分析视频帧序列</li>
+<li><strong>成本优势</strong>：Gemini Flash 系列价格远低于竞品</li>
+
+<p><strong>局限性：</strong></p>
+<li>API 稳定性不如 OpenAI</li>
+<li>部分地区可用性受限</li>
+<li>社区生态相对较小</li>
+
+<h3>1.5 开源视觉模型</h3>
+
 <table>
-<thead>
-<tr>
-<th>模型</th>
-<th>参数量</th>
-<th>特点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>LLaVA-NeXT</td>
-<td>7B-110B</td>
-<td>最流行的开源 VLM</td>
-</tr>
-<tr>
-<td>Qwen2-VL</td>
-<td>2B-72B</td>
-<td>中文视觉理解强</td>
-</tr>
-<tr>
-<td>InternVL2</td>
-<td>1B-76B</td>
-<td>多语言，文档理解</td>
-</tr>
-<tr>
-<td>CogVLM2</td>
-<td>8B-18B</td>
-<td>高分辨率，开源友好</td>
-</tr>
-</tbody>
+<tr><th>模型</th><th>参数量</th><th>特点</th></tr>
+<tr><td>LLaVA-NeXT</td><td>7B-110B</td><td>最流行的开源 VLM</td></tr>
+<tr><td>Qwen2-VL</td><td>2B-72B</td><td>中文视觉理解强</td></tr>
+<tr><td>InternVL2</td><td>1B-76B</td><td>多语言，文档理解</td></tr>
+<tr><td>CogVLM2</td><td>8B-18B</td><td>高分辨率，开源友好</td></tr>
 </table>
-<div class="highlight"><pre><span></span><code><span class="c1"># vLLM 部署开源 VLM</span>
-<span class="kn">from</span> <span class="nn">vllm</span> <span class="kn">import</span> <span class="n">LLM</span><span class="p">,</span> <span class="n">SamplingParams</span>
 
-<span class="n">llm</span> <span class="o">=</span> <span class="n">LLM</span><span class="p">(</span>
-    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;llava-hf/llava-v1.6-mistral-7b-hf&quot;</span><span class="p">,</span>
-    <span class="n">max_model_len</span><span class="o">=</span><span class="mi">8192</span>
-<span class="p">)</span>
-</code></pre></div>
+<pre><code>
+# vLLM 部署开源 VLM
+from vllm import LLM, SamplingParams
 
-<hr />
-<h2 id="2">2. 音频处理</h2>
-<h3 id="21-asr">2.1 语音转文字（ASR）</h3>
+llm = LLM(
+    model="llava-hf/llava-v1.6-mistral-7b-hf",
+    max_model_len=8192
+)
+</code></pre>
+
+<hr>
+
+<h2>2. 音频处理</h2>
+
+<h3>2.1 语音转文字（ASR）</h3>
+
 <p><strong>Whisper 系列</strong>是当前最主流的 ASR 方案：</p>
+
 <table>
-<thead>
-<tr>
-<th>模型</th>
-<th>参数量</th>
-<th>语言</th>
-<th>速度</th>
-<th>WER (英文)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Whisper Large-v3</td>
-<td>1.5B</td>
-<td>99</td>
-<td>1x</td>
-<td>~2.5%</td>
-</tr>
-<tr>
-<td>Whisper Turbo</td>
-<td>800M</td>
-<td>99</td>
-<td>3x</td>
-<td>~3.0%</td>
-</tr>
-<tr>
-<td>Distil-Whisper</td>
-<td>756M</td>
-<td>英文</td>
-<td>6x</td>
-<td>~3.8%</td>
-</tr>
-<tr>
-<td>Gemini Audio</td>
-<td>N/A</td>
-<td>100+</td>
-<td>实时</td>
-<td>N/A</td>
-</tr>
-</tbody>
+<tr><th>模型</th><th>参数量</th><th>语言</th><th>速度</th><th>WER (英文)</th></tr>
+<tr><td>Whisper Large-v3</td><td>1.5B</td><td>99</td><td>1x</td><td>~2.5%</td></tr>
+<tr><td>Whisper Turbo</td><td>800M</td><td>99</td><td>3x</td><td>~3.0%</td></tr>
+<tr><td>Distil-Whisper</td><td>756M</td><td>英文</td><td>6x</td><td>~3.8%</td></tr>
+<tr><td>Gemini Audio</td><td>N/A</td><td>100+</td><td>实时</td><td>N/A</td></tr>
 </table>
-<div class="highlight"><pre><span></span><code><span class="c1"># OpenAI Whisper API</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;audio.mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">audio_file</span><span class="p">:</span>
-    <span class="n">transcript</span> <span class="o">=</span> <span class="n">openai</span><span class="o">.</span><span class="n">audio</span><span class="o">.</span><span class="n">transcriptions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;whisper-1&quot;</span><span class="p">,</span>
-        <span class="n">file</span><span class="o">=</span><span class="n">audio_file</span><span class="p">,</span>
-        <span class="n">language</span><span class="o">=</span><span class="s2">&quot;zh&quot;</span><span class="p">,</span>
-        <span class="n">response_format</span><span class="o">=</span><span class="s2">&quot;verbose_json&quot;</span><span class="p">,</span>
-        <span class="n">timestamp_granularities</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;segment&quot;</span><span class="p">]</span>
-    <span class="p">)</span>
-</code></pre></div>
 
-<div class="highlight"><pre><span></span><code><span class="c1"># 本地部署 Whisper</span>
-<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">pipeline</span>
+<pre><code>
+# OpenAI Whisper API
+with open("audio.mp3", "rb") as audio_file:
+    transcript = openai.audio.transcriptions.create(
+        model="whisper-1",
+        file=audio_file,
+        language="zh",
+        response_format="verbose_json",
+        timestamp_granularities=["segment"]
+    )
+</code></pre>
 
-<span class="n">pipe</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s2">&quot;automatic-speech-recognition&quot;</span><span class="p">,</span> 
-    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;openai/whisper-large-v3&quot;</span><span class="p">,</span>
-    <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">pipe</span><span class="p">(</span><span class="s2">&quot;audio.mp3&quot;</span><span class="p">,</span> <span class="n">return_timestamps</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</code></pre></div>
+<pre><code>
+# 本地部署 Whisper
+from transformers import pipeline
 
-<h3 id="22-tts">2.2 语音生成（TTS）</h3>
+pipe = pipeline("automatic-speech-recognition", 
+    model="openai/whisper-large-v3",
+    device="cuda")
+result = pipe("audio.mp3", return_timestamps=True)
+</code></pre>
+
+<h3>2.2 语音生成（TTS）</h3>
+
 <table>
-<thead>
-<tr>
-<th>模型</th>
-<th>特点</th>
-<th>价格</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>OpenAI TTS / TTS-HD</td>
-<td>多声音，高质量</td>
-<td>$15-30/1M chars</td>
-</tr>
-<tr>
-<td>ElevenLabs</td>
-<td>最自然的声音克隆</td>
-<td>$0.30/1K chars</td>
-</tr>
-<tr>
-<td>Azure TTS (SSML)</td>
-<td>企业级，SSML 控制</td>
-<td>$16/1M chars</td>
-</tr>
-<tr>
-<td>Coqui XTTS</td>
-<td>开源，声音克隆</td>
-<td>自部署</td>
-</tr>
-</tbody>
+<tr><th>模型</th><th>特点</th><th>价格</th></tr>
+<tr><td>OpenAI TTS / TTS-HD</td><td>多声音，高质量</td><td>$15-30/1M chars</td></tr>
+<tr><td>ElevenLabs</td><td>最自然的声音克隆</td><td>$0.30/1K chars</td></tr>
+<tr><td>Azure TTS (SSML)</td><td>企业级，SSML 控制</td><td>$16/1M chars</td></tr>
+<tr><td>Coqui XTTS</td><td>开源，声音克隆</td><td>自部署</td></tr>
 </table>
-<h3 id="23-gemini-audio">2.3 Gemini Audio（端到端）</h3>
+
+<h3>2.3 Gemini Audio（端到端）</h3>
+
 <p>Gemini 是少数支持端到端音频理解的模型：</p>
-<div class="highlight"><pre><span></span><code><span class="n">model</span> <span class="o">=</span> <span class="n">genai</span><span class="o">.</span><span class="n">GenerativeModel</span><span class="p">(</span><span class="s1">&#39;gemini-2.0-flash&#39;</span><span class="p">)</span>
 
-<span class="c1"># 直接分析音频文件</span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">generate_content</span><span class="p">([</span>
-    <span class="s2">&quot;转录这段会议录音并提取行动项&quot;</span><span class="p">,</span>
-    <span class="n">genai</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span><span class="s2">&quot;meeting.mp3&quot;</span><span class="p">)</span>
-<span class="p">])</span>
-</code></pre></div>
+<pre><code>
+model = genai.GenerativeModel('gemini-2.0-flash')
 
-<p><strong>能力：</strong>
-- 音频转录 + 语义理解一步完成
-- 支持多语言音频
-- 可分析语气、情绪等副语言信息
-- 可同时处理音频和视觉输入</p>
-<hr />
-<h2 id="3">3. 视频理解与生成</h2>
-<h3 id="31">3.1 视频理解</h3>
+# 直接分析音频文件
+response = model.generate_content([
+    "转录这段会议录音并提取行动项",
+    genai.upload_file("meeting.mp3")
+])
+</code></pre>
+
+<p><strong>能力：</strong></p>
+<li>音频转录 + 语义理解一步完成</li>
+<li>支持多语言音频</li>
+<li>可分析语气、情绪等副语言信息</li>
+<li>可同时处理音频和视觉输入</li>
+
+<hr>
+
+<h2>3. 视频理解与生成</h2>
+
+<h3>3.1 视频理解</h3>
+
 <table>
-<thead>
-<tr>
-<th>模型</th>
-<th>视频长度</th>
-<th>帧率</th>
-<th>特点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Gemini 2.0</td>
-<td>1+ 小时</td>
-<td>可变</td>
-<td>原生视频理解</td>
-</tr>
-<tr>
-<td>GPT-4o</td>
-<td>~20 分钟</td>
-<td>提取帧</td>
-<td>图片序列处理</td>
-</tr>
-<tr>
-<td>Claude Vision</td>
-<td>提取帧</td>
-<td>手动</td>
-<td>需要预处理</td>
-</tr>
-<tr>
-<td>Video-LLaVA (开源)</td>
-<td>分钟级</td>
-<td>固定</td>
-<td>开源方案</td>
-</tr>
-</tbody>
+<tr><th>模型</th><th>视频长度</th><th>帧率</th><th>特点</th></tr>
+<tr><td>Gemini 2.0</td><td>1+ 小时</td><td>可变</td><td>原生视频理解</td></tr>
+<tr><td>GPT-4o</td><td>~20 分钟</td><td>提取帧</td><td>图片序列处理</td></tr>
+<tr><td>Claude Vision</td><td>提取帧</td><td>手动</td><td>需要预处理</td></tr>
+<tr><td>Video-LLaVA (开源)</td><td>分钟级</td><td>固定</td><td>开源方案</td></tr>
 </table>
-<div class="highlight"><pre><span></span><code><span class="c1"># Gemini 视频分析</span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">generate_content</span><span class="p">([</span>
-    <span class="s2">&quot;总结这段视频的主要内容，标注关键时间点&quot;</span><span class="p">,</span>
-    <span class="n">genai</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span><span class="s2">&quot;video.mp4&quot;</span><span class="p">)</span>
-<span class="p">])</span>
-</code></pre></div>
 
-<p><strong>当前局限：</strong>
-- 长视频（&gt;1小时）理解仍然困难
-- 细粒度时间定位精度有限
-- 音频-视觉融合理解不够深入
-- 实时视频流处理尚不成熟</p>
-<h3 id="32">3.2 视频生成</h3>
+<pre><code>
+# Gemini 视频分析
+response = model.generate_content([
+    "总结这段视频的主要内容，标注关键时间点",
+    genai.upload_file("video.mp4")
+])
+</code></pre>
+
+<p><strong>当前局限：</strong></p>
+<li>长视频（>1小时）理解仍然困难</li>
+<li>细粒度时间定位精度有限</li>
+<li>音频-视觉融合理解不够深入</li>
+<li>实时视频流处理尚不成熟</li>
+
+<h3>3.2 视频生成</h3>
+
 <table>
-<thead>
-<tr>
-<th>模型</th>
-<th>分辨率</th>
-<th>时长</th>
-<th>特点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Sora (OpenAI)</td>
-<td>1080p</td>
-<td>60s</td>
-<td>高质量，物理合理</td>
-</tr>
-<tr>
-<td>Veo 2 (Google)</td>
-<td>4K</td>
-<td>60s+</td>
-<td>高质量，长时长</td>
-</tr>
-<tr>
-<td>Runway Gen-3</td>
-<td>1080p</td>
-<td>10s</td>
-<td>专业视频工具</td>
-</tr>
-<tr>
-<td>Kling (快手)</td>
-<td>1080p</td>
-<td>10s</td>
-<td>中文提示词友好</td>
-</tr>
-</tbody>
+<tr><th>模型</th><th>分辨率</th><th>时长</th><th>特点</th></tr>
+<tr><td>Sora (OpenAI)</td><td>1080p</td><td>60s</td><td>高质量，物理合理</td></tr>
+<tr><td>Veo 2 (Google)</td><td>4K</td><td>60s+</td><td>高质量，长时长</td></tr>
+<tr><td>Runway Gen-3</td><td>1080p</td><td>10s</td><td>专业视频工具</td></tr>
+<tr><td>Kling (快手)</td><td>1080p</td><td>10s</td><td>中文提示词友好</td></tr>
 </table>
-<blockquote>
-<p>⚠️ 视频生成领域变化极快，以上信息可能已过时，建议查阅各平台最新状态。</p>
-</blockquote>
-<h3 id="33">3.3 视频处理框架</h3>
-<div class="highlight"><pre><span></span><code><span class="c1"># FFmpeg 预处理 → LLM 分析流程</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
 
-<span class="k">def</span> <span class="nf">extract_frames</span><span class="p">(</span><span class="n">video_path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;从视频中提取帧&quot;&quot;&quot;</span>
-    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span>
-        <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="n">video_path</span><span class="p">,</span>
-        <span class="s2">&quot;-vf&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;fps=</span><span class="si">{</span><span class="n">fps</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;-q:v&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;frames/frame_</span><span class="si">%04d</span><span class="s2">.jpg&quot;</span>
-    <span class="p">])</span>
+<p>> ⚠️ 视频生成领域变化极快，以上信息可能已过时，建议查阅各平台最新状态。</p>
 
-<span class="k">def</span> <span class="nf">transcribe_audio</span><span class="p">(</span><span class="n">video_path</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;提取并转录音频&quot;&quot;&quot;</span>
-    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span>
-        <span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="n">video_path</span><span class="p">,</span> 
-        <span class="s2">&quot;-vn&quot;</span><span class="p">,</span> <span class="s2">&quot;-acodec&quot;</span><span class="p">,</span> <span class="s2">&quot;mp3&quot;</span><span class="p">,</span> <span class="s2">&quot;audio.mp3&quot;</span>
-    <span class="p">])</span>
-    <span class="c1"># 使用 Whisper 转录</span>
-    <span class="k">return</span> <span class="n">whisper</span><span class="o">.</span><span class="n">transcribe</span><span class="p">(</span><span class="s2">&quot;audio.mp3&quot;</span><span class="p">)</span>
-</code></pre></div>
+<h3>3.3 视频处理框架</h3>
 
-<hr />
-<h2 id="4">4. 多模态融合策略</h2>
-<h3 id="41">4.1 融合策略分类</h3>
+<pre><code>
+# FFmpeg 预处理 → LLM 分析流程
+import subprocess
+
+def extract_frames(video_path, fps=1):
+    """从视频中提取帧"""
+    subprocess.run([
+        "ffmpeg", "-i", video_path,
+        "-vf", f"fps={fps}",
+        "-q:v", "2",
+        "frames/frame_%04d.jpg"
+    ])
+
+def transcribe_audio(video_path):
+    """提取并转录音频"""
+    subprocess.run([
+        "ffmpeg", "-i", video_path, 
+        "-vn", "-acodec", "mp3", "audio.mp3"
+    ])
+    # 使用 Whisper 转录
+    return whisper.transcribe("audio.mp3")
+</code></pre>
+
+<hr>
+
+<h2>4. 多模态融合策略</h2>
+
+<h3>4.1 融合策略分类</h3>
+
 <table>
-<thead>
-<tr>
-<th>策略</th>
-<th>说明</th>
-<th>优势</th>
-<th>劣势</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>早期融合</strong></td>
-<td>在模型输入端融合</td>
-<td>原生多模态理解</td>
-<td>需要特定模型</td>
-</tr>
-<tr>
-<td><strong>晚期融合</strong></td>
-<td>各模态独立处理后融合</td>
-<td>灵活，可组合</td>
-<td>模态间交互弱</td>
-</tr>
-<tr>
-<td><strong>交叉注意力</strong></td>
-<td>通过注意力机制交互</td>
-<td>平衡性能和灵活性</td>
-<td>实现复杂</td>
-</tr>
-<tr>
-<td><strong>特征拼接</strong></td>
-<td>简单拼接特征向量</td>
-<td>简单直接</td>
-<td>表达能力有限</td>
-</tr>
-</tbody>
+<tr><th>策略</th><th>说明</th><th>优势</th><th>劣势</th></tr>
+<tr><td>**早期融合**</td><td>在模型输入端融合</td><td>原生多模态理解</td><td>需要特定模型</td></tr>
+<tr><td>**晚期融合**</td><td>各模态独立处理后融合</td><td>灵活，可组合</td><td>模态间交互弱</td></tr>
+<tr><td>**交叉注意力**</td><td>通过注意力机制交互</td><td>平衡性能和灵活性</td><td>实现复杂</td></tr>
+<tr><td>**特征拼接**</td><td>简单拼接特征向量</td><td>简单直接</td><td>表达能力有限</td></tr>
 </table>
-<h3 id="42-gemini">4.2 早期融合（以 Gemini 为例）</h3>
-<div class="highlight"><pre><span></span><code>文本 Token ──┐
-             ├──→ 统一 Transformer ──→ 输出
-图像 Token ──┤
-             │
-音频 Token ──┘
-</code></pre></div>
 
-<ul>
+<h3>4.2 早期融合（以 Gemini 为例）</h3>
+
+<pre><code>
+graph TD
+    T["文本 Token"] --&gt; TRANS["统一 Transformer"]
+    I["图像 Token"] --&gt; TRANS
+    A["音频 Token"] --&gt; TRANS
+    TRANS --&gt; OUT["输出"]
+</code></pre>
+
 <li>模型从预训练阶段就处理多种模态</li>
 <li>模态间交互最充分</li>
 <li>代表：Gemini、GPT-4o</li>
-</ul>
-<h3 id="43-pipeline">4.3 晚期融合（Pipeline 方案）</h3>
-<div class="highlight"><pre><span></span><code>图像 → 视觉编码器 → 视觉特征 ─┐
-                              ├──→ LLM ──→ 输出
-文本 → Tokenizer → 文本特征 ──┘
-</code></pre></div>
 
-<ul>
+<h3>4.3 晚期融合（Pipeline 方案）</h3>
+
+<pre><code>
+graph TD
+    IMG["图像"] --&gt; VE["视觉编码器"] --&gt; VF["视觉特征"]
+    TXT["文本"] --&gt; TOK["Tokenizer"] --&gt; TF["文本特征"]
+    VF --&gt; LLM["LLM"]
+    TF --&gt; LLM
+    LLM --&gt; OUT["输出"]
+</code></pre>
+
 <li>各模态可独立更换模型</li>
 <li>适合开源模型组合</li>
 <li>代表：LLaVA、MiniGPT-4</li>
-</ul>
-<h3 id="44-rag">4.4 RAG + 多模态</h3>
+
+<h3>4.4 RAG + 多模态</h3>
+
 <p>多模态 RAG 是当前最实用的融合策略：</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># 多模态 RAG 流程</span>
-<span class="k">def</span> <span class="nf">multimodal_rag</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="c1"># 1. 文本检索</span>
-    <span class="n">text_results</span> <span class="o">=</span> <span class="n">vector_store</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
 
-    <span class="c1"># 2. 图像理解（如有）</span>
-    <span class="k">if</span> <span class="n">image</span><span class="p">:</span>
-        <span class="n">image_desc</span> <span class="o">=</span> <span class="n">vision_model</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
-        <span class="n">text_results</span> <span class="o">+=</span> <span class="n">vector_store</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">image_desc</span><span class="p">)</span>
+<pre><code>
+# 多模态 RAG 流程
+def multimodal_rag(query, image=None):
+    # 1. 文本检索
+    text_results = vector_store.search(query)
+    
+    # 2. 图像理解（如有）
+    if image:
+        image_desc = vision_model.describe(image)
+        text_results += vector_store.search(image_desc)
+    
+    # 3. 多模态上下文构建
+    context = format_context(text_results, image)
+    
+    # 4. 生成回答
+    return llm.generate(query, context=context, image=image)
+</code></pre>
 
-    <span class="c1"># 3. 多模态上下文构建</span>
-    <span class="n">context</span> <span class="o">=</span> <span class="n">format_context</span><span class="p">(</span><span class="n">text_results</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
+<hr>
 
-    <span class="c1"># 4. 生成回答</span>
-    <span class="k">return</span> <span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">)</span>
-</code></pre></div>
+<h2>5. 应用框架选型</h2>
 
-<hr />
-<h2 id="5">5. 应用框架选型</h2>
-<h3 id="51">5.1 选型决策矩阵</h3>
+<h3>5.1 选型决策矩阵</h3>
+
 <table>
-<thead>
-<tr>
-<th>场景</th>
-<th>推荐方案</th>
-<th>理由</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>通用图文理解</td>
-<td>GPT-4o</td>
-<td>最成熟的多模态 API</td>
-</tr>
-<tr>
-<td>成本敏感的视觉任务</td>
-<td>Gemini Flash</td>
-<td>价格优势巨大</td>
-</tr>
-<tr>
-<td>长文档+图片混合</td>
-<td>Claude Sonnet</td>
-<td>200K 上下文</td>
-</tr>
-<tr>
-<td>语音转录</td>
-<td>Whisper Large-v3</td>
-<td>最高精度</td>
-</tr>
-<tr>
-<td>实时音视频</td>
-<td>Gemini 2.0</td>
-<td>原生多模态</td>
-</tr>
-<tr>
-<td>隐私敏感/本地部署</td>
-<td>LLaVA + Whisper</td>
-<td>数据不出域</td>
-</tr>
-<tr>
-<td>视频内容分析</td>
-<td>Gemini + FFmpeg</td>
-<td>先抽帧再分析</td>
-</tr>
-</tbody>
+<tr><th>场景</th><th>推荐方案</th><th>理由</th></tr>
+<tr><td>通用图文理解</td><td>GPT-4o</td><td>最成熟的多模态 API</td></tr>
+<tr><td>成本敏感的视觉任务</td><td>Gemini Flash</td><td>价格优势巨大</td></tr>
+<tr><td>长文档+图片混合</td><td>Claude Sonnet</td><td>200K 上下文</td></tr>
+<tr><td>语音转录</td><td>Whisper Large-v3</td><td>最高精度</td></tr>
+<tr><td>实时音视频</td><td>Gemini 2.0</td><td>原生多模态</td></tr>
+<tr><td>隐私敏感/本地部署</td><td>LLaVA + Whisper</td><td>数据不出域</td></tr>
+<tr><td>视频内容分析</td><td>Gemini + FFmpeg</td><td>先抽帧再分析</td></tr>
 </table>
-<h3 id="52">5.2 技术架构建议</h3>
-<div class="highlight"><pre><span></span><code>┌─────────────────────────────────────────────┐
-│              应用层                          │
-│  Chatbot / 内容审核 / 文档处理 / 媒体分析     │
-├─────────────────────────────────────────────┤
-│              编排层                          │
-│  LangChain / LlamaIndex / 自定义 Pipeline   │
-├─────────────────────────────────────────────┤
-│              模型层                          │
-│  ┌────────┐ ┌────────┐ ┌────────┐          │
-│  │ Vision │ │ Audio  │ │ Video  │          │
-│  │ GPT-4o │ │Whisper │ │Gemini  │          │
-│  │Claude  │ │ TTS    │ │ +FFmpeg│          │
-│  │Gemini  │ │        │ │        │          │
-│  └────────┘ └────────┘ └────────┘          │
-├─────────────────────────────────────────────┤
-│              基础设施                        │
-│  对象存储 / CDN / GPU 集群 / 消息队列        │
-└─────────────────────────────────────────────┘
-</code></pre></div>
 
-<h3 id="53">5.3 实践建议</h3>
-<ol>
-<li><strong>从单模态开始</strong>：先验证单模态效果，再逐步增加模态</li>
-<li><strong>预处理是关键</strong>：图片压缩、视频抽帧、音频降噪等预处理直接影响效果</li>
-<li><strong>Prompt 工程</strong>：多模态场景的 Prompt 设计需要反复迭代</li>
-<li><strong>成本控制</strong>：视觉和视频处理的 token 消耗可能很大，需要设置上限</li>
-<li><strong>降级策略</strong>：主力模型失败时自动降级到备选方案</li>
-<li><strong>缓存策略</strong>：对相同图片/音频的分析结果进行缓存</li>
-</ol>
-<hr />
-<h2 id="_1">参考来源</h2>
-<ol>
-<li>OpenAI 视觉 API 文档 — <a href="https://platform.openai.com/docs/guides/vision">platform.openai.com/docs/guides/vision</a></li>
-<li>Anthropic 视觉文档 — <a href="https://docs.anthropic.com/docs/vision">docs.anthropic.com/docs/vision</a></li>
-<li>Google Gemini 文文 — <a href="https://ai.google.dev/gemini-api">ai.google.dev/gemini-api</a></li>
-<li>Whisper 论文 — Radford et al., "Robust Speech Recognition via Large-Scale Weak Supervision", ICML 2023</li>
-<li>LLaVA 论文 — Liu et al., "Visual Instruction Tuning", NeurIPS 2023</li>
-</ol>
-<hr />
+<h3>5.2 技术架构建议</h3>
+
+<pre><code>
+graph TD
+    APP["📱 应用层&lt;br/&gt;Chatbot / 内容审核 / 文档处理 / 媒体分析"]
+    ORCH["🔗 编排层&lt;br/&gt;LangChain / LlamaIndex / 自定义 Pipeline"]
+    MODEL["🤖 模型层"]
+    VISION["Vision&lt;br/&gt;GPT-4o / Claude / Gemini"]
+    AUDIO["Audio&lt;br/&gt;Whisper / TTS"]
+    VIDEO["Video&lt;br/&gt;Gemini + FFmpeg"]
+    INFRA["🏗️ 基础设施&lt;br/&gt;对象存储 / CDN / GPU 集群 / 消息队列"]
+    APP --&gt; ORCH
+    ORCH --&gt; MODEL
+    MODEL --&gt; VISION
+    MODEL --&gt; AUDIO
+    MODEL --&gt; VIDEO
+    MODEL --&gt; INFRA
+</code></pre>
+
+<h3>5.3 实践建议</h3>
+
+<p>1. <strong>从单模态开始</strong>：先验证单模态效果，再逐步增加模态</p>
+<p>2. <strong>预处理是关键</strong>：图片压缩、视频抽帧、音频降噪等预处理直接影响效果</p>
+<p>3. <strong>Prompt 工程</strong>：多模态场景的 Prompt 设计需要反复迭代</p>
+<p>4. <strong>成本控制</strong>：视觉和视频处理的 token 消耗可能很大，需要设置上限</p>
+<p>5. <strong>降级策略</strong>：主力模型失败时自动降级到备选方案</p>
+<p>6. <strong>缓存策略</strong>：对相同图片/音频的分析结果进行缓存</p>
+
+<hr>
+
+<h2>参考来源</h2>
+
+<p>1. OpenAI 视觉 API 文档 — <a href="https://platform.openai.com/docs/guides/vision">platform.openai.com/docs/guides/vision</a></p>
+<p>2. Anthropic 视觉文档 — <a href="https://docs.anthropic.com/docs/vision">docs.anthropic.com/docs/vision</a></p>
+<p>3. Google Gemini 文文 — <a href="https://ai.google.dev/gemini-api">ai.google.dev/gemini-api</a></p>
+<p>4. Whisper 论文 — Radford et al., "Robust Speech Recognition via Large-Scale Weak Supervision", ICML 2023</p>
+<p>5. LLaVA 论文 — Liu et al., "Visual Instruction Tuning", NeurIPS 2023</p>
+
+<hr>
+
 <p><em>本报告基于 2025 年初的多模态 AI 生态撰写，该领域发展极快，视频生成和理解能力尤为如此，请持续关注最新进展。</em></p>
 
-<div class="footer">
-<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
-</div>
-</body></html>
+</body>
+</html>

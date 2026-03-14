@@ -259,19 +259,27 @@ NVIDIA 的官方推理优化框架：
 
 ### 4.3 部署决策树
 
-```
-选择推理方案：
-├── 开发/原型阶段
-│   └── Ollama（本地）或 Replicate（云端）
-├── 生产部署 - 小规模
-│   ├── 有 GPU → vLLM 自部署
-│   └── 无 GPU → Together AI / Fireworks
-├── 生产部署 - 大规模
-│   ├── 追求性能 → TensorRT-LLM + NVIDIA GPU
-│   ├── 追求灵活性 → vLLM + Kubernetes
-│   └── 追求简便 → 云服务商托管（Bedrock/Vertex AI）
-└── 边缘部署
-    └── Ollama / llama.cpp + 量化模型
+```mermaid
+graph TD
+    Q{"选择推理方案"}
+    DEV["开发/原型阶段<br/>Ollama 或 Replicate"]
+    SMALL["生产部署 - 小规模"]
+    LARGE["生产部署 - 大规模"]
+    EDGE["边缘部署<br/>Ollama / llama.cpp + 量化"]
+    GPU_Y["有 GPU → vLLM"]
+    GPU_N["无 GPU → Together AI / Fireworks"]
+    PERF["追求性能 → TensorRT-LLM"]
+    FLEX["追求灵活性 → vLLM + K8s"]
+    EASY["追求简便 → Bedrock / Vertex AI"]
+    Q --> DEV
+    Q --> SMALL
+    Q --> LARGE
+    Q --> EDGE
+    SMALL --> GPU_Y
+    SMALL --> GPU_N
+    LARGE --> PERF
+    LARGE --> FLEX
+    LARGE --> EASY
 ```
 
 ---

@@ -1,155 +1,251 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI 编排平台横向对比</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
-<style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 编排平台横向对比</title>
+    <style>
 body {
-    background: #0f172a; color: #e2e8f0;
+    background: #0f172a;
+    color: #e2e8f0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+    line-height: 1.8;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
 }
-.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
-.top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav a:hover { text-decoration: underline; }
-.top-nav .sep { color: #475569; }
-.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
-.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
-.meta .info { color: #94a3b8; font-size: .85rem; }
-.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
-.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: #93c5fd; text-decoration: none; }
-.toc a:hover { color: #bfdbfe; }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-a { color: #60a5fa; }
-code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
-pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; }
+h4 { color: #a5b4fc; }
+a { color: #60a5fa; text-decoration: none; }
+code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
+pre code { background: none; padding: 0; color: #e2e8f0; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
+th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
 tr:nth-child(even) { background: #1e293b44; }
+tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
-.footer a { color: #60a5fa; }
-@media print {
-    body { background: #fff; color: #000; max-width: 100%; }
-    .top-nav, .toc { display: none; }
-    pre { border-left: 3px solid #ccc; }
-}
+strong { color: #f8fafc; }
+em { color: #94a3b8; }
+ul, ol { padding-left: 1.5rem; }
+li { margin: 0.3rem 0; }
+p { margin: 0.8rem 0; }
 </style>
 </head>
 <body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:#94a3b8">🛠️ 工具</span>
-</div>
-<div class="meta">
 <h1>AI 编排平台横向对比</h1>
-<div class="info">2026-03-14 · 分类: 🛠️ 工具</div>
-<div class="tags"><span class="tag">Dify</span><span class="tag">n8n</span><span class="tag">编排</span></div>
-</div>
 
+<p>> 最后更新: 2026-03-14 | 分类: AI 开发工具 / 编排</p>
 
-<h1>AI 编排平台横向对比</h1>
-<p class="meta">最后更新: 2026-03-14 | 分类: AI 开发工具 / 编排</p>
+<hr>
 
-<h2 id="executive-summary">Executive Summary</h2>
-<blockquote>
-<p><strong>核心结论</strong>:<br>
-• 技术团队深度定制: <strong>LangFlow</strong> 或 <strong>Dify</strong><br>
-• 快速搭建 Bot: <strong>Coze</strong> 或 <strong>Flowise</strong><br>
-• 业务流程自动化: <strong>n8n</strong>（400+ 集成 + AI 节点）
-</p>
-</blockquote>
+<h2>Executive Summary</h2>
 
-<h2 id="1-平台概览">1. 平台概览</h2>
-<table>
-<tr><th>平台</th><th>技术栈</th><th>定位</th><th>许可</th><th>适合</th></tr>
-<tr><td><strong>LangFlow</strong></td><td>Python + React</td><td>LangChain 可视化</td><td>MIT</td><td>LangChain 开发者</td></tr>
-<tr><td><strong>Flowise</strong></td><td>Node.js + React</td><td>低代码 LLM 构建</td><td>Apache 2.0</td><td>非技术用户</td></tr>
-<tr><td><strong>Dify</strong></td><td>Python + Next.js</td><td>LLMOps 平台</td><td>开源+商业</td><td>完整 LLMOps</td></tr>
-<tr><td><strong>Coze</strong></td><td>托管 SaaS</td><td>Bot 开发发布</td><td>云服务</td><td>消费级 Bot</td></tr>
-<tr><td><strong>n8n</strong></td><td>Node.js + Vue</td><td>自动化 + AI</td><td>Fair-code</td><td>业务集成</td></tr>
-</table>
+<p>AI 编排平台（Orchestration Platforms）是连接 LLM、工具、数据源和业务逻辑的中间层，让开发者可以通过可视化拖拽或声明式配置来构建 AI 工作流，而无需从零编写底层集成代码。</p>
 
-<h2 id="2-可视化编排能力">2. 可视化编排能力</h2>
+<p>本报告对比分析 5 个主流平台：<strong>LangFlow</strong>（LangChain 可视化包装）、<strong>Flowise</strong>（低代码 LLM 应用构建器）、<strong>Dify</strong>（开源 LLMOps 平台）、<strong>Coze</strong>（字节跳动 Bot 平台）、<strong>n8n</strong>（通用自动化，AI 增强）。</p>
+
+<p><strong>核心结论</strong>:</p>
+<li><strong>技术团队 / 需要深度定制</strong>: LangFlow（基于 LangChain）或 Dify（自托管完整）</li>
+<li><strong>快速搭建 Bot / 无代码需求</strong>: Coze（多渠道发布）或 Flowise（简单拖拽）</li>
+<li><strong>已有自动化工作流 / 业务集成</strong>: n8n（连接 400+ 服务 + AI 节点）</li>
+
+<hr>
+
+<h2>1. 平台概览</h2>
+
+<h3>LangFlow</h3>
+<li><strong>起源</strong>: 基于 LangChain 的可视化 UI（2023）</li>
+<li><strong>技术栈</strong>: Python (FastAPI) + React</li>
+<li><strong>定位</strong>: LangChain 工作流的可视化编辑器</li>
+<li><strong>许可</strong>: MIT</li>
+<li><strong>特色</strong>: 直接对应 LangChain 概念，可导出为 Python 代码</li>
+<li><strong>适合</strong>: 熟悉 LangChain 的开发者，快速原型设计</li>
+
+<h3>Flowise</h3>
+<li><strong>起源</strong>: 开源低代码 LLM 应用构建器（2023）</li>
+<li><strong>技术栈</strong>: Node.js + React</li>
+<li><strong>定位</strong>: 拖拽式 LLM 工作流构建</li>
+<li><strong>许可</strong>: Apache 2.0 (v1) / 商业 (v2)</li>
+<li><strong>特色</strong>: 简单直观、节点丰富、支持 Agent</li>
+<li><strong>适合</strong>: 非技术用户、快速原型</li>
+
+<h3>Dify</h3>
+<li><strong>起源</strong>: 开源 LLMOps 平台（2023，中国团队）</li>
+<li><strong>技术栈</strong>: Python (Flask) + Next.js</li>
+<li><strong>定位</strong>: 一站式 LLMOps（Prompt IDE + 工作流 + 知识库 + API）</li>
+<li><strong>许可</strong>: 开源（部分商业功能）</li>
+<li><strong>特色</strong>: 功能全面、支持知识库管理、多模型管理</li>
+<li><strong>适合</strong>: 需要完整 LLMOps 能力的团队</li>
+
+<h3>Coze（扣子）</h3>
+<li><strong>起源</strong>: 字节跳动 Bot 开发平台（2023）</li>
+<li><strong>技术栈</strong>: 托管 SaaS</li>
+<li><strong>定位</strong>: 低代码 Bot 构建与多渠道发布</li>
+<li><strong>许可</strong>: 云服务（免费使用）</li>
+<li><strong>特色</strong>: 一键发布到抖音/飞书/微信等、插件生态、工作流编排</li>
+<li><strong>适合</strong>: 面向消费者的 Bot、国内用户</li>
+
+<h3>n8n</h3>
+<li><strong>起源</strong>: 开源自动化平台（2019，后增加 AI 能力）</li>
+<li><strong>技术栈</strong>: Node.js + Vue</li>
+<li><strong>定位</strong>: 通用工作流自动化 + AI 节点</li>
+<li><strong>许可</strong>: Fair-code (社区版免费)</li>
+<li><strong>特色</strong>: 400+ 服务集成、成熟的自动化能力、AI Agent 节点</li>
+<li><strong>适合</strong>: 业务自动化、多系统集成</li>
+
+<hr>
+
+<h2>2. 可视化编排 vs 代码优先</h2>
+
+<h3>可视化编排能力对比</h3>
+
 <table>
 <tr><th>维度</th><th>LangFlow</th><th>Flowise</th><th>Dify</th><th>Coze</th><th>n8n</th></tr>
-<tr><td>拖拽编辑</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
-<tr><td>导出代码</td><td>✅ Python</td><td>✅ JSON</td><td>✅ DSL</td><td>❌</td><td>✅ JSON</td></tr>
-<tr><td>条件分支</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
-<tr><td>循环/迭代</td><td>✅</td><td>⚠️</td><td>✅</td><td>⚠️</td><td>✅ ⭐</td></tr>
+<tr><td>拖拽式编辑</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>导出代码</td><td>✅ (Python)</td><td>✅ (JSON)</td><td>✅ (DSL)</td><td>❌</td><td>✅ (JSON)</td></tr>
+<tr><td>条件分支</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅ ⭐</td></tr>
+<tr><td>循环/迭代</td><td>✅</td><td>⚠️ 有限</td><td>✅</td><td>⚠️ 有限</td><td>✅ ⭐</td></tr>
 <tr><td>并行执行</td><td>⚠️</td><td>⚠️</td><td>✅</td><td>⚠️</td><td>✅ ⭐</td></tr>
 <tr><td>错误处理</td><td>✅</td><td>基础</td><td>✅</td><td>基础</td><td>✅ ⭐</td></tr>
+<tr><td>版本管理</td><td>❌</td><td>❌</td><td>✅</td><td>❌</td><td>✅</td></tr>
 <tr><td>调试模式</td><td>✅</td><td>✅</td><td>✅ ⭐</td><td>✅</td><td>✅ ⭐</td></tr>
 </table>
 
-<h2 id="3-模型支持与生态">3. 模型支持与生态</h2>
+<p>> ⭐ 表示该平台在该维度表现突出</p>
+
+<h3>代码优先程度</h3>
+
 <table>
-<tr><th>平台</th><th>OpenAI</th><th>Anthropic</th><th>国内模型</th><th>本地模型</th><th>集成数</th></tr>
-<tr><td>LangFlow</td><td>✅</td><td>✅</td><td>✅</td><td>✅ Ollama</td><td>30+</td></tr>
-<tr><td>Flowise</td><td>✅</td><td>✅</td><td>✅</td><td>✅ Ollama</td><td>40+</td></tr>
-<tr><td>Dify</td><td>✅</td><td>✅</td><td>✅ ⭐</td><td>✅ Ollama/vLLM</td><td>50+</td></tr>
-<tr><td>Coze</td><td>⚠️ 豆包</td><td>❌</td><td>✅ 豆包原生</td><td>❌</td><td>100+插件</td></tr>
-<tr><td>n8n</td><td>✅</td><td>✅</td><td>⚠️ 配置</td><td>✅ 自定义</td><td>400+ ⭐</td></tr>
+<tr><th>平台</th><th>代码可替代性</th><th>自定义节点</th><th>API 优先</th></tr>
+<tr><td>LangFlow</td><td>高（可直接写 LangChain）</td><td>✅ Python</td><td>✅</td></tr>
+<tr><td>Flowise</td><td>中</td><td>✅ JavaScript</td><td>✅</td></tr>
+<tr><td>Dify</td><td>低（平台锁定较强）</td><td>✅ API 节点</td><td>✅</td></tr>
+<tr><td>Coze</td><td>低（平台绑定）</td><td>⚠️ 有限</td><td>✅</td></tr>
+<tr><td>n8n</td><td>中（可写自定义代码节点）</td><td>✅ JavaScript/Python</td><td>✅</td></tr>
 </table>
 
-<h2 id="4-企业级特性">4. 企业级特性</h2>
+<hr>
+
+<h2>3. 模型支持与插件生态</h2>
+
+<h3>LLM 提供商支持</h3>
+
+<table>
+<tr><th>平台</th><th>OpenAI</th><th>Anthropic</th><th>Google</th><th>国内模型</th><th>本地模型</th></tr>
+<tr><td>LangFlow</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅ Ollama</td></tr>
+<tr><td>Flowise</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅ Ollama</td></tr>
+<tr><td>Dify</td><td>✅</td><td>✅</td><td>✅</td><td>✅ 通义/文心/智谱</td><td>✅ Ollama/vLLM</td></tr>
+<tr><td>Coze</td><td>⚠️ 限豆包</td><td>❌</td><td>❌</td><td>✅ 豆包原生</td><td>❌</td></tr>
+<tr><td>n8n</td><td>✅</td><td>✅</td><td>✅</td><td>⚠️ 需配置</td><td>✅ 自定义</td></tr>
+</table>
+
+<h3>插件 / 集成生态</h3>
+
+<table>
+<tr><th>平台</th><th>官方插件数</th><th>社区插件</th><th>向量数据库</th><th>工具调用</th><th>API 集成</th></tr>
+<tr><td>n8n</td><td>400+</td><td>大量</td><td>✅</td><td>✅</td><td>✅ ⭐</td></tr>
+<tr><td>Dify</td><td>50+</td><td>增长中</td><td>✅ 多种</td><td>✅</td><td>✅</td></tr>
+<tr><td>LangFlow</td><td>30+</td><td>依赖 LangChain</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>Flowise</td><td>40+</td><td>增长中</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td>Coze</td><td>100+ (插件商店)</td><td>官方审核</td><td>✅ 火山引擎</td><td>✅</td><td>✅</td></tr>
+</table>
+
+<hr>
+
+<h2>4. 企业级特性</h2>
+
+<h3>部署模式</h3>
+
+<table>
+<tr><th>平台</th><th>自托管</th><th>云服务</th><th>Docker</th><th>K8s</th><th>SSO/LDAP</th></tr>
+<tr><td>Dify</td><td>✅</td><td>✅ Dify Cloud</td><td>✅</td><td>✅ Helm</td><td>✅ 企业版</td></tr>
+<tr><td>LangFlow</td><td>✅</td><td>✅ Datastax</td><td>✅</td><td>⚠️ 手动</td><td>❌</td></tr>
+<tr><td>Flowise</td><td>✅</td><td>✅ Flowise Cloud</td><td>✅</td><td>⚠️ 手动</td><td>⚠️ 企业版</td></tr>
+<tr><td>n8n</td><td>✅</td><td>✅ n8n Cloud</td><td>✅</td><td>✅</td><td>✅ 企业版</td></tr>
+<tr><td>Coze</td><td>❌</td><td>✅ 托管 only</td><td>❌</td><td>❌</td><td>❌</td></tr>
+</table>
+
+<h3>安全与合规</h3>
+
 <table>
 <tr><th>特性</th><th>Dify</th><th>LangFlow</th><th>Flowise</th><th>n8n</th><th>Coze</th></tr>
-<tr><td>自托管</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
-<tr><td>SSO/LDAP</td><td>✅ 企业版</td><td>❌</td><td>⚠️</td><td>✅ 企业版</td><td>❌</td></tr>
+<tr><td>数据隔离</td><td>✅</td><td>❌</td><td>❌</td><td>✅</td><td>✅ (托管)</td></tr>
 <tr><td>审计日志</td><td>✅</td><td>❌</td><td>❌</td><td>✅ 企业版</td><td>⚠️</td></tr>
-<tr><td>成本追踪</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
-<tr><td>数据隔离</td><td>✅</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+<tr><td>安全扫描</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
 <tr><td>内容过滤</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>数据加密</td><td>✅</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
 </table>
 
-<h2 id="5-适用场景">5. 适用场景</h2>
+<h3>监控与可观测性</h3>
+
 <table>
-<tr><th>场景</th><th>推荐</th><th>理由</th></tr>
-<tr><td>快速原型</td><td>Flowise / LangFlow</td><td>拖拽即用，上手最快</td></tr>
-<tr><td>LLMOps 全栈</td><td>Dify</td><td>Prompt IDE + 知识库 + 工作流</td></tr>
-<tr><td>企业内部 AI</td><td>Dify / n8n</td><td>权限管理、审计、SSO</td></tr>
-<tr><td>消费级 Bot</td><td>Coze</td><td>多渠道一键发布</td></tr>
-<tr><td>业务自动化</td><td>n8n</td><td>400+ 集成</td></tr>
-<tr><td>国内合规</td><td>Coze / Dify 自建</td><td>国内模型、数据合规</td></tr>
+<tr><th>特性</th><th>Dify</th><th>LangFlow</th><th>Flowise</th><th>n8n</th><th>Coze</th></tr>
+<tr><td>使用统计</td><td>✅ 详细</td><td>⚠️ 基础</td><td>⚠️ 基础</td><td>✅</td><td>✅</td></tr>
+<tr><td>成本追踪</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>日志查看</td><td>✅</td><td>✅</td><td>✅</td><td>✅ ⭐</td><td>✅</td></tr>
+<tr><td>性能监控</td><td>✅</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
 </table>
 
-<h2 id="6-中国市场考量">6. 中国市场考量</h2>
-<ul>
-<li><strong>国内模型支持</strong>: Dify 和 Coze 原生支持通义千问、文心一言、智谱 GLM</li>
-<li><strong>数据合规</strong>: Dify 自建可完全控制数据</li>
-<li><strong>渠道发布</strong>: Coze 直接支持抖音、飞书、微信</li>
-<li><strong>中文社区</strong>: Dify 和 Coze 有活跃的中文社区</li>
-</ul>
+<hr>
 
-<h2 id="参考来源">参考来源</h2>
-<ol>
-<li><a href="https://docs.langflow.org">LangFlow 文档</a> — 架构、节点、部署</li>
-<li><a href="https://docs.flowiseai.com">Flowise 文档</a> — 节点类型、API</li>
-<li><a href="https://docs.dify.ai">Dify 文档</a> — LLMOps 功能、部署</li>
-<li><a href="https://www.coze.com/docs">Coze 开发者文档</a> — Bot 构建、插件、发布</li>
-<li><a href="https://docs.n8n.io">n8n 文档</a> — 工作流节点、AI Agent 集成</li>
-<li>各平台 GitHub 仓库 Stars、Issues、Contributors 数据</li>
-</ol>
+<h2>5. 适用场景分析</h2>
 
+<h3>场景矩阵</h3>
 
-<div class="footer">
-<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
-</div>
-</body></html>
+<table>
+<tr><th>场景</th><th>推荐平台</th><th>理由</th></tr>
+<tr><td>**快速原型验证**</td><td>Flowise 或 LangFlow</td><td>上手最快，拖拽即用</td></tr>
+<tr><td>**LLMOps 全生命周期**</td><td>Dify</td><td>Prompt IDE + 知识库 + 工作流 + API</td></tr>
+<tr><td>**企业内部 AI 助手**</td><td>Dify 或 n8n</td><td>权限管理、审计、SSO</td></tr>
+<tr><td>**消费者 Bot 发布**</td><td>Coze</td><td>多渠道一键发布</td></tr>
+<tr><td>**业务流程自动化**</td><td>n8n</td><td>400+ 集成、成熟自动化</td></tr>
+<tr><td>**LangChain 用户**</td><td>LangFlow</td><td>天然对应 LangChain 概念</td></tr>
+<tr><td>**国内合规要求**</td><td>Coze 或 Dify（自建）</td><td>国内模型支持、数据合规</td></tr>
+<tr><td>**技术团队深度定制**</td><td>LangFlow（改代码）或 Dify（API）</td><td>灵活扩展</td></tr>
+</table>
+
+<h3>团队适配</h3>
+
+<table>
+<tr><th>团队类型</th><th>首选</th><th>备选</th></tr>
+<tr><td>纯开发者（熟悉 Python）</td><td>LangFlow</td><td>Dify</td></tr>
+<tr><td>纯开发者（熟悉 JS）</td><td>Flowise 或 n8n</td><td>-</td></tr>
+<tr><td>产品/运营团队</td><td>Coze</td><td>Dify</td></tr>
+<tr><td>混合团队</td><td>Dify</td><td>n8n</td></tr>
+<tr><td>大型企业</td><td>Dify 企业版</td><td>n8n 企业版</td></tr>
+</table>
+
+<hr>
+
+<h2>6. 中国市场特殊考量</h2>
+
+<p>对于面向中国市场的项目，需要额外考虑：</p>
+
+<p>1. <strong>国内模型支持</strong>: Dify 和 Coze 原生支持通义千问、文心一言、智谱 GLM 等国内模型</p>
+<p>2. <strong>数据合规</strong>: 自建部署（Dify）可以完全控制数据出境</p>
+<p>3. <strong>渠道发布</strong>: Coze 直接支持抖音、飞书、微信等国内渠道</p>
+<p>4. <strong>网络访问</strong>: LangFlow/Flowise/n8n 依赖的海外 LLM 可能需要代理</p>
+<p>5. <strong>社区支持</strong>: Dify 和 Coze 有活跃的中文社区</p>
+
+<hr>
+
+<h2>参考来源</h2>
+
+<p>1. <strong>LangFlow 官方文档</strong> — <a href="https://docs.langflow.org">docs.langflow.org</a> — 架构、节点、部署</p>
+<p>2. <strong>Flowise 文档</strong> — <a href="https://docs.flowiseai.com">docs.flowiseai.com</a> — 节点类型、API</p>
+<p>3. <strong>Dify 文档</strong> — <a href="https://docs.dify.ai">docs.dify.ai</a> — LLMOps 平台功能、部署</p>
+<p>4. <strong>Coze 开发者文档</strong> — <a href="https://www.coze.com/docs">www.coze.com/docs</a> — Bot 构建、插件、发布</p>
+<p>5. <strong>n8n 文档</strong> — <a href="https://docs.n8n.io">docs.n8n.io</a> — 工作流节点、AI Agent 集成</p>
+<p>6. <strong>GitHub 仓库</strong> — 各平台 GitHub 仓库的 Stars、Issues、Contributors 数据</p>
+<p>7. <strong>Dify v1.0 Release (2025)</strong> — Dify 全新架构升级，支持多模型编排</p>
+<p>   - https://github.com/langgenius/dify/releases</p>
+<p>8. <strong>n8n AI Agent Node (2024)</strong> — n8n 原生 AI Agent 集成</p>
+<p>   - https://n8n.io/blog/ai-agent-node/</p>
+
+</body>
+</html>

@@ -1,735 +1,577 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI 应用前端框架选型指南</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
-<style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 应用前端框架选型指南</title>
+    <style>
 body {
-    background: #0f172a; color: #e2e8f0;
+    background: #0f172a;
+    color: #e2e8f0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+    line-height: 1.8;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
 }
-.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
-.top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav a:hover { text-decoration: underline; }
-.top-nav .sep { color: #475569; }
-.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
-.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
-.meta .info { color: #94a3b8; font-size: .85rem; }
-.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
-.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: #93c5fd; text-decoration: none; }
-.toc a:hover { color: #bfdbfe; }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-a { color: #60a5fa; }
-code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
-pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; }
+h4 { color: #a5b4fc; }
+a { color: #60a5fa; text-decoration: none; }
+code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
+pre code { background: none; padding: 0; color: #e2e8f0; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
+th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
 tr:nth-child(even) { background: #1e293b44; }
+tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
-.footer a { color: #60a5fa; }
-@media print {
-    body { background: #fff; color: #000; max-width: 100%; }
-    .top-nav, .toc { display: none; }
-    pre { border-left: 3px solid #ccc; }
-}
+strong { color: #f8fafc; }
+em { color: #94a3b8; }
+ul, ol { padding-left: 1.5rem; }
+li { margin: 0.3rem 0; }
+p { margin: 0.8rem 0; }
 </style>
 </head>
 <body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:#94a3b8">🏗️ 框架</span>
-</div>
-<div class="meta">
 <h1>AI 应用前端框架选型指南</h1>
-<div class="info">2026-03-14 · 分类: 🏗️ 框架</div>
-<div class="tags"><span class="tag">Vercel AI SDK</span><span class="tag">Streamlit</span></div>
-</div>
 
-<h1 id="ai">AI 应用前端框架选型指南</h1>
-<blockquote>
-<p>发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
-</blockquote>
-<hr />
-<h2 id="executive-summary">Executive Summary</h2>
+<p>> 发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
+
+<hr>
+
+<h2>Executive Summary</h2>
+
 <p>AI 应用的用户体验很大程度上取决于前端框架的选择。本指南对比分析主流 AI 前端方案——Vercel AI SDK、LangChain.js、Streamlit 和 Gradio——从流式响应、聊天界面、部署方案等维度提供选型建议。</p>
-<p><strong>核心结论：</strong>
-- <strong>Vercel AI SDK</strong> 是 React/Next.js 生态中最成熟的 AI 前端方案
-- <strong>Streamlit</strong> 是数据科学团队快速原型的最佳选择
-- <strong>Gradio</strong> 适合需要分享模型演示的场景
-- <strong>LangChain.js</strong> 适合需要复杂后端逻辑的全栈应用
-- 流式响应是 AI 应用用户体验的核心差异点</p>
-<hr />
-<h2 id="1">1. 框架概览</h2>
-<h3 id="11-vercel-ai-sdk">1.1 Vercel AI SDK</h3>
-<p><strong>定位</strong>：React/Next.js 生态的 AI 应用工具包
-<strong>许可证</strong>：Apache 2.0
-<strong>GitHub</strong>：<a href="https://github.com/vercel/ai">github.com/vercel/ai</a></p>
+
+<p><strong>核心结论：</strong></p>
+<li><strong>Vercel AI SDK</strong> 是 React/Next.js 生态中最成熟的 AI 前端方案</li>
+<li><strong>Streamlit</strong> 是数据科学团队快速原型的最佳选择</li>
+<li><strong>Gradio</strong> 适合需要分享模型演示的场景</li>
+<li><strong>LangChain.js</strong> 适合需要复杂后端逻辑的全栈应用</li>
+<li>流式响应是 AI 应用用户体验的核心差异点</li>
+
+<hr>
+
+<h2>1. 框架概览</h2>
+
+<h3>1.1 Vercel AI SDK</h3>
+
+<p><strong>定位</strong>：React/Next.js 生态的 AI 应用工具包</p>
+<p><strong>许可证</strong>：Apache 2.0</p>
+<p><strong>GitHub</strong>：<a href="https://github.com/vercel/ai">github.com/vercel/ai</a></p>
+
 <p>Vercel AI SDK 是目前最完整的 AI 前端框架，深度集成 Next.js 生态。</p>
-<p><strong>核心功能：</strong>
-- <code>useChat</code> Hook：流式聊天状态管理
-- <code>useCompletion</code> Hook：单次补全
-- <code>useObject</code> Hook：结构化流式输出
-- 多提供商支持：OpenAI、Anthropic、Google、Mistral 等
-- 流式传输协议：SSE、Text Stream、Data Stream
-- RSC（React Server Components）支持</p>
-<div class="highlight"><pre><span></span><code><span class="s2">&quot;use client&quot;</span><span class="p">;</span>
 
-<span class="kn">import</span> <span class="p">{</span> <span class="n">useChat</span> <span class="p">}</span> <span class="kn">from</span> <span class="s2">&quot;ai/react&quot;</span><span class="p">;</span>
+<p><strong>核心功能：</strong></p>
+<li><code>useChat</code> Hook：流式聊天状态管理</li>
+<li><code>useCompletion</code> Hook：单次补全</li>
+<li><code>useObject</code> Hook：结构化流式输出</li>
+<li>多提供商支持：OpenAI、Anthropic、Google、Mistral 等</li>
+<li>流式传输协议：SSE、Text Stream、Data Stream</li>
+<li>RSC（React Server Components）支持</li>
 
-<span class="n">export</span> <span class="n">default</span> <span class="n">function</span> <span class="n">Chat</span><span class="p">()</span> <span class="p">{</span>
-  <span class="n">const</span> <span class="p">{</span> <span class="n">messages</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">handleInputChange</span><span class="p">,</span> <span class="n">handleSubmit</span><span class="p">,</span> <span class="n">isLoading</span> <span class="p">}</span> <span class="o">=</span> <span class="n">useChat</span><span class="p">({</span>
-    <span class="n">api</span><span class="p">:</span> <span class="s2">&quot;/api/chat&quot;</span><span class="p">,</span>
-    <span class="n">onError</span><span class="p">:</span> <span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="n">console</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error</span><span class="p">),</span>
-  <span class="p">});</span>
+<pre><code>
+"use client";
 
-  <span class="k">return</span> <span class="p">(</span>
-    <span class="o">&lt;</span><span class="n">div</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;chat-container&quot;</span><span class="o">&gt;</span>
-      <span class="p">{</span><span class="n">messages</span><span class="o">.</span><span class="n">map</span><span class="p">((</span><span class="n">m</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">(</span>
-        <span class="o">&lt;</span><span class="n">div</span> <span class="n">key</span><span class="o">=</span><span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">id</span><span class="p">}</span> <span class="n">className</span><span class="o">=</span><span class="p">{</span><span class="err">`</span><span class="n">message</span> <span class="err">$</span><span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">role</span><span class="p">}</span><span class="err">`</span><span class="p">}</span><span class="o">&gt;</span>
-          <span class="o">&lt;</span><span class="n">strong</span><span class="o">&gt;</span><span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">role</span> <span class="o">===</span> <span class="s2">&quot;user&quot;</span> <span class="err">?</span> <span class="s2">&quot;用户&quot;</span> <span class="p">:</span> <span class="s2">&quot;AI&quot;</span><span class="p">}:</span><span class="o">&lt;/</span><span class="n">strong</span><span class="o">&gt;</span>
-          <span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">content</span><span class="p">}</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
-        <span class="o">&lt;/</span><span class="n">div</span><span class="o">&gt;</span>
-      <span class="p">))}</span>
-      <span class="o">&lt;</span><span class="n">form</span> <span class="n">onSubmit</span><span class="o">=</span><span class="p">{</span><span class="n">handleSubmit</span><span class="p">}</span><span class="o">&gt;</span>
-        <span class="o">&lt;</span><span class="nb">input</span>
-          <span class="n">value</span><span class="o">=</span><span class="p">{</span><span class="nb">input</span><span class="p">}</span>
-          <span class="n">onChange</span><span class="o">=</span><span class="p">{</span><span class="n">handleInputChange</span><span class="p">}</span>
-          <span class="n">placeholder</span><span class="o">=</span><span class="s2">&quot;输入消息...&quot;</span>
-          <span class="n">disabled</span><span class="o">=</span><span class="p">{</span><span class="n">isLoading</span><span class="p">}</span>
-        <span class="o">/&gt;</span>
-        <span class="o">&lt;</span><span class="n">button</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;submit&quot;</span> <span class="n">disabled</span><span class="o">=</span><span class="p">{</span><span class="n">isLoading</span><span class="p">}</span><span class="o">&gt;</span>
-          <span class="p">{</span><span class="n">isLoading</span> <span class="err">?</span> <span class="s2">&quot;思考中...&quot;</span> <span class="p">:</span> <span class="s2">&quot;发送&quot;</span><span class="p">}</span>
-        <span class="o">&lt;/</span><span class="n">button</span><span class="o">&gt;</span>
-      <span class="o">&lt;/</span><span class="n">form</span><span class="o">&gt;</span>
-    <span class="o">&lt;/</span><span class="n">div</span><span class="o">&gt;</span>
-  <span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div>
+import { useChat } from "ai/react";
 
-<div class="highlight"><pre><span></span><code><span class="c1">// app/api/chat/route.ts</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">openai</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@ai-sdk/openai&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">streamText</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;ai&quot;</span><span class="p">;</span>
+export default function Chat() {
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+    api: "/api/chat",
+    onError: (error) =&gt; console.error(error),
+  });
 
-<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">POST</span><span class="p">(</span><span class="nx">req</span><span class="o">:</span><span class="w"> </span><span class="kt">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">messages</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
+  return (
+    &lt;div className="chat-container"&gt;
+      {messages.map((m) =&gt; (
+        &lt;div key={m.id} className={`message ${m.role}`}&gt;
+          &lt;strong&gt;{m.role === "user" ? "用户" : "AI"}:&lt;/strong&gt;
+          &lt;p&gt;{m.content}&lt;/p&gt;
+        &lt;/div&gt;
+      ))}
+      &lt;form onSubmit={handleSubmit}&gt;
+        &lt;input
+          value={input}
+          onChange={handleInputChange}
+          placeholder="输入消息..."
+          disabled={isLoading}
+        /&gt;
+        &lt;button type="submit" disabled={isLoading}&gt;
+          {isLoading ? "思考中..." : "发送"}
+        &lt;/button&gt;
+      &lt;/form&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
 
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">streamText</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="kt">openai</span><span class="p">(</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">),</span>
-<span class="w">    </span><span class="nx">messages</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">system</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;你是一个有帮助的助手。&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="p">});</span>
+<pre><code>
+// app/api/chat/route.ts
+import { openai } from "@ai-sdk/openai";
+import { streamText } from "ai";
 
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">toDataStreamResponse</span><span class="p">();</span>
-<span class="p">}</span>
-</code></pre></div>
+export async function POST(req: Request) {
+  const { messages } = await req.json();
 
-<p><strong>优势：</strong>
-- 类型安全的 TypeScript API
-- 自动处理流式响应
-- 内置 loading/error 状态管理
-- 与 Vercel 部署无缝集成
-- 支持工具调用的 UI 渲染</p>
-<h3 id="12-langchainjs">1.2 LangChain.js</h3>
-<p><strong>定位</strong>：JavaScript/TypeScript 的 AI 应用框架
-<strong>许可证</strong>：MIT
-<strong>GitHub</strong>：<a href="https://github.com/langchain-ai/langchainjs">github.com/langchain-ai/langchainjs</a></p>
+  const result = streamText({
+    model: openai("gpt-4o"),
+    messages,
+    system: "你是一个有帮助的助手。",
+  });
+
+  return result.toDataStreamResponse();
+}
+</code></pre>
+
+<p><strong>优势：</strong></p>
+<li>类型安全的 TypeScript API</li>
+<li>自动处理流式响应</li>
+<li>内置 loading/error 状态管理</li>
+<li>与 Vercel 部署无缝集成</li>
+<li>支持工具调用的 UI 渲染</li>
+
+<h3>1.2 LangChain.js</h3>
+
+<p><strong>定位</strong>：JavaScript/TypeScript 的 AI 应用框架</p>
+<p><strong>许可证</strong>：MIT</p>
+<p><strong>GitHub</strong>：<a href="https://github.com/langchain-ai/langchainjs">github.com/langchain-ai/langchainjs</a></p>
+
 <p>LangChain.js 是 Python LangChain 的 JavaScript 移植，提供完整的 AI 应用构建工具链。</p>
-<p><strong>核心功能：</strong>
-- 模型抽象：统一接口调用不同 LLM
-- Chain：可组合的工作流
-- RAG：检索增强生成
-- Memory：对话历史管理
-- Agent：工具调用和推理</p>
-<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ChatOpenAI</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@langchain/openai&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">HumanMessage</span><span class="p">,</span><span class="w"> </span><span class="nx">SystemMessage</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@langchain/core/messages&quot;</span><span class="p">;</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">ChatOpenAI</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">modelName</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">streaming</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">callbacks</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">    </span><span class="nx">handleLLMNewToken</span><span class="p">(</span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">token</span><span class="p">);</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">  </span><span class="p">}],</span>
-<span class="p">});</span>
+<p><strong>核心功能：</strong></p>
+<li>模型抽象：统一接口调用不同 LLM</li>
+<li>Chain：可组合的工作流</li>
+<li>RAG：检索增强生成</li>
+<li>Memory：对话历史管理</li>
+<li>Agent：工具调用和推理</li>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">model</span><span class="p">.</span><span class="nx">invoke</span><span class="p">([</span>
-<span class="w">  </span><span class="ow">new</span><span class="w"> </span><span class="nx">SystemMessage</span><span class="p">(</span><span class="s2">&quot;你是一个技术助手。&quot;</span><span class="p">),</span>
-<span class="w">  </span><span class="ow">new</span><span class="w"> </span><span class="nx">HumanMessage</span><span class="p">(</span><span class="s2">&quot;解释什么是 TypeScript。&quot;</span><span class="p">),</span>
-<span class="p">]);</span>
-</code></pre></div>
+<pre><code>
+import { ChatOpenAI } from "@langchain/openai";
+import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 
-<p><strong>优势：</strong>
-- 功能最完整的 AI 框架
-- 丰富的工具和集成
-- 社区生态庞大</p>
-<p><strong>劣势：</strong>
-- 学习曲线较陡
-- 前端体验需要自行构建
-- 包体积较大</p>
-<h3 id="13-streamlit">1.3 Streamlit</h3>
-<p><strong>定位</strong>：Python 数据应用快速原型框架
-<strong>许可证</strong>：Apache 2.0
-<strong>GitHub</strong>：<a href="https://github.com/streamlit/streamlit">github.com/streamlit/streamlit</a></p>
+const model = new ChatOpenAI({
+  modelName: "gpt-4o",
+  streaming: true,
+  callbacks: [{
+    handleLLMNewToken(token: string) {
+      process.stdout.write(token);
+    },
+  }],
+});
+
+const response = await model.invoke([
+  new SystemMessage("你是一个技术助手。"),
+  new HumanMessage("解释什么是 TypeScript。"),
+]);
+</code></pre>
+
+<p><strong>优势：</strong></p>
+<li>功能最完整的 AI 框架</li>
+<li>丰富的工具和集成</li>
+<li>社区生态庞大</li>
+
+<p><strong>劣势：</strong></p>
+<li>学习曲线较陡</li>
+<li>前端体验需要自行构建</li>
+<li>包体积较大</li>
+
+<h3>1.3 Streamlit</h3>
+
+<p><strong>定位</strong>：Python 数据应用快速原型框架</p>
+<p><strong>许可证</strong>：Apache 2.0</p>
+<p><strong>GitHub</strong>：<a href="https://github.com/streamlit/streamlit">github.com/streamlit/streamlit</a></p>
+
 <p>Streamlit 是数据科学领域最流行的 Web 应用框架，对 AI 应用有原生支持。</p>
-<p><strong>核心功能：</strong>
-- <code>st.chat_message</code> / <code>st.chat_input</code>：聊天组件
-- <code>st.write_stream</code>：流式渲染
-- Session State：状态管理
-- 自动热重载
-- 一行部署到 Streamlit Cloud</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">streamlit</span> <span class="k">as</span> <span class="nn">st</span>
-<span class="kn">from</span> <span class="nn">openai</span> <span class="kn">import</span> <span class="n">OpenAI</span>
 
-<span class="n">st</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;AI 聊天助手&quot;</span><span class="p">)</span>
+<p><strong>核心功能：</strong></p>
+<li><code>st.chat_message</code> / <code>st.chat_input</code>：聊天组件</li>
+<li><code>st.write_stream</code>：流式渲染</li>
+<li>Session State：状态管理</li>
+<li>自动热重载</li>
+<li>一行部署到 Streamlit Cloud</li>
 
-<span class="c1"># 初始化 OpenAI 客户端</span>
-<span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">secrets</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">])</span>
+<pre><code>
+import streamlit as st
+from openai import OpenAI
 
-<span class="c1"># 初始化聊天历史</span>
-<span class="k">if</span> <span class="s2">&quot;messages&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">:</span>
-    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">messages</span> <span class="o">=</span> <span class="p">[]</span>
+st.title("AI 聊天助手")
 
-<span class="c1"># 显示聊天历史</span>
-<span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">messages</span><span class="p">:</span>
-    <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">chat_message</span><span class="p">(</span><span class="n">message</span><span class="p">[</span><span class="s2">&quot;role&quot;</span><span class="p">]):</span>
-        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="n">message</span><span class="p">[</span><span class="s2">&quot;content&quot;</span><span class="p">])</span>
+# 初始化 OpenAI 客户端
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-<span class="c1"># 用户输入</span>
-<span class="k">if</span> <span class="n">prompt</span> <span class="o">:=</span> <span class="n">st</span><span class="o">.</span><span class="n">chat_input</span><span class="p">(</span><span class="s2">&quot;输入消息...&quot;</span><span class="p">):</span>
-    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">})</span>
-    <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">chat_message</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">):</span>
-        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+# 初始化聊天历史
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-    <span class="c1"># 流式响应</span>
-    <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">chat_message</span><span class="p">(</span><span class="s2">&quot;assistant&quot;</span><span class="p">):</span>
-        <span class="n">stream</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-            <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
-            <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;role&quot;</span><span class="p">],</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;content&quot;</span><span class="p">]}</span> 
-                     <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">messages</span><span class="p">],</span>
-            <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">write_stream</span><span class="p">(</span>
-            <span class="n">chunk</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">delta</span><span class="o">.</span><span class="n">content</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span> 
-            <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">stream</span>
-        <span class="p">)</span>
-    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">response</span><span class="p">})</span>
-</code></pre></div>
+# 显示聊天历史
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-<p><strong>优势：</strong>
-- Python 原生，数据科学友好
-- 最快的原型速度
-- 内置组件丰富
-- Streamlit Cloud 免费部署</p>
-<p><strong>劣势：</strong>
-- 自定义样式能力有限
-- 不适合复杂 UI 需求
-- 每次交互全页面刷新（虽然体验流畅）</p>
-<h3 id="14-gradio">1.4 Gradio</h3>
-<p><strong>定位</strong>：机器学习模型演示和分享框架
-<strong>许可证</strong>：Apache 2.0
-<strong>GitHub</strong>：<a href="https://github.com/gradio-app/gradio">github.com/gradio-app/gradio</a></p>
+# 用户输入
+if prompt := st.chat_input("输入消息..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    
+    # 流式响应
+    with st.chat_message("assistant"):
+        stream = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": m["role"], "content": m["content"]} 
+                     for m in st.session_state.messages],
+            stream=True,
+        )
+        response = st.write_stream(
+            chunk.choices[0].delta.content or "" 
+            for chunk in stream
+        )
+    st.session_state.messages.append({"role": "assistant", "content": response})
+</code></pre>
+
+<p><strong>优势：</strong></p>
+<li>Python 原生，数据科学友好</li>
+<li>最快的原型速度</li>
+<li>内置组件丰富</li>
+<li>Streamlit Cloud 免费部署</li>
+
+<p><strong>劣势：</strong></p>
+<li>自定义样式能力有限</li>
+<li>不适合复杂 UI 需求</li>
+<li>每次交互全页面刷新（虽然体验流畅）</li>
+
+<h3>1.4 Gradio</h3>
+
+<p><strong>定位</strong>：机器学习模型演示和分享框架</p>
+<p><strong>许可证</strong>：Apache 2.0</p>
+<p><strong>GitHub</strong>：<a href="https://github.com/gradio-app/gradio">github.com/gradio-app/gradio</a></p>
+
 <p>Gradio 专为机器学习演示设计，Hugging Face Spaces 默认使用 Gradio。</p>
-<p><strong>核心功能：</strong>
-- <code>gr.ChatInterface</code>：一行代码创建聊天界面
-- <code>gr.Blocks</code>：自定义布局
-- 多模态输入输出（文本、图片、音频、视频）
-- HuggingFace Spaces 一键部署
-- 内置分享链接</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">gradio</span> <span class="k">as</span> <span class="nn">gr</span>
-<span class="kn">from</span> <span class="nn">openai</span> <span class="kn">import</span> <span class="n">OpenAI</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">()</span>
+<p><strong>核心功能：</strong></p>
+<li><code>gr.ChatInterface</code>：一行代码创建聊天界面</li>
+<li><code>gr.Blocks</code>：自定义布局</li>
+<li>多模态输入输出（文本、图片、音频、视频）</li>
+<li>HuggingFace Spaces 一键部署</li>
+<li>内置分享链接</li>
 
-<span class="k">def</span> <span class="nf">chat</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">history</span><span class="p">):</span>
-    <span class="n">messages</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;你是一个有帮助的助手。&quot;</span><span class="p">}]</span>
-    <span class="k">for</span> <span class="n">human</span><span class="p">,</span> <span class="n">assistant</span> <span class="ow">in</span> <span class="n">history</span><span class="p">:</span>
-        <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">human</span><span class="p">})</span>
-        <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">assistant</span><span class="p">})</span>
-    <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">message</span><span class="p">})</span>
+<pre><code>
+import gradio as gr
+from openai import OpenAI
 
-    <span class="n">stream</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
-        <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
-        <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+client = OpenAI()
 
-    <span class="n">response</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">stream</span><span class="p">:</span>
-        <span class="n">response</span> <span class="o">+=</span> <span class="n">chunk</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">delta</span><span class="o">.</span><span class="n">content</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">yield</span> <span class="n">response</span>
+def chat(message, history):
+    messages = [{"role": "system", "content": "你是一个有帮助的助手。"}]
+    for human, assistant in history:
+        messages.append({"role": "user", "content": human})
+        messages.append({"role": "assistant", "content": assistant})
+    messages.append({"role": "user", "content": message})
+    
+    stream = client.chat.completions.create(
+        model="gpt-4o",
+        messages=messages,
+        stream=True,
+    )
+    
+    response = ""
+    for chunk in stream:
+        response += chunk.choices[0].delta.content or ""
+        yield response
 
-<span class="n">demo</span> <span class="o">=</span> <span class="n">gr</span><span class="o">.</span><span class="n">ChatInterface</span><span class="p">(</span>
-    <span class="n">chat</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;AI 聊天助手&quot;</span><span class="p">,</span>
-    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;基于 GPT-4o 的智能对话系统&quot;</span><span class="p">,</span>
-    <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;解释量子计算&quot;</span><span class="p">,</span> <span class="s2">&quot;写一首关于编程的诗&quot;</span><span class="p">,</span> <span class="s2">&quot;什么是 Transformer 架构？&quot;</span><span class="p">],</span>
-<span class="p">)</span>
+demo = gr.ChatInterface(
+    chat,
+    title="AI 聊天助手",
+    description="基于 GPT-4o 的智能对话系统",
+    examples=["解释量子计算", "写一首关于编程的诗", "什么是 Transformer 架构？"],
+)
 
-<span class="n">demo</span><span class="o">.</span><span class="n">launch</span><span class="p">()</span>
-</code></pre></div>
+demo.launch()
+</code></pre>
 
-<p><strong>优势：</strong>
-- 最简 API，一行创建界面
-- 多模态输入输出原生支持
-- HuggingFace Spaces 集成
-- 自动生成分享链接</p>
-<p><strong>劣势：</strong>
-- 复杂自定义布局较困难
-- 企业级特性较少
-- 状态管理较弱</p>
-<hr />
-<h2 id="2">2. 流式响应与用户体验</h2>
-<h3 id="21">2.1 流式响应方案对比</h3>
+<p><strong>优势：</strong></p>
+<li>最简 API，一行创建界面</li>
+<li>多模态输入输出原生支持</li>
+<li>HuggingFace Spaces 集成</li>
+<li>自动生成分享链接</li>
+
+<p><strong>劣势：</strong></p>
+<li>复杂自定义布局较困难</li>
+<li>企业级特性较少</li>
+<li>状态管理较弱</li>
+
+<hr>
+
+<h2>2. 流式响应与用户体验</h2>
+
+<h3>2.1 流式响应方案对比</h3>
+
 <table>
-<thead>
-<tr>
-<th>方案</th>
-<th>机制</th>
-<th>延迟</th>
-<th>实现复杂度</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>SSE (Server-Sent Events)</td>
-<td>服务端推送</td>
-<td>低</td>
-<td>中</td>
-</tr>
-<tr>
-<td>WebSocket</td>
-<td>双向通信</td>
-<td>最低</td>
-<td>高</td>
-</tr>
-<tr>
-<td>Streaming Fetch</td>
-<td>ReadableStream</td>
-<td>低</td>
-<td>中</td>
-</tr>
-<tr>
-<td>chunked Transfer-Encoding</td>
-<td>HTTP 分块</td>
-<td>中</td>
-<td>低</td>
-</tr>
-</tbody>
+<tr><th>方案</th><th>机制</th><th>延迟</th><th>实现复杂度</th></tr>
+<tr><td>SSE (Server-Sent Events)</td><td>服务端推送</td><td>低</td><td>中</td></tr>
+<tr><td>WebSocket</td><td>双向通信</td><td>最低</td><td>高</td></tr>
+<tr><td>Streaming Fetch</td><td>ReadableStream</td><td>低</td><td>中</td></tr>
+<tr><td>chunked Transfer-Encoding</td><td>HTTP 分块</td><td>中</td><td>低</td></tr>
 </table>
-<h3 id="22-vercel-ai-sdk">2.2 Vercel AI SDK 的流式实现</h3>
-<div class="highlight"><pre><span></span><code><span class="c1">// 服务端 - 使用 AI SDK 的流式协议</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">streamText</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;ai&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">openai</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@ai-sdk/openai&quot;</span><span class="p">;</span>
 
-<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">POST</span><span class="p">(</span><span class="nx">req</span><span class="o">:</span><span class="w"> </span><span class="kt">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">messages</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
+<h3>2.2 Vercel AI SDK 的流式实现</h3>
 
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">streamText</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">model</span><span class="o">:</span><span class="w"> </span><span class="kt">openai</span><span class="p">(</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">),</span>
-<span class="w">    </span><span class="nx">messages</span><span class="p">,</span>
-<span class="w">  </span><span class="p">});</span>
+<pre><code>
+// 服务端 - 使用 AI SDK 的流式协议
+import { streamText } from "ai";
+import { openai } from "@ai-sdk/openai";
 
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">toDataStreamResponse</span><span class="p">();</span><span class="w">  </span><span class="c1">// AI SDK 专有协议</span>
-<span class="p">}</span>
-</code></pre></div>
+export async function POST(req: Request) {
+  const { messages } = await req.json();
+  
+  const result = streamText({
+    model: openai("gpt-4o"),
+    messages,
+  });
+  
+  return result.toDataStreamResponse();  // AI SDK 专有协议
+}
+</code></pre>
 
-<p>Vercel AI SDK 支持三种流式传输协议：
-- <strong>Text Stream</strong>：纯文本流
-- <strong>Data Stream</strong>：包含元数据的结构化流（推荐）
-- <strong>SSE</strong>：标准 Server-Sent Events</p>
-<h3 id="23-token">2.3 首 Token 延迟优化</h3>
+<p>Vercel AI SDK 支持三种流式传输协议：</p>
+<li><strong>Text Stream</strong>：纯文本流</li>
+<li><strong>Data Stream</strong>：包含元数据的结构化流（推荐）</li>
+<li><strong>SSE</strong>：标准 Server-Sent Events</li>
+
+<h3>2.3 首 Token 延迟优化</h3>
+
 <table>
-<thead>
-<tr>
-<th>优化策略</th>
-<th>效果</th>
-<th>实现</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>边缘函数</td>
-<td>减少网络跳数</td>
-<td>Vercel Edge Functions</td>
-</tr>
-<tr>
-<td>流式传输</td>
-<td>感知延迟降低 60%+</td>
-<td>SSE / Streaming</td>
-</tr>
-<tr>
-<td>预加载</td>
-<td>页面加载优化</td>
-<td>Next.js prefetch</td>
-</tr>
-<tr>
-<td>Skeleton UI</td>
-<td>减少白屏时间</td>
-<td>加载占位符</td>
-</tr>
-<tr>
-<td>缓存</td>
-<td>热点查询加速</td>
-<td>Redis / CDN</td>
-</tr>
-</tbody>
+<tr><th>优化策略</th><th>效果</th><th>实现</th></tr>
+<tr><td>边缘函数</td><td>减少网络跳数</td><td>Vercel Edge Functions</td></tr>
+<tr><td>流式传输</td><td>感知延迟降低 60%+</td><td>SSE / Streaming</td></tr>
+<tr><td>预加载</td><td>页面加载优化</td><td>Next.js prefetch</td></tr>
+<tr><td>Skeleton UI</td><td>减少白屏时间</td><td>加载占位符</td></tr>
+<tr><td>缓存</td><td>热点查询加速</td><td>Redis / CDN</td></tr>
 </table>
-<h3 id="24-markdown">2.4 流式 Markdown 渲染</h3>
+
+<h3>2.4 流式 Markdown 渲染</h3>
+
 <p>AI 输出通常是 Markdown 格式，流式渲染需要特殊处理：</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="p">{</span> <span class="n">useChat</span> <span class="p">}</span> <span class="kn">from</span> <span class="s2">&quot;ai/react&quot;</span><span class="p">;</span>
-<span class="kn">import</span> <span class="p">{</span> <span class="n">MemoizedReactMarkdown</span> <span class="p">}</span> <span class="kn">from</span> <span class="s2">&quot;./markdown&quot;</span><span class="p">;</span>
 
-<span class="n">function</span> <span class="n">StreamingChat</span><span class="p">()</span> <span class="p">{</span>
-  <span class="n">const</span> <span class="p">{</span> <span class="n">messages</span> <span class="p">}</span> <span class="o">=</span> <span class="n">useChat</span><span class="p">();</span>
+<pre><code>
+import { useChat } from "ai/react";
+import { MemoizedReactMarkdown } from "./markdown";
 
-  <span class="k">return</span> <span class="n">messages</span><span class="o">.</span><span class="n">map</span><span class="p">((</span><span class="n">m</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">(</span>
-    <span class="o">&lt;</span><span class="n">MemoizedReactMarkdown</span> <span class="n">key</span><span class="o">=</span><span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">id</span><span class="p">}</span><span class="o">&gt;</span>
-      <span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">content</span><span class="p">}</span>
-    <span class="o">&lt;/</span><span class="n">MemoizedReactMarkdown</span><span class="o">&gt;</span>
-  <span class="p">));</span>
-<span class="p">}</span>
-</code></pre></div>
+function StreamingChat() {
+  const { messages } = useChat();
+  
+  return messages.map((m) =&gt; (
+    &lt;MemoizedReactMarkdown key={m.id}&gt;
+      {m.content}
+    &lt;/MemoizedReactMarkdown&gt;
+  ));
+}
+</code></pre>
 
-<p><strong>挑战：</strong>
-- 不完整的 Markdown 语法（代码块未闭合）
-- 表格/列表在流式中可能错乱
-- 需要缓冲和智能拆分</p>
-<hr />
-<h2 id="3">3. 聊天界面组件库</h2>
-<h3 id="31">3.1 现成组件库</h3>
+<p><strong>挑战：</strong></p>
+<li>不完整的 Markdown 语法（代码块未闭合）</li>
+<li>表格/列表在流式中可能错乱</li>
+<li>需要缓冲和智能拆分</li>
+
+<hr>
+
+<h2>3. 聊天界面组件库</h2>
+
+<h3>3.1 现成组件库</h3>
+
 <table>
-<thead>
-<tr>
-<th>库</th>
-<th>框架</th>
-<th>特点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>@ai-sdk/react</code></td>
-<td>React</td>
-<td>Vercel AI SDK 内置</td>
-</tr>
-<tr>
-<td><code>assistant-ui</code></td>
-<td>React</td>
-<td>专为 AI 聊天设计的组件库</td>
-</tr>
-<tr>
-<td><code>shadcn/ui</code> + AI</td>
-<td>React</td>
-<td>基于 shadcn 的 AI 聊天模板</td>
-</tr>
-<tr>
-<td><code>chainlit</code></td>
-<td>Python</td>
-<td>专为 LLM 应用设计的 UI</td>
-</tr>
-<tr>
-<td><code>botui</code></td>
-<td>JS</td>
-<td>轻量级聊天组件</td>
-</tr>
-</tbody>
+<tr><th>库</th><th>框架</th><th>特点</th></tr>
+<tr><td>`@ai-sdk/react`</td><td>React</td><td>Vercel AI SDK 内置</td></tr>
+<tr><td>`assistant-ui`</td><td>React</td><td>专为 AI 聊天设计的组件库</td></tr>
+<tr><td>`shadcn/ui` + AI</td><td>React</td><td>基于 shadcn 的 AI 聊天模板</td></tr>
+<tr><td>`chainlit`</td><td>Python</td><td>专为 LLM 应用设计的 UI</td></tr>
+<tr><td>`botui`</td><td>JS</td><td>轻量级聊天组件</td></tr>
 </table>
-<h3 id="32-assistant-ui">3.2 assistant-ui 示例</h3>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="p">{</span> <span class="n">AssistantRuntimeProvider</span> <span class="p">}</span> <span class="kn">from</span> <span class="s2">&quot;@assistant-ui/react&quot;</span><span class="p">;</span>
-<span class="kn">import</span> <span class="p">{</span> <span class="n">useChatRuntime</span> <span class="p">}</span> <span class="kn">from</span> <span class="s2">&quot;@assistant-ui/react-ai-sdk&quot;</span><span class="p">;</span>
-<span class="kn">import</span> <span class="p">{</span>
-  <span class="n">Thread</span><span class="p">,</span>
-  <span class="n">ThreadList</span><span class="p">,</span>
-  <span class="n">Composer</span><span class="p">,</span>
-  <span class="n">AssistantMessage</span><span class="p">,</span>
-  <span class="n">UserMessage</span><span class="p">,</span>
-<span class="p">}</span> <span class="kn">from</span> <span class="s2">&quot;@assistant-ui/react&quot;</span><span class="p">;</span>
 
-<span class="n">function</span> <span class="n">ChatApp</span><span class="p">()</span> <span class="p">{</span>
-  <span class="n">const</span> <span class="n">runtime</span> <span class="o">=</span> <span class="n">useChatRuntime</span><span class="p">({</span> <span class="n">api</span><span class="p">:</span> <span class="s2">&quot;/api/chat&quot;</span> <span class="p">});</span>
+<h3>3.2 assistant-ui 示例</h3>
 
-  <span class="k">return</span> <span class="p">(</span>
-    <span class="o">&lt;</span><span class="n">AssistantRuntimeProvider</span> <span class="n">runtime</span><span class="o">=</span><span class="p">{</span><span class="n">runtime</span><span class="p">}</span><span class="o">&gt;</span>
-      <span class="o">&lt;</span><span class="n">div</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;flex h-screen&quot;</span><span class="o">&gt;</span>
-        <span class="o">&lt;</span><span class="n">ThreadList</span> <span class="o">/&gt;</span>
-        <span class="o">&lt;</span><span class="n">div</span> <span class="n">className</span><span class="o">=</span><span class="s2">&quot;flex-1 flex flex-col&quot;</span><span class="o">&gt;</span>
-          <span class="o">&lt;</span><span class="n">Thread</span> <span class="o">/&gt;</span>
-          <span class="o">&lt;</span><span class="n">Composer</span> <span class="o">/&gt;</span>
-        <span class="o">&lt;/</span><span class="n">div</span><span class="o">&gt;</span>
-      <span class="o">&lt;/</span><span class="n">div</span><span class="o">&gt;</span>
-    <span class="o">&lt;/</span><span class="n">AssistantRuntimeProvider</span><span class="o">&gt;</span>
-  <span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div>
+<pre><code>
+import { AssistantRuntimeProvider } from "@assistant-ui/react";
+import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
+import {
+  Thread,
+  ThreadList,
+  Composer,
+  AssistantMessage,
+  UserMessage,
+} from "@assistant-ui/react";
 
-<h3 id="33">3.3 聊天界面最佳实践</h3>
-<ol>
-<li><strong>消息区分</strong>：用户/AI/系统消息使用不同样式</li>
-<li><strong>代码高亮</strong>：集成 <code>react-syntax-highlighter</code> 或 <code>shiki</code></li>
-<li><strong>复制按钮</strong>：代码块和消息都应有复制功能</li>
-<li><strong>重新生成</strong>：允许用户重新生成 AI 回复</li>
-<li><strong>停止生成</strong>：提供停止按钮</li>
-<li><strong>打字指示器</strong>：AI 思考时显示加载动画</li>
-<li><strong>Markdown 渲染</strong>：支持完整的 Markdown 语法</li>
-<li><strong>图片渲染</strong>：支持 AI 生成/返回的图片</li>
-</ol>
-<hr />
-<h2 id="4">4. 部署方案</h2>
-<h3 id="41">4.1 部署选项对比</h3>
+function ChatApp() {
+  const runtime = useChatRuntime({ api: "/api/chat" });
+
+  return (
+    &lt;AssistantRuntimeProvider runtime={runtime}&gt;
+      &lt;div className="flex h-screen"&gt;
+        &lt;ThreadList /&gt;
+        &lt;div className="flex-1 flex flex-col"&gt;
+          &lt;Thread /&gt;
+          &lt;Composer /&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/AssistantRuntimeProvider&gt;
+  );
+}
+</code></pre>
+
+<h3>3.3 聊天界面最佳实践</h3>
+
+<p>1. <strong>消息区分</strong>：用户/AI/系统消息使用不同样式</p>
+<p>2. <strong>代码高亮</strong>：集成 <code>react-syntax-highlighter</code> 或 <code>shiki</code></p>
+<p>3. <strong>复制按钮</strong>：代码块和消息都应有复制功能</p>
+<p>4. <strong>重新生成</strong>：允许用户重新生成 AI 回复</p>
+<p>5. <strong>停止生成</strong>：提供停止按钮</p>
+<p>6. <strong>打字指示器</strong>：AI 思考时显示加载动画</p>
+<p>7. <strong>Markdown 渲染</strong>：支持完整的 Markdown 语法</p>
+<p>8. <strong>图片渲染</strong>：支持 AI 生成/返回的图片</p>
+
+<hr>
+
+<h2>4. 部署方案</h2>
+
+<h3>4.1 部署选项对比</h3>
+
 <table>
-<thead>
-<tr>
-<th>方案</th>
-<th>适用框架</th>
-<th>成本</th>
-<th>性能</th>
-<th>配置复杂度</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Vercel</td>
-<td>AI SDK / Next.js</td>
-<td>低-中</td>
-<td>高</td>
-<td>低</td>
-</tr>
-<tr>
-<td>Streamlit Cloud</td>
-<td>Streamlit</td>
-<td>免费-低</td>
-<td>中</td>
-<td>极低</td>
-</tr>
-<tr>
-<td>HuggingFace Spaces</td>
-<td>Gradio</td>
-<td>免费-低</td>
-<td>中</td>
-<td>极低</td>
-</tr>
-<tr>
-<td>AWS (ECS/Lambda)</td>
-<td>全部</td>
-<td>中-高</td>
-<td>高</td>
-<td>高</td>
-</tr>
-<tr>
-<td>Railway / Render</td>
-<td>全部</td>
-<td>低-中</td>
-<td>中</td>
-<td>低</td>
-</tr>
-<tr>
-<td>Docker 自建</td>
-<td>全部</td>
-<td>按需</td>
-<td>按需</td>
-<td>中</td>
-</tr>
-</tbody>
+<tr><th>方案</th><th>适用框架</th><th>成本</th><th>性能</th><th>配置复杂度</th></tr>
+<tr><td>Vercel</td><td>AI SDK / Next.js</td><td>低-中</td><td>高</td><td>低</td></tr>
+<tr><td>Streamlit Cloud</td><td>Streamlit</td><td>免费-低</td><td>中</td><td>极低</td></tr>
+<tr><td>HuggingFace Spaces</td><td>Gradio</td><td>免费-低</td><td>中</td><td>极低</td></tr>
+<tr><td>AWS (ECS/Lambda)</td><td>全部</td><td>中-高</td><td>高</td><td>高</td></tr>
+<tr><td>Railway / Render</td><td>全部</td><td>低-中</td><td>中</td><td>低</td></tr>
+<tr><td>Docker 自建</td><td>全部</td><td>按需</td><td>按需</td><td>中</td></tr>
 </table>
-<h3 id="42-vercel">4.2 Vercel 部署</h3>
-<div class="highlight"><pre><span></span><code><span class="c1">// vercel.json</span>
-<span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;functions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;app/api/chat/route.ts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;maxDuration&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div>
 
-<div class="highlight"><pre><span></span><code><span class="c1"># 部署</span>
-npx<span class="w"> </span>vercel
+<h3>4.2 Vercel 部署</h3>
 
-<span class="c1"># 环境变量</span>
-vercel<span class="w"> </span>env<span class="w"> </span>add<span class="w"> </span>OPENAI_API_KEY
-</code></pre></div>
+<pre><code>
+// vercel.json
+{
+  "functions": {
+    "app/api/chat/route.ts": {
+      "maxDuration": 60
+    }
+  }
+}
+</code></pre>
 
-<p><strong>注意事项：</strong>
-- Hobby 计划有 10 秒函数执行限制（需升级到 Pro）
-- Edge Functions 支持流式响应
-- 自动 HTTPS 和全球 CDN</p>
-<h3 id="43-docker">4.3 Docker 自建部署</h3>
-<div class="highlight"><pre><span></span><code><span class="k">FROM</span><span class="w"> </span><span class="s">node:20-slim</span>
+<pre><code>
+# 部署
+npx vercel
 
-<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span>
-<span class="k">COPY</span><span class="w"> </span>package*.json<span class="w"> </span>./
-<span class="k">RUN</span><span class="w"> </span>npm<span class="w"> </span>ci<span class="w"> </span>--production
-<span class="k">COPY</span><span class="w"> </span>.<span class="w"> </span>.
-<span class="k">RUN</span><span class="w"> </span>npm<span class="w"> </span>run<span class="w"> </span>build
+# 环境变量
+vercel env add OPENAI_API_KEY
+</code></pre>
 
-<span class="k">EXPOSE</span><span class="w"> </span><span class="s">3000</span>
-<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;npm&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;start&quot;</span><span class="p">]</span>
-</code></pre></div>
+<p><strong>注意事项：</strong></p>
+<li>Hobby 计划有 10 秒函数执行限制（需升级到 Pro）</li>
+<li>Edge Functions 支持流式响应</li>
+<li>自动 HTTPS 和全球 CDN</li>
 
-<div class="highlight"><pre><span></span><code><span class="c1"># docker-compose.yml</span>
-<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3&quot;</span>
-<span class="nt">services</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">ai-chat</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
-<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;3000:3000&quot;</span>
-<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OPENAI_API_KEY=${OPENAI_API_KEY}</span>
-<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unless-stopped</span>
-</code></pre></div>
+<h3>4.3 Docker 自建部署</h3>
 
-<hr />
-<h2 id="5">5. 选型决策框架</h2>
-<h3 id="51">5.1 决策树</h3>
-<div class="highlight"><pre><span></span><code>你的技术栈是什么？
-├──<span class="w"> </span><span class="nv">React</span><span class="o">/</span><span class="k">Next</span>.<span class="nv">js</span>
-│<span class="w">   </span>├──<span class="w"> </span>需要复杂<span class="w"> </span><span class="nv">AI</span><span class="w"> </span>逻辑？<span class="w"> </span>→<span class="w"> </span><span class="nv">Vercel</span><span class="w"> </span><span class="nv">AI</span><span class="w"> </span><span class="nv">SDK</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">LangChain</span>.<span class="nv">js</span>
-│<span class="w">   </span>└──<span class="w"> </span>主要需求是聊天？<span class="w"> </span>→<span class="w"> </span><span class="nv">Vercel</span><span class="w"> </span><span class="nv">AI</span><span class="w"> </span><span class="nv">SDK</span>
-├──<span class="w"> </span><span class="nv">Python</span>
-│<span class="w">   </span>├──<span class="w"> </span>快速原型？<span class="w"> </span>→<span class="w"> </span><span class="nv">Streamlit</span>
-│<span class="w">   </span>├──<span class="w"> </span>模型演示？<span class="w"> </span>→<span class="w"> </span><span class="nv">Gradio</span>
-│<span class="w">   </span>└──<span class="w"> </span>生产应用？<span class="w"> </span>→<span class="w"> </span><span class="nv">FastAPI</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">React</span><span class="w"> </span>前端
-└──<span class="w"> </span>不限
-<span class="w">    </span>├──<span class="w"> </span>最快出活？<span class="w"> </span>→<span class="w"> </span><span class="nv">Streamlit</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nv">Gradio</span>
-<span class="w">    </span>└──<span class="w"> </span>最佳体验？<span class="w"> </span>→<span class="w"> </span><span class="nv">Vercel</span><span class="w"> </span><span class="nv">AI</span><span class="w"> </span><span class="nv">SDK</span>
-</code></pre></div>
+<pre><code>
+FROM node:20-slim
 
-<h3 id="52">5.2 综合评分</h3>
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --production
+COPY . .
+RUN npm run build
+
+EXPOSE 3000
+CMD ["npm", "start"]
+</code></pre>
+
+<pre><code>
+# docker-compose.yml
+version: "3"
+services:
+  ai-chat:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    restart: unless-stopped
+</code></pre>
+
+<hr>
+
+<h2>5. 选型决策框架</h2>
+
+<h3>5.1 决策树</h3>
+
+<pre><code>
+graph TD
+    Q{"你的技术栈是什么？"}
+    REACT["React / Next.js"]
+    PYTHON["Python"]
+    ANY["不限"]
+    C1["需要复杂 AI 逻辑？ → Vercel AI SDK + LangChain.js"]
+    C2["主要需求是聊天？ → Vercel AI SDK"]
+    P1["快速原型？ → Streamlit"]
+    P2["模型演示？ → Gradio"]
+    P3["生产应用？ → FastAPI + React"]
+    A1["最快出活？ → Streamlit / Gradio"]
+    A2["最佳体验？ → Vercel AI SDK"]
+    Q --&gt; REACT
+    Q --&gt; PYTHON
+    Q --&gt; ANY
+    REACT --&gt; C1
+    REACT --&gt; C2
+    PYTHON --&gt; P1
+    PYTHON --&gt; P2
+    PYTHON --&gt; P3
+    ANY --&gt; A1
+    ANY --&gt; A2
+</code></pre>
+
+<h3>5.2 综合评分</h3>
+
 <table>
-<thead>
-<tr>
-<th>维度</th>
-<th>Vercel AI SDK</th>
-<th>LangChain.js</th>
-<th>Streamlit</th>
-<th>Gradio</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>上手速度</td>
-<td>⭐⭐⭐⭐</td>
-<td>⭐⭐⭐</td>
-<td>⭐⭐⭐⭐⭐</td>
-<td>⭐⭐⭐⭐⭐</td>
-</tr>
-<tr>
-<td>流式体验</td>
-<td>⭐⭐⭐⭐⭐</td>
-<td>⭐⭐⭐⭐</td>
-<td>⭐⭐⭐⭐</td>
-<td>⭐⭐⭐⭐</td>
-</tr>
-<tr>
-<td>自定义程度</td>
-<td>⭐⭐⭐⭐⭐</td>
-<td>⭐⭐⭐⭐⭐</td>
-<td>⭐⭐</td>
-<td>⭐⭐⭐</td>
-</tr>
-<tr>
-<td>生产就绪</td>
-<td>⭐⭐⭐⭐⭐</td>
-<td>⭐⭐⭐⭐</td>
-<td>⭐⭐⭐</td>
-<td>⭐⭐⭐</td>
-</tr>
-<tr>
-<td>社区生态</td>
-<td>⭐⭐⭐⭐</td>
-<td>⭐⭐⭐⭐⭐</td>
-<td>⭐⭐⭐⭐⭐</td>
-<td>⭐⭐⭐⭐</td>
-</tr>
-<tr>
-<td>多模态支持</td>
-<td>⭐⭐⭐⭐</td>
-<td>⭐⭐⭐⭐</td>
-<td>⭐⭐⭐</td>
-<td>⭐⭐⭐⭐⭐</td>
-</tr>
-<tr>
-<td>文档质量</td>
-<td>⭐⭐⭐⭐⭐</td>
-<td>⭐⭐⭐</td>
-<td>⭐⭐⭐⭐⭐</td>
-<td>⭐⭐⭐⭐⭐</td>
-</tr>
-</tbody>
+<tr><th>维度</th><th>Vercel AI SDK</th><th>LangChain.js</th><th>Streamlit</th><th>Gradio</th></tr>
+<tr><td>上手速度</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td></tr>
+<tr><td>流式体验</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐</td></tr>
+<tr><td>自定义程度</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐</td><td>⭐⭐⭐</td></tr>
+<tr><td>生产就绪</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐</td></tr>
+<tr><td>社区生态</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐</td></tr>
+<tr><td>多模态支持</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td></tr>
+<tr><td>文档质量</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td></tr>
 </table>
-<h3 id="53">5.3 选型建议</h3>
+
+<h3>5.3 选型建议</h3>
+
 <table>
-<thead>
-<tr>
-<th>场景</th>
-<th>推荐</th>
-<th>理由</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>企业级 AI 产品</td>
-<td><strong>Vercel AI SDK</strong></td>
-<td>最完整的 React AI 工具链</td>
-</tr>
-<tr>
-<td>数据科学团队</td>
-<td><strong>Streamlit</strong></td>
-<td>Python 原生，极速开发</td>
-</tr>
-<tr>
-<td>ML 模型演示</td>
-<td><strong>Gradio</strong></td>
-<td>最简部署，HF Spaces 集成</td>
-</tr>
-<tr>
-<td>复杂 RAG 应用</td>
-<td><strong>LangChain.js</strong></td>
-<td>最丰富的 AI 集成</td>
-</tr>
-<tr>
-<td>快速 MVP</td>
-<td><strong>Streamlit / Gradio</strong></td>
-<td>数小时出活</td>
-</tr>
-<tr>
-<td>自定义 UI</td>
-<td><strong>Vercel AI SDK</strong></td>
-<td>完全控制前端</td>
-</tr>
-</tbody>
+<tr><th>场景</th><th>推荐</th><th>理由</th></tr>
+<tr><td>企业级 AI 产品</td><td>**Vercel AI SDK**</td><td>最完整的 React AI 工具链</td></tr>
+<tr><td>数据科学团队</td><td>**Streamlit**</td><td>Python 原生，极速开发</td></tr>
+<tr><td>ML 模型演示</td><td>**Gradio**</td><td>最简部署，HF Spaces 集成</td></tr>
+<tr><td>复杂 RAG 应用</td><td>**LangChain.js**</td><td>最丰富的 AI 集成</td></tr>
+<tr><td>快速 MVP</td><td>**Streamlit / Gradio**</td><td>数小时出活</td></tr>
+<tr><td>自定义 UI</td><td>**Vercel AI SDK**</td><td>完全控制前端</td></tr>
 </table>
-<hr />
-<h2 id="_1">参考来源</h2>
-<ol>
-<li>Vercel AI SDK 文档 — <a href="https://sdk.vercel.ai">sdk.vercel.ai</a></li>
-<li>LangChain.js 文档 — <a href="https://js.langchain.com">js.langchain.com</a></li>
-<li>Streamlit 文档 — <a href="https://docs.streamlit.io">docs.streamlit.io</a></li>
-<li>Gradio 文档 — <a href="https://www.gradio.app/docs">gradio.app/docs</a></li>
-<li>assistant-ui — <a href="https://www.assistant-ui.com">assistant-ui.com</a></li>
-</ol>
-<hr />
+
+<hr>
+
+<h2>参考来源</h2>
+
+<p>1. Vercel AI SDK 文档 — <a href="https://sdk.vercel.ai">sdk.vercel.ai</a></p>
+<p>2. LangChain.js 文档 — <a href="https://js.langchain.com">js.langchain.com</a></p>
+<p>3. Streamlit 文档 — <a href="https://docs.streamlit.io">docs.streamlit.io</a></p>
+<p>4. Gradio 文档 — <a href="https://www.gradio.app/docs">gradio.app/docs</a></p>
+<p>5. assistant-ui — <a href="https://www.assistant-ui.com">assistant-ui.com</a></p>
+
+<hr>
+
 <p><em>本报告基于 2025 年初各框架版本撰写，前端框架迭代快速，API 可能有变化，请以官方文档为准。</em></p>
 
-<div class="footer">
-<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
-</div>
-</body></html>
+</body>
+</html>

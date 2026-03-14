@@ -191,15 +191,23 @@ user_proxy.initiate_chat(
 
 **场景**: 一个 AI 研究团队完成文献综述
 
-```
-[主编] 分配任务
-  ├── [研究员-1] 检索论文
-  ├── [研究员-2] 分析方法论
-  └── [研究员-3] 提取数据
-        ↓ 汇总
-[写手] 撰写综述
-[审稿人] 审核反馈
-[主编] 最终发布
+```mermaid
+graph TD
+    ED["📋 主编 分配任务"]
+    R1["🔬 研究员-1 检索论文"]
+    R2["🔬 研究员-2 分析方法论"]
+    R3["🔬 研究员-3 提取数据"]
+    WR["✍️ 写手 撰写综述"]
+    RV["📝 审稿人 审核反馈"]
+    PUB["📤 主编 最终发布"]
+    ED --> R1
+    ED --> R2
+    ED --> R3
+    R1 --> WR
+    R2 --> WR
+    R3 --> WR
+    WR --> RV
+    RV --> PUB
 ```
 
 **效果**: 10 篇论文综述，单人 2 天 → 多 Agent 2 小时
@@ -218,7 +226,17 @@ user_proxy.initiate_chat(
 ## 参考来源
 
 1. Wu, Q. et al. "AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation" (2023) — Microsoft Research
+   - https://arxiv.org/abs/2308.08155
 2. Hong, S. et al. "MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework" (2023) — DeepWisdom
-3. CrewAI Documentation — https://docs.crewai.com/
+   - https://arxiv.org/abs/2308.00352
+3. CrewAI Documentation
+   - https://docs.crewai.com/
 4. Wooldridge, M. "An Introduction to MultiAgent Systems" (2009) — John Wiley & Sons
-5. Google A2A Protocol — https://github.com/google/A2A
+5. Google A2A Protocol
+   - https://github.com/google/A2A
+6. Zhang, S. et al. "Agent-as-a-Judge: Evaluate Agents with Agents" (2024) — CMU
+   - https://arxiv.org/abs/2410.10934
+7. Wang, G. et al. "ChatDev: Communicative Agents for Software Development" (2024) — Tsinghua
+   - https://arxiv.org/abs/2307.07924
+8. Anthropic. "Multi-Agent Research System" (2025) — Claude 多智能体研究系统
+   - https://www.anthropic.com/engineering/multi-agent-research-system

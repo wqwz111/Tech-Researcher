@@ -256,18 +256,17 @@ tools:
 
 ### 2.2 灵活性 vs 易用性
 
-```
-灵活性 ↑
-  │   LangGraph
-  │       ╲
-  │    AutoGen
-  │         ╲
-  │     OpenClaw
-  │            ╲
-  │         CrewAI
-  │              ╲
-  │           MetaGPT
-  └──────────────────→ 易用性
+```mermaid
+graph LR
+    LG["LangGraph<br/>高灵活性"]
+    AG["AutoGen"]
+    OC["OpenClaw"]
+    CREW["CrewAI"]
+    MG["MetaGPT<br/>高易用性"]
+    LG --> AG
+    AG --> OC
+    OC --> CREW
+    CREW --> MG
 ```
 
 ### 2.3 学习曲线

@@ -381,19 +381,31 @@ else → 主要云平台 (统一管理)
 
 ### 6.4 决策流程图
 
-```
-你的应用需要什么模型？
-├── GPT-4o / o1 / o3 → Azure OpenAI（唯一选择）
-├── Gemini 1.5/2.0 → Vertex AI（唯一选择）
-├── Claude 3.5 → AWS Bedrock / Vertex AI / Together / Fireworks
-│   ├── 企业合规要求高 → AWS Bedrock
-│   ├── 已在 Google Cloud → Vertex AI
-│   └── 追求最低延迟 → Fireworks AI
-├── Llama / Mistral / Qwen（开源）
-│   ├── 企业合规要求高 → AWS Bedrock / Vertex AI
-│   ├── 成本敏感 + 高并发 → Fireworks AI
-│   └── 需要微调 → Together AI
-└── 不确定 → 使用路由层，动态选择
+```mermaid
+graph TD
+    Q{"你的应用需要什么模型？"}
+    GPT["GPT-4o / o1 / o3 → Azure OpenAI"]
+    GEM["Gemini 1.5/2.0 → Vertex AI"]
+    CLAUDE["Claude 3.5"]
+    OPEN["Llama / Mistral / Qwen 开源"]
+    UNKNOWN["不确定 → 使用路由层"]
+    C1["企业合规 → AWS Bedrock"]
+    C2["已在 GCP → Vertex AI"]
+    C3["最低延迟 → Fireworks AI"]
+    O1["企业合规 → AWS Bedrock / Vertex AI"]
+    O2["成本敏感 → Fireworks AI"]
+    O3["需要微调 → Together AI"]
+    Q --> GPT
+    Q --> GEM
+    Q --> CLAUDE
+    Q --> OPEN
+    Q --> UNKNOWN
+    CLAUDE --> C1
+    CLAUDE --> C2
+    CLAUDE --> C3
+    OPEN --> O1
+    OPEN --> O2
+    OPEN --> O3
 ```
 
 ---

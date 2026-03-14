@@ -380,18 +380,29 @@ class PromptAdapter:
 
 #### 方式一：Git + 文本文件（推荐起步）
 
-```
-prompts/
-├── classification/
-│   ├── sentiment_v1.0.md
-│   ├── sentiment_v1.1.md
-│   └── sentiment_v2.0.md
-├── extraction/
-│   ├── entity_v1.0.md
-│   └── relation_v1.0.md
-└── generation/
-    ├── summary_v1.0.md
-    └── email_v1.0.md
+```mermaid
+graph TD
+    P["📁 prompts/"]
+    CL["📁 classification/"]
+    EX["📁 extraction/"]
+    GEN["📁 generation/"]
+    S1["sentiment_v1.0.md"]
+    S2["sentiment_v1.1.md"]
+    S3["sentiment_v2.0.md"]
+    E1["entity_v1.0.md"]
+    E2["relation_v1.0.md"]
+    G1["summary_v1.0.md"]
+    G2["email_v1.0.md"]
+    P --> CL
+    P --> EX
+    P --> GEN
+    CL --> S1
+    CL --> S2
+    CL --> S3
+    EX --> E1
+    EX --> E2
+    GEN --> G1
+    GEN --> G2
 ```
 
 优点：简单、可靠、与现有 Git 工具链集成

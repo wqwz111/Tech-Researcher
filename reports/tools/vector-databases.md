@@ -175,34 +175,48 @@
 
 ## 5. 选型决策树
 
+```mermaid
+graph TD
+    S1{"第一步: 你的数据规模？"}
+    S2{"第二步: 你的集成需求？"}
+    S3{"第三步: 团队运维能力？"}
+    SMALL["< 100 万向量"]
+    MED["100 万 - 1 亿向量"]
+    LARGE["1 亿+ 向量"]
+    C1["需要快速原型？ → Chroma"]
+    C2["已有 PostgreSQL？ → pgvector"]
+    C3["需要生产级性能？ → Qdrant"]
+    M1["需要托管？ → Pinecone / Qdrant Cloud"]
+    M2["需要混合搜索？ → Weaviate / Qdrant"]
+    M3["需要多模态？ → Weaviate"]
+    L1["能接受托管？ → Pinecone / Zilliz Cloud"]
+    L2["必须自建？ → Milvus"]
+    I1["LangChain/LlamaIndex → 全部支持"]
+    I2["SQL 生态 → pgvector"]
+    I3["GraphQL → Weaviate"]
+    O1["无 DevOps → Pinecone"]
+    O2["中等 → Qdrant Cloud / Weaviate Cloud"]
+    O3["强 → Milvus 或自建"]
+    S1 --> SMALL
+    S1 --> MED
+    S1 --> LARGE
+    SMALL --> C1
+    SMALL --> C2
+    SMALL --> C3
+    MED --> M1
+    MED --> M2
+    MED --> M3
+    LARGE --> L1
+    LARGE --> L2
+    S1 --> S2
+    S2 --> I1
+    S2 --> I2
+    S2 --> I3
+    S2 --> S3
+    S3 --> O1
+    S3 --> O2
+    S3 --> O3
 ```
-第一步: 你的数据规模？
-│
-├── < 100 万向量
-│   ├── 需要快速原型？ → Chroma (pip install, 零配置)
-│   ├── 已有 PostgreSQL？ → pgvector (零新增基础设施)
-│   └── 需要生产级性能？ → Qdrant (单机高性能)
-│
-├── 100 万 - 1 亿向量
-│   ├── 需要托管服务？ → Pinecone 或 Qdrant Cloud
-│   ├── 需要混合搜索？ → Weaviate 或 Qdrant
-│   └── 需要多模态？ → Weaviate
-│
-└── 1 亿+ 向量
-    ├── 能接受托管？ → Pinecone (Serverless) 或 Zilliz Cloud
-    └── 必须自建？ → Milvus (分布式原生)
-
-第二步: 你的集成需求？
-│
-├── LangChain / LlamaIndex → 所有数据库都有集成
-├── 需要 SQL 生态 → pgvector
-└── 需要 GraphQL 接口 → Weaviate
-
-第三步: 团队运维能力？
-│
-├── 无 DevOps 能力 → Pinecone (全托管)
-├── 中等 → Qdrant Cloud 或 Weaviate Cloud
-└── 强 → Milvus (K8s Operator) 或自建任意方案
 ```
 
 ---

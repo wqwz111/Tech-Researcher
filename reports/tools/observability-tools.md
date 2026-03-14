@@ -184,17 +184,27 @@ Prompt 开发不同于传统代码开发，面临独特挑战：
 
 最简单但有效的方式：
 
-```
-prompts/
-├── v1/
-│   ├── system_prompt.md
-│   ├── few_shot_examples.json
-│   └── changelog.md
-├── v2/
-│   ├── system_prompt.md
-│   ├── few_shot_examples.json
-│   └── changelog.md
-└── active -> v2  # 软链接指向当前版本
+```mermaid
+graph TD
+    P["📁 prompts/"]
+    V1["📁 v1/"]
+    V2["📁 v2/"]
+    ACTIVE["active → v2"]
+    SP1["system_prompt.md"]
+    FE1["few_shot_examples.json"]
+    CL1["changelog.md"]
+    SP2["system_prompt.md"]
+    FE2["few_shot_examples.json"]
+    CL2["changelog.md"]
+    P --> V1
+    P --> V2
+    P --> ACTIVE
+    V1 --> SP1
+    V1 --> FE1
+    V1 --> CL1
+    V2 --> SP2
+    V2 --> FE2
+    V2 --> CL2
 ```
 
 #### 使用专业工具
@@ -216,15 +226,16 @@ prompts/
 
 在生产环境中测试不同 Prompt 版本的效果：
 
-```
-用户请求
-  ├── 50% → Prompt v1 → 输出 A
-  └── 50% → Prompt v2 → 输出 B
-  
-收集反馈：
-  - 用户评分
-  - 业务指标（转化率、停留时间等）
-  - 自动评估分数
+```mermaid
+graph TD
+    REQ["用户请求"]
+    V1["50% → Prompt v1 → 输出 A"]
+    V2["50% → Prompt v2 → 输出 B"]
+    FB["收集反馈<br/>用户评分 / 业务指标 / 自动评估"]
+    REQ --> V1
+    REQ --> V2
+    V1 --> FB
+    V2 --> FB
 ```
 
 **工具支持**：
@@ -283,11 +294,12 @@ litellm.success_callback = ["lunary"]  # 推送到成本追踪工具
 | **本地模型备选** | 50-90% | 高 |
 
 **模型路由示例**：
-```
-用户查询 → 分类器
-  ├── 简单问答 → GPT-4o-mini（便宜）
-  ├── 复杂推理 → GPT-4（贵但准确）
-  └── 代码生成 → Claude Sonnet（代码能力强）
+```mermaid
+graph TD
+    Q["用户查询"] --> CL{"分类器"}
+    CL -->|"简单问答"| MINI["GPT-4o-mini 便宜"]
+    CL -->|"复杂推理"| GPT4["GPT-4 贵但准确"]
+    CL -->|"代码生成"| CLAUDE["Claude Sonnet 代码能力强"]
 ```
 
 ### 3.4 预算管理
@@ -524,17 +536,17 @@ Slack 通知 → 告警
 
 **适合：大型团队和企业**
 
-```
-应用代码
-  ↓
-OpenTelemetry SDK → 标准化追踪
-  ↓
-  ├── LangSmith → LLM 追踪和评估
-  ├── Datadog → 系统 APM
-  ├── Helicone → 成本网关
-  └── Braintrust → 回归测试
-  ↓
-PagerDuty → 告警分发
+```mermaid
+graph TD
+    APP["应用代码"] --> OTEL["OpenTelemetry SDK<br/>标准化追踪"]
+    OTEL --> LS["LangSmith<br/>LLM 追踪和评估"]
+    OTEL --> DD["Datadog<br/>系统 APM"]
+    OTEL --> HEL["Helicone<br/>成本网关"]
+    OTEL --> BT["Braintrust<br/>回归测试"]
+    LS --> PD["PagerDuty<br/>告警分发"]
+    DD --> PD
+    HEL --> PD
+    BT --> PD
 ```
 
 ---

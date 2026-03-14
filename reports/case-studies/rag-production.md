@@ -139,19 +139,20 @@ RAG 的 PoC（概念验证）往往令人印象深刻：上传几篇文档，问
 - 缺点：无法理解语义
 
 **混合检索**
-```
-用户查询
-    ↓
-┌───────────────┬───────────────┐
-│   向量检索     │   BM25 检索    │
-│  (语义相似度)   │  (关键词匹配)   │
-└───────┬───────┴───────┬───────┘
-        ↓               ↓
-    RRF (Reciprocal Rank Fusion) 融合
-        ↓
-    重排序 (Reranker)
-        ↓
-    Top-K 文档
+```mermaid
+graph TD
+    Q["用户查询"]
+    VS["向量检索<br/>语义相似度"]
+    BM["BM25 检索<br/>关键词匹配"]
+    RRF["RRF Reciprocal Rank Fusion"]
+    RE["重排序 Reranker"]
+    TOP["Top-K 文档"]
+    Q --> VS
+    Q --> BM
+    VS --> RRF
+    BM --> RRF
+    RRF --> RE
+    RE --> TOP
 ```
 
 **重排序（Reranking）**

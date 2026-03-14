@@ -302,12 +302,12 @@ def transcribe_audio(video_path):
 
 ### 4.2 早期融合（以 Gemini 为例）
 
-```
-文本 Token ──┐
-             ├──→ 统一 Transformer ──→ 输出
-图像 Token ──┤
-             │
-音频 Token ──┘
+```mermaid
+graph TD
+    T["文本 Token"] --> TRANS["统一 Transformer"]
+    I["图像 Token"] --> TRANS
+    A["音频 Token"] --> TRANS
+    TRANS --> OUT["输出"]
 ```
 
 - 模型从预训练阶段就处理多种模态
@@ -316,10 +316,13 @@ def transcribe_audio(video_path):
 
 ### 4.3 晚期融合（Pipeline 方案）
 
-```
-图像 → 视觉编码器 → 视觉特征 ─┐
-                              ├──→ LLM ──→ 输出
-文本 → Tokenizer → 文本特征 ──┘
+```mermaid
+graph TD
+    IMG["图像"] --> VE["视觉编码器"] --> VF["视觉特征"]
+    TXT["文本"] --> TOK["Tokenizer"] --> TF["文本特征"]
+    VF --> LLM["LLM"]
+    TF --> LLM
+    LLM --> OUT["输出"]
 ```
 
 - 各模态可独立更换模型
@@ -366,25 +369,21 @@ def multimodal_rag(query, image=None):
 
 ### 5.2 技术架构建议
 
-```
-┌─────────────────────────────────────────────┐
-│              应用层                          │
-│  Chatbot / 内容审核 / 文档处理 / 媒体分析     │
-├─────────────────────────────────────────────┤
-│              编排层                          │
-│  LangChain / LlamaIndex / 自定义 Pipeline   │
-├─────────────────────────────────────────────┤
-│              模型层                          │
-│  ┌────────┐ ┌────────┐ ┌────────┐          │
-│  │ Vision │ │ Audio  │ │ Video  │          │
-│  │ GPT-4o │ │Whisper │ │Gemini  │          │
-│  │Claude  │ │ TTS    │ │ +FFmpeg│          │
-│  │Gemini  │ │        │ │        │          │
-│  └────────┘ └────────┘ └────────┘          │
-├─────────────────────────────────────────────┤
-│              基础设施                        │
-│  对象存储 / CDN / GPU 集群 / 消息队列        │
-└─────────────────────────────────────────────┘
+```mermaid
+graph TD
+    APP["📱 应用层<br/>Chatbot / 内容审核 / 文档处理 / 媒体分析"]
+    ORCH["🔗 编排层<br/>LangChain / LlamaIndex / 自定义 Pipeline"]
+    MODEL["🤖 模型层"]
+    VISION["Vision<br/>GPT-4o / Claude / Gemini"]
+    AUDIO["Audio<br/>Whisper / TTS"]
+    VIDEO["Video<br/>Gemini + FFmpeg"]
+    INFRA["🏗️ 基础设施<br/>对象存储 / CDN / GPU 集群 / 消息队列"]
+    APP --> ORCH
+    ORCH --> MODEL
+    MODEL --> VISION
+    MODEL --> AUDIO
+    MODEL --> VIDEO
+    MODEL --> INFRA
 ```
 
 ### 5.3 实践建议

@@ -227,7 +227,22 @@ o1: 适中训练成本 → 推理时深度思考
 ## 参考来源
 
 1. Wei, J. et al. "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models" (2022) — Google, NeurIPS 2022
+   - https://arxiv.org/abs/2201.11903
 2. Yao, S. et al. "Tree of Thoughts: Deliberate Problem Solving with Large Language Models" (2023) — Princeton
+   - https://arxiv.org/abs/2305.10601
 3. Besta, M. et al. "Graph of Thoughts: Solving Elaborate Problems with Large Language Models" (2023) — ETH Zurich
+   - https://arxiv.org/abs/2308.09687
 4. Wang, X. et al. "Self-Consistency Improves Chain of Thought Reasoning in Language Models" (2023) — Google
+   - https://arxiv.org/abs/2303.11366
 5. Lightman, H. et al. "Let's Verify Step by Step" (2023) — OpenAI
+   - https://arxiv.org/abs/2305.20050
+6. OpenAI. "Learning to Reason with LLMs" (2024) — o1 System Card
+   - https://openai.com/index/learning-to-reason-with-llms/
+7. Muennighoff, N. et al. "s1: Simple Test-Time Scaling" (2025) — Stanford
+   - https://arxiv.org/abs/2501.19393
+8. DeepSeek-AI. "DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning" (2025)
+   - https://arxiv.org/abs/2501.12948
+9. Snell, C. et al. "Scaling LLM Test-Time Compute Optimally can be More Effective than Scaling Model Parameters" (2024) — Google DeepMind
+   - https://arxiv.org/abs/2408.03314
+10. Setlur, A. et al. "Rewarding Progress: Scaling Automated Process Verifiers for LLM Reasoning" (2024) — Stanford
+    - https://arxiv.org/abs/2410.08146

@@ -466,18 +466,29 @@ services:
 
 ### 5.1 决策树
 
-```
-你的技术栈是什么？
-├── React/Next.js
-│   ├── 需要复杂 AI 逻辑？ → Vercel AI SDK + LangChain.js
-│   └── 主要需求是聊天？ → Vercel AI SDK
-├── Python
-│   ├── 快速原型？ → Streamlit
-│   ├── 模型演示？ → Gradio
-│   └── 生产应用？ → FastAPI + React 前端
-└── 不限
-    ├── 最快出活？ → Streamlit / Gradio
-    └── 最佳体验？ → Vercel AI SDK
+```mermaid
+graph TD
+    Q{"你的技术栈是什么？"}
+    REACT["React / Next.js"]
+    PYTHON["Python"]
+    ANY["不限"]
+    C1["需要复杂 AI 逻辑？ → Vercel AI SDK + LangChain.js"]
+    C2["主要需求是聊天？ → Vercel AI SDK"]
+    P1["快速原型？ → Streamlit"]
+    P2["模型演示？ → Gradio"]
+    P3["生产应用？ → FastAPI + React"]
+    A1["最快出活？ → Streamlit / Gradio"]
+    A2["最佳体验？ → Vercel AI SDK"]
+    Q --> REACT
+    Q --> PYTHON
+    Q --> ANY
+    REACT --> C1
+    REACT --> C2
+    PYTHON --> P1
+    PYTHON --> P2
+    PYTHON --> P3
+    ANY --> A1
+    ANY --> A2
 ```
 
 ### 5.2 综合评分

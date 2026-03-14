@@ -1,70 +1,45 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>大模型微调策略对比研究</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
-<style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大模型微调策略对比研究</title>
+    <style>
 body {
-    background: #0f172a; color: #e2e8f0;
+    background: #0f172a;
+    color: #e2e8f0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+    line-height: 1.8;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
 }
-.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
-.top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav a:hover { text-decoration: underline; }
-.top-nav .sep { color: #475569; }
-.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
-.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
-.meta .info { color: #94a3b8; font-size: .85rem; }
-.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
-.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: #93c5fd; text-decoration: none; }
-.toc a:hover { color: #bfdbfe; }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-a { color: #60a5fa; }
-code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
-pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; }
+h4 { color: #a5b4fc; }
+a { color: #60a5fa; text-decoration: none; }
+code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
+pre code { background: none; padding: 0; color: #e2e8f0; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
+th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
 tr:nth-child(even) { background: #1e293b44; }
+tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
-.footer a { color: #60a5fa; }
-@media print {
-    body { background: #fff; color: #000; max-width: 100%; }
-    .top-nav, .toc { display: none; }
-    pre { border-left: 3px solid #ccc; }
-}
+strong { color: #f8fafc; }
+em { color: #94a3b8; }
+ul, ol { padding-left: 1.5rem; }
+li { margin: 0.3rem 0; }
+p { margin: 0.8rem 0; }
 </style>
 </head>
 <body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:#94a3b8">🔬 方法论</span>
-</div>
-<div class="meta">
-<h1>大模型微调策略对比研究</h1>
-<div class="info">2026-03-14 · 分类: 🔬 方法论</div>
-<div class="tags"><span class="tag">LoRA</span><span class="tag">DPO</span><span class="tag">QLoRA</span></div>
-</div>
-
 <h1>大模型微调策略对比研究</h1>
 
-<h2 id="executive-summary">Executive Summary</h2>
+<h2>Executive Summary</h2>
 
 <p>微调是将通用大模型适配到特定领域的关键手段。本文系统对比 Full Fine-tuning、LoRA、QLoRA、PEFT 等主流微调策略，从数据准备、超参数调优、领域适应到成本权衡，提供可落地的微调决策框架。</p>
 
@@ -77,27 +52,40 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <hr>
 
-<h2 id="1-微调策略全景">1. 微调策略全景</h2>
+<h2>1. 微调策略全景</h2>
 
-<h3 id="11-策略分类">1.1 策略分类</h3>
+<h3>1.1 策略分类</h3>
 
 <pre><code>
-微调方法
-├── 全参数微调 (Full Fine-tuning)
-│   ├── 全精度 (FP32/BF16)
-│   └── 分布式 (DeepSpeed/FSDP)
-├── 参数高效微调 (PEFT)
-│   ├── LoRA / QLoRA
-│   ├── Adapter Tuning
-│   ├── Prefix Tuning
-│   └── Prompt Tuning
-└── 强化学习微调
-    ├── RLHF (PPO)
-    ├── DPO
-    └── GRPO
+graph TD
+    FT["微调方法"]
+    FF["全参数微调 Full Fine-tuning"]
+    FP["全精度 FP32/BF16"]
+    DIST["分布式 DeepSpeed/FSDP"]
+    PEFT["参数高效微调 PEFT"]
+    LORA["LoRA / QLoRA"]
+    ADP["Adapter Tuning"]
+    PRE["Prefix Tuning"]
+    PROMPT["Prompt Tuning"]
+    RL["强化学习微调"]
+    RLHF["RLHF PPO"]
+    DPO["DPO"]
+    GRPO["GRPO"]
+    FT --&gt; FF
+    FT --&gt; PEFT
+    FT --&gt; RL
+    FF --&gt; FP
+    FF --&gt; DIST
+    PEFT --&gt; LORA
+    PEFT --&gt; ADP
+    PEFT --&gt; PRE
+    PEFT --&gt; PROMPT
+    RL --&gt; RLHF
+    RL --&gt; DPO
+    RL --&gt; GRPO
 </code></pre>
 
-<h3 id="12-核心对比">1.2 核心对比</h3>
+<h3>1.2 核心对比</h3>
 
 <table>
 <tr><th>方法</th><th>可训练参数</th><th>显存需求</th><th>训练速度</th><th>效果</th><th>适用场景</th></tr>
@@ -110,9 +98,9 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <hr>
 
-<h2 id="2-lora-系列详解">2. LoRA 系列详解</h2>
+<h2>2. LoRA 系列详解</h2>
 
-<h3 id="21-lora-原理">2.1 LoRA 原理</h3>
+<h3>2.1 LoRA 原理</h3>
 
 <p>Low-Rank Adaptation：冻结原始权重 W，新增低秩分解矩阵：</p>
 
@@ -126,7 +114,7 @@ W' = W + ΔW = W + BA
 <li>alpha: 缩放因子，通常 = 2×rank</li>
 <li>target_modules: 应用 LoRA 的层（q_proj, v_proj, k_proj, o_proj）</li>
 
-<h3 id="22-qlora-创新">2.2 QLoRA 创新</h3>
+<h3>2.2 QLoRA 创新</h3>
 
 <p>在 LoRA 基础上引入三项技术：</p>
 
@@ -141,9 +129,9 @@ W' = W + ΔW = W + BA
 
 <hr>
 
-<h2 id="3-数据准备与质量控制">3. 数据准备与质量控制</h2>
+<h2>3. 数据准备与质量控制</h2>
 
-<h3 id="31-数据格式">3.1 数据格式</h3>
+<h3>3.1 数据格式</h3>
 
 <p><strong>指令微调格式</strong>:</p>
 <pre><code>
@@ -165,7 +153,7 @@ W' = W + ΔW = W + BA
 }
 </code></pre>
 
-<h3 id="32-数据质量控制">3.2 数据质量控制</h3>
+<h3>3.2 数据质量控制</h3>
 
 <table>
 <tr><th>检查项</th><th>方法</th><th>工具</th></tr>
@@ -176,7 +164,7 @@ W' = W + ΔW = W + BA
 <tr><td>数据配比</td><td>领域混合比例</td><td>人工设计</td></tr>
 </table>
 
-<h3 id="33-数据量参考">3.3 数据量参考</h3>
+<h3>3.3 数据量参考</h3>
 
 <table>
 <tr><th>场景</th><th>建议数据量</th></tr>
@@ -188,9 +176,9 @@ W' = W + ΔW = W + BA
 
 <hr>
 
-<h2 id="4-超参数调优指南">4. 超参数调优指南</h2>
+<h2>4. 超参数调优指南</h2>
 
-<h3 id="41-核心超参数">4.1 核心超参数</h3>
+<h3>4.1 核心超参数</h3>
 
 <table>
 <tr><th>参数</th><th>推荐范围</th><th>说明</th></tr>
@@ -203,7 +191,7 @@ W' = W + ΔW = W + BA
 <tr><td>Max Length</td><td>512-4096</td><td>根据任务调整</td></tr>
 </table>
 
-<h3 id="42-训练策略">4.2 训练策略</h3>
+<h3>4.2 训练策略</h3>
 
 <pre><code>
 Phase 1: 小规模实验 (1% 数据, 1 epoch)
@@ -222,9 +210,9 @@ Phase 3: 全量训练
 
 <hr>
 
-<h2 id="5-领域适应最佳实践">5. 领域适应最佳实践</h2>
+<h2>5. 领域适应最佳实践</h2>
 
-<h3 id="51-分阶段微调">5.1 分阶段微调</h3>
+<h3>5.1 分阶段微调</h3>
 
 <pre><code>
 通用基座 → 领域继续预训练 (CPT) → 指令微调 (SFT) → 偏好对齐 (DPO)
@@ -245,7 +233,7 @@ Phase 3: 全量训练
 <li>DPO 或 RLHF</li>
 <li>学习率: 5e-5</li>
 
-<h3 id="52-常见陷阱">5.2 常见陷阱</h3>
+<h3>5.2 常见陷阱</h3>
 
 <li><strong>灾难性遗忘</strong>: 领域数据过多导致通用能力下降</li>
 <p>  - 解决: 混合通用数据，比例 7:3</p>
@@ -256,9 +244,9 @@ Phase 3: 全量训练
 
 <hr>
 
-<h2 id="6-rlhf--dpo--grpo-深度对比">6. RLHF / DPO / GRPO 深度对比</h2>
+<h2>6. RLHF / DPO / GRPO 深度对比</h2>
 
-<h3 id="61-rlhf-reinforcement-learning-from-human-feedback">6.1 RLHF (Reinforcement Learning from Human Feedback)</h3>
+<h3>6.1 RLHF (Reinforcement Learning from Human Feedback)</h3>
 
 <p><strong>三阶段流程</strong>:</p>
 <p>1. SFT (Supervised Fine-Tuning): 指令微调</p>
@@ -268,7 +256,7 @@ Phase 3: 全量训练
 <p><strong>优势</strong>: 效果成熟，GPT-4/Claude 等顶级模型均使用</p>
 <p><strong>劣势</strong>: 训练复杂（4 个模型同时运行），不稳定，成本高</p>
 
-<h3 id="62-dpo-direct-preference-optimization">6.2 DPO (Direct Preference Optimization)</h3>
+<h3>6.2 DPO (Direct Preference Optimization)</h3>
 
 <p><strong>核心创新</strong>: 将 RLHF 的奖励建模和策略优化合并为一步</p>
 
@@ -290,7 +278,7 @@ DPO: 直接用偏好数据优化策略 (一步)
 <tr><td>Mistral-7B</td><td>SFT + DPO</td><td>61.3%</td><td>1.5x</td></tr>
 </table>
 
-<h3 id="63-grpo-group-relative-policy-optimization">6.3 GRPO (Group Relative Policy Optimization)</h3>
+<h3>6.3 GRPO (Group Relative Policy Optimization)</h3>
 
 <p><strong>来源</strong>: DeepSeek 团队提出，用于 DeepSeek-R1 训练</p>
 
@@ -308,7 +296,7 @@ DPO: 直接用偏好数据优化策略 (一步)
 <tr><td>GRPO</td><td>❌ (或可选)</td><td>❌</td><td>高</td><td>⭐⭐⭐⭐</td></tr>
 </table>
 
-<h3 id="64-选型建议">6.4 选型建议</h3>
+<h3>6.4 选型建议</h3>
 
 <li>追求最佳效果 → RLHF (PPO)，但需充足算力和工程能力</li>
 <li>性价比优先 → DPO，效果接近，成本低 50%+</li>
@@ -317,9 +305,9 @@ DPO: 直接用偏好数据优化策略 (一步)
 
 <hr>
 
-<h2 id="7-benchmark-实证数据">7. Benchmark 实证数据</h2>
+<h2>7. Benchmark 实证数据</h2>
 
-<h3 id="71-微调方法效果对比">7.1 微调方法效果对比</h3>
+<h3>7.1 微调方法效果对比</h3>
 
 <p>以下数据综合自公开论文和社区实验（基座模型: Llama-2-7B / Mistral-7B）:</p>
 
@@ -337,7 +325,7 @@ DPO: 直接用偏好数据优化策略 (一步)
 <li>相比 Base 模型，LoRA 提升 20-30 个百分点</li>
 <li>在数据充足时 (>50K)，Full FT 优势更明显</li>
 
-<h3 id="72-lora-rank-选择实验">7.2 LoRA Rank 选择实验</h3>
+<h3>7.2 LoRA Rank 选择实验</h3>
 
 <table>
 <tr><th>Rank</th><th>可训练参数</th><th>C-Eval</th><th>GSM8K</th><th>训练时间</th></tr>
@@ -350,7 +338,7 @@ DPO: 直接用偏好数据优化策略 (一步)
 
 <p><strong>结论</strong>: rank 32 是性价比甜点，继续增加收益递减</p>
 
-<h3 id="73-数据量-vs-效果">7.3 数据量 vs 效果</h3>
+<h3>7.3 数据量 vs 效果</h3>
 
 <table>
 <tr><th>数据量</th><th>C-Eval (LoRA)</th><th>C-Eval (Full FT)</th><th>建议</th></tr>
@@ -363,9 +351,9 @@ DPO: 直接用偏好数据优化策略 (一步)
 
 <hr>
 
-<h2 id="8-成本与效果权衡">8. 成本与效果权衡</h2>
+<h2>8. 成本与效果权衡</h2>
 
-<h3 id="81-成本对比-7b-模型">8.1 成本对比 (7B 模型)</h3>
+<h3>8.1 成本对比 (7B 模型)</h3>
 
 <table>
 <tr><th>方案</th><th>GPU</th><th>时间</th><th>成本估算</th></tr>
@@ -375,29 +363,43 @@ DPO: 直接用偏好数据优化策略 (一步)
 <tr><td>API 微调 (OpenAI)</td><td>无需GPU</td><td>1h</td><td>~$25</td></tr>
 </table>
 
-<h3 id="62-决策树">6.2 决策树</h3>
+<h3>6.2 决策树</h3>
 
 <pre><code>
-是否需要私有部署？
-├── 是 → 数据量 &gt; 100K？
-│   ├── 是 → Full FT (多卡)
-│   └── 否 → LoRA / QLoRA
-└── 否 → API 微调 (OpenAI / Claude)
+graph TD
+    Q1{"是否需要私有部署？"}
+    Q2{"数据量 &gt; 100K？"}
+    A1["Full FT 多卡"]
+    A2["LoRA / QLoRA"]
+    A3["API 微调 OpenAI / Claude"]
+    Q1 --&gt;|"是"| Q2
+    Q1 --&gt;|"否"| A3
+    Q2 --&gt;|"是"| A1
+    Q2 --&gt;|"否"| A2
 </code></pre>
 
 <hr>
 
-<h2 id="参考来源">参考来源</h2>
+<h2>参考来源</h2>
 
 <p>1. Hu, E. et al. "LoRA: Low-Rank Adaptation of Large Language Models" (2021) — ICLR 2022</p>
+<p>   - https://arxiv.org/abs/2106.09685</p>
 <p>2. Dettmers, T. et al. "QLoRA: Efficient Finetuning of Quantized Language Models" (2023) — NeurIPS 2023</p>
-<p>3. Hugging Face PEFT Documentation — https://huggingface.co/docs/peft</p>
-<p>4. LLaMA-Factory — https://github.com/hiyouga/LLaMA-Factory</p>
+<p>   - https://arxiv.org/abs/2305.14314</p>
+<p>3. Hugging Face PEFT Documentation</p>
+<p>   - https://huggingface.co/docs/peft</p>
+<p>4. LLaMA-Factory</p>
+<p>   - https://github.com/hiyouga/LLaMA-Factory</p>
 <p>5. Wei, J. et al. "Fine-Tuned Language Models Are Zero-Shot Learners" (2022) — Google Research</p>
+<p>   - https://arxiv.org/abs/2109.01652</p>
+<p>6. Hayou, S. et al. "LoRA+: Efficient Low Rank Adaptation of Large Models" (2024) — ICML 2024</p>
+<p>   - https://arxiv.org/abs/2402.12354</p>
+<p>7. Liu, S. et al. "DoRA: Weight-Decomposed Low-Rank Adaptation" (2024) — NVIDIA</p>
+<p>   - https://arxiv.org/abs/2402.09353</p>
+<p>8. Xu, Y. et al. "Unsloth: Efficient Fine-Tuning of LLMs with 2x Speed and 60% Less Memory" (2024)</p>
+<p>   - https://github.com/unslothai/unsloth</p>
+<p>9. DeepSeek-AI. "DeepSeek-V3 Technical Report" (2024) — 含辅助损失免费策略和FP8训练</p>
+<p>   - https://arxiv.org/abs/2412.19437</p>
 
-
-<div class="footer">
-<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
-</div>
-</body></html>
+</body>
+</html>

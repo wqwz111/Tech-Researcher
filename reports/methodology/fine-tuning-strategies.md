@@ -17,20 +17,33 @@
 
 ### 1.1 策略分类
 
-```
-微调方法
-├── 全参数微调 (Full Fine-tuning)
-│   ├── 全精度 (FP32/BF16)
-│   └── 分布式 (DeepSpeed/FSDP)
-├── 参数高效微调 (PEFT)
-│   ├── LoRA / QLoRA
-│   ├── Adapter Tuning
-│   ├── Prefix Tuning
-│   └── Prompt Tuning
-└── 强化学习微调
-    ├── RLHF (PPO)
-    ├── DPO
-    └── GRPO
+```mermaid
+graph TD
+    FT["微调方法"]
+    FF["全参数微调 Full Fine-tuning"]
+    FP["全精度 FP32/BF16"]
+    DIST["分布式 DeepSpeed/FSDP"]
+    PEFT["参数高效微调 PEFT"]
+    LORA["LoRA / QLoRA"]
+    ADP["Adapter Tuning"]
+    PRE["Prefix Tuning"]
+    PROMPT["Prompt Tuning"]
+    RL["强化学习微调"]
+    RLHF["RLHF PPO"]
+    DPO["DPO"]
+    GRPO["GRPO"]
+    FT --> FF
+    FT --> PEFT
+    FT --> RL
+    FF --> FP
+    FF --> DIST
+    PEFT --> LORA
+    PEFT --> ADP
+    PEFT --> PRE
+    PEFT --> PROMPT
+    RL --> RLHF
+    RL --> DPO
+    RL --> GRPO
 ```
 
 ### 1.2 核心对比
@@ -303,12 +316,17 @@ DPO: 直接用偏好数据优化策略 (一步)
 
 ### 6.2 决策树
 
-```
-是否需要私有部署？
-├── 是 → 数据量 > 100K？
-│   ├── 是 → Full FT (多卡)
-│   └── 否 → LoRA / QLoRA
-└── 否 → API 微调 (OpenAI / Claude)
+```mermaid
+graph TD
+    Q1{"是否需要私有部署？"}
+    Q2{"数据量 > 100K？"}
+    A1["Full FT 多卡"]
+    A2["LoRA / QLoRA"]
+    A3["API 微调 OpenAI / Claude"]
+    Q1 -->|"是"| Q2
+    Q1 -->|"否"| A3
+    Q2 -->|"是"| A1
+    Q2 -->|"否"| A2
 ```
 
 ---
@@ -316,7 +334,20 @@ DPO: 直接用偏好数据优化策略 (一步)
 ## 参考来源
 
 1. Hu, E. et al. "LoRA: Low-Rank Adaptation of Large Language Models" (2021) — ICLR 2022
+   - https://arxiv.org/abs/2106.09685
 2. Dettmers, T. et al. "QLoRA: Efficient Finetuning of Quantized Language Models" (2023) — NeurIPS 2023
-3. Hugging Face PEFT Documentation — https://huggingface.co/docs/peft
-4. LLaMA-Factory — https://github.com/hiyouga/LLaMA-Factory
+   - https://arxiv.org/abs/2305.14314
+3. Hugging Face PEFT Documentation
+   - https://huggingface.co/docs/peft
+4. LLaMA-Factory
+   - https://github.com/hiyouga/LLaMA-Factory
 5. Wei, J. et al. "Fine-Tuned Language Models Are Zero-Shot Learners" (2022) — Google Research
+   - https://arxiv.org/abs/2109.01652
+6. Hayou, S. et al. "LoRA+: Efficient Low Rank Adaptation of Large Models" (2024) — ICML 2024
+   - https://arxiv.org/abs/2402.12354
+7. Liu, S. et al. "DoRA: Weight-Decomposed Low-Rank Adaptation" (2024) — NVIDIA
+   - https://arxiv.org/abs/2402.09353
+8. Xu, Y. et al. "Unsloth: Efficient Fine-Tuning of LLMs with 2x Speed and 60% Less Memory" (2024)
+   - https://github.com/unslothai/unsloth
+9. DeepSeek-AI. "DeepSeek-V3 Technical Report" (2024) — 含辅助损失免费策略和FP8训练
+   - https://arxiv.org/abs/2412.19437

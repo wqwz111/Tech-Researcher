@@ -26,23 +26,25 @@ OpenClaw 的核心设计围绕三个抽象：
 
 ### 系统架构
 
-```
-┌─────────────────────────────────────────┐
-│              OpenClaw Gateway           │
-│  ┌─────────┐  ┌──────────┐  ┌────────┐ │
-│  │ Agent   │  │ Channel  │  │ Skill  │ │
-│  │ Runtime │  │ Router   │  │ Loader │ │
-│  └────┬────┘  └────┬─────┘  └───┬────┘ │
-│       │            │            │       │
-│  ┌────┴────────────┴────────────┴────┐  │
-│  │         Session Manager           │  │
-│  └───────────────────────────────────┘  │
-└─────────────────────────────────────────┘
-       │              │              │
-  ┌────┴───┐    ┌─────┴────┐   ┌────┴───┐
-  │Telegram│    │ Discord  │   │ Signal │
-  │Plugin  │    │ Plugin   │   │ Plugin │
-  └────────┘    └──────────┘   └────────┘
+```mermaid
+graph TD
+    GW["🌐 OpenClaw Gateway"]
+    AR["Agent Runtime"]
+    CR["Channel Router"]
+    SL["Skill Loader"]
+    SM["Session Manager"]
+    TG["Telegram Plugin"]
+    DC["Discord Plugin"]
+    SG["Signal Plugin"]
+    GW --> AR
+    GW --> CR
+    GW --> SL
+    AR --> SM
+    CR --> SM
+    SL --> SM
+    SM --> TG
+    SM --> DC
+    SM --> SG
 ```
 
 ### 主要组件
@@ -170,17 +172,27 @@ OpenClaw 支持灵活的路由配置：
 
 OpenClaw 的技能是可复用的能力模块，每个技能是一个目录：
 
-```
-skills/
-├── web-research/
-│   ├── SKILL.md          # 技能描述和指令
-│   ├── references/       # 参考文档
-│   └── scripts/          # 辅助脚本
-├── code-review/
-│   ├── SKILL.md
-│   └── templates/
-└── weather/
-    └── SKILL.md
+```mermaid
+graph TD
+    SK["📁 skills/"]
+    WR["📁 web-research/"]
+    CR["📁 code-review/"]
+    WEA["📁 weather/"]
+    SM1["SKILL.md"]
+    REF["references/"]
+    SCR["scripts/"]
+    SM2["SKILL.md"]
+    TMPL["templates/"]
+    SM3["SKILL.md"]
+    SK --> WR
+    SK --> CR
+    SK --> WEA
+    WR --> SM1
+    WR --> REF
+    WR --> SCR
+    CR --> SM2
+    CR --> TMPL
+    WEA --> SM3
 ```
 
 **SKILL.md 示例**:
@@ -334,3 +346,7 @@ CMD ["openclaw", "gateway", "start"]
 3. **MCP 协议规范** — [modelcontextprotocol.io](https://modelcontextprotocol.io) — MCP 协议文档
 4. **ClawHub 技能市场** — [clawhub.com](https://clawhub.com) — 社区技能分享
 5. **OpenClaw Discord 社区** — 社区讨论、技术支持
+6. **Anthropic. "Building Effective Agents" (2024)** — 构建 Agent 系统的最佳实践
+   - https://www.anthropic.com/engineering/building-effective-agents
+7. **Google A2A Protocol (2025)** — Agent-to-Agent 通信协议标准
+   - https://github.com/google/A2A

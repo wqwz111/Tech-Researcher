@@ -26,26 +26,23 @@
 
 Agent 记忆系统的设计灵感主要来源于人类记忆的认知模型。心理学将人类记忆分为多个层次：
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    人类记忆模型                          │
-├─────────────────────────────────────────────────────────┤
-│  感觉记忆 (Sensory Memory)                              │
-│  ├── 视觉: 图像暂存 (~0.5s)                             │
-│  └── 听觉: 声音暂存 (~3s)                               │
-├─────────────────────────────────────────────────────────┤
-│  短期记忆 / 工作记忆 (Short-term / Working Memory)       │
-│  ├── 容量: 7±2 个项目                                    │
-│  ├── 持续: 数秒到数分钟                                  │
-│  └── 功能: 当前任务信息的主动维护                        │
-├─────────────────────────────────────────────────────────┤
-│  长期记忆 (Long-term Memory)                             │
-│  ├── 陈述性记忆 (Declarative)                           │
-│  │   ├── 语义记忆: 事实和概念知识                        │
-│  │   └── 情景记忆: 个人经历和事件                        │
-│  └── 程序性记忆 (Procedural)                            │
-│       └── 技能和操作模式                                 │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    HM["🧠 人类记忆模型"]
+    SM["感觉记忆 Sensory Memory<br/>视觉: 图像暂存 ~0.5s<br/>听觉: 声音暂存 ~3s"]
+    STM["短期记忆 / 工作记忆<br/>容量: 7±2 个项目<br/>持续: 数秒到数分钟"]
+    LTM["长期记忆 Long-term Memory"]
+    DECL["陈述性记忆 Declarative"]
+    SEM["语义记忆: 事实和概念知识"]
+    EPIS["情景记忆: 个人经历和事件"]
+    PROC["程序性记忆 Procedural<br/>技能和操作模式"]
+    HM --> SM
+    HM --> STM
+    HM --> LTM
+    LTM --> DECL
+    LTM --> PROC
+    DECL --> SEM
+    DECL --> EPIS
 ```
 
 ### 1.2 Agent 记忆分类映射
@@ -336,17 +333,11 @@ existing: "用户住在上海"
 
 **模式 1：集中式共享存储**
 
-```
-┌──────────┐  ┌──────────┐  ┌──────────┐
-│ Agent A  │  │ Agent B  │  │ Agent C  │
-└────┬─────┘  └────┬─────┘  └────┬─────┘
-     │             │             │
-     └──────┬──────┴──────┬──────┘
-            │             │
-     ┌──────▼─────────────▼──────┐
-     │   Shared Memory Store     │
-     │   (Vector DB + Metadata)  │
-     └───────────────────────────┘
+```mermaid
+graph TD
+    A["Agent A"] --> S["Shared Memory Store<br/>Vector DB + Metadata"]
+    B["Agent B"] --> S
+    C["Agent C"] --> S
 ```
 
 **优势**：实现简单，数据一致性好
@@ -354,17 +345,15 @@ existing: "用户住在上海"
 
 **模式 2：分层记忆池**
 
-```
-┌─────────────────────────────────────────┐
-│          Global Memory Pool             │
-│  (所有 Agent 共享的公共知识)              │
-├─────────────────────────────────────────┤
-│     Team Memory Pool (Agent A + B)      │
-│  (特定团队共享的上下文)                   │
-├─────────────────────────────────────────┤
-│     Agent A Private │ Agent B Private   │
-│     (Agent 私有记忆)  │ (Agent 私有记忆)  │
-└─────────────────────────────────────────┘
+```mermaid
+graph TD
+    G["🌐 Global Memory Pool<br/>所有 Agent 共享的公共知识"]
+    T["👥 Team Memory Pool (Agent A + B)<br/>特定团队共享的上下文"]
+    P1["🔒 Agent A Private<br/>Agent 私有记忆"]
+    P2["🔒 Agent B Private<br/>Agent 私有记忆"]
+    G --> T
+    T --> P1
+    T --> P2
 ```
 
 **优势**：权限分层，减少信息过载
@@ -372,12 +361,9 @@ existing: "用户住在上海"
 
 **模式 3：联邦记忆**
 
-```
-┌──────────┐      ┌──────────┐
-│ Agent A  │◄────►│ Agent B  │
-│ Local    │ Sync │ Local    │
-│ Memory   │      │ Memory   │
-└──────────┘      └──────────┘
+```mermaid
+graph LR
+    A["Agent A<br/>Local Memory"] <-->|"Sync"| B["Agent B<br/>Local Memory"]
 ```
 
 每个 Agent 维护本地记忆，通过同步协议共享必要信息。
@@ -387,11 +373,10 @@ existing: "用户住在上海"
 
 **模式 4：事件驱动记忆流**
 
-```
-┌──────────┐     ┌─────────────────┐     ┌──────────┐
-│ Agent A  │────▶│  Event Bus /    │────▶│ Agent B  │
-│          │     │  Message Queue  │     │          │
-└──────────┘     └─────────────────┘     └──────────┘
+```mermaid
+graph LR
+    A["Agent A"] -->|"Publish"| EB["Event Bus /<br/>Message Queue"]
+    EB -->|"Subscribe"| B["Agent B"]
 ```
 
 Agent 通过发布-订阅机制共享记忆事件。
@@ -502,23 +487,31 @@ core_memory = {  # 始终在上下文中
 
 如果框架无法满足需求，自建记忆系统的推荐架构：
 
-```
-┌───────────────────────────────────────────────────┐
-│                  Agent Runtime                     │
-├───────────────────────────────────────────────────┤
-│  Memory Manager                                   │
-│  ├── Memory Extractor (从对话中提取记忆)          │
-│  ├── Memory Compressor (定期压缩摘要)             │
-│  ├── Memory Retriever (按需检索相关记忆)          │
-│  └── Memory Forgetter (过期/冲突清理)             │
-├───────────────────────────────────────────────────┤
-│  Storage Layer                                    │
-│  ├── Working Memory: In-context (System Prompt)   │
-│  ├── Short-term: Conversation Buffer              │
-│  ├── Long-term Semantic: Vector Store (Qdrant)    │
-│  ├── Long-term Structured: PostgreSQL             │
-│  └── Graph Memory: Neo4j / FalkorDB              │
-└───────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    AR["🏗️ Agent Runtime"]
+    MM["Memory Manager"]
+    EX["Memory Extractor<br/>从对话中提取记忆"]
+    CO["Memory Compressor<br/>定期压缩摘要"]
+    RE["Memory Retriever<br/>按需检索相关记忆"]
+    FO["Memory Forgetter<br/>过期/冲突清理"]
+    SL["Storage Layer"]
+    WM["Working Memory<br/>In-context System Prompt"]
+    ST["Short-term<br/>Conversation Buffer"]
+    LS["Long-term Semantic<br/>Vector Store Qdrant"]
+    LST["Long-term Structured<br/>PostgreSQL"]
+    GM["Graph Memory<br/>Neo4j / FalkorDB"]
+    AR --> MM
+    MM --> EX
+    MM --> CO
+    MM --> RE
+    MM --> FO
+    AR --> SL
+    SL --> WM
+    SL --> ST
+    SL --> LS
+    SL --> LST
+    SL --> GM
 ```
 
 **关键设计决策：**
