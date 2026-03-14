@@ -29,8 +29,9 @@
   ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
   li { margin-bottom: 0.4rem; }
   code { background: var(--bg-code); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: var(--code-text); }
-  pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
-  pre code { background: none; padding: 0; }
+  pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; max-width: 100%; }
+  pre code { background: none; padding: 0; font-size: 0.85rem; word-break: break-all; white-space: pre-wrap; }
+  @media (max-width: 640px) { pre { padding: 0.6rem; font-size: 0.8rem; } pre code { font-size: 0.75rem; } }
   .callout { background: var(--bg-callout); border-left: 3px solid var(--accent); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
   .callout strong { color: var(--accent-text); }
   table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
@@ -131,7 +132,8 @@ graph TB
   style A3 fill:#312e81,stroke:#6366f1,color:#e2e8f0
   </div>
 
-  <h3>1. Gateway — 控制平面</h3>
+  <details open>
+  <summary style="cursor:pointer;font-weight:600;color:var(--accent-text);font-size:1.15rem;margin:1.8rem 0 0.8rem;">1. Gateway — 控制平面 ▾</summary>
   <p>Gateway 是整个系统的"神经中枢"。它不产生智能，而是负责：</p>
   <ul>
     <li><strong>消息路由</strong>：收到消息后，根据 Binding 规则路由到对应的 Agent</li>
@@ -146,7 +148,10 @@ openclaw gateway start --port 18789
 openclaw gateway status
 openclaw status</code></pre>
 
-  <h3>2. Agent — AI 大脑</h3>
+  </details>
+
+  <details open>
+  <summary style="cursor:pointer;font-weight:600;color:var(--accent-text);font-size:1.15rem;margin:1.8rem 0 0.8rem;">2. Agent — AI 大脑 ▾</summary>
   <p>一个 Agent 是一个完整的、隔离的 AI 实体，由三部分组成：</p>
   <table>
     <tr><th>组件</th><th>路径</th><th>作用</th></tr>
@@ -159,14 +164,20 @@ openclaw status</code></pre>
     <strong>💡 关键理解：</strong>每个 Agent 的认证（auth-profiles.json）是独立的。主 Agent 的凭证不会自动共享给其他 Agent。如果你想共享，需要手动复制 auth-profiles.json。
   </div>
 
-  <h3>3. Channel — 通讯渠道</h3>
+  </details>
+
+  <details open>
+  <summary style="cursor:pointer;font-weight:600;color:var(--accent-text);font-size:1.15rem;margin:1.8rem 0 0.8rem;">3. Channel — 通讯渠道 ▾</summary>
   <p>OpenClaw 支持 20+ 通讯渠道。每个渠道可以配置多个账号（account），每个账号对应一个独立的登录实例：</p>
   <pre><code># 渠道登录示例
 openclaw channels login --channel whatsapp --account personal
 openclaw channels login --channel whatsapp --account biz
 openclaw channels login --channel telegram --account default</code></pre>
 
-  <h3>4. Workspace — 工作区</h3>
+  </details>
+
+  <details open>
+  <summary style="cursor:pointer;font-weight:600;color:var(--accent-text);font-size:1.15rem;margin:1.8rem 0 0.8rem;">4. Workspace — 工作区 ▾</summary>
   <p>Workspace 是 Agent 的"家"，包含定义其行为和个性的所有文件：</p>
   <ul>
     <li><code>AGENTS.md</code> — Agent 行为指南、工作流、规则</li>
@@ -175,6 +186,8 @@ openclaw channels login --channel telegram --account default</code></pre>
     <li><code>TOOLS.md</code> — 环境特定配置（设备、SSH 等）</li>
     <li><code>skills/</code> — Agent 专属技能</li>
   </ul>
+
+  </details>
 
   <h2>🔀 Binding 路由系统</h2>
   <p>Binding 是 OpenClaw 的"交通指挥系统"。它决定了<strong>哪条消息进入哪个 Agent</strong>。路由是<strong>确定性的</strong>（deterministic），遵循 <strong>most-specific wins</strong> 原则。</p>
@@ -225,6 +238,30 @@ flowchart TD
     { agentId: "chat", match: { channel: "whatsapp" } },
   ]
 }</code></pre>
+
+  <h3>Binding 冲突与边界场景</h3>
+  <p>当多条 Binding 规则同时匹配时，OpenClaw 遵循 <strong>most-specific wins</strong> 原则。以下是常见边界场景：</p>
+
+  <div class="callout">
+    <strong>场景 1：peer 与 accountId 同时匹配</strong><br/>
+    规则 A：<code>{ agentId: "opus", match: { peer: "+15551234567" } }</code><br/>
+    规则 B：<code>{ agentId: "chat", match: { accountId: "personal" } }</code><br/>
+    <strong>结果</strong>：peer 优先级高于 accountId → 路由到 <code>opus</code>
+  </div>
+
+  <div class="callout">
+    <strong>场景 2：同一 peer 多条规则</strong><br/>
+    规则 A：<code>{ agentId: "deep", match: { peer: "+15551234567" } }</code><br/>
+    规则 B：<code>{ agentId: "opus", match: { peer: "+15551234567" } }</code><br/>
+    <strong>结果</strong>：列表中靠前的规则生效 → 路由到 <code>deep</code>（配置顺序决定）
+  </div>
+
+  <div class="callout warn">
+    <strong>场景 3：无匹配规则</strong><br/>
+    消息来源的 channel/peer/accountId 均未命中任何 Binding。<br/>
+    <strong>结果</strong>：回退到 agents.list 中的第一个 Agent（通常为 <code>main</code>）<br/>
+    <strong>建议</strong>：显式配置回退规则 <code>{ agentId: "chat", match: { channel: "whatsapp" } }</code> 避免意外路由
+  </div>
 
   <h2>⚖️ 单 Agent vs 多 Agent</h2>
 
