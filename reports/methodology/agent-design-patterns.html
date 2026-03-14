@@ -1,43 +1,56 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Agent 设计模式</title>
-    <style>
-body {
-    background: #0f172a;
-    color: #e2e8f0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent 设计模式</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
+<style>
+body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-h4 { color: #a5b4fc; }
-a { color: #60a5fa; text-decoration: none; }
-code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
-pre code { background: none; padding: 0; color: #e2e8f0; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
-th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
 tr:nth-child(even) { background: #1e293b44; }
-tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-strong { color: #f8fafc; }
-em { color: #94a3b8; }
-ul, ol { padding-left: 1.5rem; }
-li { margin: 0.3rem 0; }
-p { margin: 0.8rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
 </style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">🔬 方法论</span>
+</div>
+<div class="meta">
 <h1>AI Agent 设计模式</h1>
+<div class="info">2026-03-14 · 分类: 🔬 方法论</div>
+<div class="tags"><span class="tag">fixme</span></div>
+</div>
 
 <p>> <strong>发布日期</strong>: 2026-03-14  </p>
 <p>> <strong>分类</strong>: 方法论  </p>
@@ -283,411 +296,415 @@ Agent 系统的错误处理是生产化的关键瓶颈。据 LangSmith 统计，
 
 ### 3.1 错误分类
 
-</code></pre>
-<p>graph TD</p>
-<p>    ERR["错误类型"]</p>
-<p>    PARSE["1. 解析错误<br/>模型输出不符合预期格式"]</p>
-<p>    EXEC["2. 执行错误<br/>工具调用失败"]</p>
-<p>    LOGIC["3. 逻辑错误<br/>工具返回正确但 Agent 误解"]</p>
-<p>    SYS["4. 系统错误<br/>框架或基础设施问题"]</p>
-<p>    ERR --> PARSE</p>
-<p>    ERR --> EXEC</p>
-<p>    ERR --> LOGIC</p>
-<p>    ERR --> SYS</p>
-<p>    PARSE --> P1["JSON 解析失败"]</p>
-<p>    PARSE --> P2["工具名称不存在"]</p>
-<p>    PARSE --> P3["参数类型不匹配"]</p>
-<p>    EXEC --> E1["API 限流 429"]</p>
-<p>    EXEC --> E2["网络超时"]</p>
-<p>    EXEC --> E3["认证过期"]</p>
-<p>    EXEC --> E4["参数值越界"]</p>
-<p>    LOGIC --> L1["错误解读数据"]</p>
-<p>    LOGIC --> L2["忽略关键字段"]</p>
-<p>    LOGIC --> L3["循环调用同一工具"]</p>
-<p>    SYS --> S1["上下文窗口溢出"]</p>
-<p>    SYS --> S2["LLM API 不可用"]</p>
-<p>    SYS --> S3["内存/磁盘耗尽"]</p>
+<div class="mermaid">
+graph TD
+    ERR["错误类型"]
+    PARSE["1. 解析错误<br/>模型输出不符合预期格式"]
+    EXEC["2. 执行错误<br/>工具调用失败"]
+    LOGIC["3. 逻辑错误<br/>工具返回正确但 Agent 误解"]
+    SYS["4. 系统错误<br/>框架或基础设施问题"]
+    ERR --> PARSE
+    ERR --> EXEC
+    ERR --> LOGIC
+    ERR --> SYS
+    PARSE --> P1["JSON 解析失败"]
+    PARSE --> P2["工具名称不存在"]
+    PARSE --> P3["参数类型不匹配"]
+    EXEC --> E1["API 限流 429"]
+    EXEC --> E2["网络超时"]
+    EXEC --> E3["认证过期"]
+    EXEC --> E4["参数值越界"]
+    LOGIC --> L1["错误解读数据"]
+    LOGIC --> L2["忽略关键字段"]
+    LOGIC --> L3["循环调用同一工具"]
+    SYS --> S1["上下文窗口溢出"]
+    SYS --> S2["LLM API 不可用"]
+    SYS --> S3["内存/磁盘耗尽"]
+</div>
+
+<h3>3.2 分层错误处理</h3>
+
+<p><strong>层1 - 自动恢复 (Automatic Recovery)</strong></p>
+
 <pre><code>
-
-### 3.2 分层错误处理
-
-**层1 - 自动恢复 (Automatic Recovery)**
-
+# 重试机制: 指数退避
+for attempt in range(max_retries):
+    try:
+        result = execute_tool(tool_name, params)
+        break
+    except RateLimitError:
+        wait = 2 ** attempt + random.uniform(0, 1)
+        time.sleep(wait)
+    except TimeoutError:
+        if attempt == max_retries - 1:
+            return {"error": "工具超时，建议稍后重试"}
 </code></pre>
-<h1>重试机制: 指数退避</h1>
-<p>for attempt in range(max_retries):</p>
-<p>    try:</p>
-<p>        result = execute_tool(tool_name, params)</p>
-<p>        break</p>
-<p>    except RateLimitError:</p>
-<p>        wait = 2 ** attempt + random.uniform(0, 1)</p>
-<p>        time.sleep(wait)</p>
-<p>    except TimeoutError:</p>
-<p>        if attempt == max_retries - 1:</p>
-<p>            return {"error": "工具超时，建议稍后重试"}</p>
+
+<p><strong>层2 - Agent 自我修正 (Self-Correction)</strong></p>
+
+<p>将错误信息反馈给 LLM，让它自己修正：</p>
+
 <pre><code>
-
-**层2 - Agent 自我修正 (Self-Correction)**
-
-将错误信息反馈给 LLM，让它自己修正：
-
+错误: Tool "web_search" not found. Available tools: search_web, search_docs
+Agent 修正: 改用 search_web 并重试
 </code></pre>
-<p>错误: Tool "web_search" not found. Available tools: search_web, search_docs</p>
-<p>Agent 修正: 改用 search_web 并重试</p>
+
+<p><strong>层3 - 降级策略 (Graceful Degradation)</strong></p>
+
 <pre><code>
-
-**层3 - 降级策略 (Graceful Degradation)**
-
+主路径: 调用实时 API 获取数据
+  ↓ 失败
+降级1: 使用本地缓存数据（标注"缓存时间"）
+  ↓ 无缓存
+降级2: 用模型知识回答（标注"基于训练数据"）
 </code></pre>
-<p>主路径: 调用实时 API 获取数据</p>
-<p>  ↓ 失败</p>
-<p>降级1: 使用本地缓存数据（标注"缓存时间"）</p>
-<p>  ↓ 无缓存</p>
-<p>降级2: 用模型知识回答（标注"基于训练数据"）</p>
+
+<p><strong>层4 - 人工介入 (Human-in-the-loop)</strong></p>
+
+<p>设置明确的人工介入触发条件：</p>
+<li>连续 3 次工具调用失败</li>
+<li>Agent 陷入循环（同一操作重复 > 5 次）</li>
+<li>涉及敏感操作（删除数据、发送邮件、转账）</li>
+<li>置信度低于阈值</li>
+
+<h3>3.3 循环检测与中断</h3>
+
+<p>Agent 陷入循环是最常见的生产事故之一。检测方法：</p>
+
 <pre><code>
-
-**层4 - 人工介入 (Human-in-the-loop)**
-
-设置明确的人工介入触发条件：
-- 连续 3 次工具调用失败
-- Agent 陷入循环（同一操作重复 &gt; 5 次）
-- 涉及敏感操作（删除数据、发送邮件、转账）
-- 置信度低于阈值
-
-### 3.3 循环检测与中断
-
-Agent 陷入循环是最常见的生产事故之一。检测方法：
-
+class LoopDetector:
+    def __init__(self, window_size=5, similarity_threshold=0.85):
+        self.history = []
+    
+    def check(self, current_action):
+        self.history.append(current_action)
+        if len(self.history) &gt; window_size:
+            self.history.pop(0)
+        
+        # 检查是否在重复相同操作
+        for prev in self.history[:-1]:
+            if similarity(prev, current_action) &gt; similarity_threshold:
+                return True  # 检测到循环
+        return False
 </code></pre>
-<p>class LoopDetector:</p>
-<p>    def __init__(self, window_size=5, similarity_threshold=0.85):</p>
-<p>        self.history = []</p>
 
-<p>    def check(self, current_action):</p>
-<p>        self.history.append(current_action)</p>
-<p>        if len(self.history) > window_size:</p>
-<p>            self.history.pop(0)</p>
+<p><strong>中断策略</strong>:</p>
+<li>设置最大步数限制（如 25 步）</li>
+<li>设置最大 LLM 调用次数</li>
+<li>设置总运行时间上限</li>
+<li>检测到循环时自动暂停并报告</li>
 
-<p>        # 检查是否在重复相同操作</p>
-<p>        for prev in self.history[:-1]:</p>
-<p>            if similarity(prev, current_action) > similarity_threshold:</p>
-<p>                return True  # 检测到循环</p>
-<p>        return False</p>
+<hr>
+
+<h2>四、Agent 通信架构</h2>
+
+<p>当单个 Agent 无法胜任复杂任务时，多 Agent 协作成为必然选择。</p>
+
+<h3>4.1 通信拓扑</h3>
+
+<p><strong>a) 星型拓扑 (Star)</strong></p>
+<p>一个协调者（Orchestrator）负责分配任务和汇总结果。</p>
+
 <pre><code>
-
-**中断策略**:
-- 设置最大步数限制（如 25 步）
-- 设置最大 LLM 调用次数
-- 设置总运行时间上限
-- 检测到循环时自动暂停并报告
-
----
-
-## 四、Agent 通信架构
-
-当单个 Agent 无法胜任复杂任务时，多 Agent 协作成为必然选择。
-
-### 4.1 通信拓扑
-
-**a) 星型拓扑 (Star)**
-一个协调者（Orchestrator）负责分配任务和汇总结果。
-
+        Agent A
+           ↑
+Agent B ← Orchestrator → Agent C
+           ↓
+        Agent D
 </code></pre>
-<p>        Agent A</p>
-<p>           ↑</p>
-<p>Agent B ← Orchestrator → Agent C</p>
-<p>           ↓</p>
-<p>        Agent D</p>
+
+<p>优点: 控制集中，容易管理优先级和冲突</p>
+<p>缺点: 协调者成为瓶颈和单点故障</p>
+
+<p><strong>b) 管道拓扑 (Pipeline)</strong></p>
+<p>Agent 按顺序排列，前一个的输出是后一个的输入。</p>
+
 <pre><code>
-
-优点: 控制集中，容易管理优先级和冲突
-缺点: 协调者成为瓶颈和单点故障
-
-**b) 管道拓扑 (Pipeline)**
-Agent 按顺序排列，前一个的输出是后一个的输入。
-
+Agent A → Agent B → Agent C → 最终输出
 </code></pre>
-<p>Agent A → Agent B → Agent C → 最终输出</p>
+
+<p>优点: 结构简单，适合流水线任务</p>
+<p>缺点: 无法并行，前一步失败则全部阻塞</p>
+
+<p><strong>c) 网状拓扑 (Mesh)</strong></p>
+<p>Agent 之间可以自由通信，形成动态协作网络。</p>
+
 <pre><code>
-
-优点: 结构简单，适合流水线任务
-缺点: 无法并行，前一步失败则全部阻塞
-
-**c) 网状拓扑 (Mesh)**
-Agent 之间可以自由通信，形成动态协作网络。
-
+Agent A ←→ Agent B
+   ↕          ↕
+Agent C ←→ Agent D
 </code></pre>
-<p>Agent A ←→ Agent B</p>
-<p>   ↕          ↕</p>
-<p>Agent C ←→ Agent D</p>
+
+<p>优点: 灵活性最高，容错性强</p>
+<p>缺点: 通信复杂度 O(n²)，可能出现"聊天噪音"</p>
+
+<p><strong>d) 层次拓扑 (Hierarchical)</strong></p>
+<p>Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
+
 <pre><code>
-
-优点: 灵活性最高，容错性强
-缺点: 通信复杂度 O(n²)，可能出现"聊天噪音"
-
-**d) 层次拓扑 (Hierarchical)**
-Agent 组织成树状结构，上层 Agent 协调下层 Agent。
-
+        Manager Agent
+       /      |      \
+   Team A   Team B   Team C
+   / \      / \      / \
+ A1  A2   B1  B2   C1  C2
 </code></pre>
-<p>        Manager Agent</p>
-<p>       /      |      \</p>
-<p>   Team A   Team B   Team C</p>
-<p>   / \      / \      / \</p>
-<p> A1  A2   B1  B2   C1  C2</p>
+
+<p>优点: 可扩展性强，职责清晰</p>
+<p>缺点: 通信延迟，上层决策影响全局</p>
+
+<h3>4.2 消息协议</h3>
+
+<p><strong>结构化消息格式</strong>:</p>
+
 <pre><code>
-
-优点: 可扩展性强，职责清晰
-缺点: 通信延迟，上层决策影响全局
-
-### 4.2 消息协议
-
-**结构化消息格式**:
-
+{
+  "message_id": "uuid-v4",
+  "from": "agent-researcher",
+  "to": "agent-writer",
+  "type": "task_assignment",
+  "content": {
+    "task": "撰写关于X的技术分析",
+    "context": {...},
+    "deadline": "2025-01-20T18:00:00Z",
+    "priority": "high"
+  },
+  "requires_response": true,
+  "conversation_id": "conv-123"
+}
 </code></pre>
-<p>{</p>
-<p>  "message_id": "uuid-v4",</p>
-<p>  "from": "agent-researcher",</p>
-<p>  "to": "agent-writer",</p>
-<p>  "type": "task_assignment",</p>
-<p>  "content": {</p>
-<p>    "task": "撰写关于X的技术分析",</p>
-<p>    "context": {...},</p>
-<p>    "deadline": "2025-01-20T18:00:00Z",</p>
-<p>    "priority": "high"</p>
-<p>  },</p>
-<p>  "requires_response": true,</p>
-<p>  "conversation_id": "conv-123"</p>
-<p>}</p>
+
+<p><strong>消息类型</strong>:</p>
+<li><code>task_assignment</code>: 分配任务</li>
+<li><code>task_result</code>: 返回结果</li>
+<li><code>question</code>: 请求澄清</li>
+<li><code>review_request</code>: 请求审阅</li>
+<li><code>approval_request</code>: 请求审批</li>
+<li><code>broadcast</code>: 广播通知</li>
+
+<h3>4.3 冲突解决机制</h3>
+
+<p>当多个 Agent 的输出出现矛盾时：</p>
+
+<p>1. <strong>投票机制 (Voting)</strong>: 多数决</p>
+<p>2. <strong>优先级机制</strong>: 高优先级 Agent 的结论优先</p>
+<p>3. <strong>仲裁机制</strong>: 专门的仲裁 Agent 做最终决定</p>
+<p>4. <strong>上下文融合</strong>: 将不同观点综合为更全面的结论</p>
+
+<h3>4.4 共享状态管理</h3>
+
+<p>多 Agent 系统需要共享状态来协调工作：</p>
+
+<li><strong>共享内存 (Shared Memory)</strong>: 所有 Agent 可读写的全局状态</li>
+<li><strong>消息队列 (Message Queue)</strong>: 异步通信，解耦生产者和消费者</li>
+<li><strong>状态数据库</strong>: 持久化存储，支持断点恢复</li>
+<li><strong>向量存储 (Vector Store)</strong>: 共享知识库，支持语义检索</li>
+
+<hr>
+
+<h2>五、架构案例分析</h2>
+
+<h3>案例 1: LangGraph — 图结构 Agent 框架</h3>
+
+<p><strong>设计哲学</strong>: 将 Agent 表示为有向图，节点是计算步骤，边是控制流。</p>
+
+<p><strong>核心特性</strong>:</p>
+<li>支持条件分支和循环</li>
+<li>内置状态管理（StateGraph）</li>
+<li>支持 Human-in-the-loop 中断</li>
+<li>时间旅行调试（可回溯任意状态）</li>
+
+<p><strong>典型用法</strong>:</p>
 <pre><code>
+from langgraph.graph import StateGraph
 
-**消息类型**:
-- `task_assignment`: 分配任务
-- `task_result`: 返回结果
-- `question`: 请求澄清
-- `review_request`: 请求审阅
-- `approval_request`: 请求审批
-- `broadcast`: 广播通知
-
-### 4.3 冲突解决机制
-
-当多个 Agent 的输出出现矛盾时：
-
-1. **投票机制 (Voting)**: 多数决
-2. **优先级机制**: 高优先级 Agent 的结论优先
-3. **仲裁机制**: 专门的仲裁 Agent 做最终决定
-4. **上下文融合**: 将不同观点综合为更全面的结论
-
-### 4.4 共享状态管理
-
-多 Agent 系统需要共享状态来协调工作：
-
-- **共享内存 (Shared Memory)**: 所有 Agent 可读写的全局状态
-- **消息队列 (Message Queue)**: 异步通信，解耦生产者和消费者
-- **状态数据库**: 持久化存储，支持断点恢复
-- **向量存储 (Vector Store)**: 共享知识库，支持语义检索
-
----
-
-## 五、架构案例分析
-
-### 案例 1: LangGraph — 图结构 Agent 框架
-
-**设计哲学**: 将 Agent 表示为有向图，节点是计算步骤，边是控制流。
-
-**核心特性**:
-- 支持条件分支和循环
-- 内置状态管理（StateGraph）
-- 支持 Human-in-the-loop 中断
-- 时间旅行调试（可回溯任意状态）
-
-**典型用法**:
+graph = StateGraph(AgentState)
+graph.add_node("planner", plan_step)
+graph.add_node("executor", execute_step)
+graph.add_node("reviewer", review_step)
+graph.add_edge("planner", "executor")
+graph.add_conditional_edges(
+    "reviewer",
+    should_continue,  # 条件函数
+    {"continue": "executor", "end": END}
+)
 </code></pre>
-<p>from langgraph.graph import StateGraph</p>
 
-<p>graph = StateGraph(AgentState)</p>
-<p>graph.add_node("planner", plan_step)</p>
-<p>graph.add_node("executor", execute_step)</p>
-<p>graph.add_node("reviewer", review_step)</p>
-<p>graph.add_edge("planner", "executor")</p>
-<p>graph.add_conditional_edges(</p>
-<p>    "reviewer",</p>
-<p>    should_continue,  # 条件函数</p>
-<p>    {"continue": "executor", "end": END}</p>
-<p>)</p>
+<p><strong>适用场景</strong>: 需要复杂控制流的 Agent 工作流，如审批流程、多轮交互。</p>
+
+<h3>案例 2: CrewAI — 多 Agent 协作框架</h3>
+
+<p><strong>设计哲学</strong>: 将 Agent 编排为"船员"（Crew），每个 Agent 有特定角色和目标。</p>
+
+<p><strong>核心特性</strong>:</p>
+<li>基于角色的 Agent 定义（Role, Goal, Backstory）</li>
+<li>任务依赖关系管理</li>
+<li>支持顺序执行和层级管理</li>
+<li>内置 Delegation（Agent 可以委托任务给其他 Agent）</li>
+
+<p><strong>典型用法</strong>:</p>
 <pre><code>
+researcher = Agent(
+    role="技术研究员",
+    goal="深入研究AI Agent最新进展",
+    backstory="你是一位资深AI研究员..."
+)
 
-**适用场景**: 需要复杂控制流的 Agent 工作流，如审批流程、多轮交互。
+writer = Agent(
+    role="技术写作者",
+    goal="将研究内容转化为易读的报告",
+    backstory="你擅长将复杂技术概念简化..."
+)
 
-### 案例 2: CrewAI — 多 Agent 协作框架
-
-**设计哲学**: 将 Agent 编排为"船员"（Crew），每个 Agent 有特定角色和目标。
-
-**核心特性**:
-- 基于角色的 Agent 定义（Role, Goal, Backstory）
-- 任务依赖关系管理
-- 支持顺序执行和层级管理
-- 内置 Delegation（Agent 可以委托任务给其他 Agent）
-
-**典型用法**:
+crew = Crew(
+    agents=[researcher, writer],
+    tasks=[research_task, write_task],
+    process=Process.sequential
+)
 </code></pre>
-<p>researcher = Agent(</p>
-<p>    role="技术研究员",</p>
-<p>    goal="深入研究AI Agent最新进展",</p>
-<p>    backstory="你是一位资深AI研究员..."</p>
-<p>)</p>
 
-<p>writer = Agent(</p>
-<p>    role="技术写作者",</p>
-<p>    goal="将研究内容转化为易读的报告",</p>
-<p>    backstory="你擅长将复杂技术概念简化..."</p>
-<p>)</p>
+<p><strong>适用场景</strong>: 内容创作流水线、研究分析团队、客户支持分流。</p>
 
-<p>crew = Crew(</p>
-<p>    agents=[researcher, writer],</p>
-<p>    tasks=[research_task, write_task],</p>
-<p>    process=Process.sequential</p>
-<p>)</p>
+<h3>案例 3: Microsoft AutoGen — 对话式多 Agent</h3>
+
+<p><strong>设计哲学</strong>: Agent 之间通过对话协作，模拟人类团队讨论。</p>
+
+<p><strong>核心特性</strong>:</p>
+<li>多 Agent 对话编排</li>
+<li>代码执行与验证（ConversableAgent）</li>
+<li>灵活的对话终止条件</li>
+<li>支持 Human 参与对话</li>
+
+<p><strong>典型用法</strong>:</p>
 <pre><code>
+assistant = AssistantAgent("assistant", llm_config=llm_config)
+user_proxy = UserProxyAgent("user_proxy", code_execution_config={...})
 
-**适用场景**: 内容创作流水线、研究分析团队、客户支持分流。
-
-### 案例 3: Microsoft AutoGen — 对话式多 Agent
-
-**设计哲学**: Agent 之间通过对话协作，模拟人类团队讨论。
-
-**核心特性**:
-- 多 Agent 对话编排
-- 代码执行与验证（ConversableAgent）
-- 灵活的对话终止条件
-- 支持 Human 参与对话
-
-**典型用法**:
+user_proxy.initiate_chat(
+    assistant,
+    message="帮我分析这段代码的性能瓶颈"
+)
 </code></pre>
-<p>assistant = AssistantAgent("assistant", llm_config=llm_config)</p>
-<p>user_proxy = UserProxyAgent("user_proxy", code_execution_config={...})</p>
 
-<p>user_proxy.initiate_chat(</p>
-<p>    assistant,</p>
-<p>    message="帮我分析这段代码的性能瓶颈"</p>
-<p>)</p>
+<p><strong>适用场景</strong>: 代码审查、技术讨论、交互式问题解决。</p>
+
+<h3>案例 4: Anthropic Claude Computer Use</h3>
+
+<p><strong>设计哲学</strong>: Agent 直接操作计算机（屏幕截图 + 鼠标键盘），实现 GUI 自动化。</p>
+
+<p><strong>核心特性</strong>:</p>
+<li>视觉理解（截屏分析）</li>
+<li>精确的坐标定位和操作</li>
+<li>多步骤 GUI 工作流</li>
+<li>安全沙箱隔离</li>
+
+<p><strong>适用场景</strong>: 无法通过 API 访问的遗留系统操作、测试自动化、RPA 替代。</p>
+
+<h3>案例对比</h3>
+
+<table>
+<tr><th>维度</th><th>LangGraph</th><th>CrewAI</th><th>AutoGen</th><th>Claude Computer Use</th></tr>
+<tr><td>推理模式</td><td>图结构自定义</td><td>ReAct + Plan</td><td>对话式</td><td>ReAct + 视觉</td></tr>
+<tr><td>多Agent</td><td>✅ 支持</td><td>✅ 核心能力</td><td>✅ 核心能力</td><td>❌ 单Agent</td></tr>
+<tr><td>工具使用</td><td>✅ 灵活</td><td>✅ 内置</td><td>✅ 代码执行</td><td>✅ GUI操作</td></tr>
+<tr><td>错误处理</td><td>✅ 条件分支</td><td>⚠️ 基础</td><td>✅ 对话重试</td><td>⚠️ 基础</td></tr>
+<tr><td>学习曲线</td><td>中等</td><td>低</td><td>中等</td><td>低</td></tr>
+<tr><td>生产就绪</td><td>✅ 高</td><td>✅ 中高</td><td>✅ 中</td><td>⚠️ 实验性</td></tr>
+</table>
+
+<hr>
+
+<h2>六、实践建议</h2>
+
+<h3>6.1 选择合适的模式</h3>
+
 <pre><code>
+任务复杂度 vs 模式选择:
 
-**适用场景**: 代码审查、技术讨论、交互式问题解决。
-
-### 案例 4: Anthropic Claude Computer Use
-
-**设计哲学**: Agent 直接操作计算机（屏幕截图 + 鼠标键盘），实现 GUI 自动化。
-
-**核心特性**:
-- 视觉理解（截屏分析）
-- 精确的坐标定位和操作
-- 多步骤 GUI 工作流
-- 安全沙箱隔离
-
-**适用场景**: 无法通过 API 访问的遗留系统操作、测试自动化、RPA 替代。
-
-### 案例对比
-
-| 维度 | LangGraph | CrewAI | AutoGen | Claude Computer Use |
-|------|-----------|--------|---------|---------------------|
-| 推理模式 | 图结构自定义 | ReAct + Plan | 对话式 | ReAct + 视觉 |
-| 多Agent | ✅ 支持 | ✅ 核心能力 | ✅ 核心能力 | ❌ 单Agent |
-| 工具使用 | ✅ 灵活 | ✅ 内置 | ✅ 代码执行 | ✅ GUI操作 |
-| 错误处理 | ✅ 条件分支 | ⚠️ 基础 | ✅ 对话重试 | ⚠️ 基础 |
-| 学习曲线 | 中等 | 低 | 中等 | 低 |
-| 生产就绪 | ✅ 高 | ✅ 中高 | ✅ 中 | ⚠️ 实验性 |
-
----
-
-## 六、实践建议
-
-### 6.1 选择合适的模式
-
+简单（1-2步） → ReAct
+中等（3-10步） → Plan-and-Execute
+复杂（10+步，需质量保证） → Plan-and-Execute + Reflection
+需要团队协作 → 多 Agent（CrewAI/AutoGen）
+需要操作GUI → Computer Use
 </code></pre>
-<p>任务复杂度 vs 模式选择:</p>
 
-<p>简单（1-2步） → ReAct</p>
-<p>中等（3-10步） → Plan-and-Execute</p>
-<p>复杂（10+步，需质量保证） → Plan-and-Execute + Reflection</p>
-<p>需要团队协作 → 多 Agent（CrewAI/AutoGen）</p>
-<p>需要操作GUI → Computer Use</p>
-<pre><code>
+<h3>6.2 设计检查清单</h3>
 
-### 6.2 设计检查清单
+<p>在构建 Agent 系统前，确认以下问题：</p>
 
-在构建 Agent 系统前，确认以下问题：
+<li>[ ] <strong>任务定义</strong>: Agent 的职责边界是否清晰？</li>
+<li>[ ] <strong>工具集</strong>: 是否只暴露必要的工具？描述是否充分？</li>
+<li>[ ] <strong>错误处理</strong>: 每个外部依赖的失败路径是否都有处理？</li>
+<li>[ ] <strong>循环检测</strong>: 是否有最大步数限制？</li>
+<li>[ ] <strong>人机协同</strong>: 敏感操作是否需要人工确认？</li>
+<li>[ ] <strong>可观测性</strong>: 是否有完整的日志和追踪？</li>
+<li>[ ] <strong>成本控制</strong>: 是否有 Token 用量监控和告警？</li>
 
-- [ ] **任务定义**: Agent 的职责边界是否清晰？
-- [ ] **工具集**: 是否只暴露必要的工具？描述是否充分？
-- [ ] **错误处理**: 每个外部依赖的失败路径是否都有处理？
-- [ ] **循环检测**: 是否有最大步数限制？
-- [ ] **人机协同**: 敏感操作是否需要人工确认？
-- [ ] **可观测性**: 是否有完整的日志和追踪？
-- [ ] **成本控制**: 是否有 Token 用量监控和告警？
+<h3>6.3 性能优化</h3>
 
-### 6.3 性能优化
+<p>1. <strong>并行化独立步骤</strong>: Plan-and-Execute 模式下，无依赖关系的步骤可以并行执行</p>
+<p>2. <strong>缓存工具结果</strong>: 相同参数的工具调用可以缓存，避免重复执行</p>
+<p>3. <strong>模型分级</strong>: 简单任务用小模型（如 GPT-4o-mini），复杂推理用大模型</p>
+<p>4. <strong>上下文压缩</strong>: 长对话中定期摘要历史记录，减少 Token 消耗</p>
+<p>5. <strong>预编译 Prompt</strong>: 将固定指令编译为 system prompt，减少每次调用的 Token</p>
 
-1. **并行化独立步骤**: Plan-and-Execute 模式下，无依赖关系的步骤可以并行执行
-2. **缓存工具结果**: 相同参数的工具调用可以缓存，避免重复执行
-3. **模型分级**: 简单任务用小模型（如 GPT-4o-mini），复杂推理用大模型
-4. **上下文压缩**: 长对话中定期摘要历史记录，减少 Token 消耗
-5. **预编译 Prompt**: 将固定指令编译为 system prompt，减少每次调用的 Token
+<h3>6.4 安全注意事项</h3>
 
-### 6.4 安全注意事项
+<li><strong>工具权限最小化</strong>: Agent 只应获得完成任务所需的最小权限</li>
+<li><strong>沙箱执行</strong>: 代码执行必须在隔离环境中进行</li>
+<li><strong>输入验证</strong>: 所有用户输入都需要验证和清洗</li>
+<li><strong>输出过滤</strong>: Agent 的输出在返回给用户前应经过安全检查</li>
+<li><strong>审计日志</strong>: 记录所有工具调用，便于事后审计</li>
 
-- **工具权限最小化**: Agent 只应获得完成任务所需的最小权限
-- **沙箱执行**: 代码执行必须在隔离环境中进行
-- **输入验证**: 所有用户输入都需要验证和清洗
-- **输出过滤**: Agent 的输出在返回给用户前应经过安全检查
-- **审计日志**: 记录所有工具调用，便于事后审计
+<hr>
 
----
+<h2>七、未来展望</h2>
 
-## 七、未来展望
+<h3>7.1 趋势预测</h3>
 
-### 7.1 趋势预测
+<p>1. <strong>标准化通信协议</strong>: 类似 HTTP 之于 Web，Agent 间的通信协议将标准化（如 Google 的 A2A 协议、MCP 协议）</p>
+<p>2. <strong>Agent 市场</strong>: 预构建的领域专家 Agent 将像应用商店一样被分发和组合</p>
+<p>3. <strong>长期记忆</strong>: 从短期上下文窗口进化到持久化记忆系统</p>
+<p>4. <strong>自主学习</strong>: Agent 能从执行经验中学习，不断优化自己的策略</p>
+<p>5. <strong>多模态原生</strong>: 视觉、语音、代码等模态将被原生整合，而非后加</p>
 
-1. **标准化通信协议**: 类似 HTTP 之于 Web，Agent 间的通信协议将标准化（如 Google 的 A2A 协议、MCP 协议）
-2. **Agent 市场**: 预构建的领域专家 Agent 将像应用商店一样被分发和组合
-3. **长期记忆**: 从短期上下文窗口进化到持久化记忆系统
-4. **自主学习**: Agent 能从执行经验中学习，不断优化自己的策略
-5. **多模态原生**: 视觉、语音、代码等模态将被原生整合，而非后加
+<h3>7.2 待解决挑战</h3>
 
-### 7.2 待解决挑战
+<li><strong>可靠性</strong>: Agent 在生产环境中的成功率仍需大幅提升</li>
+<li><strong>成本</strong>: 复杂 Agent 工作流的 LLM 调用成本仍然很高</li>
+<li><strong>评估</strong>: 缺乏标准化的 Agent 评估基准和指标</li>
+<li><strong>安全</strong>: Agent 自主性的提升带来更大的安全风险</li>
 
-- **可靠性**: Agent 在生产环境中的成功率仍需大幅提升
-- **成本**: 复杂 Agent 工作流的 LLM 调用成本仍然很高
-- **评估**: 缺乏标准化的 Agent 评估基准和指标
-- **安全**: Agent 自主性的提升带来更大的安全风险
+<hr>
 
----
+<h2>参考来源</h2>
 
-## 参考来源
+<p>1. <strong>ReAct: Synergizing Reasoning and Acting in Language Models</strong> — Yao et al., 2022  </p>
+<p>   https://arxiv.org/abs/2210.03629  </p>
+<p>   <em>ReAct 模式的原始论文，定义了推理与行动交替的 Agent 范式</em></p>
 
-1. **ReAct: Synergizing Reasoning and Acting in Language Models** — Yao et al., 2022  
-   https://arxiv.org/abs/2210.03629  
-   *ReAct 模式的原始论文，定义了推理与行动交替的 Agent 范式*
+<p>2. <strong>LangChain LangGraph Documentation</strong> — LangChain, 2024-2025  </p>
+<p>   https://langchain-ai.github.io/langgraph/  </p>
+<p>   <em>LangGraph 框架文档，图结构 Agent 的参考实现</em></p>
 
-2. **LangChain LangGraph Documentation** — LangChain, 2024-2025  
-   https://langchain-ai.github.io/langgraph/  
-   *LangGraph 框架文档，图结构 Agent 的参考实现*
+<p>3. <strong>LLM Powered Autonomous Agents</strong> — Lilian Weng, 2023  </p>
+<p>   https://lilianweng.github.io/posts/2023-06-23-agent/  </p>
+<p>   <em>OpenAI 研究员 Lilian Weng 的经典综述，系统梳理 Agent 架构组件</em></p>
 
-3. **LLM Powered Autonomous Agents** — Lilian Weng, 2023  
-   https://lilianweng.github.io/posts/2023-06-23-agent/  
-   *OpenAI 研究员 Lilian Weng 的经典综述，系统梳理 Agent 架构组件*
+<p>4. <strong>CrewAI Documentation</strong> — CrewAI, 2024-2025  </p>
+<p>   https://docs.crewai.com/  </p>
+<p>   <em>多 Agent 协作框架文档，角色驱动的 Agent 编排</em></p>
 
-4. **CrewAI Documentation** — CrewAI, 2024-2025  
-   https://docs.crewai.com/  
-   *多 Agent 协作框架文档，角色驱动的 Agent 编排*
+<p>5. <strong>Anthropic Claude Computer Use</strong> — Anthropic, 2024  </p>
+<p>   https://docs.anthropic.com/en/docs/build-with-claude/computer-use  </p>
+<p>   <em>Claude 的计算机使用功能文档，GUI Agent 的前沿实践</em></p>
 
-5. **Anthropic Claude Computer Use** — Anthropic, 2024  
-   https://docs.anthropic.com/en/docs/build-with-claude/computer-use  
-   *Claude 的计算机使用功能文档，GUI Agent 的前沿实践*
+<hr>
 
----
+<p><em>本报告由 Tech-Researcher 团队编写，旨在为 AI Agent 系统设计提供实践指导。如有反馈，欢迎在 GitHub Issues 中提出。</em></p>
 
-*本报告由 Tech-Researcher 团队编写，旨在为 AI Agent 系统设计提供实践指导。如有反馈，欢迎在 GitHub Issues 中提出。*
-
-</code></pre>
-</body>
-</html>
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
+</body></html>

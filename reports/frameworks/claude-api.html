@@ -4,17 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anthropic Claude API 深度指南</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
 <style>
-body {
-    background: #0f172a; color: #e2e8f0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
-}
+body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
 .top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
 .top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav a:hover { text-decoration: underline; }
 .top-nav .sep { color: #475569; }
 .meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
 .meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
@@ -26,7 +21,6 @@ body {
 .toc ul { list-style: none; padding-left: 1rem; }
 .toc li { margin: .2rem 0; font-size: .9rem; }
 .toc a { color: #93c5fd; text-decoration: none; }
-.toc a:hover { color: #bfdbfe; }
 h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
 h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
@@ -35,6 +29,7 @@ code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f47
 pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
 pre code { background: none; color: #e2e8f0; }
 pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
 blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
 table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
 th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
@@ -43,11 +38,6 @@ tr:nth-child(even) { background: #1e293b44; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 .footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
 .footer a { color: #60a5fa; }
-@media print {
-    body { background: #fff; color: #000; max-width: 100%; }
-    .top-nav, .toc { display: none; }
-    pre { border-left: 3px solid #ccc; }
-}
 </style>
 </head>
 <body>
@@ -59,217 +49,255 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <div class="meta">
 <h1>Anthropic Claude API 深度指南</h1>
 <div class="info">2026-03-14 · 分类: 🏗️ 框架</div>
-<div class="tags"><span class="tag">Claude API</span><span class="tag">Tool Use</span></div>
+<div class="tags"><span class="tag">fixme</span></div>
 </div>
 
-<h1 id="anthropic-claude-api">Anthropic Claude API 深度指南</h1>
-<blockquote>
-<p>发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
-</blockquote>
-<hr />
-<h2 id="executive-summary">Executive Summary</h2>
+<p>> 发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
+
+<hr>
+
+<h2>Executive Summary</h2>
+
 <p>Anthropic 的 Claude API 以其卓越的长上下文处理、安全对齐和工具调用能力，在企业级 AI 应用中占据重要地位。本指南深入分析 Claude Messages API 的设计哲学、Tool Use / Computer Use 能力、Prompt Caching 机制、系统提示词最佳实践，并与 OpenAI API 进行对比分析。</p>
-<p><strong>核心结论：</strong>
-- Claude Messages API 的设计更简洁直观，system prompt 独立于 messages 数组
-- Tool Use 支持并行调用和结构化输出，Computer Use 开启了 GUI 自动化新范式
-- Prompt Caching 可将重复前缀的延迟降低 80%、成本降低 90%
-- Claude 在长文档分析、代码理解和安全关键场景中表现突出</p>
-<hr />
-<h2 id="1-messages-api">1. Messages API 设计</h2>
-<h3 id="11">1.1 核心架构</h3>
+
+<p><strong>核心结论：</strong></p>
+<li>Claude Messages API 的设计更简洁直观，system prompt 独立于 messages 数组</li>
+<li>Tool Use 支持并行调用和结构化输出，Computer Use 开启了 GUI 自动化新范式</li>
+<li>Prompt Caching 可将重复前缀的延迟降低 80%、成本降低 90%</li>
+<li>Claude 在长文档分析、代码理解和安全关键场景中表现突出</li>
+
+<hr>
+
+<h2>1. Messages API 设计</h2>
+
+<h3>1.1 核心架构</h3>
+
 <p>Claude Messages API 采用了一种比 OpenAI 更简洁的设计：</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">anthropic</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">anthropic</span><span class="o">.</span><span class="n">Anthropic</span><span class="p">()</span>
+<pre><code>
+import anthropic
 
-<span class="n">message</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-sonnet-4-20250514&quot;</span><span class="p">,</span>
-    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
-    <span class="n">system</span><span class="o">=</span><span class="s2">&quot;你是一个专业的技术文档翻译助手。&quot;</span><span class="p">,</span>  <span class="c1"># 独立字段</span>
-    <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
-        <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;请翻译以下段落...&quot;</span><span class="p">},</span>
-        <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;翻译结果...&quot;</span><span class="p">},</span>
-        <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;继续翻译下一段&quot;</span><span class="p">}</span>
-    <span class="p">]</span>
-<span class="p">)</span>
-</code></pre></div>
+client = anthropic.Anthropic()
 
-<p><strong>设计特点：</strong>
-- <strong>system 独立字段</strong>：不混入 messages 数组，语义更清晰
-- <strong>多模态原生支持</strong>：content 可以是字符串或 content block 数组
-- <strong>严格的消息交替</strong>：user 和 assistant 消息必须交替（可折叠连续同角色消息）
-- <strong>stop_reason 明确</strong>：<code>end_turn</code> / <code>max_tokens</code> / <code>stop_sequence</code> / <code>tool_use</code></p>
-<h3 id="12">1.2 多模态输入</h3>
-<div class="highlight"><pre><span></span><code><span class="n">message</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-sonnet-4-20250514&quot;</span><span class="p">,</span>
-    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
-    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span>
-        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;base64&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;media_type&quot;</span><span class="p">:</span> <span class="s2">&quot;image/png&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">base64_image</span>
-                <span class="p">}</span>
-            <span class="p">},</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;描述这张图片的内容&quot;</span>
-            <span class="p">}</span>
-        <span class="p">]</span>
-    <span class="p">}]</span>
-<span class="p">)</span>
-</code></pre></div>
+message = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    max_tokens=1024,
+    system="你是一个专业的技术文档翻译助手。",  # 独立字段
+    messages=[
+        {"role": "user", "content": "请翻译以下段落..."},
+        {"role": "assistant", "content": "翻译结果..."},
+        {"role": "user", "content": "继续翻译下一段"}
+    ]
+)
+</code></pre>
 
-<h3 id="13">1.3 流式响应</h3>
-<div class="highlight"><pre><span></span><code><span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span>
-    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-sonnet-4-20250514&quot;</span><span class="p">,</span>
-    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
-    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;解释什么是量子计算&quot;</span><span class="p">}]</span>
-<span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
-    <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">stream</span><span class="o">.</span><span class="n">text_stream</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</code></pre></div>
+<p><strong>设计特点：</strong></p>
+<li><strong>system 独立字段</strong>：不混入 messages 数组，语义更清晰</li>
+<li><strong>多模态原生支持</strong>：content 可以是字符串或 content block 数组</li>
+<li><strong>严格的消息交替</strong>：user 和 assistant 消息必须交替（可折叠连续同角色消息）</li>
+<li><strong>stop_reason 明确</strong>：<code>end_turn</code> / <code>max_tokens</code> / <code>stop_sequence</code> / <code>tool_use</code></li>
 
-<hr />
-<h2 id="2-tool-use-computer-use">2. Tool Use 与 Computer Use</h2>
-<h3 id="21-tool-use">2.1 Tool Use</h3>
+<h3>1.2 多模态输入</h3>
+
+<pre><code>
+message = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    max_tokens=1024,
+    messages=[{
+        "role": "user",
+        "content": [
+            {
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": "image/png",
+                    "data": base64_image
+                }
+            },
+            {
+                "type": "text",
+                "text": "描述这张图片的内容"
+            }
+        ]
+    }]
+)
+</code></pre>
+
+<h3>1.3 流式响应</h3>
+
+<pre><code>
+with client.messages.stream(
+    model="claude-sonnet-4-20250514",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "解释什么是量子计算"}]
+) as stream:
+    for text in stream.text_stream:
+        print(text, end="", flush=True)
+</code></pre>
+
+<hr>
+
+<h2>2. Tool Use 与 Computer Use</h2>
+
+<h3>2.1 Tool Use</h3>
+
 <p>Claude 的 Tool Use（工具使用）功能与 OpenAI 的 Function Calling 对应，但设计上有细微差异：</p>
-<div class="highlight"><pre><span></span><code><span class="n">message</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-sonnet-4-20250514&quot;</span><span class="p">,</span>
-    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
-    <span class="n">tools</span><span class="o">=</span><span class="p">[</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;get_weather&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;获取指定城市的天气信息&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;input_schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;city&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;城市名称&quot;</span><span class="p">},</span>
-                    <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;celsius&quot;</span><span class="p">,</span> <span class="s2">&quot;fahrenheit&quot;</span><span class="p">]}</span>
-                <span class="p">},</span>
-                <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">]</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">],</span>
-    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;北京天气怎么样？&quot;</span><span class="p">}]</span>
-<span class="p">)</span>
 
-<span class="c1"># 检查 tool_use block</span>
-<span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;tool_use&quot;</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;调用工具: </span><span class="si">{</span><span class="n">block</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;参数: </span><span class="si">{</span><span class="n">block</span><span class="o">.</span><span class="n">input</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</code></pre></div>
+<pre><code>
+message = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    max_tokens=1024,
+    tools=[
+        {
+            "name": "get_weather",
+            "description": "获取指定城市的天气信息",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "city": {"type": "string", "description": "城市名称"},
+                    "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]}
+                },
+                "required": ["city"]
+            }
+        }
+    ],
+    messages=[{"role": "user", "content": "北京天气怎么样？"}]
+)
 
-<p><strong>Tool Use 流程：</strong>
-1. 发送带 <code>tools</code> 定义的请求
-2. Claude 返回 <code>tool_use</code> content block
-3. 执行工具并将结果以 <code>tool_result</code> 消息发送回
-4. Claude 基于结果继续生成</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># 第三步：回传工具结果</span>
-<span class="n">message</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-sonnet-4-20250514&quot;</span><span class="p">,</span>
-    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
-    <span class="n">tools</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span>
-    <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
-        <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;北京天气怎么样？&quot;</span><span class="p">},</span>
-        <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">tool_use_block</span><span class="p">]},</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="p">[{</span>
-                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;tool_result&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;tool_use_id&quot;</span><span class="p">:</span> <span class="n">tool_use_block</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;北京，晴，25°C&quot;</span>
-            <span class="p">}]</span>
-        <span class="p">}</span>
-    <span class="p">]</span>
-<span class="p">)</span>
-</code></pre></div>
+# 检查 tool_use block
+for block in message.content:
+    if block.type == "tool_use":
+        print(f"调用工具: {block.name}")
+        print(f"参数: {block.input}")
+</code></pre>
 
-<p><strong>关键差异（vs OpenAI Function Calling）：</strong>
-- 工具结果通过 user 消息回传（而非 tool 角色）
-- 支持 <code>tool_result</code> 中的 <code>is_error</code> 字段标记工具执行失败
-- 自动支持并行工具调用（Claude 3.5+）</p>
-<h3 id="22-computer-use">2.2 Computer Use（计算机使用）</h3>
+<p><strong>Tool Use 流程：</strong></p>
+<p>1. 发送带 <code>tools</code> 定义的请求</p>
+<p>2. Claude 返回 <code>tool_use</code> content block</p>
+<p>3. 执行工具并将结果以 <code>tool_result</code> 消息发送回</p>
+<p>4. Claude 基于结果继续生成</p>
+
+<pre><code>
+# 第三步：回传工具结果
+message = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    max_tokens=1024,
+    tools=tools,
+    messages=[
+        {"role": "user", "content": "北京天气怎么样？"},
+        {"role": "assistant", "content": [tool_use_block]},
+        {
+            "role": "user",
+            "content": [{
+                "type": "tool_result",
+                "tool_use_id": tool_use_block.id,
+                "content": "北京，晴，25°C"
+            }]
+        }
+    ]
+)
+</code></pre>
+
+<p><strong>关键差异（vs OpenAI Function Calling）：</strong></p>
+<li>工具结果通过 user 消息回传（而非 tool 角色）</li>
+<li>支持 <code>tool_result</code> 中的 <code>is_error</code> 字段标记工具执行失败</li>
+<li>自动支持并行工具调用（Claude 3.5+）</li>
+
+<h3>2.2 Computer Use（计算机使用）</h3>
+
 <p>Computer Use 是 Claude 3.5 Sonnet 引入的革命性功能，允许 Claude 直接操作计算机界面。</p>
-<div class="highlight"><pre><span></span><code><span class="n">message</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-sonnet-4-20250514&quot;</span><span class="p">,</span>
-    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
-    <span class="n">tools</span><span class="o">=</span><span class="p">[{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;computer_20241022&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;computer&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;display_width_px&quot;</span><span class="p">:</span> <span class="mi">1920</span><span class="p">,</span>
-        <span class="s2">&quot;display_height_px&quot;</span><span class="p">:</span> <span class="mi">1080</span><span class="p">,</span>
-        <span class="s2">&quot;display_number&quot;</span><span class="p">:</span> <span class="mi">1</span>
-    <span class="p">},</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;text_editor_20241022&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;str_replace_editor&quot;</span>
-    <span class="p">},</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;bash_20241022&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;bash&quot;</span>
-    <span class="p">}],</span>
-    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;帮我打开浏览器并搜索 &#39;AI news&#39;&quot;</span><span class="p">}]</span>
-<span class="p">)</span>
-</code></pre></div>
 
-<p><strong>能力范围：</strong>
-- 截图分析：理解屏幕上的内容
-- 鼠标操作：点击、滚动、拖拽
-- 键盘输入：打字、快捷键
-- 代码编辑：通过文本编辑器工具
-- Shell 操作：通过 bash 工具</p>
-<p><strong>安全考量：</strong>
-- 需要在沙箱环境中运行
-- 建议实施人工确认机制
-- 对敏感操作（如支付、删除）设置额外验证</p>
-<hr />
-<h2 id="3-prompt-caching">3. Prompt Caching</h2>
-<h3 id="31">3.1 机制说明</h3>
+<pre><code>
+message = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    max_tokens=1024,
+    tools=[{
+        "type": "computer_20241022",
+        "name": "computer",
+        "display_width_px": 1920,
+        "display_height_px": 1080,
+        "display_number": 1
+    }, {
+        "type": "text_editor_20241022",
+        "name": "str_replace_editor"
+    }, {
+        "type": "bash_20241022",
+        "name": "bash"
+    }],
+    messages=[{"role": "user", "content": "帮我打开浏览器并搜索 'AI news'"}]
+)
+</code></pre>
+
+<p><strong>能力范围：</strong></p>
+<li>截图分析：理解屏幕上的内容</li>
+<li>鼠标操作：点击、滚动、拖拽</li>
+<li>键盘输入：打字、快捷键</li>
+<li>代码编辑：通过文本编辑器工具</li>
+<li>Shell 操作：通过 bash 工具</li>
+
+<p><strong>安全考量：</strong></p>
+<li>需要在沙箱环境中运行</li>
+<li>建议实施人工确认机制</li>
+<li>对敏感操作（如支付、删除）设置额外验证</li>
+
+<hr>
+
+<h2>3. Prompt Caching</h2>
+
+<h3>3.1 机制说明</h3>
+
 <p>Prompt Caching 是 Anthropic 2024 年推出的重要功能，允许缓存频繁使用的长前缀内容。</p>
-<div class="highlight"><pre><span></span><code><span class="n">message</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-sonnet-4-20250514&quot;</span><span class="p">,</span>
-    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
-    <span class="n">system</span><span class="o">=</span><span class="p">[</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;这里是很长的系统提示词，包含大量上下文信息...&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;cache_control&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;ephemeral&quot;</span><span class="p">}</span>  <span class="c1"># 启用缓存</span>
-        <span class="p">}</span>
-    <span class="p">],</span>
-    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;用户的具体问题&quot;</span><span class="p">}]</span>
-<span class="p">)</span>
-</code></pre></div>
 
-<p><strong>核心参数：</strong>
-- <strong>缓存类型</strong>：<code>ephemeral</code>（临时缓存，TTL 约 5 分钟）
-- <strong>最小长度</strong>：1024 tokens（Sonnet）/ 2048 tokens（Opus）
-- <strong>成本折扣</strong>：缓存命中时，输入成本降低约 90%
-- <strong>延迟改善</strong>：缓存命中时，TTFT 降低约 80%</p>
-<h3 id="32">3.2 缓存最佳实践</h3>
-<ol>
-<li><strong>将稳定内容放在前面</strong>：系统提示词、文档上下文等</li>
-<li><strong>标记缓存断点</strong>：在消息历史的关键位置添加缓存标记</li>
-<li><strong>监控缓存命中率</strong>：通过响应中的 <code>cache_creation_input_tokens</code> 和 <code>cache_read_input_tokens</code></li>
-</ol>
-<div class="highlight"><pre><span></span><code><span class="c1"># 响应中的缓存统计</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;缓存创建: </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">usage</span><span class="o">.</span><span class="n">cache_creation_input_tokens</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;缓存读取: </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">usage</span><span class="o">.</span><span class="n">cache_read_input_tokens</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;常规输入: </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">usage</span><span class="o">.</span><span class="n">input_tokens</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</code></pre></div>
+<pre><code>
+message = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    max_tokens=1024,
+    system=[
+        {
+            "type": "text",
+            "text": "这里是很长的系统提示词，包含大量上下文信息...",
+            "cache_control": {"type": "ephemeral"}  # 启用缓存
+        }
+    ],
+    messages=[{"role": "user", "content": "用户的具体问题"}]
+)
+</code></pre>
 
-<p><strong>适用场景：</strong>
-- RAG 系统中的文档上下文
-- 多轮对话的历史消息
-- Agent 系统的固定指令集
-- 代码分析中的代码库上下文</p>
-<hr />
-<h2 id="4">4. 系统提示词最佳实践</h2>
-<h3 id="41">4.1 结构化系统提示</h3>
+<p><strong>核心参数：</strong></p>
+<li><strong>缓存类型</strong>：<code>ephemeral</code>（临时缓存，TTL 约 5 分钟）</li>
+<li><strong>最小长度</strong>：1024 tokens（Sonnet）/ 2048 tokens（Opus）</li>
+<li><strong>成本折扣</strong>：缓存命中时，输入成本降低约 90%</li>
+<li><strong>延迟改善</strong>：缓存命中时，TTFT 降低约 80%</li>
+
+<h3>3.2 缓存最佳实践</h3>
+
+<p>1. <strong>将稳定内容放在前面</strong>：系统提示词、文档上下文等</p>
+<p>2. <strong>标记缓存断点</strong>：在消息历史的关键位置添加缓存标记</p>
+<p>3. <strong>监控缓存命中率</strong>：通过响应中的 <code>cache_creation_input_tokens</code> 和 <code>cache_read_input_tokens</code></p>
+
+<pre><code>
+# 响应中的缓存统计
+print(f"缓存创建: {message.usage.cache_creation_input_tokens}")
+print(f"缓存读取: {message.usage.cache_read_input_tokens}")
+print(f"常规输入: {message.usage.input_tokens}")
+</code></pre>
+
+<p><strong>适用场景：</strong></p>
+<li>RAG 系统中的文档上下文</li>
+<li>多轮对话的历史消息</li>
+<li>Agent 系统的固定指令集</li>
+<li>代码分析中的代码库上下文</li>
+
+<hr>
+
+<h2>4. 系统提示词最佳实践</h2>
+
+<h3>4.1 结构化系统提示</h3>
+
 <p>Claude 对系统提示词的响应质量高度依赖提示词的质量。推荐结构：</p>
-<div class="highlight"><pre><span></span><code>## 角色定义
+
+<pre><code>
+## 角色定义
 你是一个专业的 [角色]，擅长 [核心能力]。
 
 ## 任务描述
@@ -289,111 +317,87 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 ## 示例（可选）
 输入: ...
 输出: ...
-</code></pre></div>
+</code></pre>
 
-<h3 id="42-chain-of-thought">4.2 Chain of Thought 引导</h3>
-<div class="highlight"><pre><span></span><code>## 思考方式
+<h3>4.2 Chain of Thought 引导</h3>
+
+<pre><code>
+## 思考方式
 在给出最终答案之前，请按以下步骤思考：
 1. 首先，分析问题的核心需求
 2. 列出所有可能的解决方案
 3. 评估每种方案的优缺点
 4. 选择最佳方案并解释原因
-</code></pre></div>
+</code></pre>
 
-<h3 id="43">4.3 安全与边界控制</h3>
+<h3>4.3 安全与边界控制</h3>
+
 <p>Claude 系统提示词中应包含明确的安全边界：</p>
-<div class="highlight"><pre><span></span><code>## 安全规则
+
+<pre><code>
+## 安全规则
 - 不提供医疗、法律或金融建议
 - 不生成可能被用于恶意目的的内容
 - 遇到不确定的问题，建议用户咨询专业人士
 - 拒绝执行涉及个人隐私信息的操作
-</code></pre></div>
+</code></pre>
 
-<h3 id="44">4.4 长上下文优化</h3>
+<h3>4.4 长上下文优化</h3>
+
 <p>Claude 支持高达 200K tokens 的上下文窗口，优化策略：</p>
-<ul>
+
 <li><strong>文档分段</strong>：在长文档中插入清晰的分段标记</li>
 <li><strong>引用标注</strong>：使用 <code>[Document 1]</code>、<code>[Section 2.3]</code> 等标注来源</li>
 <li><strong>摘要锚点</strong>：在超长对话中定期生成摘要作为新的起点</li>
-</ul>
-<hr />
-<h2 id="5-api">5. 与其他 API 对比</h2>
-<h3 id="51-claude-vs-openai">5.1 Claude vs OpenAI</h3>
+
+<hr>
+
+<h2>5. 与其他 API 对比</h2>
+
+<h3>5.1 Claude vs OpenAI</h3>
+
 <table>
-<thead>
-<tr>
-<th>维度</th>
-<th>Claude API</th>
-<th>OpenAI API</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>上下文窗口</td>
-<td>200K tokens</td>
-<td>128K tokens</td>
-</tr>
-<tr>
-<td>System Prompt</td>
-<td>独立字段</td>
-<td>messages[0]</td>
-</tr>
-<tr>
-<td>工具调用</td>
-<td>Tool Use</td>
-<td>Function Calling</td>
-</tr>
-<tr>
-<td>计算机操作</td>
-<td>Computer Use ✅</td>
-<td>不支持</td>
-</tr>
-<tr>
-<td>Prompt Caching</td>
-<td>显式标记</td>
-<td>自动检测</td>
-</tr>
-<tr>
-<td>JSON 模式</td>
-<td><code>tool_use</code></td>
-<td>Structured Output</td>
-</tr>
-<tr>
-<td>视觉理解</td>
-<td>Claude Vision ✅</td>
-<td>GPT-4V ✅</td>
-</tr>
-<tr>
-<td>语音处理</td>
-<td>不原生支持</td>
-<td>Whisper + TTS</td>
-</tr>
-</tbody>
+<tr><th>维度</th><th>Claude API</th><th>OpenAI API</th></tr>
+<tr><td>上下文窗口</td><td>200K tokens</td><td>128K tokens</td></tr>
+<tr><td>System Prompt</td><td>独立字段</td><td>messages[0]</td></tr>
+<tr><td>工具调用</td><td>Tool Use</td><td>Function Calling</td></tr>
+<tr><td>计算机操作</td><td>Computer Use ✅</td><td>不支持</td></tr>
+<tr><td>Prompt Caching</td><td>显式标记</td><td>自动检测</td></tr>
+<tr><td>JSON 模式</td><td>`tool_use`</td><td>Structured Output</td></tr>
+<tr><td>视觉理解</td><td>Claude Vision ✅</td><td>GPT-4V ✅</td></tr>
+<tr><td>语音处理</td><td>不原生支持</td><td>Whisper + TTS</td></tr>
 </table>
-<h3 id="52">5.2 选型建议</h3>
-<p><strong>选择 Claude 当：</strong>
-- 需要处理超长文档（200K 上下文）
-- 安全性要求极高（宪法 AI 对齐）
-- 需要 Computer Use 能力
-- 成本优化需求强（Prompt Caching 利润高）</p>
-<p><strong>选择 OpenAI 当：</strong>
-- 需要完整的多模态生态（图像生成、语音）
-- 需要 Structured Output（严格 JSON Schema）
-- 社区生态和第三方集成更成熟
-- 需要 Assistants API 等高级抽象</p>
-<hr />
-<h2 id="_1">参考来源</h2>
-<ol>
-<li>Anthropic 官方文档 — <a href="https://docs.anthropic.com">docs.anthropic.com</a></li>
-<li>Anthropic Prompt Engineering 指南 — <a href="https://docs.anthropic.com/docs/prompt-engineering">docs.anthropic.com/docs/prompt-engineering</a></li>
-<li>Claude API 参考 — <a href="https://docs.anthropic.com/en/api">docs.anthropic.com/en/api</a></li>
-<li>Anthropic Blog — <a href="https://www.anthropic.com/news">anthropic.com/news</a></li>
-</ol>
-<hr />
+
+<h3>5.2 选型建议</h3>
+
+<p><strong>选择 Claude 当：</strong></p>
+<li>需要处理超长文档（200K 上下文）</li>
+<li>安全性要求极高（宪法 AI 对齐）</li>
+<li>需要 Computer Use 能力</li>
+<li>成本优化需求强（Prompt Caching 利润高）</li>
+
+<p><strong>选择 OpenAI 当：</strong></p>
+<li>需要完整的多模态生态（图像生成、语音）</li>
+<li>需要 Structured Output（严格 JSON Schema）</li>
+<li>社区生态和第三方集成更成熟</li>
+<li>需要 Assistants API 等高级抽象</li>
+
+<hr>
+
+<h2>参考来源</h2>
+
+<p>1. Anthropic 官方文档 — <a href="https://docs.anthropic.com">docs.anthropic.com</a></p>
+<p>2. Anthropic Prompt Engineering 指南 — <a href="https://docs.anthropic.com/docs/prompt-engineering">docs.anthropic.com/docs/prompt-engineering</a></p>
+<p>3. Claude API 参考 — <a href="https://docs.anthropic.com/en/api">docs.anthropic.com/en/api</a></p>
+<p>4. Anthropic Blog — <a href="https://www.anthropic.com/news">anthropic.com/news</a></p>
+
+<hr>
+
 <p><em>本报告基于 2025 年初的 Claude API 状态撰写，Claude 模型和 API 持续快速迭代，请以官方文档为准。</em></p>
 
 <div class="footer">
 <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
 <p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
 </div>
+<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
 </body></html>

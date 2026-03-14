@@ -1,43 +1,56 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agent 记忆系统架构研究</title>
-    <style>
-body {
-    background: #0f172a;
-    color: #e2e8f0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 记忆系统架构研究</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
+<style>
+body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-h4 { color: #a5b4fc; }
-a { color: #60a5fa; text-decoration: none; }
-code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
-pre code { background: none; padding: 0; color: #e2e8f0; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
-th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
 tr:nth-child(even) { background: #1e293b44; }
-tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-strong { color: #f8fafc; }
-em { color: #94a3b8; }
-ul, ol { padding-left: 1.5rem; }
-li { margin: 0.3rem 0; }
-p { margin: 0.8rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
 </style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">🔬 方法论</span>
+</div>
+<div class="meta">
 <h1>Agent 记忆系统架构研究</h1>
+<div class="info">2026-03-14 · 分类: 🔬 方法论</div>
+<div class="tags"><span class="tag">fixme</span></div>
+</div>
 
 <p>> 发布日期: 2026-03-14</p>
 <p>> 分类: 方法论</p>
@@ -65,24 +78,24 @@ p { margin: 0.8rem 0; }
 
 <p>Agent 记忆系统的设计灵感主要来源于人类记忆的认知模型。心理学将人类记忆分为多个层次：</p>
 
-<pre><code>
+<div class="mermaid">
 graph TD
     HM["🧠 人类记忆模型"]
-    SM["感觉记忆 Sensory Memory&lt;br/&gt;视觉: 图像暂存 ~0.5s&lt;br/&gt;听觉: 声音暂存 ~3s"]
-    STM["短期记忆 / 工作记忆&lt;br/&gt;容量: 7±2 个项目&lt;br/&gt;持续: 数秒到数分钟"]
+    SM["感觉记忆 Sensory Memory<br/>视觉: 图像暂存 ~0.5s<br/>听觉: 声音暂存 ~3s"]
+    STM["短期记忆 / 工作记忆<br/>容量: 7±2 个项目<br/>持续: 数秒到数分钟"]
     LTM["长期记忆 Long-term Memory"]
     DECL["陈述性记忆 Declarative"]
     SEM["语义记忆: 事实和概念知识"]
     EPIS["情景记忆: 个人经历和事件"]
-    PROC["程序性记忆 Procedural&lt;br/&gt;技能和操作模式"]
-    HM --&gt; SM
-    HM --&gt; STM
-    HM --&gt; LTM
-    LTM --&gt; DECL
-    LTM --&gt; PROC
-    DECL --&gt; SEM
-    DECL --&gt; EPIS
-</code></pre>
+    PROC["程序性记忆 Procedural<br/>技能和操作模式"]
+    HM --> SM
+    HM --> STM
+    HM --> LTM
+    LTM --> DECL
+    LTM --> PROC
+    DECL --> SEM
+    DECL --> EPIS
+</div>
 
 <h3>1.2 Agent 记忆分类映射</h3>
 
@@ -376,38 +389,38 @@ existing: "用户住在上海"
 
 <p><strong>模式 1：集中式共享存储</strong></p>
 
-<pre><code>
+<div class="mermaid">
 graph TD
-    A["Agent A"] --&gt; S["Shared Memory Store&lt;br/&gt;Vector DB + Metadata"]
-    B["Agent B"] --&gt; S
-    C["Agent C"] --&gt; S
-</code></pre>
+    A["Agent A"] --> S["Shared Memory Store<br/>Vector DB + Metadata"]
+    B["Agent B"] --> S
+    C["Agent C"] --> S
+</div>
 
 <p><strong>优势</strong>：实现简单，数据一致性好</p>
 <p><strong>劣势</strong>：单点瓶颈，权限控制粒度粗</p>
 
 <p><strong>模式 2：分层记忆池</strong></p>
 
-<pre><code>
+<div class="mermaid">
 graph TD
-    G["🌐 Global Memory Pool&lt;br/&gt;所有 Agent 共享的公共知识"]
-    T["👥 Team Memory Pool (Agent A + B)&lt;br/&gt;特定团队共享的上下文"]
-    P1["🔒 Agent A Private&lt;br/&gt;Agent 私有记忆"]
-    P2["🔒 Agent B Private&lt;br/&gt;Agent 私有记忆"]
-    G --&gt; T
-    T --&gt; P1
-    T --&gt; P2
-</code></pre>
+    G["🌐 Global Memory Pool<br/>所有 Agent 共享的公共知识"]
+    T["👥 Team Memory Pool (Agent A + B)<br/>特定团队共享的上下文"]
+    P1["🔒 Agent A Private<br/>Agent 私有记忆"]
+    P2["🔒 Agent B Private<br/>Agent 私有记忆"]
+    G --> T
+    T --> P1
+    T --> P2
+</div>
 
 <p><strong>优势</strong>：权限分层，减少信息过载</p>
 <p><strong>劣势</strong>：需要设计清晰的分层策略</p>
 
 <p><strong>模式 3：联邦记忆</strong></p>
 
-<pre><code>
+<div class="mermaid">
 graph LR
-    A["Agent A&lt;br/&gt;Local Memory"] &lt;--&gt;|"Sync"| B["Agent B&lt;br/&gt;Local Memory"]
-</code></pre>
+    A["Agent A<br/>Local Memory"] <-->|"Sync"| B["Agent B<br/>Local Memory"]
+</div>
 
 <p>每个 Agent 维护本地记忆，通过同步协议共享必要信息。</p>
 
@@ -416,11 +429,11 @@ graph LR
 
 <p><strong>模式 4：事件驱动记忆流</strong></p>
 
-<pre><code>
+<div class="mermaid">
 graph LR
-    A["Agent A"] --&gt;|"Publish"| EB["Event Bus /&lt;br/&gt;Message Queue"]
-    EB --&gt;|"Subscribe"| B["Agent B"]
-</code></pre>
+    A["Agent A"] -->|"Publish"| EB["Event Bus /<br/>Message Queue"]
+    EB -->|"Subscribe"| B["Agent B"]
+</div>
 
 <p>Agent 通过发布-订阅机制共享记忆事件。</p>
 
@@ -531,32 +544,32 @@ core_memory = {  # 始终在上下文中
 
 <p>如果框架无法满足需求，自建记忆系统的推荐架构：</p>
 
-<pre><code>
+<div class="mermaid">
 graph TD
     AR["🏗️ Agent Runtime"]
     MM["Memory Manager"]
-    EX["Memory Extractor&lt;br/&gt;从对话中提取记忆"]
-    CO["Memory Compressor&lt;br/&gt;定期压缩摘要"]
-    RE["Memory Retriever&lt;br/&gt;按需检索相关记忆"]
-    FO["Memory Forgetter&lt;br/&gt;过期/冲突清理"]
+    EX["Memory Extractor<br/>从对话中提取记忆"]
+    CO["Memory Compressor<br/>定期压缩摘要"]
+    RE["Memory Retriever<br/>按需检索相关记忆"]
+    FO["Memory Forgetter<br/>过期/冲突清理"]
     SL["Storage Layer"]
-    WM["Working Memory&lt;br/&gt;In-context System Prompt"]
-    ST["Short-term&lt;br/&gt;Conversation Buffer"]
-    LS["Long-term Semantic&lt;br/&gt;Vector Store Qdrant"]
-    LST["Long-term Structured&lt;br/&gt;PostgreSQL"]
-    GM["Graph Memory&lt;br/&gt;Neo4j / FalkorDB"]
-    AR --&gt; MM
-    MM --&gt; EX
-    MM --&gt; CO
-    MM --&gt; RE
-    MM --&gt; FO
-    AR --&gt; SL
-    SL --&gt; WM
-    SL --&gt; ST
-    SL --&gt; LS
-    SL --&gt; LST
-    SL --&gt; GM
-</code></pre>
+    WM["Working Memory<br/>In-context System Prompt"]
+    ST["Short-term<br/>Conversation Buffer"]
+    LS["Long-term Semantic<br/>Vector Store Qdrant"]
+    LST["Long-term Structured<br/>PostgreSQL"]
+    GM["Graph Memory<br/>Neo4j / FalkorDB"]
+    AR --> MM
+    MM --> EX
+    MM --> CO
+    MM --> RE
+    MM --> FO
+    AR --> SL
+    SL --> WM
+    SL --> ST
+    SL --> LS
+    SL --> LST
+    SL --> GM
+</div>
 
 <p><strong>关键设计决策：</strong></p>
 
@@ -684,5 +697,9 @@ graph TD
 
 <p><em>本报告为 Tech-Researcher 系列方法论报告之一。如有反馈或建议，欢迎通过 GitHub Issues 提出。</em></p>
 
-</body>
-</html>
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
+</body></html>

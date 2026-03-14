@@ -1,43 +1,56 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LangChain vs LlamaIndex 深度对比</title>
-    <style>
-body {
-    background: #0f172a;
-    color: #e2e8f0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LangChain vs LlamaIndex 深度对比</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
+<style>
+body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-h4 { color: #a5b4fc; }
-a { color: #60a5fa; text-decoration: none; }
-code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
-pre code { background: none; padding: 0; color: #e2e8f0; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
-th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
 tr:nth-child(even) { background: #1e293b44; }
-tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-strong { color: #f8fafc; }
-em { color: #94a3b8; }
-ul, ol { padding-left: 1.5rem; }
-li { margin: 0.3rem 0; }
-p { margin: 0.8rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
 </style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">🛠️ 工具</span>
+</div>
+<div class="meta">
 <h1>LangChain vs LlamaIndex 深度对比</h1>
+<div class="info">2026-03-14 · 分类: 🛠️ 工具</div>
+<div class="tags"><span class="tag">fixme</span></div>
+</div>
 
 <p>> 最后更新: 2026-03-14 | 分类: AI 开发框架</p>
 
@@ -67,18 +80,18 @@ p { margin: 0.8rem 0; }
 <p>3. <strong>生态广度</strong>: 与 700+ 集成对接，覆盖向量数据库、LLM 提供商、工具、数据加载器等。</p>
 
 <p>关键组件层次：</p>
-<pre><code>
+<div class="mermaid">
 graph TD
-    CORE["LangChain Core&lt;br/&gt;基础抽象: LLM, Prompt, Output Parser"]
-    LC["LangChain&lt;br/&gt;Chain, Agent, Memory, Retrieval"]
-    LG["LangGraph&lt;br/&gt;有状态 Agent 工作流"]
-    LS["LangSmith&lt;br/&gt;可观测性与调试"]
-    LSV["LangServe&lt;br/&gt;部署与 API 服务"]
-    CORE --&gt; LC
-    CORE --&gt; LG
-    CORE --&gt; LS
-    CORE --&gt; LSV
-</code></pre>
+    CORE["LangChain Core<br/>基础抽象: LLM, Prompt, Output Parser"]
+    LC["LangChain<br/>Chain, Agent, Memory, Retrieval"]
+    LG["LangGraph<br/>有状态 Agent 工作流"]
+    LS["LangSmith<br/>可观测性与调试"]
+    LSV["LangServe<br/>部署与 API 服务"]
+    CORE --> LC
+    CORE --> LG
+    CORE --> LS
+    CORE --> LSV
+</div>
 
 <h3>LlamaIndex: "数据是第一公民"</h3>
 
@@ -89,20 +102,20 @@ graph TD
 <p>3. <strong>Agent 为辅</strong>: 2024 年推出的 Workflows 和 Agent 系统是对 RAG 能力的扩展，而非替代。</p>
 
 <p>关键组件层次：</p>
-<pre><code>
+<div class="mermaid">
 graph TD
-    CORE["LlamaIndex Core&lt;br/&gt;基础抽象: Node, Index, Query Engine"]
-    DC["Data Connectors&lt;br/&gt;LlamaHub: 100+ 数据源"]
-    IDX["Indexing&lt;br/&gt;Vector, Keyword, Tree, KG"]
-    QE["Query Engine&lt;br/&gt;Retrieval + Synthesis"]
-    WF["Workflows&lt;br/&gt;事件驱动工作流"]
-    DEPLOY["LlamaDeploy&lt;br/&gt;生产部署"]
-    CORE --&gt; DC
-    CORE --&gt; IDX
-    CORE --&gt; QE
-    CORE --&gt; WF
-    CORE --&gt; DEPLOY
-</code></pre>
+    CORE["LlamaIndex Core<br/>基础抽象: Node, Index, Query Engine"]
+    DC["Data Connectors<br/>LlamaHub: 100+ 数据源"]
+    IDX["Indexing<br/>Vector, Keyword, Tree, KG"]
+    QE["Query Engine<br/>Retrieval + Synthesis"]
+    WF["Workflows<br/>事件驱动工作流"]
+    DEPLOY["LlamaDeploy<br/>生产部署"]
+    CORE --> DC
+    CORE --> IDX
+    CORE --> QE
+    CORE --> WF
+    CORE --> DEPLOY
+</div>
 
 <h3>设计哲学对比</h3>
 
@@ -259,7 +272,7 @@ graph TD
 
 <h3>场景决策树</h3>
 
-<pre><code>
+<div class="mermaid">
 graph TD
     Q{"你的核心需求是什么？"}
     RAG["RAG / 数据索引 → LlamaIndex"]
@@ -270,20 +283,20 @@ graph TD
     RAG_MULTI{"多数据源接入？"}
     AGENT_RAG{"需要 RAG 能力？"}
     AGENT_MULTI{"多 Agent 协作？"}
-    Q --&gt; RAG
-    Q --&gt; AGENT
-    Q --&gt; PROTO
-    Q --&gt; ENTERPRISE
-    RAG --&gt; RAG_AGENT
-    RAG --&gt; RAG_MULTI
-    RAG_AGENT --&gt;|"是"| "LlamaIndex Workflows 或 LangGraph"
-    RAG_AGENT --&gt;|"否"| "纯 LlamaIndex"
-    AGENT --&gt; AGENT_RAG
-    AGENT --&gt; AGENT_MULTI
-    AGENT_RAG --&gt;|"轻度"| "LangChain 内置 Retrieval"
-    AGENT_RAG --&gt;|"深度"| "集成 LlamaIndex"
-    AGENT_MULTI --&gt; "LangGraph Supervisor 模式"
-</code></pre>
+    Q --> RAG
+    Q --> AGENT
+    Q --> PROTO
+    Q --> ENTERPRISE
+    RAG --> RAG_AGENT
+    RAG --> RAG_MULTI
+    RAG_AGENT -->|"是"| "LlamaIndex Workflows 或 LangGraph"
+    RAG_AGENT -->|"否"| "纯 LlamaIndex"
+    AGENT --> AGENT_RAG
+    AGENT --> AGENT_MULTI
+    AGENT_RAG -->|"轻度"| "LangChain 内置 Retrieval"
+    AGENT_RAG -->|"深度"| "集成 LlamaIndex"
+    AGENT_MULTI --> "LangGraph Supervisor 模式"
+</div>
 
 <h3>具体建议</h3>
 
@@ -305,5 +318,9 @@ graph TD
 <p>5. <strong>LlamaIndex Workflows 文档</strong> — <a href="https://docs.llamaindex.ai/en/stable/module_guides/workflow/">docs.llamaindex.ai/en/stable/module_guides/workflow/</a> — 事件驱动工作流</p>
 <p>6. <strong>Chatbot Arena LLM 排行</strong> — <a href="https://chat.lmsys.org">lmsys.org</a> — LLM 性能基准参考</p>
 
-</body>
-</html>
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
+</body></html>

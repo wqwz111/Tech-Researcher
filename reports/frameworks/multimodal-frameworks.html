@@ -1,43 +1,56 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>多模态 AI 框架分析</title>
-    <style>
-body {
-    background: #0f172a;
-    color: #e2e8f0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多模态 AI 框架分析</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
+<style>
+body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-h4 { color: #a5b4fc; }
-a { color: #60a5fa; text-decoration: none; }
-code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
-pre code { background: none; padding: 0; color: #e2e8f0; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
-th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
 tr:nth-child(even) { background: #1e293b44; }
-tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-strong { color: #f8fafc; }
-em { color: #94a3b8; }
-ul, ol { padding-left: 1.5rem; }
-li { margin: 0.3rem 0; }
-p { margin: 0.8rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
 </style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">🏗️ 框架</span>
+</div>
+<div class="meta">
 <h1>多模态 AI 框架分析</h1>
+<div class="info">2026-03-14 · 分类: 🏗️ 框架</div>
+<div class="tags"><span class="tag">fixme</span></div>
+</div>
 
 <p>> 发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
 
@@ -348,13 +361,13 @@ def transcribe_audio(video_path):
 
 <h3>4.2 早期融合（以 Gemini 为例）</h3>
 
-<pre><code>
+<div class="mermaid">
 graph TD
-    T["文本 Token"] --&gt; TRANS["统一 Transformer"]
-    I["图像 Token"] --&gt; TRANS
-    A["音频 Token"] --&gt; TRANS
-    TRANS --&gt; OUT["输出"]
-</code></pre>
+    T["文本 Token"] --> TRANS["统一 Transformer"]
+    I["图像 Token"] --> TRANS
+    A["音频 Token"] --> TRANS
+    TRANS --> OUT["输出"]
+</div>
 
 <li>模型从预训练阶段就处理多种模态</li>
 <li>模态间交互最充分</li>
@@ -362,14 +375,14 @@ graph TD
 
 <h3>4.3 晚期融合（Pipeline 方案）</h3>
 
-<pre><code>
+<div class="mermaid">
 graph TD
-    IMG["图像"] --&gt; VE["视觉编码器"] --&gt; VF["视觉特征"]
-    TXT["文本"] --&gt; TOK["Tokenizer"] --&gt; TF["文本特征"]
-    VF --&gt; LLM["LLM"]
-    TF --&gt; LLM
-    LLM --&gt; OUT["输出"]
-</code></pre>
+    IMG["图像"] --> VE["视觉编码器"] --> VF["视觉特征"]
+    TXT["文本"] --> TOK["Tokenizer"] --> TF["文本特征"]
+    VF --> LLM["LLM"]
+    TF --> LLM
+    LLM --> OUT["输出"]
+</div>
 
 <li>各模态可独立更换模型</li>
 <li>适合开源模型组合</li>
@@ -416,22 +429,22 @@ def multimodal_rag(query, image=None):
 
 <h3>5.2 技术架构建议</h3>
 
-<pre><code>
+<div class="mermaid">
 graph TD
-    APP["📱 应用层&lt;br/&gt;Chatbot / 内容审核 / 文档处理 / 媒体分析"]
-    ORCH["🔗 编排层&lt;br/&gt;LangChain / LlamaIndex / 自定义 Pipeline"]
+    APP["📱 应用层<br/>Chatbot / 内容审核 / 文档处理 / 媒体分析"]
+    ORCH["🔗 编排层<br/>LangChain / LlamaIndex / 自定义 Pipeline"]
     MODEL["🤖 模型层"]
-    VISION["Vision&lt;br/&gt;GPT-4o / Claude / Gemini"]
-    AUDIO["Audio&lt;br/&gt;Whisper / TTS"]
-    VIDEO["Video&lt;br/&gt;Gemini + FFmpeg"]
-    INFRA["🏗️ 基础设施&lt;br/&gt;对象存储 / CDN / GPU 集群 / 消息队列"]
-    APP --&gt; ORCH
-    ORCH --&gt; MODEL
-    MODEL --&gt; VISION
-    MODEL --&gt; AUDIO
-    MODEL --&gt; VIDEO
-    MODEL --&gt; INFRA
-</code></pre>
+    VISION["Vision<br/>GPT-4o / Claude / Gemini"]
+    AUDIO["Audio<br/>Whisper / TTS"]
+    VIDEO["Video<br/>Gemini + FFmpeg"]
+    INFRA["🏗️ 基础设施<br/>对象存储 / CDN / GPU 集群 / 消息队列"]
+    APP --> ORCH
+    ORCH --> MODEL
+    MODEL --> VISION
+    MODEL --> AUDIO
+    MODEL --> VIDEO
+    MODEL --> INFRA
+</div>
 
 <h3>5.3 实践建议</h3>
 
@@ -456,5 +469,9 @@ graph TD
 
 <p><em>本报告基于 2025 年初的多模态 AI 生态撰写，该领域发展极快，视频生成和理解能力尤为如此，请持续关注最新进展。</em></p>
 
-</body>
-</html>
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
+</body></html>

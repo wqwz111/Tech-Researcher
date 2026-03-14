@@ -4,17 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Google Gemini 多模态应用实践</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
 <style>
-body {
-    background: #0f172a; color: #e2e8f0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
-}
+body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
 .top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
 .top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav a:hover { text-decoration: underline; }
 .top-nav .sep { color: #475569; }
 .meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
 .meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
@@ -26,7 +21,6 @@ body {
 .toc ul { list-style: none; padding-left: 1rem; }
 .toc li { margin: .2rem 0; font-size: .9rem; }
 .toc a { color: #93c5fd; text-decoration: none; }
-.toc a:hover { color: #bfdbfe; }
 h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
 h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
@@ -35,6 +29,7 @@ code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f47
 pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
 pre code { background: none; color: #e2e8f0; }
 pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
 blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
 table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
 th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
@@ -43,11 +38,6 @@ tr:nth-child(even) { background: #1e293b44; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 .footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
 .footer a { color: #60a5fa; }
-@media print {
-    body { background: #fff; color: #000; max-width: 100%; }
-    .top-nav, .toc { display: none; }
-    pre { border-left: 3px solid #ccc; }
-}
 </style>
 </head>
 <body>
@@ -59,74 +49,257 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <div class="meta">
 <h1>Google Gemini 多模态应用实践</h1>
 <div class="info">2026-03-14 · 分类: 📊 案例实践</div>
-<div class="tags"><span class="tag">Gemini</span><span class="tag">多模态</span><span class="tag">Vertex AI</span></div>
+<div class="tags"><span class="tag">fixme</span></div>
 </div>
 
-    <h1>Google Gemini 多模态应用实践</h1>
-    <div class="meta"><span>📅 2025年3月</span><span>📂 案例实践</span><span>📖 ~4300字</span></div>
+<p>> <strong>发布日期</strong>: 2025年3月  </p>
+<p>> <strong>分类</strong>: 案例实践  </p>
+<p>> <strong>字数</strong>: ~4300字</p>
 
-    <div class="summary">
-        <h3 id="-executive-summary">📋 Executive Summary</h3>
-        <p>Google Gemini 是原生设计为同时处理文本、图像、音频和视频的多模态系统。Gemini 2.0 标志着 Google 在 AI 竞赛中重新占据技术前沿。</p>
-        <ul>
-            <li><strong>原生多模态是核心优势</strong>：从训练阶段就是多模态</li>
-            <li><strong>Google 生态集成是护城河</strong>：Search、Workspace、Android 深度集成</li>
-            <li><strong>定价极具竞争力</strong>：Gemini Flash 远低于同级竞品</li>
-            <li><strong>视频理解独有优势</strong>：唯一提供原生视频理解的主流模型</li>
-        </ul>
-    </div>
+<hr>
 
-    <h2 id="1-gemini-20-架构与能力">1. Gemini 2.0 架构与能力</h2>
-    <p><strong>Gemini Ultra / Pro / Nano（2023.12）</strong>——Ultra 在 MMLU 上首次超过人类专家水平（90%）。</p>
-    <p><strong>Gemini 1.5 系列（2024）</strong>——1M-2M tokens 上下文窗口、MoE 架构。Flash 模型输入仅 $0.075/1M tokens。</p>
-    <p><strong>Gemini 2.0（2024.12）</strong>——原生多模态输出、Agent 能力增强（Project Astra）、代码执行、实时搜索。</p>
+<h2>Executive Summary</h2>
 
-    <h2 id="2-多模态应用实践">2. 多模态应用实践</h2>
-    <h3 id="文本--图像文档智能">文本 + 图像：文档智能</h3>
-    <p>直接处理包含图表、表格的复杂文档，准确率提升约 30%，处理速度提升 5 倍。</p>
-    <h3 id="音频会议与客服">音频：会议与客服</h3>
-    <p>直接处理音频生成会议纪要、客服分析，减少 ASR+NLP 管线的信息损失。</p>
-    <h3 id="视频内容理解">视频：内容理解</h3>
-    <p>视频内容总结、教育视频分析、监控异常识别——Gemini 独有能力。</p>
+<p>Google Gemini 是 Google DeepMind 推出的多模态 AI 模型系列，直接对标 OpenAI 的 GPT 系列。Gemini 2.0 的发布标志着 Google 在 AI 竞赛中重新占据技术前沿——它不仅是文本模型，而是原生设计为同时处理文本、图像、音频和视频的多模态系统。</p>
 
-    <h2 id="3-google-ai-studio-与-vertex-ai">3. Google AI Studio 与 Vertex AI</h2>
-    <p><strong>AI Studio</strong>：免费测试平台，支持多模态输入、代码导出。</p>
-    <p><strong>Vertex AI</strong>：企业级平台，提供 SLA、数据隐私、安全合规、Grounding with Google Search。</p>
+<p>核心发现：</p>
+<li><strong>原生多模态是核心优势</strong>：与 GPT-4o 的"多模态融合"不同，Gemini 从训练阶段就是多模态</li>
+<li><strong>Google 生态集成是护城河</strong>：Search、Workspace、Android、YouTube 的深度集成</li>
+<li><strong>定价极具竞争力</strong>：Gemini 1.5 Flash 价格远低于同级竞品</li>
+<li><strong>开发者体验仍有差距</strong>：API 稳定性和文档质量落后于 OpenAI</li>
+<li><strong>实际部署案例丰富</strong>：从 Google 内部产品到企业客户，落地场景广泛</li>
 
-    <h3 id="api-定价对比">API 定价对比</h3>
-    <table>
-        <tr><th>模型</th><th>Input</th><th>Output</th></tr>
-        <tr><td>Gemini 1.5 Pro</td><td>$1.25 - $2.50/1M</td><td>$5.00 - $10.00/1M</td></tr>
-        <tr><td>Gemini 2.0 Flash</td><td>$0.10/1M</td><td>$0.40/1M</td></tr>
-        <tr><td>GPT-4o mini (对比)</td><td>$0.15/1M</td><td>$0.60/1M</td></tr>
-    </table>
+<hr>
 
-    <h2 id="4-google-生态集成">4. Google 生态集成</h2>
-    <p><strong>Workspace</strong>：Gmail/Docs/Sheets/Slides 中的 Gemini 助手。</p>
-    <p><strong>Search</strong>：AI Overviews、Circle to Search。</p>
-    <p><strong>Android</strong>：Gemini Nano 端侧运行，实时翻译、智能回复。</p>
-    <p><strong>YouTube</strong>：视频总结、问答、章节生成。</p>
+<h2>1. Gemini 2.0 架构与能力</h2>
 
-    <h2 id="5-实际部署案例">5. 实际部署案例</h2>
-    <p>零售行业上新效率提升 40%，金融行业分析师审查时间减少 60%，媒体行业内容发现效率提升 35%。</p>
+<h3>1.1 模型架构演进</h3>
 
-    <h2 id="实践建议">实践建议</h2>
-    <p><strong>选择 Gemini</strong>：多模态（尤其视频）、长文档、Google 生态、成本敏感场景。</p>
-    <p><strong>不建议</strong>：复杂推理、编程、高度一致指令遵循、API 稳定性要求极高。</p>
+<p><strong>Gemini Ultra / Pro / Nano（2023.12）</strong></p>
 
-    <div class="refs">
-        <h3 id="参考来源">参考来源</h3>
-        <ol>
-            <li>Google DeepMind. "Gemini: A Family of Highly Capable Multimodal Models." December 2023.</li>
-            <li>Google. "Our next-generation model: Gemini 1.5." February 2024.</li>
-            <li>Google Cloud. "Vertex AI Documentation."</li>
-            <li>Google. "Gemini 2.0: A new AI era." December 2024.</li>
-        </ol>
-    </div>
-    
+<p>Google 首次发布 Gemini 时采用了三级架构：</p>
+<li><strong>Ultra</strong>：旗舰模型，对标 GPT-4，在 MMLU 基准上首次超过人类专家水平（90%）</li>
+<li><strong>Pro</strong>：均衡模型，适合大多数应用场景</li>
+<li><strong>Nano</strong>：端侧模型，可以在手机等设备上运行（1.8B 和 3.25B 参数）</li>
 
+<p><strong>Gemini 1.5 Pro / Flash（2024.02 - 2024.05）</strong></p>
+
+<p>1.5 系列带来两个重要突破：</p>
+<li><strong>100 万 token 上下文窗口</strong>（后续扩展到 200 万）：这是当时最大的上下文窗口，可以一次性处理约 1,500 页文档或 30,000 行代码</li>
+<li><strong>Mixture-of-Experts (MoE) 架构</strong>：通过专家混合架构在保持能力的同时降低推理成本</li>
+
+<p>Flash 模型则是针对速度和成本优化的版本，输入价格仅为 $0.075/1M tokens，比 GPT-4o mini 更便宜。</p>
+
+<p><strong>Gemini 2.0（2024.12 - 2025.01）</strong></p>
+
+<p>Gemini 2.0 标志着新一轮升级：</p>
+<li><strong>原生多模态输出</strong>：可以同时生成文本和图像（无需调用单独的图像生成模型）</li>
+<li><strong>Agent 能力增强</strong>：Project Astra 展示了实时多模态交互和工具使用</li>
+<li><strong>代码执行</strong>：内置代码解释器</li>
+<li><strong>实时搜索集成</strong>：可以调用 Google Search 获取最新信息</li>
+
+<h3>1.2 多模态能力详解</h3>
+
+<p>Gemini 的多模态不是"附加功能"，而是"核心架构"。这意味着：</p>
+
+<p><strong>文本处理</strong>：保持竞争力的文本理解与生成能力，在部分基准上与 GPT-4o 持平。</p>
+
+<p><strong>图像理解</strong>：可以分析照片、图表、文档扫描件、UI 界面。Gemini Ultra 在 MMMU（多学科多模态理解）基准上达到 59.4%，超过了 GPT-4V 的 56.8%。¹</p>
+
+<p><strong>音频理解</strong>：原生支持音频输入，可以转录、翻译、理解语音中的情绪和意图。这是 GPT-4o 语音模式的直接竞争者。</p>
+
+<p><strong>视频理解</strong>：这是 Gemini 最独特的差异化能力。可以分析视频内容——理解场景变化、识别动作、总结视频内容。在 ActivityNet-QA 基准上，Gemini 的视频理解能力超越了当时所有竞品。</p>
+
+<p><strong>长文档处理</strong>：1M-2M tokens 的上下文窗口使其可以：</p>
+<li>一次性处理整个代码仓库</li>
+<li>分析数百页的法律文件</li>
+<li>理解完整的研究论文集</li>
+
+<p>实际测试中，Gemini 1.5 Pro 在"大海捞针"（Needle in a Haystack）测试中在 1M tokens 范围内达到了 99.7% 的准确率。²</p>
+
+<hr>
+
+<h2>2. 多模态应用实践</h2>
+
+<h3>2.1 文本 + 图像：文档智能处理</h3>
+
+<p><strong>应用场景</strong>：上传包含图表、表格、图片的复杂文档（如年报、研究报告），Gemini 可以同时理解文本内容和视觉元素。</p>
+
+<p><strong>实践案例</strong>：一家咨询公司将客户提供的行业报告（包含大量图表和数据表）直接输入 Gemini，自动生成摘要和关键洞察。相比之前的"先 OCR 提取文本，再用 LLM 分析"的两步流程，准确率提升约 30%，处理速度提升 5 倍。</p>
+
+<h3>2.2 音频：会议与客服</h3>
+
+<p><strong>会议记录与分析</strong>：Gemini 可以直接处理音频文件，生成会议纪要、提取行动项、分析讨论趋势。</p>
+
+<p><strong>客服语音分析</strong>：处理客服录音，识别客户情绪变化、关键问题点、服务质量指标。相比传统的 ASR + NLP 管线，原生音频理解减少了信息损失。</p>
+
+<h3>2.3 视频：内容理解与分析</h3>
+
+<p><strong>视频内容总结</strong>：输入 YouTube 视频链接或视频文件，Gemini 可以生成内容摘要、识别关键场景、提取关键信息。</p>
+
+<p><strong>教育场景</strong>：分析教学视频，自动生成学习笔记、关键概念列表、练习题。这是 Gemini 独有的能力——其他主流模型（截至 2025 年初）尚未提供原生视频理解。</p>
+
+<p><strong>监控视频分析</strong>：在安全监控场景中，识别异常事件、人员行为模式。需要注意隐私和合规问题。</p>
+
+<h3>2.4 多模态组合：端到端应用</h3>
+
+<p><strong>场景：产品设计评审</strong></p>
+<p>1. 上传产品设计图（图像输入）</p>
+<p>2. 上传设计规范文档（文本输入）</p>
+<p>3. 上传用户反馈录音（音频输入）</p>
+<p>4. Gemini 综合分析，输出改进建议</p>
+
+<p>这种"全模态"输入在复杂决策场景中特别有价值。</p>
+
+<hr>
+
+<h2>3. Google AI Studio 与 Vertex AI</h2>
+
+<h3>3.1 Google AI Studio</h3>
+
+<p>Google AI Studio 是面向开发者的免费测试平台，类似于 OpenAI 的 Playground：</p>
+
+<li><strong>快速原型</strong>：在浏览器中测试 Gemini 模型，无需编写代码</li>
+<li><strong>Prompt 设计</strong>：可视化调整 System Prompt、Few-shot 示例</li>
+<li><strong>多模态输入</strong>：直接上传图像、音频、视频文件进行测试</li>
+<li><strong>代码导出</strong>：生成 Python、Node.js 等语言的 SDK 调用代码</li>
+<li><strong>免费额度</strong>：提供慷慨的免费 API 调用额度，适合原型开发</li>
+
+<h3>3.2 Vertex AI</h3>
+
+<p>Vertex AI 是 Google Cloud 的企业级 AI 平台，提供 Gemini 模型的生产级部署：</p>
+
+<p><strong>关键特性</strong>：</p>
+<li><strong>企业级 SLA</strong>：保证可用性和响应时间</li>
+<li><strong>数据隐私</strong>：企业数据不会用于模型训练</li>
+<li><strong>安全合规</strong>：支持 VPC-SC、CMEK、HIPAA 合规</li>
+<li><strong>模型调优</strong>：支持 fine-tuning 和 Grounding with Google Search</li>
+<li><strong>Agent Builder</strong>：低代码构建 RAG 和 Agent 应用</li>
+
+<p><strong>Grounding with Google Search</strong>：这是 Vertex AI 独有的特性——模型在回答时可以引用 Google Search 的实时结果，既提高准确性又提供来源链接。</p>
+
+<h3>3.3 API 定价对比</h3>
+
+<table>
+<tr><th>模型</th><th>Input (per 1M tokens)</th><th>Output (per 1M tokens)</th></tr>
+<tr><td>Gemini 1.5 Pro</td><td>$1.25 - $2.50</td><td>$5.00 - $10.00</td></tr>
+<tr><td>Gemini 1.5 Flash</td><td>$0.075 - $0.15</td><td>$0.30 - $0.60</td></tr>
+<tr><td>Gemini 2.0 Flash</td><td>$0.10</td><td>$0.40</td></tr>
+<tr><td>GPT-4o (对比)</td><td>$2.50</td><td>$10.00</td></tr>
+<tr><td>GPT-4o mini (对比)</td><td>$0.15</td><td>$0.60</td></tr>
+</table>
+
+<p>> 注：Gemini 价格随输入长度变化（超过 128K tokens 后价格翻倍）。价格截至 2025 年 1 月。</p>
+
+<hr>
+
+<h2>4. 与 Google 生态集成</h2>
+
+<h3>4.1 Google Workspace</h3>
+
+<p><strong>Gemini in Gmail</strong>：智能撰写邮件、总结长邮件链、提取行动项。</p>
+
+<p><strong>Gemini in Docs</strong>：协助写作、总结文档、生成内容大纲。</p>
+
+<p><strong>Gemini in Sheets</strong>：数据分析、公式生成、趋势识别。</p>
+
+<p><strong>Gemini in Slides</strong>：根据文档自动生成演示文稿。</p>
+
+<p>这些集成意味着 Gemini 已经进入数百万企业用户的日常工作流。</p>
+
+<h3>4.2 Google Search</h3>
+
+<p><strong>AI Overviews</strong>：Google Search 中的 AI 摘要功能，基于 Gemini 生成搜索结果的综合回答。</p>
+
+<p><strong>Circle to Search</strong>：在 Android 手机上圈选屏幕内容即可搜索，背后是 Gemini 的多模态理解。</p>
+
+<h3>4.3 Android 与设备端</h3>
+
+<p><strong>Gemini Nano</strong> 在设备端运行，支持：</p>
+<li>实时通话翻译</li>
+<li>智能回复建议</li>
+<li>语音转文字</li>
+<li>图像处理</li>
+
+<p>这意味着 Gemini 的触角延伸到了数十亿 Android 设备。</p>
+
+<h3>4.4 YouTube</h3>
+
+<li><strong>视频总结</strong>：自动总结 YouTube 视频内容</li>
+<li><strong>问答</strong>：基于视频内容回答问题</li>
+<li><strong>章节生成</strong>：自动生成视频时间戳和章节</li>
+
+<hr>
+
+<h2>5. 实际部署案例</h2>
+
+<h3>5.1 Google 内部应用</h3>
+
+<p>Google 自己是 Gemini 的最大用户：</p>
+<li><strong>Search</strong>：AI Overviews 已覆盖数十亿次搜索</li>
+<li><strong>Workspace</strong>：Gemini 功能已向所有 Workspace 用户开放</li>
+<li><strong>Cloud</strong>：Vertex AI 的 Gemini API 调用量持续增长</li>
+
+<h3>5.2 企业客户案例</h3>
+
+<p><strong>零售行业</strong>：某大型零售商使用 Gemini 分析产品图片和客户评论，自动生成产品描述，将上新效率提升 40%。</p>
+
+<p><strong>金融行业</strong>：一家投资银行使用 Gemini 1.5 Pro 处理长达数百页的招股说明书，提取关键风险因素，分析师审查时间减少 60%。</p>
+
+<p><strong>媒体行业</strong>：视频内容平台使用 Gemini 的视频理解能力自动生成内容标签、摘要和推荐描述，内容发现效率提升 35%。</p>
+
+<p><strong>医疗行业</strong>：医学影像公司使用 Gemini 分析医学图像和病历文档，辅助医生做出诊断建议（需人工审核）。</p>
+
+<h3>5.3 开发者社区</h3>
+
+<p>Google 通过以下方式推动 Gemini 开发者生态：</p>
+<li><strong>Google AI Studio 免费额度</strong>：降低入门门槛</li>
+<li><strong>Kaggle 竞赛</strong>：多模态 AI 竞赛吸引研究者</li>
+<li><strong>开发者大会</strong>：Google I/O 持续发布新 API 和工具</li>
+<li><strong>开源贡献</strong>：TensorFlow、JAX 等开源框架</li>
+
+<hr>
+
+<h2>实践建议</h2>
+
+<h3>选择 Gemini 的场景</h3>
+
+<p>1. <strong>多模态需求（尤其是视频）</strong>：Gemini 是唯一提供原生视频理解的主流模型</p>
+<p>2. <strong>长文档处理</strong>：1M-2M tokens 上下文窗口，行业最大</p>
+<p>3. <strong>Google 生态用户</strong>：已在使用 Google Workspace / Cloud 的企业</p>
+<p>4. <strong>成本敏感场景</strong>：Gemini Flash 系列定价极具竞争力</p>
+<p>5. <strong>需要实时搜索</strong>：Grounding with Google Search 提供实时信息</p>
+
+<h3>不建议选择 Gemini 的场景</h3>
+
+<p>1. <strong>复杂推理任务</strong>：在数学、科学推理等任务上，o1 系列仍更强</p>
+<p>2. <strong>编程任务</strong>：Claude 3.5 和 GPT-4o 在编程基准上表现更好</p>
+<p>3. <strong>需要高度一致的指令遵循</strong>：Gemini 偶尔在复杂指令上不如 Claude 稳定</p>
+<p>4. <strong>API 稳定性要求极高</strong>：Google API 的稳定性历史上不如 OpenAI</p>
+
+<h3>最佳实践</h3>
+
+<p>1. <strong>先用 AI Studio 免费测试</strong>：验证 Gemini 在你的具体场景中的表现</p>
+<p>2. <strong>利用 Grounding 减少幻觉</strong>：需要最新信息时启用 Google Search Grounding</p>
+<p>3. <strong>考虑 Flash vs Pro 的取舍</strong>：Flash 便宜 15-20 倍，大多数场景足够用</p>
+<p>4. <strong>视频分析是独特优势</strong>：如果有视频内容分析需求，Gemini 是首选</p>
+
+<hr>
+
+<h2>参考来源</h2>
+
+<p>1. Google DeepMind. "Gemini: A Family of Highly Capable Multimodal Models." December 2023. https://deepmind.google/technologies/gemini/</p>
+<p>2. Google. "Our next-generation model: Gemini 1.5." February 2024. https://blog.google/technology/ai/google-gemini-next-generation-model-february-2024/</p>
+<p>3. Google Cloud. "Vertex AI Documentation." https://cloud.google.com/vertex-ai</p>
+<p>4. Google AI Studio. https://aistudio.google.com/</p>
+<p>5. Google. "Gemini 2.0: A new AI era." December 2024. https://blog.google/technology/google-deepmind/gemini-model-thinking-updates-march-2025/</p>
+
+<hr>
+
+<p><em>本报告基于截至 2025 年 2 月的公开信息编写。Google AI 产品更新频繁，部分定价和功能可能已有变化。</em></p>
 <div class="footer">
 <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
 <p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
 </div>
+<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
 </body></html>
