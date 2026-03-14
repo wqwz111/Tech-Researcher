@@ -1,42 +1,72 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 在金融领域落地案例研究 | Tech-Researcher</title>
-    <style>
-        :root { --bg-primary: #0d1117; --bg-secondary: #161b22; --bg-tertiary: #21262d; --text-primary: #e6edf3; --text-secondary: #8b949e; --text-muted: #6e7681; --accent-blue: #58a6ff; --accent-green: #3fb950; --accent-orange: #d29922; --accent-red: #f85149; --accent-purple: #bc8cff; --border-color: #30363d; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.7; padding: 2rem; max-width: 900px; margin: 0 auto; }
-        h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-        h2 { font-size: 1.5rem; margin: 2rem 0 1rem; color: var(--accent-blue); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
-        h3 { font-size: 1.2rem; margin: 1.5rem 0 0.8rem; color: var(--accent-purple); }
-        .meta { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2rem; }
-        .meta span { margin-right: 1.5rem; }
-        .summary { background: var(--bg-secondary); border-left: 4px solid var(--accent-green); padding: 1.5rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
-        .summary h3 { color: var(--accent-green); margin-top: 0; }
-        .summary ul { margin-left: 1.5rem; }
-        .summary li { margin: 0.5rem 0; }
-        p { margin: 1rem 0; }
-        ul, ol { margin: 1rem 0 1rem 1.5rem; }
-        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
-        th, td { padding: 0.8rem; border: 1px solid var(--border-color); text-align: left; }
-        th { background: var(--bg-tertiary); color: var(--accent-blue); }
-        td { background: var(--bg-secondary); }
-        strong { color: var(--accent-green); }
-        a { color: var(--accent-blue); text-decoration: none; }
-        .refs { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
-        .refs h3 { color: var(--text-secondary); font-size: 1rem; }
-        .refs ol { font-size: 0.85rem; color: var(--text-secondary); }
-        .footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.85rem; text-align: center; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 在金融领域落地案例研究</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
+<style>
+body {
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+}
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+.toc a:hover { color: #bfdbfe; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
+h3 { color: #93c5fd; margin-top: 1.8rem; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
+tr:nth-child(even) { background: #1e293b44; }
+hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+    pre { border-left: 3px solid #ccc; }
+}
+</style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">📊 案例实践</span>
+</div>
+<div class="meta">
+<h1>AI 在金融领域落地案例研究</h1>
+<div class="info">2026-03-14 · 分类: 📊 案例实践</div>
+<div class="tags"><span class="tag">风控</span><span class="tag">智能投顾</span><span class="tag">合规</span></div>
+</div>
+
     <h1>AI 在金融领域落地案例研究</h1>
     <div class="meta"><span>📅 2025年3月</span><span>📂 案例实践</span><span>📖 ~4500字</span></div>
 
     <div class="summary">
-        <h3>📋 Executive Summary</h3>
+        <h3 id="-executive-summary">📋 Executive Summary</h3>
         <p>金融行业是 AI 应用最早、最深入的领域之一。本文基于公开案例分析 AI 在风控、投顾、合规、客服等核心环节的真实落地情况。</p>
         <ul>
             <li><strong>风控是最成熟场景</strong>：全球主要银行广泛部署 ML 信用评估和反欺诈</li>
@@ -46,35 +76,35 @@
         </ul>
     </div>
 
-    <h2>1. 风控与反欺诈</h2>
+    <h2 id="1-风控与反欺诈">1. 风控与反欺诈</h2>
     <p><strong>JPMorgan Chase</strong>：AI 信用模型将损失率降低 15-20%，同时扩大服务客群。</p>
     <p><strong>蚂蚁集团</strong>："310"模式（3 分钟申请、1 秒审批、0 人工），不良率控制在 1-2%。</p>
     <p><strong>Visa</strong>：每秒处理 65,000+ 笔交易决策，欺诈检测准确率提升 30%，误报降低 25%。</p>
 
-    <h2>2. 智能投顾与量化交易</h2>
+    <h2 id="2-智能投顾与量化交易">2. 智能投顾与量化交易</h2>
     <p>全球 Robo-Advisory AUM 约 1.8 万亿美元（2024），预计 2028 年达 2.9 万亿。</p>
     <p>量化交易新应用：新闻情绪分析、财报电话会议语气分析、自动研究报告生成。</p>
     <p>Renaissance Medallion 基金年化回报约 66%（1988-2018），具体方法高度保密。</p>
 
-    <h2>3. 合规与文档处理</h2>
+    <h2 id="3-合规与文档处理">3. 合规与文档处理</h2>
     <p><strong>HSBC + Quantexa</strong>：AML 监控效率提升 200%，误报减少 60%。</p>
     <p><strong>摩根士丹利</strong>：基于 GPT-4 的工具帮助 15,000 名顾问搜索 100,000+ 份文档。</p>
 
-    <h2>4. 客服与营销自动化</h2>
+    <h2 id="4-客服与营销自动化">4. 客服与营销自动化</h2>
     <p><strong>Bank of America Erica</strong>：已处理 20 亿+ 交互，服务 4,200 万用户。</p>
     <p><strong>Capital One</strong>：ML 个性化推荐将营销转化率提升 30%+。</p>
 
-    <h2>5. 监管挑战与伦理考量</h2>
+    <h2 id="5-监管挑战与伦理考量">5. 监管挑战与伦理考量</h2>
     <p>欧盟 AI 法案将金融 AI 归类为"高风险"。核心问题：算法偏见、可解释性、数据隐私、系统性风险。</p>
     <p>应对策略：AI 治理委员会、模型可解释性投资、定期审计、人工监督机制。</p>
 
-    <h2>实践建议</h2>
+    <h2 id="实践建议">实践建议</h2>
     <p><strong>金融机构</strong>：优先落地风控，LLM 应用需谨慎，合规先行。</p>
     <p><strong>AI 公司</strong>：理解监管约束，可解释性是刚需。</p>
     <p><strong>投资者</strong>：关注合规风险，分辨真 AI 和伪 AI。</p>
 
     <div class="refs">
-        <h3>参考来源</h3>
+        <h3 id="参考来源">参考来源</h3>
         <ol>
             <li>JPMorgan Chase. "Annual Report 2023."</li>
             <li>蚂蚁集团. "普惠金融实践报告." 2023.</li>
@@ -84,6 +114,10 @@
             <li>Morgan Stanley & OpenAI. March 2023.</li>
         </ol>
     </div>
-    <div class="footer">Tech-Researcher · 案例实践系列 · 2025年3月</div>
-</body>
-</html>
+    
+
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+</body></html>

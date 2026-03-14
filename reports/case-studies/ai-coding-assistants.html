@@ -1,42 +1,72 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 编程助手实战对比 | Tech-Researcher</title>
-    <style>
-        :root { --bg-primary: #0d1117; --bg-secondary: #161b22; --bg-tertiary: #21262d; --text-primary: #e6edf3; --text-secondary: #8b949e; --text-muted: #6e7681; --accent-blue: #58a6ff; --accent-green: #3fb950; --accent-orange: #d29922; --accent-red: #f85149; --accent-purple: #bc8cff; --border-color: #30363d; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.7; padding: 2rem; max-width: 900px; margin: 0 auto; }
-        h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-        h2 { font-size: 1.5rem; margin: 2rem 0 1rem; color: var(--accent-blue); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
-        h3 { font-size: 1.2rem; margin: 1.5rem 0 0.8rem; color: var(--accent-purple); }
-        .meta { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2rem; }
-        .meta span { margin-right: 1.5rem; }
-        .summary { background: var(--bg-secondary); border-left: 4px solid var(--accent-green); padding: 1.5rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
-        .summary h3 { color: var(--accent-green); margin-top: 0; }
-        .summary ul { margin-left: 1.5rem; }
-        .summary li { margin: 0.5rem 0; }
-        p { margin: 1rem 0; }
-        ul, ol { margin: 1rem 0 1rem 1.5rem; }
-        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
-        th, td { padding: 0.8rem; border: 1px solid var(--border-color); text-align: left; }
-        th { background: var(--bg-tertiary); color: var(--accent-blue); }
-        td { background: var(--bg-secondary); }
-        strong { color: var(--accent-green); }
-        a { color: var(--accent-blue); text-decoration: none; }
-        .refs { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
-        .refs h3 { color: var(--text-secondary); font-size: 1rem; }
-        .refs ol { font-size: 0.85rem; color: var(--text-secondary); }
-        .footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.85rem; text-align: center; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 编程助手实战对比</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
+<style>
+body {
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+}
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+.toc a:hover { color: #bfdbfe; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
+h3 { color: #93c5fd; margin-top: 1.8rem; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
+tr:nth-child(even) { background: #1e293b44; }
+hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+    pre { border-left: 3px solid #ccc; }
+}
+</style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">📊 案例实践</span>
+</div>
+<div class="meta">
+<h1>AI 编程助手实战对比</h1>
+<div class="info">2026-03-14 · 分类: 📊 案例实践</div>
+<div class="tags"><span class="tag">Copilot</span><span class="tag">Cursor</span><span class="tag">Windsurf</span></div>
+</div>
+
     <h1>AI 编程助手实战对比</h1>
     <div class="meta"><span>📅 2025年3月</span><span>📂 案例实践</span><span>📖 ~4500字</span></div>
 
     <div class="summary">
-        <h3>📋 Executive Summary</h3>
+        <h3 id="-executive-summary">📋 Executive Summary</h3>
         <p>AI 编程助手已从"新奇玩具"进化为软件开发标配工具。本文对比 GitHub Copilot、Cursor、Claude Code 和 Windsurf。</p>
         <ul>
             <li><strong>市场格局已定</strong>：Copilot 超 100 万付费用户，占据最大市场份额</li>
@@ -46,7 +76,7 @@
         </ul>
     </div>
 
-    <h2>1. 四大工具概览</h2>
+    <h2 id="1-四大工具概览">1. 四大工具概览</h2>
     <table>
         <tr><th>工具</th><th>核心能力</th><th>定价</th><th>最佳场景</th></tr>
         <tr><td>GitHub Copilot</td><td>代码补全 + Chat</td><td>$10-39/月</td><td>日常编码、多 IDE</td></tr>
@@ -55,31 +85,31 @@
         <tr><td>Windsurf</td><td>Cascade Agent + 补全</td><td>$15-60/月</td><td>性价比首选</td></tr>
     </table>
 
-    <h2>2. 范式对比</h2>
-    <h3>代码补全</h3>
+    <h2 id="2-范式对比">2. 范式对比</h2>
+    <h3 id="代码补全">代码补全</h3>
     <p>实时预测代码，按 Tab 接受。GitHub 研究：使用 Copilot 的开发者完成任务快 55%。</p>
-    <h3>对话式编程</h3>
+    <h3 id="对话式编程">对话式编程</h3>
     <p>自然语言描述需求，AI 生成代码。适合不熟悉的语言、调试、代码审查。</p>
-    <h3>Agent 编程</h3>
+    <h3 id="agent-编程">Agent 编程</h3>
     <p>描述高层目标，AI 自主规划执行。适合大型重构、功能实现、测试生成。</p>
 
-    <h2>3. 语言/框架支持差异</h2>
+    <h2 id="3-语言框架支持差异">3. 语言/框架支持差异</h2>
     <p>Python 和 JavaScript/TS 所有工具支持都很好。Rust 和 C/C++ 上 Cursor 和 Claude Code 略优。前端 React/Next.js 支持最佳。</p>
 
-    <h2>4. 企业采用策略</h2>
+    <h2 id="4-企业采用策略">4. 企业采用策略</h2>
     <p><strong>小团队</strong>：Copilot 个人版（$10/月）。<strong>中型团队</strong>：Copilot + Cursor 组合（$20-40/月）。<strong>大型企业</strong>：Copilot Enterprise + 定制 Agent（$39+/月）。</p>
     <p>安全考量：代码隐私、IP 保护、许可证扫描。</p>
 
-    <h2>5. 效率提升数据</h2>
+    <h2 id="5-效率提升数据">5. 效率提升数据</h2>
     <p>GitHub 研究：55% 加速（2022）。88% 用户认为提高生产力。Accenture 试点：代码审查时间减少 15%。JetBrains 调查：46% 专业开发者使用 AI 工具。</p>
 
-    <h2>实践建议</h2>
+    <h2 id="实践建议">实践建议</h2>
     <p><strong>个人</strong>：从 Copilot/Cursor 开始，学会有效 Prompt，不要盲目接受生成代码。</p>
     <p><strong>团队</strong>：先试点后推广，建立规范，持续评估。</p>
     <p><strong>企业</strong>：安全第一，预算规划，数据驱动决策。</p>
 
     <div class="refs">
-        <h3>参考来源</h3>
+        <h3 id="参考来源">参考来源</h3>
         <ol>
             <li>GitHub. "Research: quantifying GitHub Copilot's impact." September 2022.</li>
             <li>JetBrains. "The State of Developer Ecosystem 2024."</li>
@@ -88,6 +118,10 @@
             <li>Accenture & GitHub. "AI-powered developer productivity." 2024.</li>
         </ol>
     </div>
-    <div class="footer">Tech-Researcher · 案例实践系列 · 2025年3月</div>
-</body>
-</html>
+    
+
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+</body></html>

@@ -1,42 +1,67 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agent 记忆系统架构研究</title>
-    <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 记忆系统架构研究</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
+<style>
 body {
-    background: #0f172a;
-    color: #e2e8f0;
+    background: #0f172a; color: #e2e8f0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
 }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+.toc a:hover { color: #bfdbfe; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-h4 { color: #a5b4fc; }
-a { color: #60a5fa; text-decoration: none; }
-code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
-pre code { background: none; padding: 0; color: #e2e8f0; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
-th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
 tr:nth-child(even) { background: #1e293b44; }
-tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-strong { color: #f8fafc; }
-em { color: #94a3b8; }
-ul, ol { padding-left: 1.5rem; }
-li { margin: 0.3rem 0; }
-p { margin: 0.8rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+    pre { border-left: 3px solid #ccc; }
+}
 </style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">🔬 方法论</span>
+</div>
+<div class="meta">
+<h1>Agent 记忆系统架构研究</h1>
+<div class="info">2026-03-14 · 分类: 🔬 方法论</div>
+<div class="tags"><span class="tag">记忆</span><span class="tag">向量存储</span><span class="tag">Mem0</span></div>
+</div>
+
 <h1>Agent 记忆系统架构研究</h1>
 
 <p>> 发布日期: 2026-03-14</p>
@@ -45,7 +70,7 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>Executive Summary</h2>
+<h2 id="executive-summary">Executive Summary</h2>
 
 <p>记忆系统是 AI Agent 从"无状态工具"升级为"有持续认知能力的智能体"的关键组件。本文系统研究 Agent 记忆系统的架构设计，涵盖记忆分类体系、向量存储与检索机制、记忆压缩与遗忘策略、多 Agent 共享记忆方案，以及主流实现方案的对比分析。</p>
 
@@ -59,9 +84,9 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>一、记忆分类体系</h2>
+<h2 id="一记忆分类体系">一、记忆分类体系</h2>
 
-<h3>1.1 认知科学视角的记忆分类</h3>
+<h3 id="11-认知科学视角的记忆分类">1.1 认知科学视角的记忆分类</h3>
 
 <p>Agent 记忆系统的设计灵感主要来源于人类记忆的认知模型。心理学将人类记忆分为多个层次：</p>
 
@@ -87,7 +112,7 @@ p { margin: 0.8rem 0; }
 └─────────────────────────────────────────────────────────┘
 </code></pre>
 
-<h3>1.2 Agent 记忆分类映射</h3>
+<h3 id="12-agent-记忆分类映射">1.2 Agent 记忆分类映射</h3>
 
 <p>将人类记忆模型映射到 Agent 系统：</p>
 
@@ -112,7 +137,7 @@ p { margin: 0.8rem 0; }
 <li><strong>生命周期</strong>：手动管理或自动淘汰</li>
 <li><strong>典型内容</strong>：用户偏好、历史交互总结、学习到的经验、领域知识</li>
 
-<h3>1.3 进一步细分</h3>
+<h3 id="13-进一步细分">1.3 进一步细分</h3>
 
 <p>实际系统中，长期记忆常被进一步细分：</p>
 
@@ -127,9 +152,9 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>二、向量存储与检索</h2>
+<h2 id="二向量存储与检索">二、向量存储与检索</h2>
 
-<h3>2.1 向量嵌入基础</h3>
+<h3 id="21-向量嵌入基础">2.1 向量嵌入基础</h3>
 
 <p>向量存储是 Agent 长期记忆的核心基础设施。其工作原理：</p>
 
@@ -152,7 +177,7 @@ p { margin: 0.8rem 0; }
 <tr><td>GTE-Qwen2 (Alibaba)</td><td>可变</td><td>开源，中文表现优秀</td></tr>
 </table>
 
-<h3>2.2 向量数据库选型</h3>
+<h3 id="22-向量数据库选型">2.2 向量数据库选型</h3>
 
 <table>
 <tr><th>数据库</th><th>类型</th><th>适用场景</th><th>优势</th></tr>
@@ -166,7 +191,7 @@ p { margin: 0.8rem 0; }
 <tr><td>**LanceDB**</td><td>嵌入式</td><td>边缘部署</td><td>基于 Lance 格式、零拷贝</td></tr>
 </table>
 
-<h3>2.3 检索策略</h3>
+<h3 id="23-检索策略">2.3 检索策略</h3>
 
 <p><strong>基础检索（Naive Retrieval）：</strong></p>
 <pre><code>
@@ -222,7 +247,7 @@ results = vector_store.search(
 <p>3. 用新线索进行二次检索</p>
 <p>4. 综合多轮结果生成回答</p>
 
-<h3>2.4 检索质量优化</h3>
+<h3 id="24-检索质量优化">2.4 检索质量优化</h3>
 
 <p><strong>Chunking 策略：</strong></p>
 <p>文档分块方式直接影响检索质量。</p>
@@ -249,9 +274,9 @@ final_results = reranker(query, candidates, top_k=5)  # 再精排
 
 <hr>
 
-<h2>三、记忆压缩与遗忘</h2>
+<h2 id="三记忆压缩与遗忘">三、记忆压缩与遗忘</h2>
 
-<h3>3.1 为什么需要记忆压缩</h3>
+<h3 id="31-为什么需要记忆压缩">3.1 为什么需要记忆压缩</h3>
 
 <p>不受控的记忆增长会带来严重问题：</p>
 
@@ -260,7 +285,7 @@ final_results = reranker(query, candidates, top_k=5)  # 再精排
 <p>3. <strong>上下文溢出</strong>：检索到的过多记忆无法全部放入上下文窗口</p>
 <p>4. <strong>隐私风险</strong>：过时或敏感信息长期保留</p>
 
-<h3>3.2 记忆压缩策略</h3>
+<h3 id="32-记忆压缩策略">3.2 记忆压缩策略</h3>
 
 <p><strong>（1）摘要压缩（Summarization）：</strong></p>
 
@@ -307,7 +332,7 @@ Level 3: 归档 / 删除
 importance_score = α × access_freq + β × user_feedback + γ × uniqueness - δ × age
 </code></pre>
 
-<h3>3.3 记忆遗忘策略</h3>
+<h3 id="33-记忆遗忘策略">3.3 记忆遗忘策略</h3>
 
 <p><strong>（1）时间衰减遗忘（Time Decay）：</strong></p>
 
@@ -347,7 +372,7 @@ retention_probability = base_rate × e^(-decay_rate × time)
 <li>检测到矛盾信息时，丢弃可信度较低的版本</li>
 <li>知识过期时（如产品下架），主动清理相关记忆</li>
 
-<h3>3.4 记忆一致性管理</h3>
+<h3 id="34-记忆一致性管理">3.4 记忆一致性管理</h3>
 
 <p>当记忆之间出现矛盾时，需要解决冲突：</p>
 
@@ -366,16 +391,16 @@ existing: "用户住在上海"
 
 <hr>
 
-<h2>四、多 Agent 共享记忆</h2>
+<h2 id="四多-agent-共享记忆">四、多 Agent 共享记忆</h2>
 
-<h3>4.1 共享记忆的需求场景</h3>
+<h3 id="41-共享记忆的需求场景">4.1 共享记忆的需求场景</h3>
 
 <li><strong>团队协作</strong>：多个 Agent 协同完成复杂任务，需要共享上下文</li>
 <li><strong>专家系统</strong>：不同领域的 Agent 共享通用知识库</li>
 <li><strong>用户画像</strong>：多个 Agent 服务同一用户，共享用户偏好和历史</li>
 <li><strong>知识传承</strong>：新 Agent 启动时继承已有知识</li>
 
-<h3>4.2 共享记忆架构模式</h3>
+<h3 id="42-共享记忆架构模式">4.2 共享记忆架构模式</h3>
 
 <p><strong>模式 1：集中式共享存储</strong></p>
 
@@ -442,7 +467,7 @@ existing: "用户住在上海"
 <p><strong>优势</strong>：实时性强，解耦性好</p>
 <p><strong>劣势</strong>：需要消息基础设施，历史事件查询困难</p>
 
-<h3>4.3 共享记忆的关键挑战</h3>
+<h3 id="43-共享记忆的关键挑战">4.3 共享记忆的关键挑战</h3>
 
 <p><strong>权限控制：</strong></p>
 <li>哪些记忆可以共享？</li>
@@ -481,9 +506,9 @@ existing: "用户住在上海"
 
 <hr>
 
-<h2>五、实现方案对比</h2>
+<h2 id="五实现方案对比">五、实现方案对比</h2>
 
-<h3>5.1 主流框架对比</h3>
+<h3 id="51-主流框架对比">5.1 主流框架对比</h3>
 
 <table>
 <tr><th>框架</th><th>记忆模型</th><th>存储后端</th><th>特点</th><th>适用场景</th></tr>
@@ -496,7 +521,7 @@ existing: "用户住在上海"
 <tr><td>**Zep**</td><td>会话记忆服务</td><td>专用存储</td><td>生产级、自动摘要</td><td>SaaS 集成</td></tr>
 </table>
 
-<h3>5.2 深度分析：Mem0</h3>
+<h3 id="52-深度分析mem0">5.2 深度分析：Mem0</h3>
 
 <p>Mem0（原 Embedchain）是一个专注于 Agent 记忆管理的框架。</p>
 
@@ -514,7 +539,7 @@ existing: "用户住在上海"
 <p><strong>优势</strong>：开箱即用的智能记忆管理，自动处理压缩和冲突</p>
 <p><strong>劣势</strong>：依赖其特定的数据模型，灵活性受限</p>
 
-<h3>5.3 深度分析：MemGPT / Letta</h3>
+<h3 id="53-深度分析memgpt--letta">5.3 深度分析：MemGPT / Letta</h3>
 
 <p>MemGPT（现已更名为 Letta）借鉴操作系统的设计理念。</p>
 
@@ -542,7 +567,7 @@ core_memory = {  # 始终在上下文中
 <p><strong>优势</strong>：优雅的内存管理模型，适合长对话场景</p>
 <p><strong>劣势</strong>：实现复杂度高，需要 Agent 学会"管理自己的记忆"</p>
 
-<h3>5.4 自建方案设计建议</h3>
+<h3 id="54-自建方案设计建议">5.4 自建方案设计建议</h3>
 
 <p>如果框架无法满足需求，自建记忆系统的推荐架构：</p>
 
@@ -583,9 +608,9 @@ core_memory = {  # 始终在上下文中
 
 <hr>
 
-<h2>六、实践建议</h2>
+<h2 id="六实践建议">六、实践建议</h2>
 
-<h3>6.1 记忆系统设计 Checklist</h3>
+<h3 id="61-记忆系统设计-checklist">6.1 记忆系统设计 Checklist</h3>
 
 <pre><code>
 □ 记忆分类：是否明确了短期/长期/工作记忆的边界？
@@ -600,7 +625,7 @@ core_memory = {  # 始终在上下文中
 □ 监控告警：是否监控记忆存储量、检索质量和成本？
 </code></pre>
 
-<h3>6.2 性能优化建议</h3>
+<h3 id="62-性能优化建议">6.2 性能优化建议</h3>
 
 <p><strong>检索延迟优化：</strong></p>
 <li>使用 HNSW 索引（而非暴力搜索）</li>
@@ -619,7 +644,7 @@ core_memory = {  # 始终在上下文中
 <li>查询改写（Query Rewriting）提高检索精度</li>
 <li>反馈循环（用户标记不相关结果，改进检索）</li>
 
-<h3>6.3 常见陷阱</h3>
+<h3 id="63-常见陷阱">6.3 常见陷阱</h3>
 
 <p><strong>陷阱 1：记忆过载</strong></p>
 <li>表现：检索结果中包含大量无关信息</li>
@@ -648,7 +673,7 @@ core_memory = {  # 始终在上下文中
 
 <hr>
 
-<h2>七、总结</h2>
+<h2 id="七总结">七、总结</h2>
 
 <p>Agent 记忆系统的设计是一个权衡的艺术，需要在以下维度之间找到平衡：</p>
 
@@ -665,7 +690,7 @@ core_memory = {  # 始终在上下文中
 
 <hr>
 
-<h2>参考来源</h2>
+<h2 id="参考来源">参考来源</h2>
 
 <p>1. <strong>MemGPT: Towards LLMs as Operating Systems</strong> — Charles Packer et al., 2023</p>
 <p>   https://arxiv.org/abs/2310.08540</p>
@@ -691,5 +716,9 @@ core_memory = {  # 始终在上下文中
 
 <p><em>本报告为 Tech-Researcher 系列方法论报告之一。如有反馈或建议，欢迎通过 GitHub Issues 提出。</em></p>
 
-</body>
-</html>
+
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+</body></html>

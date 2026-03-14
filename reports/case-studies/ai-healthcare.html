@@ -1,42 +1,72 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 在医疗领域落地案例研究 | Tech-Researcher</title>
-    <style>
-        :root { --bg-primary: #0d1117; --bg-secondary: #161b22; --bg-tertiary: #21262d; --text-primary: #e6edf3; --text-secondary: #8b949e; --text-muted: #6e7681; --accent-blue: #58a6ff; --accent-green: #3fb950; --accent-orange: #d29922; --accent-red: #f85149; --accent-purple: #bc8cff; --border-color: #30363d; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.7; padding: 2rem; max-width: 900px; margin: 0 auto; }
-        h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-        h2 { font-size: 1.5rem; margin: 2rem 0 1rem; color: var(--accent-blue); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
-        h3 { font-size: 1.2rem; margin: 1.5rem 0 0.8rem; color: var(--accent-purple); }
-        .meta { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2rem; }
-        .meta span { margin-right: 1.5rem; }
-        .summary { background: var(--bg-secondary); border-left: 4px solid var(--accent-green); padding: 1.5rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
-        .summary h3 { color: var(--accent-green); margin-top: 0; }
-        .summary ul { margin-left: 1.5rem; }
-        .summary li { margin: 0.5rem 0; }
-        p { margin: 1rem 0; }
-        ul, ol { margin: 1rem 0 1rem 1.5rem; }
-        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
-        th, td { padding: 0.8rem; border: 1px solid var(--border-color); text-align: left; }
-        th { background: var(--bg-tertiary); color: var(--accent-blue); }
-        td { background: var(--bg-secondary); }
-        strong { color: var(--accent-green); }
-        a { color: var(--accent-blue); text-decoration: none; }
-        .refs { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
-        .refs h3 { color: var(--text-secondary); font-size: 1rem; }
-        .refs ol { font-size: 0.85rem; color: var(--text-secondary); }
-        .footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.85rem; text-align: center; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 在医疗领域落地案例研究</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
+<style>
+body {
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+}
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+.toc a:hover { color: #bfdbfe; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
+h3 { color: #93c5fd; margin-top: 1.8rem; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
+tr:nth-child(even) { background: #1e293b44; }
+hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+    pre { border-left: 3px solid #ccc; }
+}
+</style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">📊 案例实践</span>
+</div>
+<div class="meta">
+<h1>AI 在医疗领域落地案例研究</h1>
+<div class="info">2026-03-14 · 分类: 📊 案例实践</div>
+<div class="tags"><span class="tag">医学影像</span><span class="tag">药物研发</span><span class="tag">FDA</span></div>
+</div>
+
     <h1>AI 在医疗领域落地案例研究</h1>
     <div class="meta"><span>📅 2025年3月</span><span>📂 案例实践</span><span>📖 ~4500字</span></div>
 
     <div class="summary">
-        <h3>📋 Executive Summary</h3>
+        <h3 id="-executive-summary">📋 Executive Summary</h3>
         <p>AI 在医学影像诊断、药物研发、电子病历分析、临床决策辅助等环节展现了巨大潜力，但也面临严格的监管审批和伦理挑战。</p>
         <ul>
             <li><strong>医学影像是最成熟赛道</strong>：FDA 已批准 700+ AI/ML 医疗设备</li>
@@ -46,34 +76,34 @@
         </ul>
     </div>
 
-    <h2>1. 医学影像诊断</h2>
+    <h2 id="1-医学影像诊断">1. 医学影像诊断</h2>
     <p>FDA 已批准 700+ AI/ML 医疗设备，其中放射学占比约 55%。</p>
     <p><strong>乳腺 X 线筛查</strong>：AI 系统假阳性减少 5.7%，假阴性减少 9.4%（Nature 2020）。</p>
     <p><strong>IDx-DR</strong>：首个 FDA 批准的自主 AI 诊断系统（糖尿病视网膜病变），灵敏度 87.2%，特异度 90.7%。</p>
 
-    <h2>2. 药物研发加速</h2>
+    <h2 id="2-药物研发加速">2. 药物研发加速</h2>
     <p>传统药物研发平均需要 10-15 年，成本约 26 亿美元。AI 加速靶点发现、分子设计、临床试验优化。</p>
     <p><strong>AlphaFold2</strong>：预测精度达实验方法水平，已覆盖 2 亿+ 蛋白质结构。</p>
     <p><strong>Insilico Medicine</strong>：从靶点到临床 I 期仅用 30 个月（传统 4-5 年）。INS018_055 已进入 II 期。</p>
     <p>⚠️ 注意：尚无 AI 发现的药物正式获批上市（截至 2025 年初）。</p>
 
-    <h2>3. 电子病历分析</h2>
+    <h2 id="3-电子病历分析">3. 电子病历分析</h2>
     <p><strong>Nuance DAX</strong>：AI 监听医患对话，自动生成临床笔记，文档时间减少 50%。</p>
     <p><strong>败血症预警</strong>：可提前 4-12 小时预测，但假阳性率争议提醒需要仔细验证。</p>
 
-    <h2>4. AI 辅助临床决策</h2>
+    <h2 id="4-ai-辅助临床决策">4. AI 辅助临床决策</h2>
     <p>GPT-4 在 USMLE 上得分超过及格线（85%+），但考试表现 ≠ 临床能力。</p>
     <p><strong>Google Med-PaLM 2</strong>：MedQA 达 86.5%，正在 Mayo Clinic 试点。</p>
 
-    <h2>5. 监管与伦理</h2>
+    <h2 id="5-监管与伦理">5. 监管与伦理</h2>
     <p>FDA SaMD 框架按风险等级监管。核心伦理问题：算法偏见（深色皮肤表现差）、知情同意、责任归属。</p>
 
-    <h2>实践建议</h2>
+    <h2 id="实践建议">实践建议</h2>
     <p><strong>开发者</strong>：临床问题导向、多学科团队、真实世界验证、可解释性。</p>
     <p><strong>医疗机构</strong>：AI 评估流程、团队培训、数据基础设施、患者沟通。</p>
 
     <div class="refs">
-        <h3>参考来源</h3>
+        <h3 id="参考来源">参考来源</h3>
         <ol>
             <li>FDA. "AI/ML-Enabled Medical Devices."</li>
             <li>McKinney et al. "AI for breast cancer screening." Nature, 2020.</li>
@@ -82,6 +112,10 @@
             <li>Nuance. "DAX Copilot."</li>
         </ol>
     </div>
-    <div class="footer">Tech-Researcher · 案例实践系列 · 2025年3月</div>
-</body>
-</html>
+    
+
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+</body></html>

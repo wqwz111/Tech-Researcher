@@ -1,49 +1,74 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Engineering 系统化方法论</title>
-    <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Engineering 系统化方法论</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
+<style>
 body {
-    background: #0f172a;
-    color: #e2e8f0;
+    background: #0f172a; color: #e2e8f0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
 }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+.toc a:hover { color: #bfdbfe; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-h4 { color: #a5b4fc; }
-a { color: #60a5fa; text-decoration: none; }
-code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
-pre code { background: none; padding: 0; color: #e2e8f0; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
-th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
 tr:nth-child(even) { background: #1e293b44; }
-tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-strong { color: #f8fafc; }
-em { color: #94a3b8; }
-ul, ol { padding-left: 1.5rem; }
-li { margin: 0.3rem 0; }
-p { margin: 0.8rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+    pre { border-left: 3px solid #ccc; }
+}
 </style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">🔬 方法论</span>
+</div>
+<div class="meta">
+<h1>Prompt Engineering 系统化方法论</h1>
+<div class="info">2026-03-14 · 分类: 🔬 方法论</div>
+<div class="tags"><span class="tag">CoT</span><span class="tag">ToT</span><span class="tag">Few-shot</span><span class="tag">企业实践</span></div>
+</div>
+
 <h1>Prompt Engineering 系统化方法论</h1>
 
 <p>> <strong>最后更新</strong>: 2026-03-14 | <strong>分类</strong>: 方法论 | <strong>阅读时间</strong>: 约 25 分钟</p>
 
 <hr>
 
-<h2>Executive Summary</h2>
+<h2 id="executive-summary">Executive Summary</h2>
 
 <p>Prompt Engineering（提示工程）已经从 2023 年的「玄学技巧」演变为 2025-2026 年的<strong>系统化工程学科</strong>。随着 GPT-4o、Claude 3.5/4、Gemini 2.0、DeepSeek-V3 等模型的迭代，提示工程的核心挑战从「怎么让模型听懂」转变为「如何构建可复用、可测试、可版本管理的提示系统」。</p>
 
@@ -59,9 +84,9 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>1. 基础技巧：三大基石</h2>
+<h2 id="1-基础技巧三大基石">1. 基础技巧：三大基石</h2>
 
-<h3>1.1 角色设定（Role Prompting / System Prompt）</h3>
+<h3 id="11-角色设定role-prompting--system-prompt">1.1 角色设定（Role Prompting / System Prompt）</h3>
 
 <p>角色设定是最基础也最常被误用的技术。它的本质是<strong>为模型建立认知框架和行为边界</strong>，而非简单地加上「你是一个专家」。</p>
 
@@ -102,7 +127,7 @@ p { margin: 0.8rem 0; }
 
 <p>两者的权重分配因模型而异。OpenAI 的模型更依赖 System Prompt 做角色锚定，而 Claude 更擅长在 User Prompt 中通过上下文自我调整。</p>
 
-<h3>1.2 少样本学习（Few-shot Learning）</h3>
+<h3 id="12-少样本学习few-shot-learning">1.2 少样本学习（Few-shot Learning）</h3>
 
 <p>Few-shot 的核心不是「多给几个例子」，而是<strong>通过示例建立输入-输出的映射模式</strong>。</p>
 
@@ -142,7 +167,7 @@ p { margin: 0.8rem 0; }
 <li><strong>需要推理的任务</strong>: 3-5 个带推理过程的示例（CoT + Few-shot）</li>
 <li><strong>极端情况</strong>: 超过 10 个示例时，考虑使用 Fine-tuning 替代</li>
 
-<h3>1.3 思维链（Chain-of-Thought, CoT）</h3>
+<h3 id="13-思维链chain-of-thought-cot">1.3 思维链（Chain-of-Thought, CoT）</h3>
 
 <p>CoT 是让模型「展示思考过程」而非直接给出答案的技术，是目前提升复杂推理任务准确率最有效的基础方法。</p>
 
@@ -185,9 +210,9 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>2. 高级策略：增强推理能力</h2>
+<h2 id="2-高级策略增强推理能力">2. 高级策略：增强推理能力</h2>
 
-<h3>2.1 自一致性（Self-Consistency）</h3>
+<h3 id="21-自一致性self-consistency">2.1 自一致性（Self-Consistency）</h3>
 
 <p>Self-Consistency 由 Google 研究团队在 2023 年提出，核心思想是<strong>通过多次采样 + 投票来提高推理可靠性</strong>。</p>
 
@@ -222,7 +247,7 @@ def self_consistency(prompt, n_samples=5):
 <li><strong>成本考量</strong>: N 次调用意味着 N 倍成本，通常 N=5 是性价比最优</li>
 <li><strong>变体</strong>: 可以结合 CoT 使用（Self-Consistency CoT），效果最佳</li>
 
-<h3>2.2 思维树（Tree of Thoughts, ToT）</h3>
+<h3 id="22-思维树tree-of-thoughts-tot">2.2 思维树（Tree of Thoughts, ToT）</h3>
 
 <p>ToT 将 CoT 的线性推理扩展为<strong>树状搜索</strong>，允许模型探索多条推理路径并选择最优解。</p>
 
@@ -266,7 +291,7 @@ def self_consistency(prompt, n_samples=5):
 检查推理是否正确，如有问题回到第二步选择次优方向。
 </code></pre>
 
-<h3>2.3 ReAct（Reasoning + Acting）</h3>
+<h3 id="23-reactreasoning--acting">2.3 ReAct（Reasoning + Acting）</h3>
 
 <p>ReAct 让模型在推理的同时执行动作（如调用工具、查询数据库），是构建 AI Agent 的核心范式。</p>
 
@@ -291,7 +316,7 @@ Answer: [最终答案]
 <li>工具调用序列的规划</li>
 <li>错误处理和回退策略</li>
 
-<h3>2.4 其他高级技术</h3>
+<h3 id="24-其他高级技术">2.4 其他高级技术</h3>
 
 <p><strong>1. Least-to-Most Prompting</strong></p>
 <p>将复杂问题分解为子问题，从最简单的子问题开始逐步解决，将前序答案作为后续问题的输入。特别适合需要分层推理的任务。</p>
@@ -310,9 +335,9 @@ Answer: [最终答案]
 
 <hr>
 
-<h2>3. 不同模型的提示差异</h2>
+<h2 id="3-不同模型的提示差异">3. 不同模型的提示差异</h2>
 
-<h3>3.1 OpenAI (GPT-4o / GPT-4 Turbo)</h3>
+<h3 id="31-openai-gpt-4o--gpt-4-turbo">3.1 OpenAI (GPT-4o / GPT-4 Turbo)</h3>
 
 <p><strong>特点：</strong></p>
 <li>严格遵循 System Prompt 的角色设定</li>
@@ -328,7 +353,7 @@ Answer: [最终答案]
 <li>GPT-4o 在处理超长上下文时容易「中间丢失」（Lost in the Middle）</li>
 <li>建议将关键指令放在 System Prompt 的开头和结尾</li>
 
-<h3>3.2 Anthropic (Claude 3.5/4 Sonnet / Opus)</h3>
+<h3 id="32-anthropic-claude-354-sonnet--opus">3.2 Anthropic (Claude 3.5/4 Sonnet / Opus)</h3>
 
 <p><strong>特点：</strong></p>
 <li>在长文本理解方面表现突出</li>
@@ -350,7 +375,7 @@ Answer: [最终答案]
 <li>Claude 在某些情况下会过度「谨慎」，可能拒绝过于开放的任务</li>
 <li>在代码生成方面，Claude 倾向于给出更详细但可能过于保守的方案</li>
 
-<h3>3.3 Google (Gemini 2.0)</h3>
+<h3 id="33-google-gemini-20">3.3 Google (Gemini 2.0)</h3>
 
 <p><strong>特点：</strong></p>
 <li>原生多模态能力强（文本 + 图像 + 音频 + 视频）</li>
@@ -362,7 +387,7 @@ Answer: [最终答案]
 <li>多模态任务中，Gemini 对图像的理解更细致</li>
 <li>使用结构化数据（如 Markdown 表格）时效果良好</li>
 
-<h3>3.4 开源模型（DeepSeek / Qwen / LLaMA）</h3>
+<h3 id="34-开源模型deepseek--qwen--llama">3.4 开源模型（DeepSeek / Qwen / LLaMA）</h3>
 
 <p><strong>特点：</strong></p>
 <li>成本低、可私有化部署</li>
@@ -375,7 +400,7 @@ Answer: [最终答案]
 <li>避免依赖隐式推理，明确写出所有步骤</li>
 <li>使用中文指令时，DeepSeek 和 Qwen 明显优于 LLaMA</li>
 
-<h3>3.5 跨模型提示适配策略</h3>
+<h3 id="35-跨模型提示适配策略">3.5 跨模型提示适配策略</h3>
 
 <p>在企业实践中，建议采用<strong>模型无关的提示抽象层</strong>：</p>
 
@@ -406,9 +431,9 @@ class PromptAdapter:
 
 <hr>
 
-<h2>4. Prompt 版本管理</h2>
+<h2 id="4-prompt-版本管理">4. Prompt 版本管理</h2>
 
-<h3>4.1 为什么需要版本管理</h3>
+<h3 id="41-为什么需要版本管理">4.1 为什么需要版本管理</h3>
 
 <p>随着团队规模扩大和提示词数量增长（企业级应用通常有 100+ 个提示词），版本管理成为必需：</p>
 
@@ -417,7 +442,7 @@ class PromptAdapter:
 <li><strong>协作效率</strong>：多人同时编辑不冲突</li>
 <li><strong>合规审计</strong>：金融、医疗等行业需要审计记录</li>
 
-<h3>4.2 版本管理的实现方式</h3>
+<h3 id="42-版本管理的实现方式">4.2 版本管理的实现方式</h3>
 
 <h4>方式一：Git + 文本文件（推荐起步）</h4>
 
@@ -488,7 +513,7 @@ SENTIMENT_ANALYSIS = PromptTemplate(
 )
 </code></pre>
 
-<h3>4.3 版本命名规范</h3>
+<h3 id="43-版本命名规范">4.3 版本命名规范</h3>
 
 <p>建议采用语义化版本号：</p>
 
@@ -500,9 +525,9 @@ SENTIMENT_ANALYSIS = PromptTemplate(
 
 <hr>
 
-<h2>5. 企业级实践</h2>
+<h2 id="5-企业级实践">5. 企业级实践</h2>
 
-<h3>5.1 Prompt 生命周期管理（PLM）</h3>
+<h3 id="51-prompt-生命周期管理plm">5.1 Prompt 生命周期管理（PLM）</h3>
 
 <pre><code>
 设计 → 开发 → 测试 → 部署 → 监控 → 优化 → 废弃
@@ -520,7 +545,7 @@ SENTIMENT_ANALYSIS = PromptTemplate(
 <tr><td>优化</td><td>数据分析、Prompt 迭代</td><td>新版本</td></tr>
 </table>
 
-<h3>5.2 团队协作流程</h3>
+<h3 id="52-团队协作流程">5.2 团队协作流程</h3>
 
 <h4>推荐角色分工</h4>
 
@@ -544,7 +569,7 @@ SENTIMENT_ANALYSIS = PromptTemplate(
 - [ ] 安全审查（是否存在注入风险）
 </code></pre>
 
-<h3>5.3 测试与评估</h3>
+<h3 id="53-测试与评估">5.3 测试与评估</h3>
 
 <h4>自动化测试框架</h4>
 
@@ -582,7 +607,7 @@ class TestSentimentAnalysis:
 <li><strong>成本（Cost）</strong>：每次调用的 token 消耗</li>
 <li><strong>一致性（Consistency）</strong>：同一输入多次调用的结果稳定性</li>
 
-<h3>5.4 安全与合规</h3>
+<h3 id="54-安全与合规">5.4 安全与合规</h3>
 
 <h4>Prompt Injection 防护</h4>
 
@@ -624,7 +649,7 @@ def sanitize_input(user_input: str) -&gt; str:
 <li><strong>版本冻结</strong>：生产环境中的 Prompt 变更需要审批</li>
 <li><strong>模型选择</strong>：根据数据敏感级别选择合适的模型和部署方式</li>
 
-<h3>5.5 成本优化</h3>
+<h3 id="55-成本优化">5.5 成本优化</h3>
 
 <h4>Token 消耗优化</h4>
 
@@ -653,9 +678,9 @@ def route_model(task_complexity: str, budget: str) -&gt; str:
 
 <hr>
 
-<h2>6. 未来趋势</h2>
+<h2 id="6-未来趋势">6. 未来趋势</h2>
 
-<h3>6.1 Prompt Engineering 的演进方向</h3>
+<h3 id="61-prompt-engineering-的演进方向">6.1 Prompt Engineering 的演进方向</h3>
 
 <p>1. <strong>自动化 Prompt 优化（APO）</strong>：DSPy、OPRO 等框架自动优化提示词</p>
 <p>2. <strong>Prompt 蒸馏</strong>：将复杂提示蒸馏为更高效的版本</p>
@@ -663,7 +688,7 @@ def route_model(task_complexity: str, budget: str) -&gt; str:
 <p>4. <strong>Agentic Prompt</strong>：与工具调用和记忆系统深度集成</p>
 <p>5. <strong>Prompt 市场</strong>：可交易的高质量 Prompt 资产</p>
 
-<h3>6.2 Prompt Engineering 会消亡吗？</h3>
+<h3 id="62-prompt-engineering-会消亡吗">6.2 Prompt Engineering 会消亡吗？</h3>
 
 <p><strong>不会</strong>，但形式在改变：</p>
 
@@ -673,9 +698,9 @@ def route_model(task_complexity: str, budget: str) -&gt; str:
 
 <hr>
 
-<h2>实践建议</h2>
+<h2 id="实践建议">实践建议</h2>
 
-<h3>快速上手清单</h3>
+<h3 id="快速上手清单">快速上手清单</h3>
 
 <p>1. <strong>从 System Prompt 开始</strong>：明确角色、能力、约束、输出格式</p>
 <p>2. <strong>用 Few-shot 校准</strong>：准备 3-5 个覆盖关键场景的示例</p>
@@ -684,7 +709,7 @@ def route_model(task_complexity: str, budget: str) -&gt; str:
 <p>5. <strong>管理好版本</strong>：从第一天起就用 Git 管理 Prompt 文件</p>
 <p>6. <strong>测试驱动开发</strong>：先写测试用例，再优化 Prompt</p>
 
-<h3>企业落地路径</h3>
+<h3 id="企业落地路径">企业落地路径</h3>
 
 <p><strong>阶段 1（1-2 周）</strong>：建立基础</p>
 <li>制定 Prompt 编写规范</li>
@@ -703,7 +728,7 @@ def route_model(task_complexity: str, budget: str) -&gt; str:
 
 <hr>
 
-<h2>参考来源</h2>
+<h2 id="参考来源">参考来源</h2>
 
 <p>1. <strong>OpenAI Prompt Engineering Guide</strong> — OpenAI 官方提示工程指南，覆盖 GPT-4o 系列最佳实践</p>
 <p>   - https://platform.openai.com/docs/guides/prompt-engineering</p>
@@ -721,11 +746,15 @@ def route_model(task_complexity: str, budget: str) -&gt; str:
 <p>   - https://arxiv.org/abs/2203.11171</p>
 
 <p>6. <strong>DSPy Documentation</strong> — Stanford 的自动化 Prompt 优化框架</p>
-<p>   - https://dspy-docs.vercel.app/</p>
+<p>   - 官方网站: https://dspy.ai | GitHub: https://github.com/stanfordnlp/dspy</p>
 
 <hr>
 
 <p><em>本报告由 Tech-Researcher 团队编写，基于公开文献和行业实践总结。内容截至 2026 年 3 月。</em></p>
 
-</body>
-</html>
+
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+</body></html>

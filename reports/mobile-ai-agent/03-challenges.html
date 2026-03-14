@@ -3,75 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📱 移动端 AI 智能体：挑战与应对措施</title>
+<title>---</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.8; }
-  :root { --bg:#0a0e1a;--bg-card:#111827;--bg-code:#1a1f2e;--bg-callout:#1a1040;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;--border:#2d3748;--border-light:#1a202c;--accent:#818cf8;--accent-text:#c7d2fe;--accent-hover:#818cf8;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#6366f1;--code-text:#a5b4fc;--green:#34d399;--orange:#fb923c;--red:#f87171; }
-  [data-theme="light"] { --bg:#ffffff;--bg-card:#f8fafc;--bg-code:#f1f5f9;--bg-callout:#eef2ff;--text:#0f172a;--text-muted:#334155;--text-dim:#94a3b8;--border:#e2e8f0;--border-light:#f1f5f9;--accent:#4f46e5;--accent-text:#3730a3;--accent-hover:#6366f1;--tag-bg:#e0e7ff;--tag-text:#312e81;--link:#4f46e5;--code-text:#6d28d9;--green:#059669;--orange:#ea580c;--red:#dc2626; }
-  .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 2.5rem 2rem; text-align: center; position: relative; }
-  .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
-  .header .meta { color: #64748b; font-size: 0.9rem; }
-  .tag { display: inline-block; padding: 0.2rem 0.6rem; margin: 0.2rem; background: var(--tag-bg); color: var(--tag-text); border-radius: 4px; font-size: 0.8rem; }
-  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
-  .breadcrumb { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem; }
-  .breadcrumb a { color: var(--link); text-decoration: none; }
-  .breadcrumb a:hover { text-decoration: underline; }
-  h2 { color: var(--accent-text); font-size: 1.4rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); }
-  h3 { color: var(--accent-hover); font-size: 1.15rem; margin: 1.8rem 0 0.8rem; }
-  p { margin-bottom: 1rem; color: var(--text); }
-  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
-  li { margin-bottom: 0.4rem; }
-  code { background: var(--bg-code); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: var(--code-text); }
-  pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
-  pre code { background: none; padding: 0; }
-  .callout { background: var(--bg-callout); border-left: 3px solid var(--accent); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
-  .callout strong { color: var(--accent-text); }
-  .callout.warn { border-left-color: var(--orange); }
-  .callout.warn strong { color: var(--orange); }
-  .callout.success { border-left-color: var(--green); }
-  .callout.success strong { color: var(--green); }
-  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-  th, td { text-align: left; padding: 0.6rem 0.8rem; border: 1px solid var(--border); }
-  th { background: var(--bg-code); color: var(--accent-text); }
-  td { color: var(--text); }
-  .ref { color: var(--text-dim); font-size: 0.85rem; }
-  .ref a { color: var(--link); text-decoration: none; }
-  .ref a:hover { text-decoration: underline; }
-  .ref-grade { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600; margin-right: 0.3rem; }
-  .grade-a { background: rgba(52,211,153,0.15); color: var(--green); }
-  .grade-b { background: rgba(129,140,248,0.15); color: var(--accent); }
-  .grade-c { background: rgba(251,146,60,0.15); color: var(--orange); }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1rem 0; }
-  .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; text-align: center; }
-  .stat-card .num { font-size: 2rem; font-weight: 800; color: var(--accent); }
-  .stat-card .label { color: var(--text-dim); font-size: 0.85rem; margin-top: 0.3rem; }
-  .footer { text-align: center; color: var(--text-dim); padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-light); font-size: 0.85rem; }
-  .theme-toggle { position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code); border: 1px solid var(--border); border-radius: 24px; padding: 0.3rem 0.6rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s; }
-  .theme-toggle:hover { border-color: var(--accent); }
-  .theme-toggle .icon { font-size: 1.1rem; }
-  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
-  blockquote { border-left: 3px solid var(--accent); padding: 0.5rem 1rem; margin: 1rem 0; color: var(--text-muted); background: var(--bg-callout); border-radius: 0 8px 8px 0; }
-  img { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
-  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+body {
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+}
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+.toc a:hover { color: #bfdbfe; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
+h3 { color: #93c5fd; margin-top: 1.8rem; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
+tr:nth-child(even) { background: #1e293b44; }
+hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+    pre { border-left: 3px solid #ccc; }
+}
 </style>
-<script>
-  function toggleTheme() {
-    const html = document.documentElement;
-    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('probe-theme', next);
-    location.reload();
-  }
-  (function() {
-    const saved = localStorage.getItem('probe-theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
-    document.getElementById('themeIcon').textContent = saved === 'light' ? '🌙' : '☀️';
-    document.getElementById('themeLabel').textContent = saved === 'light' ? '夜间' : '日间';
-  })();
-</script>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">mobile-ai-agent</span>
+</div>
+<div class="meta">
+<h1>---</h1>
+<div class="info">2026-03-14 · 分类: mobile-ai-agent</div>
+<div class="tags"></div>
+</div>
+
 <div class="header" style="position:relative">
   <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式"><span class="icon" id="themeIcon">☀️</span><span class="label" id="themeLabel">日间</span></button>
   <h1>📱 移动端 AI 智能体：挑战与应对措施</h1>
@@ -356,6 +346,10 @@
 <p>[8] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/search/?query=mobile+agent+survey+benchmark+2025">Mobile Agent Survey & Benchmarks (2025)</a></p>
 </div>
 </div>
-<div class="footer">探针 (Probe) · AI 技术研究分析师 · 2026</div>
-</body>
-</html>
+
+
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+</body></html>

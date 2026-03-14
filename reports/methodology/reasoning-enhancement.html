@@ -1,53 +1,78 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>推理增强技术全景分析</title>
-    <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>推理增强技术全景分析</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
+<style>
 body {
-    background: #0f172a;
-    color: #e2e8f0;
+    background: #0f172a; color: #e2e8f0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
 }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+.toc a:hover { color: #bfdbfe; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-h4 { color: #a5b4fc; }
-a { color: #60a5fa; text-decoration: none; }
-code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
-pre code { background: none; padding: 0; color: #e2e8f0; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
-th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
 tr:nth-child(even) { background: #1e293b44; }
-tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-strong { color: #f8fafc; }
-em { color: #94a3b8; }
-ul, ol { padding-left: 1.5rem; }
-li { margin: 0.3rem 0; }
-p { margin: 0.8rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+    pre { border-left: 3px solid #ccc; }
+}
 </style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">🔬 方法论</span>
+</div>
+<div class="meta">
+<h1>推理增强技术全景分析</h1>
+<div class="info">2026-03-14 · 分类: 🔬 方法论</div>
+<div class="tags"><span class="tag">CoT</span><span class="tag">PRM</span><span class="tag">o1/o3</span></div>
+</div>
+
 <h1>推理增强技术全景分析</h1>
 
-<h2>Executive Summary</h2>
+<h2 id="executive-summary">Executive Summary</h2>
 
 <p>大模型推理能力的提升是 AI 进步的核心战场。从 Chain-of-Thought 到 Tree-of-Thought，从 Self-Consistency 到 Process Reward Models，本文全景式梳理推理增强技术的演进路线，分析各方法的原理、优劣和适用场景，并展望 Test-Time Compute 等前沿方向。</p>
 
 <hr>
 
-<h2>1. Chain-of-Thought 及其变体</h2>
+<h2 id="1-chain-of-thought-及其变体">1. Chain-of-Thought 及其变体</h2>
 
-<h3>1.1 基础 CoT</h3>
+<h3 id="11-基础-cot">1.1 基础 CoT</h3>
 
 <p><strong>核心思想</strong>: 让模型"一步一步想"，将推理过程显式化。</p>
 
@@ -63,11 +88,11 @@ CoT:
 
 <p><strong>效果</strong>: 在 GSM8K（数学推理）上准确率从 17.9% → 58.1%</p>
 
-<h3>1.2 Zero-shot CoT</h3>
+<h3 id="12-zero-shot-cot">1.2 Zero-shot CoT</h3>
 
 <p>在问题后加 "Let's think step by step" 即可触发推理，无需示例。</p>
 
-<h3>1.3 Few-shot CoT</h3>
+<h3 id="13-few-shot-cot">1.3 Few-shot CoT</h3>
 
 <p>提供带推理过程的示例：</p>
 
@@ -77,7 +102,7 @@ CoT:
 问题: [新问题] → ?
 </code></pre>
 
-<h3>1.4 Auto-CoT</h3>
+<h3 id="14-auto-cot">1.4 Auto-CoT</h3>
 
 <p>自动生成 CoT 示例：</p>
 <p>1. 对问题进行聚类</p>
@@ -87,9 +112,9 @@ CoT:
 
 <hr>
 
-<h2>2. Tree-of-Thought (ToT)</h2>
+<h2 id="2-tree-of-thought-tot">2. Tree-of-Thought (ToT)</h2>
 
-<h3>2.1 核心思想</h3>
+<h3 id="21-核心思想">2.1 核心思想</h3>
 
 <p>将推理从线性链扩展为树状搜索：</p>
 
@@ -103,7 +128,7 @@ CoT:
   [最优路径选择]
 </code></pre>
 
-<h3>2.2 与 CoT 对比</h3>
+<h3 id="22-与-cot-对比">2.2 与 CoT 对比</h3>
 
 <table>
 <tr><th>维度</th><th>CoT</th><th>ToT</th></tr>
@@ -114,7 +139,7 @@ CoT:
 <tr><td>实现复杂度</td><td>低</td><td>高</td></tr>
 </table>
 
-<h3>2.3 关键组件</h3>
+<h3 id="23-关键组件">2.3 关键组件</h3>
 
 <li><strong>思维分解</strong>: 将问题拆为可独立探索的子问题</li>
 <li><strong>思维评估</strong>: 用 LLM 评估每个思路的可行性（投票或打分）</li>
@@ -122,9 +147,9 @@ CoT:
 
 <hr>
 
-<h2>3. Graph-of-Thought (GoT)</h2>
+<h2 id="3-graph-of-thought-got">3. Graph-of-Thought (GoT)</h2>
 
-<h3>3.1 核心思想</h3>
+<h3 id="31-核心思想">3.1 核心思想</h3>
 
 <p>进一步泛化为图结构，允许思路之间的<strong>合并、循环和交叉引用</strong>：</p>
 
@@ -134,13 +159,13 @@ CoT:
      [思路C]
 </code></pre>
 
-<h3>3.2 优势</h3>
+<h3 id="32-优势">3.2 优势</h3>
 
 <li>支持思路聚合（多个部分解合并）</li>
 <li>支持循环优化（迭代改进）</li>
 <li>比 ToT 更灵活的拓扑结构</li>
 
-<h3>3.3 适用场景</h3>
+<h3 id="33-适用场景">3.3 适用场景</h3>
 
 <li>复杂问题分解与重组</li>
 <li>多方案综合</li>
@@ -148,9 +173,9 @@ CoT:
 
 <hr>
 
-<h2>4. Self-Consistency 与 Self-Refine</h2>
+<h2 id="4-self-consistency-与-self-refine">4. Self-Consistency 与 Self-Refine</h2>
 
-<h3>4.1 Self-Consistency</h3>
+<h3 id="41-self-consistency">4.1 Self-Consistency</h3>
 
 <p><strong>原理</strong>: 对同一问题采样多次推理路径，取多数投票结果。</p>
 
@@ -168,7 +193,7 @@ CoT:
 
 <p><strong>缺点</strong>: 计算成本 = 采样数 × 单次推理成本</p>
 
-<h3>4.2 Self-Refine</h3>
+<h3 id="42-self-refine">4.2 Self-Refine</h3>
 
 <p><strong>原理</strong>: 迭代改进，生成 → 反馈 → 优化循环：</p>
 
@@ -184,9 +209,9 @@ CoT:
 
 <hr>
 
-<h2>5. Process Reward Models (PRM)</h2>
+<h2 id="5-process-reward-models-prm">5. Process Reward Models (PRM)</h2>
 
-<h3>5.1 vs Outcome Reward Models (ORM)</h3>
+<h3 id="51-vs-outcome-reward-models-orm">5.1 vs Outcome Reward Models (ORM)</h3>
 
 <table>
 <tr><th>类型</th><th>评估时机</th><th>信号粒度</th><th>训练数据</th></tr>
@@ -194,14 +219,14 @@ CoT:
 <tr><td>PRM</td><td>每个推理步骤</td><td>细（步骤对错）</td><td>需要标注</td></tr>
 </table>
 
-<h3>5.2 PRM 训练</h3>
+<h3 id="52-prm-训练">5.2 PRM 训练</h3>
 
 <p>1. 采样大量推理路径</p>
 <p>2. 标注每一步的正确性</p>
 <p>3. 训练模型预测步骤质量</p>
 <p>4. 在搜索中用 PRM 引导</p>
 
-<h3>5.3 应用</h3>
+<h3 id="53-应用">5.3 应用</h3>
 
 <pre><code>
 MATH 问题 → 多条推理路径
@@ -212,9 +237,9 @@ MATH 问题 → 多条推理路径
 
 <hr>
 
-<h2>6. Test-Time Compute</h2>
+<h2 id="6-test-time-compute">6. Test-Time Compute</h2>
 
-<h3>6.1 核心思想</h3>
+<h3 id="61-核心思想">6.1 核心思想</h3>
 
 <p>与其花更多钱训练大模型，不如在推理时投入更多计算。</p>
 
@@ -225,14 +250,14 @@ MATH 问题 → 多条推理路径
 o1: 适中训练成本 → 推理时深度思考
 </code></pre>
 
-<h3>6.2 实现策略</h3>
+<h3 id="62-实现策略">6.2 实现策略</h3>
 
 <p>1. <strong>长链推理</strong>: 生成超长推理链（数千 token）</p>
 <p>2. <strong>搜索 + 验证</strong>: 多路径搜索 + PRM 引导</p>
 <p>3. <strong>自我验证</strong>: 生成答案后自我检验</p>
 <p>4. <strong>迭代优化</strong>: 多轮改进直到收敛</p>
 
-<h3>6.3 Scaling Law</h3>
+<h3 id="63-scaling-law">6.3 Scaling Law</h3>
 
 <pre><code>
 模型性能 = f(训练算力, 推理算力)
@@ -241,7 +266,7 @@ o1: 适中训练成本 → 推理时深度思考
       训练小模型 + 推理时多算 &gt; 训练大模型 + 快速推理
 </code></pre>
 
-<h3>6.4 对比</h3>
+<h3 id="64-对比">6.4 对比</h3>
 
 <table>
 <tr><th>模型</th><th>训练成本</th><th>推理成本</th><th>MATH 准确率</th></tr>
@@ -253,7 +278,7 @@ o1: 适中训练成本 → 推理时深度思考
 
 <hr>
 
-<h2>7. 技术选型建议</h2>
+<h2 id="7-技术选型建议">7. 技术选型建议</h2>
 
 <table>
 <tr><th>场景</th><th>推荐方法</th><th>理由</th></tr>
@@ -267,7 +292,7 @@ o1: 适中训练成本 → 推理时深度思考
 
 <hr>
 
-<h2>参考来源</h2>
+<h2 id="参考来源">参考来源</h2>
 
 <p>1. Wei, J. et al. "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models" (2022) — Google, NeurIPS 2022</p>
 <p>2. Yao, S. et al. "Tree of Thoughts: Deliberate Problem Solving with Large Language Models" (2023) — Princeton</p>
@@ -275,5 +300,9 @@ o1: 适中训练成本 → 推理时深度思考
 <p>4. Wang, X. et al. "Self-Consistency Improves Chain of Thought Reasoning in Language Models" (2023) — Google</p>
 <p>5. Lightman, H. et al. "Let's Verify Step by Step" (2023) — OpenAI</p>
 
-</body>
-</html>
+
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+</body></html>

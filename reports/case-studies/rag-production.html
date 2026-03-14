@@ -1,44 +1,72 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAG 生产环境踩坑实录 | Tech-Researcher</title>
-    <style>
-        :root { --bg-primary: #0d1117; --bg-secondary: #161b22; --bg-tertiary: #21262d; --text-primary: #e6edf3; --text-secondary: #8b949e; --text-muted: #6e7681; --accent-blue: #58a6ff; --accent-green: #3fb950; --accent-orange: #d29922; --accent-red: #f85149; --accent-purple: #bc8cff; --border-color: #30363d; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.7; padding: 2rem; max-width: 900px; margin: 0 auto; }
-        h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-        h2 { font-size: 1.5rem; margin: 2rem 0 1rem; color: var(--accent-blue); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
-        h3 { font-size: 1.2rem; margin: 1.5rem 0 0.8rem; color: var(--accent-purple); }
-        .meta { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2rem; }
-        .meta span { margin-right: 1.5rem; }
-        .summary { background: var(--bg-secondary); border-left: 4px solid var(--accent-green); padding: 1.5rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
-        .summary h3 { color: var(--accent-green); margin-top: 0; }
-        .summary ul { margin-left: 1.5rem; }
-        .summary li { margin: 0.5rem 0; }
-        p { margin: 1rem 0; }
-        ul, ol { margin: 1rem 0 1rem 1.5rem; }
-        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
-        th, td { padding: 0.8rem; border: 1px solid var(--border-color); text-align: left; }
-        th { background: var(--bg-tertiary); color: var(--accent-blue); }
-        td { background: var(--bg-secondary); }
-        code { background: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.85em; color: var(--accent-orange); }
-        strong { color: var(--accent-green); }
-        a { color: var(--accent-blue); text-decoration: none; }
-        .warn { background: var(--bg-secondary); border-left: 4px solid var(--accent-orange); padding: 1rem 1.5rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
-        .refs { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
-        .refs h3 { color: var(--text-secondary); font-size: 1rem; }
-        .refs ol { font-size: 0.85rem; color: var(--text-secondary); }
-        .footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.85rem; text-align: center; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG 生产环境踩坑实录</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
+<style>
+body {
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+}
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+.toc a:hover { color: #bfdbfe; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
+h3 { color: #93c5fd; margin-top: 1.8rem; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
+tr:nth-child(even) { background: #1e293b44; }
+hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+    pre { border-left: 3px solid #ccc; }
+}
+</style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">📊 案例实践</span>
+</div>
+<div class="meta">
+<h1>RAG 生产环境踩坑实录</h1>
+<div class="info">2026-03-14 · 分类: 📊 案例实践</div>
+<div class="tags"><span class="tag">RAG</span><span class="tag">幻觉控制</span><span class="tag">监控</span></div>
+</div>
+
     <h1>RAG 生产环境踩坑实录</h1>
     <div class="meta"><span>📅 2025年3月</span><span>📂 案例实践</span><span>📖 ~4500字</span></div>
 
     <div class="summary">
-        <h3>📋 Executive Summary</h3>
+        <h3 id="-executive-summary">📋 Executive Summary</h3>
         <p>RAG 已成为企业部署 LLM 最主流的架构模式。但从 PoC 到生产的过程中面临着大量意料之外的挑战。</p>
         <ul>
             <li><strong>数据质量决定上限</strong>：再好的检索策略也无法弥补脏数据</li>
@@ -48,24 +76,24 @@
         </ul>
     </div>
 
-    <h2>1. 真实环境中的 RAG 挑战</h2>
+    <h2 id="1-真实环境中的-rag-挑战">1. 真实环境中的 RAG 挑战</h2>
     <p>PoC vs Production 的巨大鸿沟：文档从"干净 PDF"变成各种格式混杂，用户从"内部测试"变成"千奇百怪的问题"。</p>
 
     <div class="warn">
         <strong>⚠️ 典型陷阱</strong>：检索到目录页而非正文、检索到过时版本、多文档综合问题失败、无文档支持但 LLM 仍"编造"回答。
     </div>
 
-    <h2>2. 数据质量与清洗</h2>
+    <h2 id="2-数据质量与清洗">2. 数据质量与清洗</h2>
     <p><strong>清洗管线</strong>：格式检测 → 文本提取 → OCR（扫描件）→ 清洗 → 分块 → 嵌入 → 存储。</p>
     <p><strong>元数据是被低估的部分</strong>：文档标题、作者、日期、版本号、文档类型、适用范围——这些是检索过滤和回答溯源的基础。</p>
 
-    <h2>3. 检索失败模式与应对</h2>
-    <h3>混合检索策略</h3>
+    <h2 id="3-检索失败模式与应对">3. 检索失败模式与应对</h2>
+    <h3 id="混合检索策略">混合检索策略</h3>
     <p>向量检索（语义）+ BM25（关键词）+ RRF 融合 + Reranker 精排，通常可将检索准确率提升 10-20%。</p>
-    <h3>查询改写</h3>
+    <h3 id="查询改写">查询改写</h3>
     <p>问题分解、查询扩展、HyDE（用假设性答案检索）。</p>
 
-    <h2>4. 幻觉控制策略</h2>
+    <h2 id="4-幻觉控制策略">4. 幻觉控制策略</h2>
     <table>
         <tr><th>策略</th><th>效果</th><th>复杂度</th></tr>
         <tr><td>Prompt 工程</td><td>中</td><td>低</td></tr>
@@ -75,10 +103,10 @@
         <tr><td>安全边界规则</td><td>高</td><td>低</td></tr>
     </table>
 
-    <h2>5. 监控与持续优化</h2>
+    <h2 id="5-监控与持续优化">5. 监控与持续优化</h2>
     <p>四个监控维度：系统（延迟/错误率）、检索（相关性/失败率）、生成（幻觉率/Token 消耗）、业务（满意度/解决率）。</p>
 
-    <h3>生产环境踩坑清单（Top 10）</h3>
+    <h3 id="生产环境踩坑清单top-10">生产环境踩坑清单（Top 10）</h3>
     <ol>
         <li>嵌入模型更新后未重建索引</li>
         <li>文档删除后未清理向量</li>
@@ -92,13 +120,13 @@
         <li>敏感信息未脱敏</li>
     </ol>
 
-    <h2>实践建议</h2>
+    <h2 id="实践建议">实践建议</h2>
     <p><strong>技术选型</strong>：向量数据库选 Pinecone/Qdrant/Milvus；嵌入模型选 OpenAI/BGE-M3；先 LangChain 原型再自建。</p>
     <p><strong>架构</strong>：从简单开始，先保证召回再优化精度，元数据过滤是低垂果实。</p>
     <p><strong>运营</strong>：每周抽样审查、建立文档更新流程、用户反馈 48 小时闭环。</p>
 
     <div class="refs">
-        <h3>参考来源</h3>
+        <h3 id="参考来源">参考来源</h3>
         <ol>
             <li>Gao et al. "Precise Zero-Shot Dense Retrieval." ACL 2023. (HyDE)</li>
             <li>RAGAS. https://github.com/explodinggradients/ragas</li>
@@ -107,6 +135,10 @@
             <li>Pinecone. "RAG Learning Center."</li>
         </ol>
     </div>
-    <div class="footer">Tech-Researcher · 案例实践系列 · 2025年3月</div>
-</body>
-</html>
+    
+
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+</body></html>

@@ -1,42 +1,67 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Agent 设计模式</title>
-    <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent 设计模式</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
+<style>
 body {
-    background: #0f172a;
-    color: #e2e8f0;
+    background: #0f172a; color: #e2e8f0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
 }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+.toc a:hover { color: #bfdbfe; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-h4 { color: #a5b4fc; }
-a { color: #60a5fa; text-decoration: none; }
-code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
-pre code { background: none; padding: 0; color: #e2e8f0; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
-th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
 tr:nth-child(even) { background: #1e293b44; }
-tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-strong { color: #f8fafc; }
-em { color: #94a3b8; }
-ul, ol { padding-left: 1.5rem; }
-li { margin: 0.3rem 0; }
-p { margin: 0.8rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+    pre { border-left: 3px solid #ccc; }
+}
 </style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">🔬 方法论</span>
+</div>
+<div class="meta">
+<h1>AI Agent 设计模式</h1>
+<div class="info">2026-03-14 · 分类: 🔬 方法论</div>
+<div class="tags"><span class="tag">ReAct</span><span class="tag">Reflection</span><span class="tag">工具使用</span></div>
+</div>
+
 <h1>AI Agent 设计模式</h1>
 
 <p>> <strong>发布日期</strong>: 2026-03-14  </p>
@@ -45,7 +70,7 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>Executive Summary</h2>
+<h2 id="executive-summary">Executive Summary</h2>
 
 <p>AI Agent（智能体）正在成为大语言模型应用的主流范式。从 2023 年 ReAct 模式引爆行业关注，到 2024-2025 年 Plan-and-Execute、Reflection 等高级模式的成熟，Agent 架构已经从"能跑通"进化到"可工程化"阶段。本报告系统梳理当前主流的 AI Agent 设计模式，涵盖核心推理范式、工具使用机制、错误处理策略、多 Agent 通信架构，并结合业界典型案例进行分析。</p>
 
@@ -58,9 +83,9 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>一、核心推理范式</h2>
+<h2 id="一核心推理范式">一、核心推理范式</h2>
 
-<h3>1.1 ReAct（Reasoning + Acting）</h3>
+<h3 id="11-reactreasoning--acting">1.1 ReAct（Reasoning + Acting）</h3>
 
 <p>ReAct 是最早被广泛采用的 Agent 设计模式，由 Yao et al. (2022) 提出。其核心思想是将推理（Thought）与行动（Action）交替进行，形成一个循环链路。</p>
 
@@ -90,7 +115,7 @@ Final Answer: 北京今天天气晴朗，气温15°C
 
 <p><strong>实际案例</strong>: OpenAI 的 ChatGPT 插件系统本质上采用了 ReAct 模式——模型决定何时调用插件、如何解析返回结果。LangChain 的 <code>AgentExecutor</code> 默认也是 ReAct 链路。</p>
 
-<h3>1.2 Plan-and-Execute（规划-执行）</h3>
+<h3 id="12-plan-and-execute规划-执行">1.2 Plan-and-Execute（规划-执行）</h3>
 
 <p>Plan-and-Execute 模式将任务分解为两个阶段：先制定完整计划，再逐步执行。这种模式在 2024 年成为主流，被 LangGraph、CrewAI、AutoGen 等框架广泛采用。</p>
 
@@ -143,7 +168,7 @@ Revised Plan:
 
 <p><strong>业界采用</strong>: LangGraph 的 <code>PlanAndExecute</code> 链、Microsoft Autogen 的 GroupChat 模式、CrewAI 的任务分解机制都采用了这一范式。</p>
 
-<h3>1.3 Reflection（反思）</h3>
+<h3 id="13-reflection反思">1.3 Reflection（反思）</h3>
 
 <p>Reflection 模式引入了"生成-评估-改进"的迭代回路。Agent 不仅执行任务，还会对自己的输出进行批判性评估，然后迭代改进。</p>
 
@@ -185,7 +210,7 @@ Revised Plan:
 
 <p><strong>推荐策略</strong>: 设置 2-3 轮迭代上限，并用明确的评估标准（如 checklist）引导 Reflection，避免开放式评估。</p>
 
-<h3>1.4 其他新兴模式</h3>
+<h3 id="14-其他新兴模式">1.4 其他新兴模式</h3>
 
 <p><strong>a) LATS（Language Agent Tree Search）</strong></p>
 <p>结合蒙特卡洛树搜索，Agent 在行动前探索多条可能路径，评估每条路径的预期收益，选择最优路径执行。适合需要前瞻推理的任务（如棋类、策略规划）。</p>
@@ -198,11 +223,11 @@ Revised Plan:
 
 <hr>
 
-<h2>二、工具使用机制设计</h2>
+<h2 id="二工具使用机制设计">二、工具使用机制设计</h2>
 
 <p>工具使用是 Agent 与外部世界交互的核心能力。设计良好的工具使用机制能显著提升 Agent 的可靠性和实用性。</p>
 
-<h3>2.1 工具定义与注册</h3>
+<h3 id="21-工具定义与注册">2.1 工具定义与注册</h3>
 
 <p><strong>最佳实践</strong>:</p>
 
@@ -233,7 +258,7 @@ tools = [
 <p>3. <strong>提供合理的默认值</strong>: 减少 Agent 需要猜测的参数</p>
 <p>4. <strong>数量控制在 15 个以内</strong>: 工具过多会导致 Agent 选择困难，超过 20 个时建议分组</p>
 
-<h3>2.2 工具调用策略</h3>
+<h3 id="22-工具调用策略">2.2 工具调用策略</h3>
 
 <p><strong>a) Function Calling（函数调用）</strong></p>
 <p>由 LLM 直接输出结构化的函数调用请求，框架解析并执行。这是 OpenAI、Anthropic、Google 等主流 API 的标准方式。</p>
@@ -684,5 +709,9 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。
 *本报告由 Tech-Researcher 团队编写，旨在为 AI Agent 系统设计提供实践指导。如有反馈，欢迎在 GitHub Issues 中提出。*
 
 </code></pre>
-</body>
-</html>
+
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+</body></html>

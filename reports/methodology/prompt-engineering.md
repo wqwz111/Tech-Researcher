@@ -677,7 +677,7 @@ def route_model(task_complexity: str, budget: str) -> str:
    - https://arxiv.org/abs/2203.11171
 
 6. **DSPy Documentation** — Stanford 的自动化 Prompt 优化框架
-   - https://dspy-docs.vercel.app/
+   - 官方网站: https://dspy.ai | GitHub: https://github.com/stanfordnlp/dspy
 
 ---
 

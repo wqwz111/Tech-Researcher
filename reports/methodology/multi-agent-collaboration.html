@@ -1,53 +1,78 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>多智能体协作模式研究</title>
-    <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多智能体协作模式研究</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
+<style>
 body {
-    background: #0f172a;
-    color: #e2e8f0;
+    background: #0f172a; color: #e2e8f0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
 }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+.toc a:hover { color: #bfdbfe; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-h4 { color: #a5b4fc; }
-a { color: #60a5fa; text-decoration: none; }
-code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
-pre code { background: none; padding: 0; color: #e2e8f0; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
-th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
 tr:nth-child(even) { background: #1e293b44; }
-tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-strong { color: #f8fafc; }
-em { color: #94a3b8; }
-ul, ol { padding-left: 1.5rem; }
-li { margin: 0.3rem 0; }
-p { margin: 0.8rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+    pre { border-left: 3px solid #ccc; }
+}
 </style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">🔬 方法论</span>
+</div>
+<div class="meta">
+<h1>多智能体协作模式研究</h1>
+<div class="info">2026-03-14 · 分类: 🔬 方法论</div>
+<div class="tags"><span class="tag">Multi-Agent</span><span class="tag">CrewAI</span><span class="tag">AutoGen</span></div>
+</div>
+
 <h1>多智能体协作模式研究</h1>
 
-<h2>Executive Summary</h2>
+<h2 id="executive-summary">Executive Summary</h2>
 
 <p>多智能体系统（Multi-Agent System, MAS）是 AI Agent 从单兵作战走向团队协作的必然路径。本文分析层级式、扁平式、市场式三种组织模式，探讨通信协议与冲突解决机制，对比 CrewAI、AutoGen、MetaGPT 等主流框架，并通过实际案例展示多 Agent 协作的工程实践。</p>
 
 <hr>
 
-<h2>1. 组织模式</h2>
+<h2 id="1-组织模式">1. 组织模式</h2>
 
-<h3>1.1 层级式（Hierarchical）</h3>
+<h3 id="11-层级式hierarchical">1.1 层级式（Hierarchical）</h3>
 
 <pre><code>
         [管理者 Agent]
@@ -60,7 +85,7 @@ p { margin: 0.8rem 0; }
 <li><strong>缺点</strong>: 单点瓶颈，管理者负载高</li>
 <li><strong>适用</strong>: 项目管理、复杂工作流</li>
 
-<h3>1.2 扁平式（Flat / Peer-to-Peer）</h3>
+<h3 id="12-扁平式flat--peer-to-peer">1.2 扁平式（Flat / Peer-to-Peer）</h3>
 
 <pre><code>
 [Agent A] ←→ [Agent B]
@@ -73,7 +98,7 @@ p { margin: 0.8rem 0; }
 <li><strong>缺点</strong>: 协调成本高，可能冲突</li>
 <li><strong>适用</strong>: 头脑风暴、民主决策</li>
 
-<h3>1.3 市场式（Market-based）</h3>
+<h3 id="13-市场式market-based">1.3 市场式（Market-based）</h3>
 
 <pre><code>
 [任务发布] → [拍卖机制] → [Agent 竞标] → [最优分配]
@@ -86,9 +111,9 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>2. 通信协议与消息传递</h2>
+<h2 id="2-通信协议与消息传递">2. 通信协议与消息传递</h2>
 
-<h3>2.1 通信模式</h3>
+<h3 id="21-通信模式">2.1 通信模式</h3>
 
 <table>
 <tr><th>模式</th><th>描述</th><th>适用场景</th></tr>
@@ -98,7 +123,7 @@ p { margin: 0.8rem 0; }
 <tr><td>黑板系统</td><td>共享内存空间</td><td>异步协作</td></tr>
 </table>
 
-<h3>2.2 消息格式</h3>
+<h3 id="22-消息格式">2.2 消息格式</h3>
 
 <pre><code>
 {
@@ -115,7 +140,7 @@ p { margin: 0.8rem 0; }
 }
 </code></pre>
 
-<h3>2.3 协议标准</h3>
+<h3 id="23-协议标准">2.3 协议标准</h3>
 
 <li><strong>A2A (Agent-to-Agent)</strong>: Google 提出的 Agent 通信协议</li>
 <li><strong>MCP (Model Context Protocol)</strong>: 工具调用协议</li>
@@ -123,15 +148,15 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>3. 冲突解决与共识机制</h2>
+<h2 id="3-冲突解决与共识机制">3. 冲突解决与共识机制</h2>
 
-<h3>3.1 常见冲突类型</h3>
+<h3 id="31-常见冲突类型">3.1 常见冲突类型</h3>
 
 <li><strong>资源冲突</strong>: 多个 Agent 需要同一工具/数据</li>
 <li><strong>目标冲突</strong>: Agent 目标相互矛盾</li>
 <li><strong>知识冲突</strong>: Agent 对同一事实有不同认知</li>
 
-<h3>3.2 解决策略</h3>
+<h3 id="32-解决策略">3.2 解决策略</h3>
 
 <table>
 <tr><th>策略</th><th>机制</th><th>适用场景</th></tr>
@@ -142,7 +167,7 @@ p { margin: 0.8rem 0; }
 <tr><td>回退</td><td>随机退避重试</td><td>简单资源冲突</td></tr>
 </table>
 
-<h3>3.3 共识算法</h3>
+<h3 id="33-共识算法">3.3 共识算法</h3>
 
 <pre><code>
 1. 提案阶段: Agent A 提出方案
@@ -153,9 +178,9 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>4. 主流框架对比</h2>
+<h2 id="4-主流框架对比">4. 主流框架对比</h2>
 
-<h3>4.1 CrewAI</h3>
+<h3 id="41-crewai">4.1 CrewAI</h3>
 
 <p><strong>特点</strong>: 角色扮演 + 任务编排</p>
 
@@ -184,7 +209,7 @@ crew = Crew(
 <p><strong>优点</strong>: 上手简单，角色设计直观</p>
 <p><strong>缺点</strong>: 复杂工作流灵活性不足</p>
 
-<h3>4.2 AutoGen</h3>
+<h3 id="42-autogen">4.2 AutoGen</h3>
 
 <p><strong>特点</strong>: 对话驱动的多 Agent 协作</p>
 
@@ -203,7 +228,7 @@ user_proxy.initiate_chat(
 <p><strong>优点</strong>: 灵活的对话模式，支持人类参与</p>
 <p><strong>缺点</strong>: 需要较多手动配置</p>
 
-<h3>4.3 MetaGPT</h3>
+<h3 id="43-metagpt">4.3 MetaGPT</h3>
 
 <p><strong>特点</strong>: 软件公司模拟，标准化 SOP</p>
 
@@ -214,7 +239,7 @@ user_proxy.initiate_chat(
 <p><strong>优点</strong>: 软件开发场景效果好</p>
 <p><strong>缺点</strong>: 场景较窄</p>
 
-<h3>4.4 对比总结</h3>
+<h3 id="44-对比总结">4.4 对比总结</h3>
 
 <table>
 <tr><th>维度</th><th>CrewAI</th><th>AutoGen</th><th>MetaGPT</th></tr>
@@ -227,9 +252,9 @@ user_proxy.initiate_chat(
 
 <hr>
 
-<h2>5. 实际案例分析</h2>
+<h2 id="5-实际案例分析">5. 实际案例分析</h2>
 
-<h3>5.1 研究团队模拟</h3>
+<h3 id="51-研究团队模拟">5.1 研究团队模拟</h3>
 
 <p><strong>场景</strong>: 一个 AI 研究团队完成文献综述</p>
 
@@ -246,7 +271,7 @@ user_proxy.initiate_chat(
 
 <p><strong>效果</strong>: 10 篇论文综述，单人 2 天 → 多 Agent 2 小时</p>
 
-<h3>5.2 代码开发协作</h3>
+<h3 id="52-代码开发协作">5.2 代码开发协作</h3>
 
 <p><strong>场景</strong>: AutoGen 驱动的代码审查系统</p>
 
@@ -257,7 +282,7 @@ user_proxy.initiate_chat(
 
 <hr>
 
-<h2>参考来源</h2>
+<h2 id="参考来源">参考来源</h2>
 
 <p>1. Wu, Q. et al. "AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation" (2023) — Microsoft Research</p>
 <p>2. Hong, S. et al. "MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework" (2023) — DeepWisdom</p>
@@ -265,5 +290,9 @@ user_proxy.initiate_chat(
 <p>4. Wooldridge, M. "An Introduction to MultiAgent Systems" (2009) — John Wiley & Sons</p>
 <p>5. Google A2A Protocol — https://github.com/google/A2A</p>
 
-</body>
-</html>
+
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+</body></html>

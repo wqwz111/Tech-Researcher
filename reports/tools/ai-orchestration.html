@@ -4,35 +4,69 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI 编排平台横向对比</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; line-height: 1.7; padding: 2rem; max-width: 900px; margin: 0 auto; }
-h1 { color: #58a6ff; font-size: 2rem; margin-bottom: 0.5rem; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; }
-h2 { color: #79c0ff; font-size: 1.5rem; margin: 2rem 0 1rem; border-left: 3px solid #58a6ff; padding-left: 0.8rem; }
-h3 { color: #a5d6ff; font-size: 1.2rem; margin: 1.5rem 0 0.8rem; }
-p { margin: 0.8rem 0; }
-blockquote { border-left: 3px solid #3fb950; background: #161b22; padding: 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0; color: #8b949e; }
-strong { color: #f0883e; }
-code { background: #161b22; color: #f0883e; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
-table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-th { background: #161b22; color: #58a6ff; padding: 0.6rem 0.8rem; text-align: left; border: 1px solid #30363d; }
-td { padding: 0.6rem 0.8rem; border: 1px solid #30363d; }
-tr:nth-child(even) { background: #161b22; }
-a { color: #58a6ff; text-decoration: none; }
-a:hover { text-decoration: underline; }
-.meta { color: #8b949e; font-size: 0.9rem; margin-bottom: 1.5rem; }
-ul, ol { margin: 0.8rem 0 0.8rem 1.5rem; }
-li { margin: 0.3rem 0; }
-pre { background: #161b22; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; border: 1px solid #30363d; }
-pre code { background: none; padding: 0; }
+body {
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+}
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+.toc a:hover { color: #bfdbfe; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
+h3 { color: #93c5fd; margin-top: 1.8rem; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
+tr:nth-child(even) { background: #1e293b44; }
+hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+    pre { border-left: 3px solid #ccc; }
+}
 </style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">🛠️ 工具</span>
+</div>
+<div class="meta">
+<h1>AI 编排平台横向对比</h1>
+<div class="info">2026-03-14 · 分类: 🛠️ 工具</div>
+<div class="tags"><span class="tag">Dify</span><span class="tag">n8n</span><span class="tag">编排</span></div>
+</div>
+
 
 <h1>AI 编排平台横向对比</h1>
 <p class="meta">最后更新: 2026-03-14 | 分类: AI 开发工具 / 编排</p>
 
-<h2>Executive Summary</h2>
+<h2 id="executive-summary">Executive Summary</h2>
 <blockquote>
 <p><strong>核心结论</strong>:<br>
 • 技术团队深度定制: <strong>LangFlow</strong> 或 <strong>Dify</strong><br>
@@ -41,7 +75,7 @@ pre code { background: none; padding: 0; }
 </p>
 </blockquote>
 
-<h2>1. 平台概览</h2>
+<h2 id="1-平台概览">1. 平台概览</h2>
 <table>
 <tr><th>平台</th><th>技术栈</th><th>定位</th><th>许可</th><th>适合</th></tr>
 <tr><td><strong>LangFlow</strong></td><td>Python + React</td><td>LangChain 可视化</td><td>MIT</td><td>LangChain 开发者</td></tr>
@@ -51,7 +85,7 @@ pre code { background: none; padding: 0; }
 <tr><td><strong>n8n</strong></td><td>Node.js + Vue</td><td>自动化 + AI</td><td>Fair-code</td><td>业务集成</td></tr>
 </table>
 
-<h2>2. 可视化编排能力</h2>
+<h2 id="2-可视化编排能力">2. 可视化编排能力</h2>
 <table>
 <tr><th>维度</th><th>LangFlow</th><th>Flowise</th><th>Dify</th><th>Coze</th><th>n8n</th></tr>
 <tr><td>拖拽编辑</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
@@ -63,7 +97,7 @@ pre code { background: none; padding: 0; }
 <tr><td>调试模式</td><td>✅</td><td>✅</td><td>✅ ⭐</td><td>✅</td><td>✅ ⭐</td></tr>
 </table>
 
-<h2>3. 模型支持与生态</h2>
+<h2 id="3-模型支持与生态">3. 模型支持与生态</h2>
 <table>
 <tr><th>平台</th><th>OpenAI</th><th>Anthropic</th><th>国内模型</th><th>本地模型</th><th>集成数</th></tr>
 <tr><td>LangFlow</td><td>✅</td><td>✅</td><td>✅</td><td>✅ Ollama</td><td>30+</td></tr>
@@ -73,7 +107,7 @@ pre code { background: none; padding: 0; }
 <tr><td>n8n</td><td>✅</td><td>✅</td><td>⚠️ 配置</td><td>✅ 自定义</td><td>400+ ⭐</td></tr>
 </table>
 
-<h2>4. 企业级特性</h2>
+<h2 id="4-企业级特性">4. 企业级特性</h2>
 <table>
 <tr><th>特性</th><th>Dify</th><th>LangFlow</th><th>Flowise</th><th>n8n</th><th>Coze</th></tr>
 <tr><td>自托管</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
@@ -84,7 +118,7 @@ pre code { background: none; padding: 0; }
 <tr><td>内容过滤</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
 </table>
 
-<h2>5. 适用场景</h2>
+<h2 id="5-适用场景">5. 适用场景</h2>
 <table>
 <tr><th>场景</th><th>推荐</th><th>理由</th></tr>
 <tr><td>快速原型</td><td>Flowise / LangFlow</td><td>拖拽即用，上手最快</td></tr>
@@ -95,7 +129,7 @@ pre code { background: none; padding: 0; }
 <tr><td>国内合规</td><td>Coze / Dify 自建</td><td>国内模型、数据合规</td></tr>
 </table>
 
-<h2>6. 中国市场考量</h2>
+<h2 id="6-中国市场考量">6. 中国市场考量</h2>
 <ul>
 <li><strong>国内模型支持</strong>: Dify 和 Coze 原生支持通义千问、文心一言、智谱 GLM</li>
 <li><strong>数据合规</strong>: Dify 自建可完全控制数据</li>
@@ -103,7 +137,7 @@ pre code { background: none; padding: 0; }
 <li><strong>中文社区</strong>: Dify 和 Coze 有活跃的中文社区</li>
 </ul>
 
-<h2>参考来源</h2>
+<h2 id="参考来源">参考来源</h2>
 <ol>
 <li><a href="https://docs.langflow.org">LangFlow 文档</a> — 架构、节点、部署</li>
 <li><a href="https://docs.flowiseai.com">Flowise 文档</a> — 节点类型、API</li>
@@ -113,5 +147,9 @@ pre code { background: none; padding: 0; }
 <li>各平台 GitHub 仓库 Stars、Issues、Contributors 数据</li>
 </ol>
 
-</body>
-</html>
+
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+</body></html>

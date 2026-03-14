@@ -37,7 +37,21 @@
 - 上下文压缩
 - 去重与合并
 
-### 1.3 Modular RAG（模块化 RAG）
+### 1.3 Self-RAG 与 CRAG（自我纠正型 RAG）
+
+**Self-RAG**（Self-Reflective Retrieval-Augmented Generation）通过引入**反思标记（Reflection Tokens）** 让模型自主决定是否需要检索、评估检索结果的相关性，并自我纠正回答质量。与传统 RAG 不同，Self-RAG 不依赖固定的检索管道，而是让模型在生成过程中动态决策。
+
+- 核心创新：检索决策 + 相关性评估 + 支持度评估 全部由模型自身完成
+- 优势：减少不必要的检索开销，提高回答忠实度
+- 论文：Asai, A. et al. "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection" (2023) — [arXiv:2310.11511](https://arxiv.org/abs/2310.11511)
+
+**CRAG**（Corrective Retrieval-Augmented Generation）在检索后增加了一个**纠正模块**，对检索结果进行质量评估，并根据评估结果采取不同策略（直接使用 / 纠正后使用 / 重新检索），显著提升了低质量检索场景下的回答准确性。
+
+- 核心创新：轻量级检索评估器 + 纠正策略（正确/模糊/错误）
+- 优势：对噪声检索结果鲁棒性强
+- 论文：Yan, S. et al. "Corrective Retrieval Augmented Generation" (2024) — [arXiv:2401.15884](https://arxiv.org/abs/2401.15884)
+
+### 1.4 Modular RAG（模块化 RAG）
 
 最新趋势：将 RAG 系统拆解为可插拔模块：
 
@@ -76,7 +90,7 @@
 最终得分 = α × 稠密相似度 + (1-α) × BM25 得分
 ```
 
-**典型 α 值**: 0.5-0.7（偏向语义匹配）
+**典型 α 值**: 0.5-0.7（偏向语义匹配）— *经验值参考，建议根据具体场景通过评估调优*
 
 **实现方案**:
 - Milvus: 内置混合检索
@@ -172,8 +186,10 @@ result = evaluate(
 
 ## 参考来源
 
-1. Gao, Y. et al. "Retrieval-Augmented Generation for Large Language Models: A Survey" (2023) — arXiv:2312.10997
-2. RAGAS Documentation — https://docs.ragas.io/
-3. LlamaIndex RAG Guide — https://docs.llamaindex.ai/
-4. LangChain RAG Tutorial — https://python.langchain.com/docs/tutorials/rag/
-5. Wei, Z. et al. "Dense Passage Retrieval for Open-Domain Question Answering" (2020) — Facebook AI Research
+1. Gao, Y. et al. "Retrieval-Augmented Generation for Large Language Models: A Survey" (2023) — [arXiv:2312.10997](https://arxiv.org/abs/2312.10997)
+2. Asai, A. et al. "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection" (2023) — [arXiv:2310.11511](https://arxiv.org/abs/2310.11511)
+3. Yan, S. et al. "Corrective Retrieval Augmented Generation" (2024) — [arXiv:2401.15884](https://arxiv.org/abs/2401.15884)
+4. RAGAS Documentation — https://docs.ragas.io/
+5. LlamaIndex RAG Guide — https://docs.llamaindex.ai/
+6. LangChain RAG Tutorial — https://python.langchain.com/docs/tutorials/rag/
+7. Wei, Z. et al. "Dense Passage Retrieval for Open-Domain Question Answering" (2020) — Facebook AI Research — [arXiv:2004.04906](https://arxiv.org/abs/2004.04906)

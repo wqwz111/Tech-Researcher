@@ -1,42 +1,67 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLM 评估与 Benchmark 方法论</title>
-    <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM 评估与 Benchmark 方法论</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
+<style>
 body {
-    background: #0f172a;
-    color: #e2e8f0;
+    background: #0f172a; color: #e2e8f0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
 }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+.toc a:hover { color: #bfdbfe; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-h4 { color: #a5b4fc; }
-a { color: #60a5fa; text-decoration: none; }
-code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
-pre code { background: none; padding: 0; color: #e2e8f0; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
-th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
 tr:nth-child(even) { background: #1e293b44; }
-tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-strong { color: #f8fafc; }
-em { color: #94a3b8; }
-ul, ol { padding-left: 1.5rem; }
-li { margin: 0.3rem 0; }
-p { margin: 0.8rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+    pre { border-left: 3px solid #ccc; }
+}
 </style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">🔬 方法论</span>
+</div>
+<div class="meta">
+<h1>LLM 评估与 Benchmark 方法论</h1>
+<div class="info">2026-03-14 · 分类: 🔬 方法论</div>
+<div class="tags"><span class="tag">Benchmark</span><span class="tag">RAGAS</span><span class="tag">评估</span></div>
+</div>
+
 <h1>LLM 评估与 Benchmark 方法论</h1>
 
 <p>> 发布日期: 2026-03-14</p>
@@ -45,7 +70,7 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>Executive Summary</h2>
+<h2 id="executive-summary">Executive Summary</h2>
 
 <p>大语言模型（LLM）的评估是 AI 领域最具挑战性的问题之一。随着模型能力的快速迭代，评估方法论也在不断演进。本文系统梳理主流 Benchmark（MMLU、HumanEval、HELM 等）、自定义评估框架、人工与自动评估的结合策略、RAG 场景的专项评估指标，以及实践中常见的陷阱。</p>
 
@@ -59,9 +84,9 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>一、主流 Benchmark 概览</h2>
+<h2 id="一主流-benchmark-概览">一、主流 Benchmark 概览</h2>
 
-<h3>1.1 MMLU（Massive Multitask Language Understanding）</h3>
+<h3 id="11-mmlumassive-multitask-language-understanding">1.1 MMLU（Massive Multitask Language Understanding）</h3>
 
 <p>MMLU 由 Dan Hendrycks 等人于 2021 年提出，是目前最广泛使用的知识理解基准之一。</p>
 
@@ -82,7 +107,7 @@ p { margin: 0.8rem 0; }
 
 <p><strong>最新进展：</strong> MMLU-Pro 于 2024 年发布，将选项从 4 个增加到 10 个，并加入更多推理步骤要求，显著提高了难度。MMLU-Pro 上顶尖模型的得分通常比 MMLU 低 15-20 个百分点，更好地区分了模型能力。</p>
 
-<h3>1.2 HumanEval / HumanEval+</h3>
+<h3 id="12-humaneval--humaneval">1.2 HumanEval / HumanEval+</h3>
 
 <p>HumanEval 由 OpenAI 于 2021 年发布，是代码生成领域的标杆 Benchmark。</p>
 
@@ -103,7 +128,7 @@ p { margin: 0.8rem 0; }
 
 <p><strong>扩展：</strong> HumanEval+（2024）大幅扩展了测试用例数量（从平均 7.7 个增加到 80+ 个），降低了"碰巧通过"的概率，提供了更严格的评估。</p>
 
-<h3>1.3 HELM（Holistic Evaluation of Language Models）</h3>
+<h3 id="13-helmholistic-evaluation-of-language-models">1.3 HELM（Holistic Evaluation of Language Models）</h3>
 
 <p>HELM 由斯坦福大学 CRFM 于 2022 年提出，代表了评估方法论的一次重要升级。</p>
 
@@ -124,7 +149,7 @@ p { margin: 0.8rem 0; }
 <li>部分场景的标注数据质量参差不齐</li>
 <li>更新速度跟不上模型迭代速度</li>
 
-<h3>1.4 其他重要 Benchmark</h3>
+<h3 id="14-其他重要-benchmark">1.4 其他重要 Benchmark</h3>
 
 <table>
 <tr><th>Benchmark</th><th>领域</th><th>特点</th></tr>
@@ -140,7 +165,7 @@ p { margin: 0.8rem 0; }
 <tr><td>**SWE-bench**</td><td>软件工程</td><td>测试模型修复真实 GitHub Issue 的能力</td></tr>
 </table>
 
-<h3>1.5 Benchmark 发展趋势</h3>
+<h3 id="15-benchmark-发展趋势">1.5 Benchmark 发展趋势</h3>
 
 <p>当前评估方法论呈现几个明显趋势：</p>
 
@@ -151,9 +176,9 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>二、自定义评估框架</h2>
+<h2 id="二自定义评估框架">二、自定义评估框架</h2>
 
-<h3>2.1 为什么需要自定义评估</h3>
+<h3 id="21-为什么需要自定义评估">2.1 为什么需要自定义评估</h3>
 
 <p>通用 Benchmark 无法覆盖所有业务场景。企业落地 LLM 时需要回答：</p>
 
@@ -161,7 +186,7 @@ p { margin: 0.8rem 0; }
 <li>模型升级后，我的核心指标有没有变化？</li>
 <li>不同模型之间如何选择？</li>
 
-<h3>2.2 自定义评估框架的设计原则</h3>
+<h3 id="22-自定义评估框架的设计原则">2.2 自定义评估框架的设计原则</h3>
 
 <p><strong>原则 1：对齐业务目标</strong></p>
 
@@ -186,7 +211,7 @@ Level 4: 安全性测试 — 是否存在风险？（对抗测试）
 <li>新发现的失败模式加入评估集</li>
 <li>定期轮换部分题目避免过拟合</li>
 
-<h3>2.3 评估数据集构建</h3>
+<h3 id="23-评估数据集构建">2.3 评估数据集构建</h3>
 
 <p><strong>黄金标准集（Golden Set）：</strong></p>
 <li>精心标注的高质量测试集，通常 200-1000 条</li>
@@ -206,7 +231,7 @@ Level 4: 安全性测试 — 是否存在风险？（对抗测试）
 <li>包含提示注入、越狱尝试等安全测试</li>
 <li>定期更新以应对新型攻击</li>
 
-<h3>2.4 自动化评估流水线</h3>
+<h3 id="24-自动化评估流水线">2.4 自动化评估流水线</h3>
 
 <pre><code>
 ┌─────────────┐     ┌──────────────┐     ┌─────────────┐
@@ -228,9 +253,9 @@ Level 4: 安全性测试 — 是否存在风险？（对抗测试）
 
 <hr>
 
-<h2>三、人工评估与自动评估</h2>
+<h2 id="三人工评估与自动评估">三、人工评估与自动评估</h2>
 
-<h3>3.1 自动评估方法</h3>
+<h3 id="31-自动评估方法">3.1 自动评估方法</h3>
 
 <p><strong>基于规则的评分：</strong></p>
 <li>准确率（Accuracy）：分类/选择题场景</li>
@@ -257,7 +282,7 @@ Level 4: 安全性测试 — 是否存在风险？（对抗测试）
 <li>对评判结果进行抽样人工验证</li>
 <li>使用多评判投票（3 个评判取中位数）降低偏差</li>
 
-<h3>3.2 人工评估方法</h3>
+<h3 id="32-人工评估方法">3.2 人工评估方法</h3>
 
 <p><strong>直接评分（Likert Scale）：</strong></p>
 <p>评估者对输出质量打分（如 1-5 分），维度包括：</p>
@@ -276,7 +301,7 @@ Level 4: 安全性测试 — 是否存在风险？（对抗测试）
 <li><strong>众包</strong>：成本低、规模大，适合主观质量评估（如流畅性）</li>
 <li><strong>专家</strong>：成本高、精度高，适合领域专业知识评估（如医学准确性）</li>
 
-<h3>3.3 自动与人工的结合策略</h3>
+<h3 id="33-自动与人工的结合策略">3.3 自动与人工的结合策略</h3>
 
 <p>推荐的三层评估策略：</p>
 
@@ -301,11 +326,11 @@ Level 4: 安全性测试 — 是否存在风险？（对抗测试）
 
 <hr>
 
-<h2>四、RAG 系统评估</h2>
+<h2 id="四rag-系统评估">四、RAG 系统评估</h2>
 
 <p>RAG（检索增强生成）系统的评估比纯生成模型更复杂，需要同时评估<strong>检索质量</strong>和<strong>生成质量</strong>。</p>
 
-<h3>4.1 检索质量评估</h3>
+<h3 id="41-检索质量评估">4.1 检索质量评估</h3>
 
 <p><strong>传统 IR 指标：</strong></p>
 <li><strong>Precision@K</strong>：前 K 个检索结果中有多少是相关的</li>
@@ -318,7 +343,7 @@ Level 4: 安全性测试 — 是否存在风险？（对抗测试）
 <li><strong>Context Precision</strong>：检索结果中相关文档的占比（排除噪声）</li>
 <li><strong>Context Recall</strong>：回答问题所需的所有信息是否都被检索到</li>
 
-<h3>4.2 生成质量评估</h3>
+<h3 id="42-生成质量评估">4.2 生成质量评估</h3>
 
 <p><strong>忠实度（Faithfulness）：</strong></p>
 <li>生成的回答是否忠实于检索到的上下文</li>
@@ -335,7 +360,7 @@ Level 4: 安全性测试 — 是否存在风险？（对抗测试）
 <li>结合事实正确性和语义正确性</li>
 <li>可使用 F1 分数（token 级别重叠）或 LLM 评判</li>
 
-<h3>4.3 端到端评估</h3>
+<h3 id="43-端到端评估">4.3 端到端评估</h3>
 
 <p><strong>RAGAS 框架：</strong></p>
 <p>RAGAS（RAG Assessment）是目前最流行的 RAG 评估框架，提供四个核心指标：</p>
@@ -370,7 +395,7 @@ eval_cases = [
 ]
 </code></pre>
 
-<h3>4.4 RAG 评估的常见挑战</h3>
+<h3 id="44-rag-评估的常见挑战">4.4 RAG 评估的常见挑战</h3>
 
 <p>1. <strong>Ground Truth 构建成本高</strong>：需要人工标注正确答案和相关文档</p>
 <p>2. <strong>评估指标之间的权衡</strong>：高召回可能导致低精确度，反之亦然</p>
@@ -379,9 +404,9 @@ eval_cases = [
 
 <hr>
 
-<h2>五、常见陷阱与最佳实践</h2>
+<h2 id="五常见陷阱与最佳实践">五、常见陷阱与最佳实践</h2>
 
-<h3>5.1 数据污染（Data Contamination）</h3>
+<h3 id="51-数据污染data-contamination">5.1 数据污染（Data Contamination）</h3>
 
 <p><strong>问题：</strong> Benchmark 的测试数据被包含在模型的训练数据中，导致评估结果虚高。</p>
 
@@ -396,7 +421,7 @@ eval_cases = [
 <li>构建私有评估集</li>
 <li>定期更新评估数据</li>
 
-<h3>5.2 单一指标迷信</h3>
+<h3 id="52-单一指标迷信">5.2 单一指标迷信</h3>
 
 <p><strong>问题：</strong> 过度依赖某一个指标（如 MMLU 分数）做决策。</p>
 
@@ -407,7 +432,7 @@ eval_cases = [
 <li>根据业务场景加权不同指标</li>
 <li>在最终决策前进行实际场景测试</li>
 
-<h3>5.3 忽视校准度（Calibration）</h3>
+<h3 id="53-忽视校准度calibration">5.3 忽视校准度（Calibration）</h3>
 
 <p><strong>问题：</strong> 模型的置信度与实际正确率不匹配。例如，模型以 90% 的置信度回答问题，但实际正确率只有 60%。</p>
 
@@ -418,7 +443,7 @@ eval_cases = [
 <li>Reliability Diagram（可靠性图）</li>
 <li>分桶统计置信度与准确率的差异</li>
 
-<h3>5.4 评估速度 vs 评估深度的权衡</h3>
+<h3 id="54-评估速度-vs-评估深度的权衡">5.4 评估速度 vs 评估深度的权衡</h3>
 
 <p><strong>问题：</strong> 深度评估耗时长，无法快速迭代。</p>
 
@@ -432,7 +457,7 @@ eval_cases = [
 <tr><td>发布后</td><td>持续监控</td><td>持续</td><td>生产数据</td></tr>
 </table>
 
-<h3>5.5 领域偏差</h3>
+<h3 id="55-领域偏差">5.5 领域偏差</h3>
 
 <p><strong>问题：</strong> 在通用 Benchmark 上表现优秀的模型，在特定领域可能表现平庸。</p>
 
@@ -443,7 +468,7 @@ eval_cases = [
 <li>收集真实业务数据构建领域评估集</li>
 <li>关注领域特定的失败模式</li>
 
-<h3>5.6 评估集的版本管理</h3>
+<h3 id="56-评估集的版本管理">5.6 评估集的版本管理</h3>
 
 <p><strong>问题：</strong> 评估集随时间演变，不管理版本会导致结果不可比较。</p>
 
@@ -455,9 +480,9 @@ eval_cases = [
 
 <hr>
 
-<h2>六、实践建议</h2>
+<h2 id="六实践建议">六、实践建议</h2>
 
-<h3>6.1 构建评估体系的步骤</h3>
+<h3 id="61-构建评估体系的步骤">6.1 构建评估体系的步骤</h3>
 
 <p>1. <strong>定义评估目标</strong>：明确要评估什么能力、服务什么业务决策</p>
 <p>2. <strong>选择基准 Benchmark</strong>：根据领域选择 2-3 个主流 Benchmark 作为基线</p>
@@ -467,7 +492,7 @@ eval_cases = [
 <p>6. <strong>建立人工审核机制</strong>：定期抽样验证自动评估结果</p>
 <p>7. <strong>持续迭代</strong>：根据新发现的失败模式更新评估集</p>
 
-<h3>6.2 推荐工具栈</h3>
+<h3 id="62-推荐工具栈">6.2 推荐工具栈</h3>
 
 <table>
 <tr><th>用途</th><th>工具</th><th>说明</th></tr>
@@ -479,7 +504,7 @@ eval_cases = [
 <tr><td>评估流水线</td><td>LangSmith, Braintrust</td><td>端到端评估管理</td></tr>
 </table>
 
-<h3>6.3 模型选型决策框架</h3>
+<h3 id="63-模型选型决策框架">6.3 模型选型决策框架</h3>
 
 <p>当需要在多个模型中选择时，按以下流程：</p>
 
@@ -505,7 +530,7 @@ Step 4: 生产环境验证
 
 <hr>
 
-<h2>七、总结</h2>
+<h2 id="七总结">七、总结</h2>
 
 <p>LLM 评估是一个快速发展的领域，没有"一劳永逸"的解决方案。关键原则：</p>
 
@@ -517,7 +542,7 @@ Step 4: 生产环境验证
 
 <hr>
 
-<h2>参考来源</h2>
+<h2 id="参考来源">参考来源</h2>
 
 <p>1. <strong>HELM: Holistic Evaluation of Language Models</strong> — Stanford CRFM</p>
 <p>   https://crfm.stanford.edu/helm/</p>
@@ -543,5 +568,9 @@ Step 4: 生产环境验证
 
 <p><em>本报告为 Tech-Researcher 系列方法论报告之一。如有反馈或建议，欢迎通过 GitHub Issues 提出。</em></p>
 
-</body>
-</html>
+
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+</body></html>

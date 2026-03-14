@@ -4,44 +4,78 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI 安全与防护工具研究</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; line-height: 1.7; padding: 2rem; max-width: 900px; margin: 0 auto; }
-h1 { color: #58a6ff; font-size: 2rem; margin-bottom: 0.5rem; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; }
-h2 { color: #79c0ff; font-size: 1.5rem; margin: 2rem 0 1rem; border-left: 3px solid #58a6ff; padding-left: 0.8rem; }
-h3 { color: #a5d6ff; font-size: 1.2rem; margin: 1.5rem 0 0.8rem; }
-p { margin: 0.8rem 0; }
-blockquote { border-left: 3px solid #3fb950; background: #161b22; padding: 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0; color: #8b949e; }
-strong { color: #f0883e; }
-code { background: #161b22; color: #f0883e; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
-pre { background: #161b22; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; border: 1px solid #30363d; }
-pre code { background: none; padding: 0; }
-table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-th { background: #161b22; color: #58a6ff; padding: 0.6rem 0.8rem; text-align: left; border: 1px solid #30363d; }
-td { padding: 0.6rem 0.8rem; border: 1px solid #30363d; }
-tr:nth-child(even) { background: #161b22; }
-a { color: #58a6ff; text-decoration: none; }
-a:hover { text-decoration: underline; }
-.meta { color: #8b949e; font-size: 0.9rem; margin-bottom: 1.5rem; }
-ul, ol { margin: 0.8rem 0 0.8rem 1.5rem; }
-li { margin: 0.3rem 0; }
+body {
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+}
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+.toc a:hover { color: #bfdbfe; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
+h3 { color: #93c5fd; margin-top: 1.8rem; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
+tr:nth-child(even) { background: #1e293b44; }
+hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+    pre { border-left: 3px solid #ccc; }
+}
 </style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">🛠️ 工具</span>
+</div>
+<div class="meta">
+<h1>AI 安全与防护工具研究</h1>
+<div class="info">2026-03-14 · 分类: 🛠️ 工具</div>
+<div class="tags"><span class="tag">安全</span><span class="tag">Prompt Injection</span><span class="tag">合规</span></div>
+</div>
+
 
 <h1>AI 安全与防护工具研究</h1>
 <p class="meta">最后更新: 2026-03-14 | 分类: AI 安全 / 防护</p>
 
-<h2>Executive Summary</h2>
+<h2 id="executive-summary">Executive Summary</h2>
 <blockquote>
 <p>AI 应用面临独特威胁: Prompt Injection、数据泄露、模型越狱、内容滥用。<br>
 <strong>核心结论</strong>: 需要<strong>纵深防御</strong——网关层、应用层、Prompt 层、模型层、输出层多层防护，单一工具不够。
 </p>
 </blockquote>
 
-<h2>1. Prompt Injection 防护</h2>
+<h2 id="1-prompt-injection-防护">1. Prompt Injection 防护</h2>
 
-<h3>攻击类型</h3>
+<h3 id="攻击类型">攻击类型</h3>
 <table>
 <tr><th>类型</th><th>描述</th><th>危害</th></tr>
 <tr><td>直接注入</td><td>用户直接操控 Prompt</td><td>绕过安全规则</td></tr>
@@ -50,7 +84,7 @@ li { margin: 0.3rem 0; }
 <tr><td>多轮攻击</td><td>分步骤逐渐绕过</td><td>复杂绕过</td></tr>
 </table>
 
-<h3>防护工具对比</h3>
+<h3 id="防护工具对比">防护工具对比</h3>
 <table>
 <tr><th>维度</th><th>Rebuff</th><th>Lakera Guard</th><th>Prompt Guard</th></tr>
 <tr><td>检测方式</td><td>多方法融合</td><td>ML 分类器</td><td>DeBERTa 分类器</td></tr>
@@ -61,7 +95,7 @@ li { margin: 0.3rem 0; }
 <tr><td>开源</td><td>✅</td><td>❌</td><td>✅</td></tr>
 </table>
 
-<h2>2. 内容安全过滤</h2>
+<h2 id="2-内容安全过滤">2. 内容安全过滤</h2>
 <table>
 <tr><th>工具</th><th>检测类型</th><th>多语言</th><th>部署</th><th>成本</th></tr>
 <tr><td><strong>LlamaGuard</strong></td><td>13 类有害内容</td><td>✅</td><td>本地 (GPU)</td><td>免费</td></tr>
@@ -70,7 +104,7 @@ li { margin: 0.3rem 0; }
 <tr><td><strong>OpenAI Moderation</strong></td><td>有害内容</td><td>✅</td><td>API</td><td>免费</td></tr>
 </table>
 
-<h2>3. 模型安全评估</h2>
+<h2 id="3-模型安全评估">3. 模型安全评估</h2>
 <table>
 <tr><th>工具</th><th>功能</th><th>开源</th></tr>
 <tr><td><strong>garak (NVIDIA)</strong></td><td>100+ 越狱方法自动扫描</td><td>✅</td></tr>
@@ -79,7 +113,7 @@ li { margin: 0.3rem 0; }
 <tr><td><strong>Fairlearn</strong></td><td>公平性评估</td><td>✅</td></tr>
 </table>
 
-<h3>OWASP LLM Top 10 (2025)</h3>
+<h3 id="owasp-llm-top-10-2025">OWASP LLM Top 10 (2025)</h3>
 <table>
 <tr><th>排名</th><th>风险</th><th>防护工具</th></tr>
 <tr><td>LLM01</td><td>Prompt Injection</td><td>Rebuff, Lakera</td></tr>
@@ -94,7 +128,7 @@ li { margin: 0.3rem 0; }
 <tr><td>LLM10</td><td>无界资源消耗</td><td>速率限制</td></tr>
 </table>
 
-<h2>4. 隐私保护工具</h2>
+<h2 id="4-隐私保护工具">4. 隐私保护工具</h2>
 <table>
 <tr><th>工具</th><th>功能</th><th>开源</th></tr>
 <tr><td>Microsoft Presidio</td><td>PII 检测 + 匿名化</td><td>✅</td></tr>
@@ -103,7 +137,7 @@ li { margin: 0.3rem 0; }
 <tr><td>OpenDP</td><td>差分隐私框架</td><td>✅</td></tr>
 </table>
 
-<h2>5. 合规检查</h2>
+<h2 id="5-合规检查">5. 合规检查</h2>
 <table>
 <tr><th>法规/框架</th><th>区域</th><th>状态</th></tr>
 <tr><td>EU AI Act</td><td>欧盟</td><td>2025 生效</td></tr>
@@ -112,14 +146,14 @@ li { margin: 0.3rem 0; }
 <tr><td>ISO/IEC 42001</td><td>国际</td><td>已发布</td></tr>
 </table>
 
-<h3>合规工具</h3>
+<h3 id="合规工具">合规工具</h3>
 <ul>
 <li><strong>Holistic AI</strong> — AI 治理与合规平台</li>
 <li><strong>Credo AI</strong> — 风险评估、合规检查</li>
 <li><strong>Robust Intelligence</strong> — AI 防火墙、实时监控</li>
 </ul>
 
-<h2>纵深防御架构</h2>
+<h2 id="纵深防御架构">纵深防御架构</h2>
 <pre><code>┌──────────────────┐
 │   网关层防护      │  Lakera / 速率限制
 ├──────────────────┤
@@ -132,7 +166,7 @@ li { margin: 0.3rem 0; }
 │   输出层防护      │  内容过滤 / PII 脱敏
 └──────────────────┘</code></pre>
 
-<h2>参考来源</h2>
+<h2 id="参考来源">参考来源</h2>
 <ol>
 <li><a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/">OWASP LLM Top 10</a></li>
 <li><a href="https://github.com/protectai/rebuff">Rebuff</a> — Prompt Injection 检测</li>
@@ -143,5 +177,9 @@ li { margin: 0.3rem 0; }
 <li><a href="https://llama.meta.com/docs/how-to-guides/prompt-guard/">Prompt Guard (Meta)</a></li>
 </ol>
 
-</body>
-</html>
+
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+</body></html>
