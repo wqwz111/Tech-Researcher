@@ -6,44 +6,94 @@
 <title>多模态 AI 框架分析</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
-.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
-.top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav .sep { color: #475569; }
-.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
-.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
-.meta .info { color: #94a3b8; font-size: .85rem; }
-.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
-.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+:root {
+    --bg:#0f172a;--bg2:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;
+    --border:#334155;--accent:#38bdf8;--accent2:#7dd3fc;--accent3:#93c5fd;
+    --code-bg:#1e293b;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#60a5fa;
+    --pink:#f472b6;
+}
+[data-theme="light"] {
+    --bg:#ffffff;--bg2:#f8fafc;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
+    --border:#e2e8f0;--accent:#2563eb;--accent2:#3b82f6;--accent3:#6366f1;
+    --code-bg:#f1f5f9;--tag-bg:#dbeafe;--tag-text:#1e40af;--link:#2563eb;
+    --pink:#db2777;
+}
+body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+    transition: background .3s, color .3s;
+}
+.top-nav {
+    background: var(--bg2); padding: .6rem 1rem; border-radius: 8px;
+    margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
+    border: 1px solid var(--border);
+}
+.top-nav a { color: var(--accent2); text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: var(--text-dim); }
+.theme-btn {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
+    padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
+    transition: border-color .2s;
+}
+.theme-btn:hover { border-color: var(--accent); }
+.meta {
+    background: var(--bg2); border-left: 4px solid var(--accent);
+    padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
+}
+.meta h1 { color: var(--accent); margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .info { color: var(--text-muted); font-size: .85rem; }
+.toc {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1rem 1.5rem; margin-bottom: 2rem;
+}
+.toc h2 { color: var(--accent2); font-size: 1rem; margin-bottom: .5rem; border: none; }
 .toc ul { list-style: none; padding-left: 1rem; }
 .toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: #93c5fd; text-decoration: none; }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
-h3 { color: #93c5fd; margin-top: 1.8rem; }
-a { color: #60a5fa; }
-code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
-pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
-.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+.toc a { color: var(--accent3); text-decoration: none; }
+h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: .5rem; }
+h2 { color: var(--accent2); margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { color: var(--accent3); margin-top: 1.8rem; }
+a { color: var(--link); }
+code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; color: var(--pink); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre {
+    background: var(--code-bg); padding: 1.2rem; border-radius: 8px;
+    overflow-x: auto; border-left: 3px solid var(--accent); margin: 1.2rem 0; position: relative;
+}
+pre code { background: none; color: var(--text); }
+pre .lang-label {
+    position: absolute; top: 0; right: 0; background: var(--border);
+    color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
+}
+.mermaid { background: var(--bg2); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+blockquote {
+    border-left: 4px solid var(--accent); margin: 1.5rem 0; padding: .8rem 1.2rem;
+    background: var(--bg2); border-radius: 0 8px 8px 0;
+}
 table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; }
-tr:nth-child(even) { background: #1e293b44; }
-hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
-.footer a { color: #60a5fa; }
+th, td { border: 1px solid var(--border); padding: .7rem 1rem; text-align: left; }
+th { background: var(--bg2); color: var(--accent2); }
+tr:nth-child(even) { background: var(--bg2); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+strong { color: var(--text); }
+.footer {
+    text-align: center; color: var(--text-dim); padding: 2rem 0 1rem;
+    border-top: 1px solid var(--border); margin-top: 3rem; font-size: .85rem;
+}
+.footer a { color: var(--link); }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+}
 </style>
 </head>
 <body>
 <div class="top-nav">
 <a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
 <a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:#94a3b8">🏗️ 框架</span>
+<span style="color:var(--text-muted)">🏗️ 框架</span>
+<button class="theme-btn" onclick="toggleTheme()" title="切换日夜模式"><span id="themeIcon">☀️</span></button>
 </div>
 <div class="meta">
 <h1>多模态 AI 框架分析</h1>
@@ -70,8 +120,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h3 id="11-主流视觉模型对比">1.1 主流视觉模型对比</h3>
 
-<table>
-<tr><th>模型</th><th>上下文窗口</th><th>最大图像</th><th>OCR</th><th>图表理解</th><th>多图对比</th><th>价格</th></tr>
+<table><tr><th>模型</th><th>上下文窗口</th><th>最大图像</th><th>OCR</th><th>图表理解</th><th>多图对比</th><th>价格</th></tr>
 <tr><td>GPT-4o</td><td>128K</td><td>2048×2048</td><td>优秀</td><td>优秀</td><td>支持</td><td>$2.50/1M input</td></tr>
 <tr><td>Claude Sonnet 4</td><td>200K</td><td>1568×1568</td><td>优秀</td><td>良好</td><td>支持</td><td>$3.00/1M input</td></tr>
 <tr><td>Gemini 2.0 Flash</td><td>1M</td><td>3072×3072</td><td>优秀</td><td>优秀</td><td>支持</td><td>$0.10/1M input</td></tr>
@@ -192,8 +241,7 @@ response = model.generate_content([
 
 <h3 id="15-开源视觉模型">1.5 开源视觉模型</h3>
 
-<table>
-<tr><th>模型</th><th>参数量</th><th>特点</th></tr>
+<table><tr><th>模型</th><th>参数量</th><th>特点</th></tr>
 <tr><td>LLaVA-NeXT</td><td>7B-110B</td><td>最流行的开源 VLM</td></tr>
 <tr><td>Qwen2-VL</td><td>2B-72B</td><td>中文视觉理解强</td></tr>
 <tr><td>InternVL2</td><td>1B-76B</td><td>多语言，文档理解</td></tr>
@@ -218,8 +266,7 @@ llm = LLM(
 
 <p><strong>Whisper 系列</strong>是当前最主流的 ASR 方案：</p>
 
-<table>
-<tr><th>模型</th><th>参数量</th><th>语言</th><th>速度</th><th>WER (英文)</th></tr>
+<table><tr><th>模型</th><th>参数量</th><th>语言</th><th>速度</th><th>WER (英文)</th></tr>
 <tr><td>Whisper Large-v3</td><td>1.5B</td><td>99</td><td>1x</td><td>~2.5%</td></tr>
 <tr><td>Whisper Turbo</td><td>800M</td><td>99</td><td>3x</td><td>~3.0%</td></tr>
 <tr><td>Distil-Whisper</td><td>756M</td><td>英文</td><td>6x</td><td>~3.8%</td></tr>
@@ -250,8 +297,7 @@ result = pipe("audio.mp3", return_timestamps=True)
 
 <h3 id="22-语音生成tts">2.2 语音生成（TTS）</h3>
 
-<table>
-<tr><th>模型</th><th>特点</th><th>价格</th></tr>
+<table><tr><th>模型</th><th>特点</th><th>价格</th></tr>
 <tr><td>OpenAI TTS / TTS-HD</td><td>多声音，高质量</td><td>$15-30/1M chars</td></tr>
 <tr><td>ElevenLabs</td><td>最自然的声音克隆</td><td>$0.30/1K chars</td></tr>
 <tr><td>Azure TTS (SSML)</td><td>企业级，SSML 控制</td><td>$16/1M chars</td></tr>
@@ -284,8 +330,7 @@ response = model.generate_content([
 
 <h3 id="31-视频理解">3.1 视频理解</h3>
 
-<table>
-<tr><th>模型</th><th>视频长度</th><th>帧率</th><th>特点</th></tr>
+<table><tr><th>模型</th><th>视频长度</th><th>帧率</th><th>特点</th></tr>
 <tr><td>Gemini 2.0</td><td>1+ 小时</td><td>可变</td><td>原生视频理解</td></tr>
 <tr><td>GPT-4o</td><td>~20 分钟</td><td>提取帧</td><td>图片序列处理</td></tr>
 <tr><td>Claude Vision</td><td>提取帧</td><td>手动</td><td>需要预处理</td></tr>
@@ -308,8 +353,7 @@ response = model.generate_content([
 
 <h3 id="32-视频生成">3.2 视频生成</h3>
 
-<table>
-<tr><th>模型</th><th>分辨率</th><th>时长</th><th>特点</th></tr>
+<table><tr><th>模型</th><th>分辨率</th><th>时长</th><th>特点</th></tr>
 <tr><td>Sora (OpenAI)</td><td>1080p</td><td>60s</td><td>高质量，物理合理</td></tr>
 <tr><td>Veo 2 (Google)</td><td>4K</td><td>60s+</td><td>高质量，长时长</td></tr>
 <tr><td>Runway Gen-3</td><td>1080p</td><td>10s</td><td>专业视频工具</td></tr>
@@ -349,8 +393,7 @@ def transcribe_audio(video_path):
 
 <h3 id="41-融合策略分类">4.1 融合策略分类</h3>
 
-<table>
-<tr><th>策略</th><th>说明</th><th>优势</th><th>劣势</th></tr>
+<table><tr><th>策略</th><th>说明</th><th>优势</th><th>劣势</th></tr>
 <tr><td>**早期融合**</td><td>在模型输入端融合</td><td>原生多模态理解</td><td>需要特定模型</td></tr>
 <tr><td>**晚期融合**</td><td>各模态独立处理后融合</td><td>灵活，可组合</td><td>模态间交互弱</td></tr>
 <tr><td>**交叉注意力**</td><td>通过注意力机制交互</td><td>平衡性能和灵活性</td><td>实现复杂</td></tr>
@@ -414,8 +457,7 @@ def multimodal_rag(query, image=None):
 
 <h3 id="51-选型决策矩阵">5.1 选型决策矩阵</h3>
 
-<table>
-<tr><th>场景</th><th>推荐方案</th><th>理由</th></tr>
+<table><tr><th>场景</th><th>推荐方案</th><th>理由</th></tr>
 <tr><td>通用图文理解</td><td>GPT-4o</td><td>最成熟的多模态 API</td></tr>
 <tr><td>成本敏感的视觉任务</td><td>Gemini Flash</td><td>价格优势巨大</td></tr>
 <tr><td>长文档+图片混合</td><td>Claude Sonnet</td><td>200K 上下文</td></tr>
@@ -471,8 +513,24 @@ graph TD
 <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
 <p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
 </div>
+<script>
+function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('tr-theme', next);
+    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
+}
+(function() {
+    const saved = localStorage.getItem('tr-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
+})();
+</script>
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});
+  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+  mermaid.initialize({startOnLoad:true, theme:theme});
 </script>
 </body></html>

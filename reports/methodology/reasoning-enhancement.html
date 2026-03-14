@@ -6,44 +6,94 @@
 <title>推理增强技术全景分析</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
-.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
-.top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav .sep { color: #475569; }
-.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
-.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
-.meta .info { color: #94a3b8; font-size: .85rem; }
-.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
-.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+:root {
+    --bg:#0f172a;--bg2:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;
+    --border:#334155;--accent:#38bdf8;--accent2:#7dd3fc;--accent3:#93c5fd;
+    --code-bg:#1e293b;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#60a5fa;
+    --pink:#f472b6;
+}
+[data-theme="light"] {
+    --bg:#ffffff;--bg2:#f8fafc;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
+    --border:#e2e8f0;--accent:#2563eb;--accent2:#3b82f6;--accent3:#6366f1;
+    --code-bg:#f1f5f9;--tag-bg:#dbeafe;--tag-text:#1e40af;--link:#2563eb;
+    --pink:#db2777;
+}
+body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+    transition: background .3s, color .3s;
+}
+.top-nav {
+    background: var(--bg2); padding: .6rem 1rem; border-radius: 8px;
+    margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
+    border: 1px solid var(--border);
+}
+.top-nav a { color: var(--accent2); text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: var(--text-dim); }
+.theme-btn {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
+    padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
+    transition: border-color .2s;
+}
+.theme-btn:hover { border-color: var(--accent); }
+.meta {
+    background: var(--bg2); border-left: 4px solid var(--accent);
+    padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
+}
+.meta h1 { color: var(--accent); margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .info { color: var(--text-muted); font-size: .85rem; }
+.toc {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1rem 1.5rem; margin-bottom: 2rem;
+}
+.toc h2 { color: var(--accent2); font-size: 1rem; margin-bottom: .5rem; border: none; }
 .toc ul { list-style: none; padding-left: 1rem; }
 .toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: #93c5fd; text-decoration: none; }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
-h3 { color: #93c5fd; margin-top: 1.8rem; }
-a { color: #60a5fa; }
-code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
-pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
-.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+.toc a { color: var(--accent3); text-decoration: none; }
+h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: .5rem; }
+h2 { color: var(--accent2); margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { color: var(--accent3); margin-top: 1.8rem; }
+a { color: var(--link); }
+code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; color: var(--pink); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre {
+    background: var(--code-bg); padding: 1.2rem; border-radius: 8px;
+    overflow-x: auto; border-left: 3px solid var(--accent); margin: 1.2rem 0; position: relative;
+}
+pre code { background: none; color: var(--text); }
+pre .lang-label {
+    position: absolute; top: 0; right: 0; background: var(--border);
+    color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
+}
+.mermaid { background: var(--bg2); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+blockquote {
+    border-left: 4px solid var(--accent); margin: 1.5rem 0; padding: .8rem 1.2rem;
+    background: var(--bg2); border-radius: 0 8px 8px 0;
+}
 table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; }
-tr:nth-child(even) { background: #1e293b44; }
-hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
-.footer a { color: #60a5fa; }
+th, td { border: 1px solid var(--border); padding: .7rem 1rem; text-align: left; }
+th { background: var(--bg2); color: var(--accent2); }
+tr:nth-child(even) { background: var(--bg2); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+strong { color: var(--text); }
+.footer {
+    text-align: center; color: var(--text-dim); padding: 2rem 0 1rem;
+    border-top: 1px solid var(--border); margin-top: 3rem; font-size: .85rem;
+}
+.footer a { color: var(--link); }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+}
 </style>
 </head>
 <body>
 <div class="top-nav">
 <a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
 <a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:#94a3b8">🔬 方法论</span>
+<span style="color:var(--text-muted)">🔬 方法论</span>
+<button class="theme-btn" onclick="toggleTheme()" title="切换日夜模式"><span id="themeIcon">☀️</span></button>
 </div>
 <div class="meta">
 <h1>推理增强技术全景分析</h1>
@@ -129,8 +179,7 @@ flowchart TD
 
 <h3 id="22-与-cot-对比">2.2 与 CoT 对比</h3>
 
-<table>
-<tr><th>维度</th><th>CoT</th><th>ToT</th></tr>
+<table><tr><th>维度</th><th>CoT</th><th>ToT</th></tr>
 <tr><td>搜索方式</td><td>贪心（单链）</td><td>树搜索（多分支）</td></tr>
 <tr><td>回退能力</td><td>❌ 不能回退</td><td>✅ 可回溯</td></tr>
 <tr><td>计算成本</td><td>1次前向</td><td>多次前向</td></tr>
@@ -215,8 +264,7 @@ flowchart LR
 
 <h3 id="51-vs-outcome-reward-models-orm">5.1 vs Outcome Reward Models (ORM)</h3>
 
-<table>
-<tr><th>类型</th><th>评估时机</th><th>信号粒度</th><th>训练数据</th></tr>
+<table><tr><th>类型</th><th>评估时机</th><th>信号粒度</th><th>训练数据</th></tr>
 <tr><td>ORM</td><td>最终答案</td><td>粗（对/错）</td><td>容易获取</td></tr>
 <tr><td>PRM</td><td>每个推理步骤</td><td>细（步骤对错）</td><td>需要标注</td></tr>
 </table>
@@ -271,8 +319,7 @@ o1: 适中训练成本 → 推理时深度思考
 
 <h3 id="64-对比">6.4 对比</h3>
 
-<table>
-<tr><th>模型</th><th>训练成本</th><th>推理成本</th><th>MATH 准确率</th></tr>
+<table><tr><th>模型</th><th>训练成本</th><th>推理成本</th><th>MATH 准确率</th></tr>
 <tr><td>GPT-4</td><td>极高</td><td>低</td><td>~50%</td></tr>
 <tr><td>o1-mini</td><td>中</td><td>中</td><td>~70%</td></tr>
 <tr><td>o1</td><td>高</td><td>高</td><td>~83%</td></tr>
@@ -283,8 +330,7 @@ o1: 适中训练成本 → 推理时深度思考
 
 <h2 id="7-技术选型建议">7. 技术选型建议</h2>
 
-<table>
-<tr><th>场景</th><th>推荐方法</th><th>理由</th></tr>
+<table><tr><th>场景</th><th>推荐方法</th><th>理由</th></tr>
 <tr><td>简单推理</td><td>CoT (Zero-shot)</td><td>简单高效</td></tr>
 <tr><td>数学/逻辑</td><td>CoT + Self-Consistency</td><td>效果好</td></tr>
 <tr><td>复杂规划</td><td>Tree-of-Thought</td><td>支持回溯</td></tr>
@@ -322,8 +368,24 @@ o1: 适中训练成本 → 推理时深度思考
 <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
 <p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
 </div>
+<script>
+function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('tr-theme', next);
+    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
+}
+(function() {
+    const saved = localStorage.getItem('tr-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
+})();
+</script>
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});
+  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+  mermaid.initialize({startOnLoad:true, theme:theme});
 </script>
 </body></html>

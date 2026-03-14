@@ -6,44 +6,94 @@
 <title>AI 基础设施与云平台对比</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
-.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
-.top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav .sep { color: #475569; }
-.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
-.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
-.meta .info { color: #94a3b8; font-size: .85rem; }
-.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
-.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+:root {
+    --bg:#0f172a;--bg2:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;
+    --border:#334155;--accent:#38bdf8;--accent2:#7dd3fc;--accent3:#93c5fd;
+    --code-bg:#1e293b;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#60a5fa;
+    --pink:#f472b6;
+}
+[data-theme="light"] {
+    --bg:#ffffff;--bg2:#f8fafc;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
+    --border:#e2e8f0;--accent:#2563eb;--accent2:#3b82f6;--accent3:#6366f1;
+    --code-bg:#f1f5f9;--tag-bg:#dbeafe;--tag-text:#1e40af;--link:#2563eb;
+    --pink:#db2777;
+}
+body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+    transition: background .3s, color .3s;
+}
+.top-nav {
+    background: var(--bg2); padding: .6rem 1rem; border-radius: 8px;
+    margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
+    border: 1px solid var(--border);
+}
+.top-nav a { color: var(--accent2); text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: var(--text-dim); }
+.theme-btn {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
+    padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
+    transition: border-color .2s;
+}
+.theme-btn:hover { border-color: var(--accent); }
+.meta {
+    background: var(--bg2); border-left: 4px solid var(--accent);
+    padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
+}
+.meta h1 { color: var(--accent); margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .info { color: var(--text-muted); font-size: .85rem; }
+.toc {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1rem 1.5rem; margin-bottom: 2rem;
+}
+.toc h2 { color: var(--accent2); font-size: 1rem; margin-bottom: .5rem; border: none; }
 .toc ul { list-style: none; padding-left: 1rem; }
 .toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: #93c5fd; text-decoration: none; }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
-h3 { color: #93c5fd; margin-top: 1.8rem; }
-a { color: #60a5fa; }
-code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
-pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
-.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+.toc a { color: var(--accent3); text-decoration: none; }
+h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: .5rem; }
+h2 { color: var(--accent2); margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { color: var(--accent3); margin-top: 1.8rem; }
+a { color: var(--link); }
+code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; color: var(--pink); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre {
+    background: var(--code-bg); padding: 1.2rem; border-radius: 8px;
+    overflow-x: auto; border-left: 3px solid var(--accent); margin: 1.2rem 0; position: relative;
+}
+pre code { background: none; color: var(--text); }
+pre .lang-label {
+    position: absolute; top: 0; right: 0; background: var(--border);
+    color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
+}
+.mermaid { background: var(--bg2); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+blockquote {
+    border-left: 4px solid var(--accent); margin: 1.5rem 0; padding: .8rem 1.2rem;
+    background: var(--bg2); border-radius: 0 8px 8px 0;
+}
 table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; }
-tr:nth-child(even) { background: #1e293b44; }
-hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
-.footer a { color: #60a5fa; }
+th, td { border: 1px solid var(--border); padding: .7rem 1rem; text-align: left; }
+th { background: var(--bg2); color: var(--accent2); }
+tr:nth-child(even) { background: var(--bg2); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+strong { color: var(--text); }
+.footer {
+    text-align: center; color: var(--text-dim); padding: 2rem 0 1rem;
+    border-top: 1px solid var(--border); margin-top: 3rem; font-size: .85rem;
+}
+.footer a { color: var(--link); }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+}
 </style>
 </head>
 <body>
 <div class="top-nav">
 <a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
 <a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:#94a3b8">🏗️ 框架</span>
+<span style="color:var(--text-muted)">🏗️ 框架</span>
+<button class="theme-btn" onclick="toggleTheme()" title="切换日夜模式"><span id="themeIcon">☀️</span></button>
 </div>
 <div class="meta">
 <h1>AI 基础设施与云平台对比</h1>
@@ -146,8 +196,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h3 id="21-主流模型可用性矩阵">2.1 主流模型可用性矩阵</h3>
 
-<table>
-<tr><th>模型系列</th><th>AWS Bedrock</th><th>Azure OpenAI</th><th>Vertex AI</th><th>Together AI</th><th>Fireworks AI</th></tr>
+<table><tr><th>模型系列</th><th>AWS Bedrock</th><th>Azure OpenAI</th><th>Vertex AI</th><th>Together AI</th><th>Fireworks AI</th></tr>
 <tr><td>----------</td><td>:-----------:</td><td>:------------:</td><td>:---------:</td><td>:-----------:</td><td>:------------:</td></tr>
 <tr><td>GPT-4o / GPT-4</td><td>❌</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
 <tr><td>o1 / o3</td><td>❌</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
@@ -175,8 +224,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <p><strong>首 token 延迟（Time to First Token, TTFT）</strong>：</p>
 
-<table>
-<tr><th>平台</th><th>小模型 (<10B)</th><th>中模型 (10-70B)</th><th>大模型 (70B+)</th></tr>
+<table><tr><th>平台</th><th>小模型 (<10B)</th><th>中模型 (10-70B)</th><th>大模型 (70B+)</th></tr>
 <tr><td>------</td><td>:-----------:</td><td>:------------:</td><td>:-----------:</td></tr>
 <tr><td>AWS Bedrock</td><td>200-400ms</td><td>500-1200ms</td><td>1-3s</td></tr>
 <tr><td>Azure OpenAI</td><td>150-350ms</td><td>400-1000ms</td><td>800-2500ms</td></tr>
@@ -193,8 +241,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h3 id="23-可用性区域">2.3 可用性区域</h3>
 
-<table>
-<tr><th>平台</th><th>区域数量</th><th>中国区</th><th>备注</th></tr>
+<table><tr><th>平台</th><th>区域数量</th><th>中国区</th><th>备注</th></tr>
 <tr><td>------</td><td>:------:</td><td>:----:</td><td>------</td></tr>
 <tr><td>AWS Bedrock</td><td>20+</td><td>❌</td><td>us-east-1, eu-west-1, ap-northeast-1 等</td></tr>
 <tr><td>Azure OpenAI</td><td>30+</td><td>✅（世纪互联）</td><td>全球最广泛，包括 Azure Government</td></tr>
@@ -214,8 +261,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h3 id="31-定价结构总览">3.1 定价结构总览</h3>
 
-<table>
-<tr><th>平台</th><th>定价模型</th><th>计费粒度</th><th>预留折扣</th><th>免费额度</th></tr>
+<table><tr><th>平台</th><th>定价模型</th><th>计费粒度</th><th>预留折扣</th><th>免费额度</th></tr>
 <tr><td>------</td><td>---------</td><td>:------:</td><td>:------:</td><td>:------:</td></tr>
 <tr><td>AWS Bedrock</td><td>按 token</td><td>输入/输出分离</td><td>✅（Commitment）</td><td>❌</td></tr>
 <tr><td>Azure OpenAI</td><td>按 token</td><td>输入/输出分离</td><td>✅（PTU 预留）</td><td>❌</td></tr>
@@ -228,8 +274,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h4>GPT-4o 级别模型（中等规模，最佳质量）</h4>
 
-<table>
-<tr><th>平台</th><th>模型</th><th>输入价格</th><th>输出价格</th></tr>
+<table><tr><th>平台</th><th>模型</th><th>输入价格</th><th>输出价格</th></tr>
 <tr><td>------</td><td>------</td><td>:------:</td><td>:------:</td></tr>
 <tr><td>Azure OpenAI</td><td>GPT-4o</td><td>$2.50</td><td>$10.00</td></tr>
 <tr><td>Azure OpenAI</td><td>GPT-4o mini</td><td>$0.15</td><td>$0.60</td></tr>
@@ -237,8 +282,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h4>Claude 3.5 Sonnet 级别模型</h4>
 
-<table>
-<tr><th>平台</th><th>模型</th><th>输入价格</th><th>输出价格</th></tr>
+<table><tr><th>平台</th><th>模型</th><th>输入价格</th><th>输出价格</th></tr>
 <tr><td>------</td><td>------</td><td>:------:</td><td>:------:</td></tr>
 <tr><td>AWS Bedrock</td><td>Claude 3.5 Sonnet</td><td>$3.00</td><td>$15.00</td></tr>
 <tr><td>Vertex AI</td><td>Claude 3.5 Sonnet</td><td>$3.00</td><td>$15.00</td></tr>
@@ -248,8 +292,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h4>开源大模型（70B 级别）</h4>
 
-<table>
-<tr><th>平台</th><th>模型</th><th>输入价格</th><th>输出价格</th></tr>
+<table><tr><th>平台</th><th>模型</th><th>输入价格</th><th>输出价格</th></tr>
 <tr><td>------</td><td>------</td><td>:------:</td><td>:------:</td></tr>
 <tr><td>AWS Bedrock</td><td>Llama 3.1 70B</td><td>$0.72</td><td>$0.72</td></tr>
 <tr><td>Vertex AI</td><td>Llama 3.1 70B</td><td>$0.56</td><td>$1.68</td></tr>
@@ -259,8 +302,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h4>Gemma / 小模型（<10B 级别）</h4>
 
-<table>
-<tr><th>平台</th><th>模型</th><th>输入价格</th><th>输出价格</th></tr>
+<table><tr><th>平台</th><th>模型</th><th>输入价格</th><th>输出价格</th></tr>
 <tr><td>------</td><td>------</td><td>:------:</td><td>:------:</td></tr>
 <tr><td>Vertex AI</td><td>Gemma 2 9B</td><td>$0.075</td><td>$0.075</td></tr>
 <tr><td>Together AI</td><td>Gemma 2 9B</td><td>$0.03</td><td>$0.03</td></tr>
@@ -290,8 +332,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h3 id="41-安全特性对比">4.1 安全特性对比</h3>
 
-<table>
-<tr><th>安全特性</th><th>AWS Bedrock</th><th>Azure OpenAI</th><th>Vertex AI</th><th>Together AI</th><th>Fireworks AI</th></tr>
+<table><tr><th>安全特性</th><th>AWS Bedrock</th><th>Azure OpenAI</th><th>Vertex AI</th><th>Together AI</th><th>Fireworks AI</th></tr>
 <tr><td>----------</td><td>:-----------:</td><td>:------------:</td><td>:---------:</td><td>:-----------:</td><td>:------------:</td></tr>
 <tr><td>传输加密 (TLS)</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
 <tr><td>静态加密</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
@@ -335,8 +376,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h3 id="43-sla-对比">4.3 SLA 对比</h3>
 
-<table>
-<tr><th>平台</th><th>标准 SLA</th><th>承诺类型</th><th>赔偿方式</th></tr>
+<table><tr><th>平台</th><th>标准 SLA</th><th>承诺类型</th><th>赔偿方式</th></tr>
 <tr><td>------</td><td>:------:</td><td>:------:</td><td>---------</td></tr>
 <tr><td>AWS Bedrock</td><td>99.9%</td><td>月度可用性</td><td>服务信用（10-30%）</td></tr>
 <tr><td>Azure OpenAI</td><td>99.9%</td><td>月度可用性</td><td>服务信用（10-25%）</td></tr>
@@ -396,8 +436,7 @@ flowchart TD
 
 <p><strong>模式二：按场景分配</strong></p>
 
-<table>
-<tr><th>场景</th><th>推荐平台</th><th>理由</th></tr>
+<table><tr><th>场景</th><th>推荐平台</th><th>理由</th></tr>
 <tr><td>GPT 系列应用</td><td>Azure OpenAI</td><td>唯一入口，无替代</td></tr>
 <tr><td>Gemini 多模态</td><td>Vertex AI</td><td>独占 + 最佳优化</td></tr>
 <tr><td>开源模型高并发</td><td>Fireworks / Together</td><td>延迟和成本最优</td></tr>
@@ -532,8 +571,24 @@ graph TD
 <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
 <p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
 </div>
+<script>
+function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('tr-theme', next);
+    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
+}
+(function() {
+    const saved = localStorage.getItem('tr-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
+})();
+</script>
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});
+  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+  mermaid.initialize({startOnLoad:true, theme:theme});
 </script>
 </body></html>

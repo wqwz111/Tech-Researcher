@@ -6,44 +6,94 @@
 <title>开源大模型部署实战指南</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
-.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
-.top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav .sep { color: #475569; }
-.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
-.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
-.meta .info { color: #94a3b8; font-size: .85rem; }
-.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
-.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+:root {
+    --bg:#0f172a;--bg2:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;
+    --border:#334155;--accent:#38bdf8;--accent2:#7dd3fc;--accent3:#93c5fd;
+    --code-bg:#1e293b;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#60a5fa;
+    --pink:#f472b6;
+}
+[data-theme="light"] {
+    --bg:#ffffff;--bg2:#f8fafc;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
+    --border:#e2e8f0;--accent:#2563eb;--accent2:#3b82f6;--accent3:#6366f1;
+    --code-bg:#f1f5f9;--tag-bg:#dbeafe;--tag-text:#1e40af;--link:#2563eb;
+    --pink:#db2777;
+}
+body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+    transition: background .3s, color .3s;
+}
+.top-nav {
+    background: var(--bg2); padding: .6rem 1rem; border-radius: 8px;
+    margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
+    border: 1px solid var(--border);
+}
+.top-nav a { color: var(--accent2); text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: var(--text-dim); }
+.theme-btn {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
+    padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
+    transition: border-color .2s;
+}
+.theme-btn:hover { border-color: var(--accent); }
+.meta {
+    background: var(--bg2); border-left: 4px solid var(--accent);
+    padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
+}
+.meta h1 { color: var(--accent); margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .info { color: var(--text-muted); font-size: .85rem; }
+.toc {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1rem 1.5rem; margin-bottom: 2rem;
+}
+.toc h2 { color: var(--accent2); font-size: 1rem; margin-bottom: .5rem; border: none; }
 .toc ul { list-style: none; padding-left: 1rem; }
 .toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: #93c5fd; text-decoration: none; }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
-h3 { color: #93c5fd; margin-top: 1.8rem; }
-a { color: #60a5fa; }
-code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
-pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
-.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+.toc a { color: var(--accent3); text-decoration: none; }
+h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: .5rem; }
+h2 { color: var(--accent2); margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { color: var(--accent3); margin-top: 1.8rem; }
+a { color: var(--link); }
+code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; color: var(--pink); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre {
+    background: var(--code-bg); padding: 1.2rem; border-radius: 8px;
+    overflow-x: auto; border-left: 3px solid var(--accent); margin: 1.2rem 0; position: relative;
+}
+pre code { background: none; color: var(--text); }
+pre .lang-label {
+    position: absolute; top: 0; right: 0; background: var(--border);
+    color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
+}
+.mermaid { background: var(--bg2); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+blockquote {
+    border-left: 4px solid var(--accent); margin: 1.5rem 0; padding: .8rem 1.2rem;
+    background: var(--bg2); border-radius: 0 8px 8px 0;
+}
 table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; }
-tr:nth-child(even) { background: #1e293b44; }
-hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
-.footer a { color: #60a5fa; }
+th, td { border: 1px solid var(--border); padding: .7rem 1rem; text-align: left; }
+th { background: var(--bg2); color: var(--accent2); }
+tr:nth-child(even) { background: var(--bg2); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+strong { color: var(--text); }
+.footer {
+    text-align: center; color: var(--text-dim); padding: 2rem 0 1rem;
+    border-top: 1px solid var(--border); margin-top: 3rem; font-size: .85rem;
+}
+.footer a { color: var(--link); }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+}
 </style>
 </head>
 <body>
 <div class="top-nav">
 <a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
 <a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:#94a3b8">📊 案例实践</span>
+<span style="color:var(--text-muted)">📊 案例实践</span>
+<button class="theme-btn" onclick="toggleTheme()" title="切换日夜模式"><span id="themeIcon">☀️</span></button>
 </div>
 <div class="meta">
 <h1>开源大模型部署实战指南</h1>
@@ -77,8 +127,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <p>Meta 的 Llama 系列是当前最流行的开源模型家族：</p>
 
-<table>
-<tr><th>模型</th><th>参数量</th><th>Context</th><th>发布时间</th><th>主要特点</th></tr>
+<table><tr><th>模型</th><th>参数量</th><th>Context</th><th>发布时间</th><th>主要特点</th></tr>
 <tr><td>Llama 3 8B</td><td>8B</td><td>8K</td><td>2024.04</td><td>轻量级，消费级硬件可运行</td></tr>
 <tr><td>Llama 3 70B</td><td>70B</td><td>8K</td><td>2024.04</td><td>性能均衡</td></tr>
 <tr><td>Llama 3.1 8B</td><td>8B</td><td>128K</td><td>2024.07</td><td>扩展上下文</td></tr>
@@ -155,8 +204,7 @@ graph TD
 
 <p><strong>硬件要求</strong>（以 FP16 推理为基准）：</p>
 
-<table>
-<tr><th>模型大小</th><th>最低 GPU</th><th>推荐 GPU</th><th>内存需求</th></tr>
+<table><tr><th>模型大小</th><th>最低 GPU</th><th>推荐 GPU</th><th>内存需求</th></tr>
 <tr><td>7B</td><td>1x RTX 3090 (24GB)</td><td>1x RTX 4090</td><td>16GB+</td></tr>
 <tr><td>13B</td><td>1x A100 (40GB)</td><td>1x A100 (80GB)</td><td>32GB+</td></tr>
 <tr><td>70B</td><td>2x A100 (80GB)</td><td>4x A100 (80GB)</td><td>128GB+</td></tr>
@@ -172,8 +220,7 @@ graph TD
 
 <p><strong>主要云平台选项</strong>：</p>
 
-<table>
-<tr><th>平台</th><th>特点</th><th>适合</th></tr>
+<table><tr><th>平台</th><th>特点</th><th>适合</th></tr>
 <tr><td>AWS SageMaker</td><td>托管推理端点，自动扩缩</td><td>企业级部署</td></tr>
 <tr><td>Google Vertex AI</td><td>与 GCP 生态集成</td><td>GCP 用户</td></tr>
 <tr><td>Azure ML</td><td>与微软生态集成</td><td>企业用户</td></tr>
@@ -205,8 +252,7 @@ graph TD
 
 <p>量化是降低模型显存需求和推理成本的核心技术：</p>
 
-<table>
-<tr><th>量化方法</th><th>精度</th><th>显存节省</th><th>质量损失</th><th>工具支持</th></tr>
+<table><tr><th>量化方法</th><th>精度</th><th>显存节省</th><th>质量损失</th><th>工具支持</th></tr>
 <tr><td>FP16</td><td>16-bit</td><td>基准</td><td>无</td><td>所有</td></tr>
 <tr><td>GPTQ</td><td>4-bit</td><td>~75%</td><td>轻微</td><td>AutoGPTQ, vLLM</td></tr>
 <tr><td>AWQ</td><td>4-bit</td><td>~75%</td><td>轻微</td><td>AutoAWQ, vLLM</td></tr>
@@ -219,8 +265,7 @@ graph TD
 
 <h3 id="32-推理框架对比">3.2 推理框架对比</h3>
 
-<table>
-<tr><th>框架</th><th>核心技术</th><th>优势</th><th>劣势</th></tr>
+<table><tr><th>框架</th><th>核心技术</th><th>优势</th><th>劣势</th></tr>
 <tr><td>**vLLM**</td><td>PagedAttention, Continuous Batching</td><td>吞吐量最高, OpenAI 兼容 API</td><td>仅 GPU, 配置复杂</td></tr>
 <tr><td>**TGI** (Text Generation Inference)</td><td>Flash Attention, Continuous Batching</td><td>HuggingFace 生态, 生产稳定</td><td>功能不如 vLLM 丰富</td></tr>
 <tr><td>**TensorRT-LLM**</td><td>NVIDIA 优化</td><td>极致性能</td><td>仅 NVIDIA GPU, 部署复杂</td></tr>
@@ -334,8 +379,7 @@ graph TD
 
 <p>假设场景：每月处理 10 亿 tokens（约 7.5 亿英文单词）</p>
 
-<table>
-<tr><th>方案</th><th>月成本估算</th><th>前期投入</th><th>备注</th></tr>
+<table><tr><th>方案</th><th>月成本估算</th><th>前期投入</th><th>备注</th></tr>
 <tr><td>OpenAI GPT-4o API</td><td>~$12,500</td><td>$0</td><td>简单但数据外传</td></tr>
 <tr><td>OpenAI GPT-4o mini API</td><td>~$750</td><td>$0</td><td>能力有限制</td></tr>
 <tr><td>云 GPU (A100 x2)</td><td>~$4,000-6,000</td><td>$0</td><td>vLLM 70B</td></tr>
@@ -405,8 +449,24 @@ graph TD
 <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
 <p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
 </div>
+<script>
+function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('tr-theme', next);
+    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
+}
+(function() {
+    const saved = localStorage.getItem('tr-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
+})();
+</script>
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});
+  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+  mermaid.initialize({startOnLoad:true, theme:theme});
 </script>
 </body></html>

@@ -6,44 +6,94 @@
 <title>大模型微调策略对比研究</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
-.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
-.top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav .sep { color: #475569; }
-.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
-.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
-.meta .info { color: #94a3b8; font-size: .85rem; }
-.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
-.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+:root {
+    --bg:#0f172a;--bg2:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;
+    --border:#334155;--accent:#38bdf8;--accent2:#7dd3fc;--accent3:#93c5fd;
+    --code-bg:#1e293b;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#60a5fa;
+    --pink:#f472b6;
+}
+[data-theme="light"] {
+    --bg:#ffffff;--bg2:#f8fafc;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
+    --border:#e2e8f0;--accent:#2563eb;--accent2:#3b82f6;--accent3:#6366f1;
+    --code-bg:#f1f5f9;--tag-bg:#dbeafe;--tag-text:#1e40af;--link:#2563eb;
+    --pink:#db2777;
+}
+body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+    transition: background .3s, color .3s;
+}
+.top-nav {
+    background: var(--bg2); padding: .6rem 1rem; border-radius: 8px;
+    margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
+    border: 1px solid var(--border);
+}
+.top-nav a { color: var(--accent2); text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: var(--text-dim); }
+.theme-btn {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
+    padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
+    transition: border-color .2s;
+}
+.theme-btn:hover { border-color: var(--accent); }
+.meta {
+    background: var(--bg2); border-left: 4px solid var(--accent);
+    padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
+}
+.meta h1 { color: var(--accent); margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .info { color: var(--text-muted); font-size: .85rem; }
+.toc {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1rem 1.5rem; margin-bottom: 2rem;
+}
+.toc h2 { color: var(--accent2); font-size: 1rem; margin-bottom: .5rem; border: none; }
 .toc ul { list-style: none; padding-left: 1rem; }
 .toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: #93c5fd; text-decoration: none; }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
-h3 { color: #93c5fd; margin-top: 1.8rem; }
-a { color: #60a5fa; }
-code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
-pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
-.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+.toc a { color: var(--accent3); text-decoration: none; }
+h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: .5rem; }
+h2 { color: var(--accent2); margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { color: var(--accent3); margin-top: 1.8rem; }
+a { color: var(--link); }
+code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; color: var(--pink); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre {
+    background: var(--code-bg); padding: 1.2rem; border-radius: 8px;
+    overflow-x: auto; border-left: 3px solid var(--accent); margin: 1.2rem 0; position: relative;
+}
+pre code { background: none; color: var(--text); }
+pre .lang-label {
+    position: absolute; top: 0; right: 0; background: var(--border);
+    color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
+}
+.mermaid { background: var(--bg2); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+blockquote {
+    border-left: 4px solid var(--accent); margin: 1.5rem 0; padding: .8rem 1.2rem;
+    background: var(--bg2); border-radius: 0 8px 8px 0;
+}
 table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; }
-tr:nth-child(even) { background: #1e293b44; }
-hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
-.footer a { color: #60a5fa; }
+th, td { border: 1px solid var(--border); padding: .7rem 1rem; text-align: left; }
+th { background: var(--bg2); color: var(--accent2); }
+tr:nth-child(even) { background: var(--bg2); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+strong { color: var(--text); }
+.footer {
+    text-align: center; color: var(--text-dim); padding: 2rem 0 1rem;
+    border-top: 1px solid var(--border); margin-top: 3rem; font-size: .85rem;
+}
+.footer a { color: var(--link); }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+}
 </style>
 </head>
 <body>
 <div class="top-nav">
 <a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
 <a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:#94a3b8">🔬 方法论</span>
+<span style="color:var(--text-muted)">🔬 方法论</span>
+<button class="theme-btn" onclick="toggleTheme()" title="切换日夜模式"><span id="themeIcon">☀️</span></button>
 </div>
 <div class="meta">
 <h1>大模型微调策略对比研究</h1>
@@ -98,8 +148,7 @@ graph TD
 
 <h3 id="12-核心对比">1.2 核心对比</h3>
 
-<table>
-<tr><th>方法</th><th>可训练参数</th><th>显存需求</th><th>训练速度</th><th>效果</th><th>适用场景</th></tr>
+<table><tr><th>方法</th><th>可训练参数</th><th>显存需求</th><th>训练速度</th><th>效果</th><th>适用场景</th></tr>
 <tr><td>Full FT</td><td>100%</td><td>极高</td><td>慢</td><td>最佳</td><td>数据充足、算力充足</td></tr>
 <tr><td>LoRA</td><td>0.1-1%</td><td>低</td><td>快</td><td>接近全量</td><td>通用场景首选</td></tr>
 <tr><td>QLoRA</td><td>0.1-1%</td><td>极低</td><td>中</td><td>略低LoRA</td><td>低资源环境</td></tr>
@@ -166,8 +215,7 @@ W' = W + ΔW = W + BA
 
 <h3 id="32-数据质量控制">3.2 数据质量控制</h3>
 
-<table>
-<tr><th>检查项</th><th>方法</th><th>工具</th></tr>
+<table><tr><th>检查项</th><th>方法</th><th>工具</th></tr>
 <tr><td>去重</td><td>模糊去重 + 精确去重</td><td>datasketch, nearpy</td></tr>
 <tr><td>格式校验</td><td>Schema 验证</td><td>Pydantic, jsonschema</td></tr>
 <tr><td>质量过滤</td><td>分类器 / 启发式规则</td><td>llama-factory</td></tr>
@@ -177,8 +225,7 @@ W' = W + ΔW = W + BA
 
 <h3 id="33-数据量参考">3.3 数据量参考</h3>
 
-<table>
-<tr><th>场景</th><th>建议数据量</th></tr>
+<table><tr><th>场景</th><th>建议数据量</th></tr>
 <tr><td>简单格式转换</td><td>1K-5K</td></tr>
 <tr><td>领域知识注入</td><td>5K-50K</td></tr>
 <tr><td>能力增强（如推理）</td><td>50K-500K</td></tr>
@@ -191,8 +238,7 @@ W' = W + ΔW = W + BA
 
 <h3 id="41-核心超参数">4.1 核心超参数</h3>
 
-<table>
-<tr><th>参数</th><th>推荐范围</th><th>说明</th></tr>
+<table><tr><th>参数</th><th>推荐范围</th><th>说明</th></tr>
 <tr><td>Learning Rate</td><td>1e-5 ~ 5e-4</td><td>LoRA 可用较高 LR</td></tr>
 <tr><td>Batch Size</td><td>4-32 (梯度累积)</td><td>受显存限制</td></tr>
 <tr><td>Epochs</td><td>2-5</td><td>数据少则多 epochs</td></tr>
@@ -278,8 +324,7 @@ DPO: 直接用偏好数据优化策略 (一步)
 
 <p><strong>DPO vs RLHF 对比数据</strong> (AlpacaEval 2.0):</p>
 
-<table>
-<tr><th>模型</th><th>方法</th><th>Win Rate</th><th>训练成本</th></tr>
+<table><tr><th>模型</th><th>方法</th><th>Win Rate</th><th>训练成本</th></tr>
 <tr><td>Llama-2-7B</td><td>SFT</td><td>38.2%</td><td>1x</td></tr>
 <tr><td>Llama-2-7B</td><td>SFT + DPO</td><td>52.7%</td><td>1.5x</td></tr>
 <tr><td>Llama-2-7B</td><td>SFT + RLHF</td><td>54.1%</td><td>4x</td></tr>
@@ -297,8 +342,7 @@ DPO: 直接用偏好数据优化策略 (一步)
 
 <p><strong>适用场景</strong>: 数学/代码等有明确正确性判断的领域</p>
 
-<table>
-<tr><th>方法</th><th>需要 Reward Model</th><th>需要 Critic</th><th>训练稳定性</th><th>效果</th></tr>
+<table><tr><th>方法</th><th>需要 Reward Model</th><th>需要 Critic</th><th>训练稳定性</th><th>效果</th></tr>
 <tr><td>RLHF/PPO</td><td>✅</td><td>✅</td><td>中</td><td>⭐⭐⭐⭐⭐</td></tr>
 <tr><td>DPO</td><td>❌</td><td>❌</td><td>高</td><td>⭐⭐⭐⭐</td></tr>
 <tr><td>GRPO</td><td>❌ (或可选)</td><td>❌</td><td>高</td><td>⭐⭐⭐⭐</td></tr>
@@ -319,8 +363,7 @@ DPO: 直接用偏好数据优化策略 (一步)
 
 <p>以下数据综合自公开论文和社区实验（基座模型: Llama-2-7B / Mistral-7B）:</p>
 
-<table>
-<tr><th>任务类型</th><th>方法</th><th>Benchmark</th><th>Base</th><th>+SFT</th><th>+LoRA</th><th>+Full FT</th></tr>
+<table><tr><th>任务类型</th><th>方法</th><th>Benchmark</th><th>Base</th><th>+SFT</th><th>+LoRA</th><th>+Full FT</th></tr>
 <tr><td>中文问答</td><td>C-Eval</td><td>准确率</td><td>28.9%</td><td>45.2%</td><td>52.1%</td><td>54.3%</td></tr>
 <tr><td>代码生成</td><td>HumanEval</td><td>Pass@1</td><td>14.6%</td><td>28.7%</td><td>33.5%</td><td>35.8%</td></tr>
 <tr><td>数学推理</td><td>GSM8K</td><td>准确率</td><td>13.2%</td><td>35.8%</td><td>42.3%</td><td>44.1%</td></tr>
@@ -335,8 +378,7 @@ DPO: 直接用偏好数据优化策略 (一步)
 
 <h3 id="72-lora-rank-选择实验">7.2 LoRA Rank 选择实验</h3>
 
-<table>
-<tr><th>Rank</th><th>可训练参数</th><th>C-Eval</th><th>GSM8K</th><th>训练时间</th></tr>
+<table><tr><th>Rank</th><th>可训练参数</th><th>C-Eval</th><th>GSM8K</th><th>训练时间</th></tr>
 <tr><td>8</td><td>0.05%</td><td>48.3%</td><td>38.1%</td><td>1.2h</td></tr>
 <tr><td>16</td><td>0.10%</td><td>50.7%</td><td>40.5%</td><td>1.4h</td></tr>
 <tr><td>32</td><td>0.20%</td><td>52.1%</td><td>42.3%</td><td>1.8h</td></tr>
@@ -348,8 +390,7 @@ DPO: 直接用偏好数据优化策略 (一步)
 
 <h3 id="73-数据量-vs-效果">7.3 数据量 vs 效果</h3>
 
-<table>
-<tr><th>数据量</th><th>C-Eval (LoRA)</th><th>C-Eval (Full FT)</th><th>建议</th></tr>
+<table><tr><th>数据量</th><th>C-Eval (LoRA)</th><th>C-Eval (Full FT)</th><th>建议</th></tr>
 <tr><td>1K</td><td>38.2%</td><td>35.1%</td><td>仅适合简单任务</td></tr>
 <tr><td>5K</td><td>45.7%</td><td>42.3%</td><td>基础领域适配</td></tr>
 <tr><td>20K</td><td>50.3%</td><td>49.8%</td><td>大多数场景足够</td></tr>
@@ -363,8 +404,7 @@ DPO: 直接用偏好数据优化策略 (一步)
 
 <h3 id="81-成本对比-7b-模型">8.1 成本对比 (7B 模型)</h3>
 
-<table>
-<tr><th>方案</th><th>GPU</th><th>时间</th><th>成本估算</th></tr>
+<table><tr><th>方案</th><th>GPU</th><th>时间</th><th>成本估算</th></tr>
 <tr><td>Full FT (多卡)</td><td>4×A100 80G</td><td>8h</td><td>~$80</td></tr>
 <tr><td>LoRA (单卡)</td><td>1×A100 40G</td><td>2h</td><td>~$10</td></tr>
 <tr><td>QLoRA (单卡)</td><td>1×RTX 4090</td><td>4h</td><td>~$4</td></tr>
@@ -413,8 +453,24 @@ graph TD
 <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
 <p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
 </div>
+<script>
+function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('tr-theme', next);
+    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
+}
+(function() {
+    const saved = localStorage.getItem('tr-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
+})();
+</script>
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});
+  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+  mermaid.initialize({startOnLoad:true, theme:theme});
 </script>
 </body></html>

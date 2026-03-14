@@ -6,44 +6,94 @@
 <title>开源模型推理框架对比研究</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
-.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
-.top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav .sep { color: #475569; }
-.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
-.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
-.meta .info { color: #94a3b8; font-size: .85rem; }
-.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
-.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+:root {
+    --bg:#0f172a;--bg2:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;
+    --border:#334155;--accent:#38bdf8;--accent2:#7dd3fc;--accent3:#93c5fd;
+    --code-bg:#1e293b;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#60a5fa;
+    --pink:#f472b6;
+}
+[data-theme="light"] {
+    --bg:#ffffff;--bg2:#f8fafc;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
+    --border:#e2e8f0;--accent:#2563eb;--accent2:#3b82f6;--accent3:#6366f1;
+    --code-bg:#f1f5f9;--tag-bg:#dbeafe;--tag-text:#1e40af;--link:#2563eb;
+    --pink:#db2777;
+}
+body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+    transition: background .3s, color .3s;
+}
+.top-nav {
+    background: var(--bg2); padding: .6rem 1rem; border-radius: 8px;
+    margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
+    border: 1px solid var(--border);
+}
+.top-nav a { color: var(--accent2); text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: var(--text-dim); }
+.theme-btn {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
+    padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
+    transition: border-color .2s;
+}
+.theme-btn:hover { border-color: var(--accent); }
+.meta {
+    background: var(--bg2); border-left: 4px solid var(--accent);
+    padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
+}
+.meta h1 { color: var(--accent); margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .info { color: var(--text-muted); font-size: .85rem; }
+.toc {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1rem 1.5rem; margin-bottom: 2rem;
+}
+.toc h2 { color: var(--accent2); font-size: 1rem; margin-bottom: .5rem; border: none; }
 .toc ul { list-style: none; padding-left: 1rem; }
 .toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: #93c5fd; text-decoration: none; }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
-h3 { color: #93c5fd; margin-top: 1.8rem; }
-a { color: #60a5fa; }
-code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
-pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
-.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+.toc a { color: var(--accent3); text-decoration: none; }
+h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: .5rem; }
+h2 { color: var(--accent2); margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { color: var(--accent3); margin-top: 1.8rem; }
+a { color: var(--link); }
+code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; color: var(--pink); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre {
+    background: var(--code-bg); padding: 1.2rem; border-radius: 8px;
+    overflow-x: auto; border-left: 3px solid var(--accent); margin: 1.2rem 0; position: relative;
+}
+pre code { background: none; color: var(--text); }
+pre .lang-label {
+    position: absolute; top: 0; right: 0; background: var(--border);
+    color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
+}
+.mermaid { background: var(--bg2); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+blockquote {
+    border-left: 4px solid var(--accent); margin: 1.5rem 0; padding: .8rem 1.2rem;
+    background: var(--bg2); border-radius: 0 8px 8px 0;
+}
 table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; }
-tr:nth-child(even) { background: #1e293b44; }
-hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
-.footer a { color: #60a5fa; }
+th, td { border: 1px solid var(--border); padding: .7rem 1rem; text-align: left; }
+th { background: var(--bg2); color: var(--accent2); }
+tr:nth-child(even) { background: var(--bg2); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+strong { color: var(--text); }
+.footer {
+    text-align: center; color: var(--text-dim); padding: 2rem 0 1rem;
+    border-top: 1px solid var(--border); margin-top: 3rem; font-size: .85rem;
+}
+.footer a { color: var(--link); }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+}
 </style>
 </head>
 <body>
 <div class="top-nav">
 <a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
 <a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:#94a3b8">🏗️ 框架</span>
+<span style="color:var(--text-muted)">🏗️ 框架</span>
+<button class="theme-btn" onclick="toggleTheme()" title="切换日夜模式"><span id="themeIcon">☀️</span></button>
 </div>
 <div class="meta">
 <h1>开源模型推理框架对比研究</h1>
@@ -179,8 +229,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h3 id="22-吞吐量对比tokenssec">2.2 吞吐量对比（tokens/sec）</h3>
 
-<table>
-<tr><th>框架</th><th>并发=1</th><th>并发=16</th><th>并发=64</th><th>备注</th></tr>
+<table><tr><th>框架</th><th>并发=1</th><th>并发=16</th><th>并发=64</th><th>备注</th></tr>
 <tr><td>TensorRT-LLM</td><td>~45</td><td>~520</td><td>~1,800</td><td>原始性能最高</td></tr>
 <tr><td>vLLM</td><td>~42</td><td>~480</td><td>~1,650</td><td>最佳平衡</td></tr>
 <tr><td>SGLang</td><td>~43</td><td>~500</td><td>~1,720</td><td>复杂负载更优</td></tr>
@@ -201,8 +250,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h3 id="23-首-token-延迟ttft">2.3 首 token 延迟（TTFT）</h3>
 
-<table>
-<tr><th>框架</th><th>TTFT（P50）</th><th>TTFT（P99）</th></tr>
+<table><tr><th>框架</th><th>TTFT（P50）</th><th>TTFT（P99）</th></tr>
 <tr><td>TensorRT-LLM</td><td>~80ms</td><td>~200ms</td></tr>
 <tr><td>SGLang</td><td>~90ms</td><td>~250ms</td></tr>
 <tr><td>vLLM</td><td>~100ms</td><td>~300ms</td></tr>
@@ -223,8 +271,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h3 id="31-量化方法概述">3.1 量化方法概述</h3>
 
-<table>
-<tr><th>量化方法</th><th>精度</th><th>特点</th><th>显存节省</th></tr>
+<table><tr><th>量化方法</th><th>精度</th><th>特点</th><th>显存节省</th></tr>
 <tr><td>GPTQ</td><td>INT4/INT3</td><td>校准数据集，高精度</td><td>~75%</td></tr>
 <tr><td>AWQ</td><td>INT4</td><td>激活感知，保护重要通道</td><td>~75%</td></tr>
 <tr><td>FP8</td><td>FP8</td><td>无需校准，硬件原生</td><td>~50%</td></tr>
@@ -234,8 +281,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h3 id="32-框架量化支持矩阵">3.2 框架量化支持矩阵</h3>
 
-<table>
-<tr><th>框架</th><th>GPTQ</th><th>AWQ</th><th>FP8</th><th>bitsandbytes</th><th>INT8</th></tr>
+<table><tr><th>框架</th><th>GPTQ</th><th>AWQ</th><th>FP8</th><th>bitsandbytes</th><th>INT8</th></tr>
 <tr><td>vLLM</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
 <tr><td>TGI</td><td>✅</td><td>✅</td><td>❌</td><td>✅</td><td>✅</td></tr>
 <tr><td>TensorRT-LLM</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td><td>✅</td></tr>
@@ -258,8 +304,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h3 id="41-并行策略">4.1 并行策略</h3>
 
-<table>
-<tr><th>策略</th><th>说明</th><th>适用场景</th></tr>
+<table><tr><th>策略</th><th>说明</th><th>适用场景</th></tr>
 <tr><td>Tensor Parallelism (TP)</td><td>层内拆分，GPU 间通信频繁</td><td>单节点多 GPU</td></tr>
 <tr><td>Pipeline Parallelism (PP)</td><td>层间拆分，通信量低</td><td>多节点/大模型</td></tr>
 <tr><td>Expert Parallelism (EP)</td><td>MoE 专家拆分</td><td>Mixtral 等 MoE 模型</td></tr>
@@ -268,8 +313,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h3 id="42-框架分布式能力">4.2 框架分布式能力</h3>
 
-<table>
-<tr><th>框架</th><th>TP</th><th>PP</th><th>DP</th><th>EP</th><th>多节点</th></tr>
+<table><tr><th>框架</th><th>TP</th><th>PP</th><th>DP</th><th>EP</th><th>多节点</th></tr>
 <tr><td>vLLM</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
 <tr><td>TensorRT-LLM</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
 <tr><td>SGLang</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
@@ -297,8 +341,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h3 id="51-决策矩阵">5.1 决策矩阵</h3>
 
-<table>
-<tr><th>场景</th><th>推荐框架</th><th>理由</th></tr>
+<table><tr><th>场景</th><th>推荐框架</th><th>理由</th></tr>
 <tr><td>通用生产部署</td><td>**vLLM**</td><td>性能与易用性最佳平衡</td></tr>
 <tr><td>NVIDIA 极致性能</td><td>**TensorRT-LLM**</td><td>硬件级优化</td></tr>
 <tr><td>复杂 Agent/结构化生成</td><td>**SGLang**</td><td>RadixAttention + 前端语言</td></tr>
@@ -309,8 +352,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <h3 id="52-迁移成本评估">5.2 迁移成本评估</h3>
 
-<table>
-<tr><th>迁移路径</th><th>难度</th><th>说明</th></tr>
+<table><tr><th>迁移路径</th><th>难度</th><th>说明</th></tr>
 <tr><td>vLLM → SGLang</td><td>低</td><td>API 兼容，可直接替换</td></tr>
 <tr><td>vLLM → TGI</td><td>低</td><td>OpenAI 兼容 API</td></tr>
 <tr><td>TGI → vLLM</td><td>低</td><td>OpenAI 兼容 API</td></tr>
@@ -348,8 +390,24 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
 <p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
 </div>
+<script>
+function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('tr-theme', next);
+    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
+}
+(function() {
+    const saved = localStorage.getItem('tr-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
+})();
+</script>
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});
+  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+  mermaid.initialize({startOnLoad:true, theme:theme});
 </script>
 </body></html>
