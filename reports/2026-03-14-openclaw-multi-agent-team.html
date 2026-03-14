@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>使用 OpenClaw 管理 AI Agent 团队：多智能体协作模式</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.8; }
+  .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 2.5rem 2rem; text-align: center; }
+  .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .header .meta { color: #64748b; font-size: 0.9rem; }
+  .tag { display: inline-block; padding: 0.2rem 0.6rem; margin: 0.2rem; background: #312e81; color: #a5b4fc; border-radius: 4px; font-size: 0.8rem; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  h2 { color: #a5b4fc; font-size: 1.4rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #1e293b; }
+  h3 { color: #818cf8; font-size: 1.15rem; margin: 1.8rem 0 0.8rem; }
+  p { margin-bottom: 1rem; color: #cbd5e1; }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: #cbd5e1; }
+  li { margin-bottom: 0.4rem; }
+  code { background: #1e293b; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: #a5b4fc; }
+  pre { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
+  pre code { background: none; padding: 0; }
+  .callout { background: #1e1b4b; border-left: 3px solid #6366f1; padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+  .callout strong { color: #a5b4fc; }
+  .ref { color: #64748b; font-size: 0.85rem; }
+  .ref a { color: #6366f1; text-decoration: none; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  th, td { text-align: left; padding: 0.6rem 0.8rem; border: 1px solid #334155; }
+  th { background: #1e293b; color: #a5b4fc; }
+  td { color: #cbd5e1; }
+  .back { display: inline-block; margin-bottom: 1.5rem; color: #6366f1; text-decoration: none; }
+  .back:hover { text-decoration: underline; }
+  .footer { text-align: center; color: #334155; padding: 2rem; margin-top: 3rem; border-top: 1px solid #1e293b; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🤖 使用 OpenClaw 管理 AI Agent 团队</h1>
+  <div class="meta">2026-03-14 · 多智能体协作模式深度解析</div>
+  <div style="margin-top: 0.8rem;">
+    <span class="tag">Multi-Agent</span>
+    <span class="tag">Sub-agent</span>
+    <span class="tag">Binding</span>
+    <span class="tag">Orchestrator</span>
+    <span class="tag">Team协作</span>
+  </div>
+</div>
+<div class="container">
+  <a href="./index.html" class="back">← 返回报告列表</a>
+
+  <h2>Executive Summary</h2>
+  <p>OpenClaw 的多 Agent 架构让你可以像组建真人团队一样组建 AI Agent 团队：每个 Agent 有独立的能力（模型）、独立的工作空间（Workspace）、独立的权限（工具集），通过确定性的 Binding 路由系统分配任务。更进一步，Sub-agent 系统支持 Agent 动态派遣子任务给其他 Agent 并行执行，实现编排器（Orchestrator）模式。本文通过四个真实场景案例，从配置到部署完整展示多 Agent 协作的实现方式。</p>
+
+  <h2>1. 多 Agent 架构基础</h2>
+  <p>在单 Agent 模式下，所有消息都由同一个 AI 处理——相当于一个"万金油"员工。但现实中，不同场景需要不同能力的助手：</p>
+  <ul>
+    <li>日常闲聊 → 用便宜快速的模型（Gemini Flash）</li>
+    <li>深度技术分析 → 用强大但贵的模型（Claude Opus）</li>
+    <li>家庭群组 → 只能查天气和日历，不能执行代码</li>
+    <li>代码开发 → 需要完整工具集 + 沙箱隔离</li>
+  </ul>
+
+  <p>多 Agent 模式的本质是<strong>能力分层</strong>：把合适的能力（模型 + 工具 + Workspace）分配给合适的场景。</p>
+
+  <h3>1.1 每个 Agent 的独立性</h3>
+  <table>
+    <tr><th>资源</th><th>是否独立</th><th>说明</th></tr>
+    <tr><td>Workspace</td><td>✅ 独立</td><td>每个 Agent 有自己的文件系统沙箱</td></tr>
+    <tr><td>AgentDir</td><td>✅ 独立</td><td>SOUL.md、AGENTS.md 等人设文件</td></tr>
+    <tr><td>Session Store</td><td>✅ 独立</td><td>会话历史不交叉</td></tr>
+    <tr><td>模型配置</td><td>✅ 独立</td><td>每个 Agent 可以用不同模型</td></tr>
+    <tr><td>工具集</td><td>✅ 独立</td><td>per-agent tools allow/deny</td></tr>
+    <tr><td>沙箱</td><td>✅ 独立</td><td>per-agent 沙箱容器</td></tr>
+    <tr><td>Gateway 进程</td><td>❌ 共享</td><td>所有 Agent 共享一个 Gateway</td></tr>
+  </table>
+
+  <h2>2. 团队组建：agents.list 配置</h2>
+  <p>在 <code>openclaw.json</code> 的 <code>agents.list</code> 数组中定义你的 Agent 团队：</p>
+
+  <pre><code>{
+  "agents": {
+    "defaults": {
+      "model": "openrouter/anthropic/claude-sonnet-4",
+      "maxContextTokens": 128000
+    },
+    "list": [
+      {
+        "id": "daily",
+        "model": "openrouter/google/gemini-2.5-flash",
+        "workspace": "./workspaces/daily",
+        "agentDir": "./agents/daily",
+        "tools": {
+          "allow": ["read", "write", "web_search", "weather"]
+        }
+      },
+      {
+        "id": "deep-work",
+        "model": "openrouter/anthropic/claude-opus-4",
+        "workspace": "./workspaces/deep-work",
+        "agentDir": "./agents/deep-work",
+        "tools": {
+          "allow": ["read", "write", "edit", "exec", "web_search", "process"]
+        }
+      },
+      {
+        "id": "family",
+        "model": "openrouter/google/gemini-2.5-flash",
+        "workspace": "./workspaces/family",
+        "agentDir": "./agents/family",
+        "tools": {
+          "allow": ["read", "web_search", "weather"]
+        },
+        "sandbox": {
+          "mode": "docker",
+          "scope": "per-agent"
+        }
+      },
+      {
+        "id": "coding",
+        "model": "openrouter/anthropic/claude-sonnet-4",
+        "workspace": "./workspaces/coding",
+        "agentDir": "./agents/coding",
+        "workspaceReadOnly": false,
+        "tools": {
+          "allow": ["read", "write", "edit", "exec", "process", "web_search"]
+        }
+      }
+    ]
+  }
+}</code></pre>
+
+  <div class="callout">
+    <strong>🔑 关键原则：</strong>每个 Agent 的 <code>id</code> 必须全局唯一。这个 id 用于 Binding 路由和 Sub-agent 派遣时的标识符。
+  </div>
+
+  <h2>3. 任务路由：Binding 系统详解</h2>
+  <p>Binding 系统是多 Agent 架构的"调度中心"。它定义了哪些消息应该路由到哪个 Agent。路由是<strong>确定性的</strong>——基于精确匹配规则，不是 LLM 判断。</p>
+
+  <h3>3.1 匹配维度一览</h3>
+  <table>
+    <tr><th>维度</th><th>匹配字段</th><th>典型用途</th></tr>
+    <tr><td>渠道级别</td><td><code>channel</code></td><td>WhatsApp → Agent A, Telegram → Agent B</td></tr>
+    <tr><td>账号级别</td><td><code>account</code></td><td>多个 WhatsApp 号码分别路由</td></tr>
+    <tr><td>对话级别</td><td><code>peer</code></td><td>特定用户的 DM → 专用 Agent</td></tr>
+    <tr><td>群组级别</td><td><code>guild</code> / <code>group</code></td><td>特定 Discord 服务器 / WhatsApp 群组</td></tr>
+    <tr><td>角色级别</td><td><code>role</code></td><td>Discord 角色 → 不同 Agent</td></tr>
+    <tr><td>线程级别</td><td><code>thread</code></td><td>Discord/Telegram 线程 → 特定 Agent</td></tr>
+  </table>
+
+  <h2>4. 实际案例</h2>
+
+  <h3>案例 A：按渠道分流</h3>
+  <p><strong>场景：</strong>WhatsApp 用于日常快速问答，Telegram 用于深度技术工作。日常用便宜快速的 Gemini Flash，深度工作用 Claude Opus。</p>
+
+  <pre><code>{
+  "agents": {
+    "list": [
+      {
+        "id": "casual",
+        "model": "openrouter/google/gemini-2.5-flash",
+        "workspace": "./workspaces/casual"
+      },
+      {
+        "id": "pro",
+        "model": "openrouter/anthropic/claude-opus-4",
+        "workspace": "./workspaces/pro"
+      }
+    ]
+  },
+  "bindings": [
+    { "agent": "casual", "match": { "channel": "whatsapp" } },
+    { "agent": "pro",    "match": { "channel": "telegram" } }
+  ]
+}</code></pre>
+
+  <p><strong>效果：</strong>WhatsApp 上的所有消息由 Gemini Flash 快速响应（成本低、延迟小），Telegram 上的消息由 Claude Opus 深度处理（质量高、能力强）。两个 Agent 的会话历史完全隔离，互不干扰。</p>
+
+  <div class="callout">
+    <strong>💰 成本分析：</strong>Gemini 2.5 Flash 约 $0.15/1M input tokens，Claude Opus 4 约 $15/1M input tokens，价差 100 倍。按渠道分流可以显著降低日常使用成本。
+  </div>
+
+  <h3>案例 B：同一渠道内按对话分流</h3>
+  <p><strong>场景：</strong>你和老板都在 Telegram 上跟你的 AI 助手聊天。你希望给老板的消息由最强大的模型处理，自己的日常消息用便宜模型。</p>
+
+  <pre><code>{
+  "agents": {
+    "list": [
+      {
+        "id": "vip",
+        "model": "openrouter/anthropic/claude-opus-4",
+        "workspace": "./workspaces/vip"
+      },
+      {
+        "id": "personal",
+        "model": "openrouter/google/gemini-2.5-flash",
+        "workspace": "./workspaces/personal"
+      }
+    ]
+  },
+  "bindings": [
+    {
+      "agent": "vip",
+      "match": {
+        "channel": "telegram",
+        "peer": "telegram:987654321"
+      }
+    },
+    {
+      "agent": "personal",
+      "match": { "channel": "telegram" }
+    }
+  ]
+}</code></pre>
+
+  <p><strong>注意：</strong>更具体的规则（指定 peer）放在前面，通用规则（仅匹配 channel）放在后面。这是 Binding 系统的<strong>首个匹配胜出</strong>机制决定的。</p>
+
+  <h3>案例 C：家庭 Agent 绑定 WhatsApp 群组</h3>
+  <p><strong>场景：</strong>家庭 WhatsApp 群组中部署一个安全的 AI 助手，只能查天气和日历，不能读写文件或执行代码。</p>
+
+  <pre><code>{
+  "agents": {
+    "list": [
+      {
+        "id": "family",
+        "model": "openrouter/google/gemini-2.5-flash",
+        "workspace": "./workspaces/family",
+        "agentDir": "./agents/family",
+        "tools": {
+          "allow": ["read", "web_search", "weather"]
+        },
+        "sandbox": {
+          "mode": "docker",
+          "scope": "per-agent",
+          "readonly": true
+        }
+      }
+    ]
+  },
+  "bindings": [
+    {
+      "agent": "family",
+      "match": {
+        "channel": "whatsapp",
+        "group": "whatsapp:family-group-id"
+      }
+    }
+  ]
+}</code></pre>
+
+  <p><strong>安全设计：</strong></p>
+  <ul>
+    <li><code>tools.allow</code> 白名单：只允许 read、web_search、weather 三个工具</li>
+    <li>没有 <code>exec</code>、<code>write</code>、<code>edit</code> → 无法执行命令或修改文件</li>
+    <li>Docker 沙箱 + readonly → 即使被 prompt injection 也无法破坏宿主机</li>
+    <li>便宜模型 → 即使被滥用，成本可控</li>
+  </ul>
+
+  <h3>案例 D：多 WhatsApp 号码 / 多人共享 Gateway</h3>
+  <p><strong>场景：</strong>三个人（Alice、Bob、Charlie）共享一台 VPS 上的 OpenClaw Gateway，每人有自己的 WhatsApp 号码和独立的 AI 助手。</p>
+
+  <pre><code>{
+  "agents": {
+    "list": [
+      {
+        "id": "alice",
+        "model": "openrouter/anthropic/claude-sonnet-4",
+        "workspace": "./workspaces/alice",
+        "agentDir": "./agents/alice"
+      },
+      {
+        "id": "bob",
+        "model": "openrouter/google/gemini-2.5-flash",
+        "workspace": "./workspaces/bob",
+        "agentDir": "./agents/bob"
+      },
+      {
+        "id": "charlie",
+        "model": "openrouter/openai/gpt-4o",
+        "workspace": "./workspaces/charlie",
+        "agentDir": "./agents/charlie"
+      }
+    ]
+  },
+  "bindings": [
+    {
+      "agent": "alice",
+      "match": {
+        "channel": "whatsapp",
+        "account": "whatsapp:+8613800001111"
+      }
+    },
+    {
+      "agent": "bob",
+      "match": {
+        "channel": "whatsapp",
+        "account": "whatsapp:+8613800002222"
+      }
+    },
+    {
+      "agent": "charlie",
+      "match": {
+        "channel": "whatsapp",
+        "account": "whatsapp:+8613800003333"
+      }
+    }
+  ]
+}</code></pre>
+
+  <p><strong>隔离保证：</strong>每个人的 Agent 有独立的 Workspace（文件隔离）、独立的 AgentDir（人设隔离）、独立的 Session Store（会话隔离）、独立的模型选择（成本隔离）。唯一的共享资源是 Gateway 进程本身。</p>
+
+  <h2>5. Sub-agent 系统</h2>
+  <p>Sub-agent 是 OpenClaw 多 Agent 架构中最具威力的特性之一。它允许一个 Agent（主 Agent）在处理消息时，动态派遣子任务给其他 Agent 并行执行。</p>
+
+  <h3>5.1 工作原理</h3>
+  <pre><code>用户消息 → 主 Agent 收到
+         → 主 Agent 分析，发现需要并行执行多个任务
+         → spawn Sub-agent A（搜索最新论文）
+         → spawn Sub-agent B（分析代码库结构）
+         → spawn Sub-agent C（生成信息图）
+         → 三个 Sub-agent 并行工作...
+         → Sub-agent A 完成 → 结果自动 announce 回主对话
+         → Sub-agent B 完成 → 结果自动 announce 回主对话
+         → Sub-agent C 完成 → 结果自动 announce 回主对话
+         → 主 Agent 汇总所有结果，回复用户</code></pre>
+
+  <div class="callout">
+    <strong>🔄 Push-based 完成机制：</strong>Sub-agent 完成后，结果会<strong>自动推送</strong>回主 Agent 的会话（announce）。主 Agent 不需要轮询（poll）Sub-agent 的状态。这大大简化了编排逻辑，也避免了"忙碌等待"造成的资源浪费。
+  </div>
+
+  <h3>5.2 Sub-agent 配置</h3>
+  <pre><code>{
+  "agents": {
+    "defaults": {
+      "model": "openrouter/anthropic/claude-sonnet-4",
+      "subagents": {
+        "model": "openrouter/google/gemini-2.5-flash",
+        "maxConcurrent": 5,
+        "runTimeoutSeconds": 300,
+        "maxSpawnDepth": 1
+      }
+    }
+  }
+}</code></pre>
+
+  <table>
+    <tr><th>参数</th><th>说明</th><th>推荐值</th></tr>
+    <tr><td><code>model</code></td><td>Sub-agent 使用的模型</td><td>便宜快速的模型（如 Gemini Flash）</td></tr>
+    <tr><td><code>maxConcurrent</code></td><td>同时运行的最大 Sub-agent 数量</td><td>3-5</td></tr>
+    <tr><td><code>runTimeoutSeconds</code></td><td>Sub-agent 最大运行时间（秒）</td><td>300（5 分钟）</td></tr>
+    <tr><td><code>maxSpawnDepth</code></td><td>最大嵌套深度</td><td>1（禁止嵌套）或 2（允许一层嵌套）</td></tr>
+  </table>
+
+  <h3>5.3 Sub-agent 的典型用途</h3>
+  <ul>
+    <li><strong>并行搜索</strong>：同时搜索多个信息源，汇总结果</li>
+    <li><strong>并行分析</strong>：同时分析多个文件/模块</li>
+    <li><strong>后台任务</strong>：长时间运行的任务（如生成报告）不阻塞主对话</li>
+    <li><strong>成本优化</strong>：主 Agent 用高质量模型做决策，Sub-agent 用便宜模型做执行</li>
+  </ul>
+
+  <h2>6. 嵌套 Sub-agent：编排器模式</h2>
+  <p>当 <code>maxSpawnDepth=2</code> 时，Sub-agent 本身也可以派遣 Sub-agent，形成两层结构：</p>
+
+  <pre><code>主 Agent（编排器）
+  ├── Sub-agent Layer 1（协调者）
+  │     ├── Sub-agent Layer 2（工作者 A）
+  │     ├── Sub-agent Layer 2（工作者 B）
+  │     └── Sub-agent Layer 2（工作者 C）
+  └── Sub-agent Layer 1（另一个协调者）
+        ├── Sub-agent Layer 2（工作者 D）
+        └── Sub-agent Layer 2（工作者 E）</code></pre>
+
+  <h3>6.1 编排器模式的工作原理</h3>
+  <p>在编排器模式下，三层 Agent 各司其职：</p>
+  <ol>
+    <li><strong>主 Agent</strong>：理解用户意图，决定整体策略，不执行具体任务</li>
+    <li><strong>Layer 1 协调者</strong>：接收主 Agent 的子任务，分解为更细粒度的任务，派遣给 Layer 2 工作者</li>
+    <li><strong>Layer 2 工作者</strong>：执行具体的搜索、分析、生成任务，将结果返回给协调者</li>
+  </ol>
+
+  <h3>6.2 工具策略</h3>
+  <p>在嵌套 Sub-agent 场景中，工具权限可以逐层递减：</p>
+  <pre><code>{
+  "agents": {
+    "defaults": {
+      "model": "openrouter/anthropic/claude-sonnet-4",
+      "tools": {
+        "allow": ["read", "write", "edit", "exec", "web_search", "process"]
+      },
+      "subagents": {
+        "model": "openrouter/google/gemini-2.5-flash",
+        "tools": {
+          "allow": ["read", "web_search", "write"]
+        },
+        "maxSpawnDepth": 2
+      }
+    }
+  }
+}</code></pre>
+  <p>主 Agent 有完整的工具集（包括 exec），但 Sub-agent 只有 read、web_search 和 write，不能执行 shell 命令。这种<strong>权限递减</strong>策略是企业安全的重要保障。</p>
+
+  <h3>6.3 级联停止机制</h3>
+  <p>当主 Agent 的会话结束或超时时，所有嵌套的 Sub-agent 会被<strong>级联停止</strong>：</p>
+  <ul>
+    <li>主 Agent 会话结束 → 所有 Layer 1 Sub-agent 收到停止信号</li>
+    <li>Layer 1 Sub-agent 停止 → 所有 Layer 2 Sub-agent 收到停止信号</li>
+    <li>整个树状结构被干净地终止，不会留下孤立进程</li>
+  </ul>
+
+  <div class="callout">
+    <strong>⚠️ 编排器模式的注意事项：</strong>
+    <ul style="margin-top: 0.5rem;">
+      <li>每增加一层嵌套，延迟和成本都会增加</li>
+      <li>Layer 2 工作者无法直接与用户交互，所有结果需要逐层传递</li>
+      <li>建议从 <code>maxSpawnDepth=1</code> 开始，只在真正需要时升级到 2</li>
+      <li>设置合理的 <code>runTimeoutSeconds</code> 防止嵌套 Sub-agent 失控</li>
+    </ul>
+  </div>
+
+  <h2>7. 实战：完整多 Agent 配置</h2>
+  <p>以下是一个包含 4 个 Agent、完整的 Binding 路由、Sub-agent 配置的生产级示例：</p>
+
+  <pre><code>{
+  "gateway": {
+    "port": 3000,
+    "logLevel": "info"
+  },
+
+  "agents": {
+    "defaults": {
+      "model": "openrouter/anthropic/claude-sonnet-4",
+      "maxContextTokens": 128000,
+      "subagents": {
+        "model": "openrouter/google/gemini-2.5-flash",
+        "maxConcurrent": 5,
+        "runTimeoutSeconds": 300,
+        "maxSpawnDepth": 1
+      }
+    },
+    "list": [
+      {
+        "id": "casual",
+        "model": "openrouter/google/gemini-2.5-flash",
+        "workspace": "./workspaces/casual",
+        "agentDir": "./agents/casual",
+        "tools": { "allow": ["read", "web_search", "weather"] }
+      },
+      {
+        "id": "pro",
+        "model": "openrouter/anthropic/claude-opus-4",
+        "workspace": "./workspaces/pro",
+        "agentDir": "./agents/pro",
+        "tools": { "allow": ["read", "write", "edit", "exec", "web_search", "process"] }
+      },
+      {
+        "id": "family",
+        "model": "openrouter/google/gemini-2.5-flash",
+        "workspace": "./workspaces/family",
+        "agentDir": "./agents/family",
+        "tools": { "allow": ["read", "web_search", "weather"] },
+        "sandbox": { "mode": "docker", "readonly": true }
+      },
+      {
+        "id": "coding",
+        "model": "openrouter/anthropic/claude-sonnet-4",
+        "workspace": "./workspaces/coding",
+        "agentDir": "./agents/coding",
+        "tools": { "allow": ["read", "write", "edit", "exec", "process", "web_search"] }
+      }
+    ]
+  },
+
+  "bindings": [
+    {
+      "agent": "family",
+      "match": {
+        "channel": "whatsapp",
+        "group": "whatsapp:family-group-id"
+      }
+    },
+    {
+      "agent": "casual",
+      "match": { "channel": "whatsapp" }
+    },
+    {
+      "agent": "pro",
+      "match": { "channel": "telegram" }
+    },
+    {
+      "agent": "coding",
+      "match": {
+        "channel": "discord",
+        "guild": "discord:dev-server-id"
+      }
+    }
+  ],
+
+  "channels": {
+    "whatsapp": { "enabled": true },
+    "telegram": { "enabled": true, "token": "TELEGRAM_BOT_TOKEN" },
+    "discord": { "enabled": true, "token": "DISCORD_BOT_TOKEN" }
+  }
+}</code></pre>
+
+  <h2>8. 总结与选择建议</h2>
+  <table>
+    <tr><th>场景</th><th>推荐模式</th><th>模型选择</th></tr>
+    <tr><td>个人日常使用</td><td>单 Agent</td><td>Claude Sonnet / Gemini Flash</td></tr>
+    <tr><td>多渠道、不同场景</td><td>多 Agent + Binding</td><td>按渠道差异化</td></tr>
+    <tr><td>团队共享 Gateway</td><td>多 Agent + account 绑定</td><td>每人独立选择</td></tr>
+    <tr><td>复杂任务并行</td><td>主 Agent + Sub-agent</td><td>主用强模型，Sub 用便宜模型</td></tr>
+    <tr><td>企业级编排</td><td>编排器模式 (depth=2)</td><td>分层差异化</td></tr>
+  </table>
+
+  <h2>参考资料</h2>
+  <p class="ref"><a href="./2026-03-14-openclaw-architecture.html">OpenClaw 架构概览与核心概念</a></p>
+  <p class="ref"><a href="https://github.com/openclaw/openclaw">OpenClaw GitHub 仓库</a></p>
+  <p class="ref"><a href="https://docs.openclaw.ai">OpenClaw 官方文档</a></p>
+
+</div>
+<div class="footer">探针 (Probe) · AI 技术研究分析师 · 2026-03-14</div>
+</body>
+</html>
