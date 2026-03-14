@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>向量数据库选型指南 2026</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; line-height: 1.7; padding: 2rem; max-width: 900px; margin: 0 auto; }
+h1 { color: #58a6ff; font-size: 2rem; margin-bottom: 0.5rem; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; }
+h2 { color: #79c0ff; font-size: 1.5rem; margin: 2rem 0 1rem; border-left: 3px solid #58a6ff; padding-left: 0.8rem; }
+h3 { color: #a5d6ff; font-size: 1.2rem; margin: 1.5rem 0 0.8rem; }
+p { margin: 0.8rem 0; }
+blockquote { border-left: 3px solid #3fb950; background: #161b22; padding: 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0; color: #8b949e; }
+strong { color: #f0883e; }
+code { background: #161b22; color: #f0883e; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+pre { background: #161b22; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; border: 1px solid #30363d; }
+pre code { background: none; padding: 0; }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+th { background: #161b22; color: #58a6ff; padding: 0.6rem 0.8rem; text-align: left; border: 1px solid #30363d; }
+td { padding: 0.6rem 0.8rem; border: 1px solid #30363d; }
+tr:nth-child(even) { background: #161b22; }
+a { color: #58a6ff; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.meta { color: #8b949e; font-size: 0.9rem; margin-bottom: 1.5rem; }
+hr { border: none; border-top: 1px solid #30363d; margin: 2rem 0; }
+ul, ol { margin: 0.8rem 0 0.8rem 1.5rem; }
+li { margin: 0.3rem 0; }
+</style>
+</head>
+<body>
+
+<h1>向量数据库选型指南 2026</h1>
+<p class="meta">最后更新: 2026-03-14 | 分类: 基础设施 / 数据库</p>
+
+<h2>Executive Summary</h2>
+<blockquote>
+<p>向量数据库是 AI 应用的核心基础设施，支撑 RAG、语义搜索、推荐系统等场景。<br>
+<strong>核心结论</strong>:<br>
+• 企业生产: Pinecone（托管）或 Milvus（自建）<br>
+• 快速原型: Chroma 或 Qdrant<br>
+• 已有 PostgreSQL: pgvector<br>
+• 多模态搜索: Weaviate
+</p>
+</blockquote>
+
+<h2>1. 各数据库概览</h2>
+<table>
+<tr><th>数据库</th><th>语言</th><th>部署模式</th><th>特色</th><th>许可</th></tr>
+<tr><td><strong>Pinecone</strong></td><td>C++</td><td>仅云端托管</td><td>零运维、自动扩展</td><td>商业</td></tr>
+<tr><td><strong>Weaviate</strong></td><td>Go</td><td>自建 / 托管</td><td>多模态原生、混合搜索</td><td>BSD-3</td></tr>
+<tr><td><strong>Milvus</strong></td><td>Go/C++</td><td>自建 / Zilliz Cloud</td><td>亿级向量、GPU 索引</td><td>Apache 2.0</td></tr>
+<tr><td><strong>Qdrant</strong></td><td>Rust</td><td>自建 / Qdrant Cloud</td><td>高性能、过滤搜索</td><td>Apache 2.0</td></tr>
+<tr><td><strong>Chroma</strong></td><td>Python/Rust</td><td>嵌入式 / 托管</td><td>零配置启动</td><td>Apache 2.0</td></tr>
+<tr><td><strong>pgvector</strong></td><td>C</td><td>任意 PostgreSQL</td><td>零新增基础设施</td><td>PG License</td></tr>
+</table>
+
+<h2>2. 性能基准测试</h2>
+<p>以下为 100 万条 768 维向量、top-10 查询的典型表现（综合 ANN Benchmarks、VectorDBBench 等）:</p>
+
+<h3>查询性能</h3>
+<table>
+<tr><th>数据库</th><th>P95 延迟 (ms)</th><th>QPS (单节点)</th><th>备注</th></tr>
+<tr><td>Qdrant</td><td>2-5</td><td>3,000-5,000</td><td>HNSW, Rust 实现</td></tr>
+<tr><td>Milvus</td><td>3-8</td><td>2,000-4,000</td><td>IVF_PQ, 分布式</td></tr>
+<tr><td>Weaviate</td><td>5-12</td><td>1,500-3,000</td><td>HNSW</td></tr>
+<tr><td>Pinecone</td><td>10-30</td><td>N/A (托管)</td><td>含网络延迟</td></tr>
+<tr><td>Chroma</td><td>15-50</td><td>500-1,000</td><td>嵌入式模式</td></tr>
+<tr><td>pgvector</td><td>20-100</td><td>300-800</td><td>HNSW/IVFFlat</td></tr>
+</table>
+
+<h3>可扩展性</h3>
+<table>
+<tr><th>数据库</th><th>最大规模</th><th>分布式</th><th>多租户</th></tr>
+<tr><td>Milvus</td><td>10 亿+</td><td>✅ 原生</td><td>✅</td></tr>
+<tr><td>Pinecone</td><td>数十亿</td><td>✅ 自动</td><td>✅</td></tr>
+<tr><td>Qdrant</td><td>数亿</td><td>✅ 分片+副本</td><td>✅</td></tr>
+<tr><td>Weaviate</td><td>数亿</td><td>✅ 分片</td><td>✅</td></tr>
+<tr><td>Chroma</td><td>百万级</td><td>❌</td><td>❌</td></tr>
+<tr><td>pgvector</td><td>千万级</td><td>❌</td><td>✅ Schema级</td></tr>
+</table>
+
+<h2>3. 混合检索能力</h2>
+<table>
+<tr><th>数据库</th><th>向量搜索</th><th>关键词搜索</th><th>混合搜索</th><th>过滤搜索</th></tr>
+<tr><td>Weaviate</td><td>✅</td><td>✅ BM25</td><td>✅ 融合排名</td><td>✅ GraphQL</td></tr>
+<tr><td>Milvus</td><td>✅</td><td>✅ Sparse</td><td>✅ 融合搜索</td><td>✅ 布尔过滤</td></tr>
+<tr><td>Qdrant</td><td>✅</td><td>✅ Sparse</td><td>✅ 融合搜索</td><td>✅ ⭐最佳</td></tr>
+<tr><td>Pinecone</td><td>✅</td><td>✅ Sparse</td><td>✅ 混合查询</td><td>✅ 元数据</td></tr>
+<tr><td>pgvector</td><td>✅</td><td>✅ PG全文搜索</td><td>⚠️ 手动合并</td><td>✅ SQL WHERE</td></tr>
+<tr><td>Chroma</td><td>✅</td><td>❌</td><td>❌</td><td>✅ 基础</td></tr>
+</table>
+
+<h2>4. 选型决策树</h2>
+<pre><code>数据规模？
+├── < 100 万
+│   ├── 快速原型 → Chroma
+│   ├── 已有 PG → pgvector
+│   └── 生产性能 → Qdrant
+├── 100 万 - 1 亿
+│   ├── 托管服务 → Pinecone / Qdrant Cloud
+│   ├── 混合搜索 → Weaviate / Qdrant
+│   └── 多模态 → Weaviate
+└── 1 亿+
+    ├── 托管 → Pinecone / Zilliz Cloud
+    └── 自建 → Milvus
+
+运维能力？
+├── 无 DevOps → Pinecone
+├── 中等 → Qdrant / Weaviate Cloud
+└── 强 → Milvus (K8s)</code></pre>
+
+<h2>5. 部署模式对比</h2>
+<table>
+<tr><th>数据库</th><th>免费层</th><th>起步价</th><th>Docker</th><th>K8s</th><th>最低 RAM</th></tr>
+<tr><td>Pinecone</td><td>✅</td><td>~$70/月</td><td>❌</td><td>❌</td><td>N/A</td></tr>
+<tr><td>Weaviate Cloud</td><td>✅</td><td>~$25/月</td><td>✅</td><td>✅</td><td>4GB</td></tr>
+<tr><td>Zilliz Cloud</td><td>✅</td><td>~$65/月</td><td>✅</td><td>✅</td><td>8GB</td></tr>
+<tr><td>Qdrant Cloud</td><td>✅ 1GB</td><td>~$25/月</td><td>✅</td><td>✅</td><td>2GB</td></tr>
+<tr><td>Chroma</td><td>✅</td><td>TBD</td><td>✅</td><td>❌</td><td>1GB</td></tr>
+<tr><td>pgvector</td><td>取决于 PG</td><td>$15+/月</td><td>✅</td><td>取决于 PG</td><td>2GB</td></tr>
+</table>
+
+<h2>6. 2025-2026 趋势</h2>
+<ol>
+<li><strong>Serverless 化</strong>: Pinecone Serverless 引领趋势</li>
+<li><strong>稀疏+稠密混合</strong>: 成为标配</li>
+<li><strong>GPU 加速</strong>: Milvus、Qdrant 开始支持 GPU 索引</li>
+<li><strong>向量搜索商品化</strong>: PG、Redis、ES 纷纷加入</li>
+<li><strong>多模态原生</strong>: Weaviate 引领方向</li>
+<li><strong>边缘部署</strong>: Chroma、Qdrant 在本地场景增长</li>
+</ol>
+
+<h2>参考来源</h2>
+<ol>
+<li><a href="https://ann-benchmarks.com">ANN Benchmarks</a> — 向量搜索性能基准</li>
+<li><a href="https://github.com/zilliz-tool/VectorDBBench">VectorDBBench</a> — 综合基准测试</li>
+<li><a href="https://qdrant.tech/benchmarks/">Qdrant Benchmarks</a> — 官方性能测试</li>
+<li>各数据库官方文档: Pinecone / Weaviate / Milvus / Qdrant / Chroma / pgvector</li>
+<li><a href="https://db-engines.com">DB-Engines</a> — 数据库流行度趋势</li>
+<li><a href="https://python.langchain.com/docs/integrations/vectorstores/">LangChain Vector Store 集成</a></li>
+</ol>
+
+</body>
+</html>

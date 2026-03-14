@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anthropic Claude 企业级实践 | Tech-Researcher</title>
+    <style>
+        :root { --bg-primary: #0d1117; --bg-secondary: #161b22; --bg-tertiary: #21262d; --text-primary: #e6edf3; --text-secondary: #8b949e; --text-muted: #6e7681; --accent-blue: #58a6ff; --accent-green: #3fb950; --accent-orange: #d29922; --accent-red: #f85149; --accent-purple: #bc8cff; --border-color: #30363d; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.7; padding: 2rem; max-width: 900px; margin: 0 auto; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        h2 { font-size: 1.5rem; margin: 2rem 0 1rem; color: var(--accent-blue); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        h3 { font-size: 1.2rem; margin: 1.5rem 0 0.8rem; color: var(--accent-purple); }
+        .meta { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2rem; }
+        .meta span { margin-right: 1.5rem; }
+        .summary { background: var(--bg-secondary); border-left: 4px solid var(--accent-green); padding: 1.5rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
+        .summary h3 { color: var(--accent-green); margin-top: 0; }
+        .summary ul { margin-left: 1.5rem; }
+        .summary li { margin: 0.5rem 0; }
+        p { margin: 1rem 0; }
+        ul, ol { margin: 1rem 0 1rem 1.5rem; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+        th, td { padding: 0.8rem; border: 1px solid var(--border-color); text-align: left; }
+        th { background: var(--bg-tertiary); color: var(--accent-blue); }
+        td { background: var(--bg-secondary); }
+        code { background: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: var(--accent-orange); }
+        blockquote { border-left: 3px solid var(--accent-orange); padding: 0.5rem 1rem; margin: 1rem 0; color: var(--text-secondary); background: var(--bg-secondary); }
+        strong { color: var(--accent-green); }
+        a { color: var(--accent-blue); text-decoration: none; }
+        .refs { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
+        .refs h3 { color: var(--text-secondary); font-size: 1rem; }
+        .refs ol { font-size: 0.85rem; color: var(--text-secondary); }
+        .footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.85rem; text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Anthropic Claude 企业级实践</h1>
+    <div class="meta"><span>📅 2025年3月</span><span>📂 案例实践</span><span>📖 ~4200字</span></div>
+
+    <div class="summary">
+        <h3>📋 Executive Summary</h3>
+        <p>Anthropic 以"AI 安全优先"理念开辟独特定位。Claude 3.5 Sonnet 在多项基准超越 GPT-4o，尤其在编程、长文档处理和指令遵循方面。</p>
+        <ul>
+            <li><strong>Claude 3.5 Sonnet 是性价比标杆</strong>：以 Opus 级能力、Sonnet 级价格</li>
+            <li><strong>Claude Code 开创 Agent 编程</strong>：终端自主编辑、运行命令</li>
+            <li><strong>Artifacts / Projects 重塑交互</strong>：从"对话"到"协作创作"</li>
+            <li><strong>Constitutional AI 是差异化核心</strong>：安全方法论吸引企业客户</li>
+        </ul>
+    </div>
+
+    <h2>1. Claude 3.5 系列能力分析</h2>
+    <h3>1.1 模型家族概览</h3>
+    <table>
+        <tr><th>模型</th><th>发布时间</th><th>定位</th><th>主要特点</th></tr>
+        <tr><td>Claude 3 Opus</td><td>2024.03</td><td>旗舰</td><td>最强能力，最高成本</td></tr>
+        <tr><td>Claude 3 Sonnet</td><td>2024.03</td><td>均衡</td><td>能力与成本平衡</td></tr>
+        <tr><td>Claude 3.5 Sonnet</td><td>2024.06</td><td>升级旗舰</td><td>超越 Opus，Sonnet 价格</td></tr>
+        <tr><td>Claude 3.5 Haiku</td><td>2024.10</td><td>升级轻量</td><td>Sonnet 级能力，Haiku 价格</td></tr>
+    </table>
+
+    <h3>1.2 Claude 3.5 Sonnet 的突破</h3>
+    <p>在 SWE-bench Verified 上得分 49%（GPT-4o 仅 38%），HumanEval 达到 92%。² 200K tokens 上下文窗口使其在文档处理场景优势明显。</p>
+
+    <h3>1.3 Computer Use 能力</h2>
+    <p>2024 年 10 月推出实验性"Computer Use"功能——Claude 可以通过截图操作计算机。在 OSWorld 基准上得分 14.9%，展示 AI 操作桌面的可行性。</p>
+
+    <h2>2. Claude Code 与编程实践</h2>
+    <p>Claude Code 是 2025 年 2 月推出的 CLI 工具，代表"Agent 编程"新范式：</p>
+    <ul>
+        <li><strong>自主读取和编辑代码文件</strong></li>
+        <li><strong>运行终端命令</strong>（npm install、git commit、测试运行）</li>
+        <li><strong>创建和修改多个文件</strong>（重构、新增功能）</li>
+        <li><strong>搜索代码库</strong>（理解项目结构和依赖）</li>
+    </ul>
+    <p>适合场景：代码库探索、自动化重构、测试与修复循环、文档生成。</p>
+
+    <h2>3. Artifacts / Projects 功能</h2>
+    <p><strong>Artifacts</strong> 将对话生成的内容"具象化"——代码、文档、HTML 都可以预览、编辑和导出。</p>
+    <p><strong>Projects</strong> 创建持久化项目空间，含项目指令、知识文件和对话历史，本质上是 Claude.ai 中的 RAG。</p>
+
+    <h2>4. 企业 API 集成模式</h2>
+    <p>API 产品线简洁：Messages API、Batch API（50% 折扣）、Vertex AI/Bedrock 集成。</p>
+    <p>企业集成模式：客服增强、文档处理管道、代码审查助手。</p>
+
+    <h2>5. Constitutional AI 与安全实践</h2>
+    <h3>CAI 方法论</h3>
+    <p>定义宪法原则 → 模型自我改进 → 透明可审计。减少对人工标注的依赖，安全原则明确可追溯。</p>
+    <h3>ASL 框架</h3>
+    <p>AI Safety Level 框架，类似生物安全等级。当前 Claude 处于 ASL-2。</p>
+
+    <h2>实践建议</h2>
+    <p><strong>选择 Claude 的场景</strong>：长文档处理、编程辅助、严格指令遵循、高安全要求应用。</p>
+    <p><strong>不建议的场景</strong>：需要最新信息、大量插件集成、极低延迟。</p>
+
+    <div class="refs">
+        <h3>参考来源</h3>
+        <ol>
+            <li>Anthropic. "Claude 3.5 Sonnet Model Card." June 2024.</li>
+            <li>Anthropic. "Computer Use." October 2024.</li>
+            <li>Anthropic. "Responsible Scaling Policy." September 2023.</li>
+            <li>Anthropic API Documentation. https://docs.anthropic.com/</li>
+        </ol>
+    </div>
+    <div class="footer">Tech-Researcher · 案例实践系列 · 2025年3月</div>
+</body>
+</html>

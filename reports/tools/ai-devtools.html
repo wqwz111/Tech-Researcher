@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 开发者工具链全景图</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; line-height: 1.7; padding: 2rem; max-width: 900px; margin: 0 auto; }
+h1 { color: #58a6ff; font-size: 2rem; margin-bottom: 0.5rem; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; }
+h2 { color: #79c0ff; font-size: 1.5rem; margin: 2rem 0 1rem; border-left: 3px solid #58a6ff; padding-left: 0.8rem; }
+h3 { color: #a5d6ff; font-size: 1.2rem; margin: 1.5rem 0 0.8rem; }
+p { margin: 0.8rem 0; }
+blockquote { border-left: 3px solid #3fb950; background: #161b22; padding: 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0; color: #8b949e; }
+strong { color: #f0883e; }
+code { background: #161b22; color: #f0883e; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+pre { background: #161b22; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; border: 1px solid #30363d; }
+pre code { background: none; padding: 0; }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+th { background: #161b22; color: #58a6ff; padding: 0.6rem 0.8rem; text-align: left; border: 1px solid #30363d; }
+td { padding: 0.6rem 0.8rem; border: 1px solid #30363d; }
+tr:nth-child(even) { background: #161b22; }
+a { color: #58a6ff; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.meta { color: #8b949e; font-size: 0.9rem; margin-bottom: 1.5rem; }
+ul, ol { margin: 0.8rem 0 0.8rem 1.5rem; }
+li { margin: 0.3rem 0; }
+</style>
+</head>
+<body>
+
+<h1>AI 开发者工具链全景图</h1>
+<p class="meta">最后更新: 2026-03-14 | 分类: AI 开发工具</p>
+
+<h2>Executive Summary</h2>
+<blockquote>
+<p>AI 应用开发涉及 Prompt 设计、模型调用、数据处理到部署监控的完整链路。<br>
+• <strong>API 网关</strong>: LiteLLM 和 Portkey 是多模型路由的事实标准<br>
+• <strong>Prompt 管理</strong>: 进化为版本化、可评估的专业工具<br>
+• <strong>部署推理</strong>: vLLM 在开源推理引擎中占主导地位
+</p>
+</blockquote>
+
+<h2>1. API 网关与代理</h2>
+<table>
+<tr><th>工具</th><th>核心定位</th><th>模型支持</th><th>特色</th></tr>
+<tr><td><strong>LiteLLM</strong></td><td>统一 API 代理</td><td>100+ 提供商</td><td>OpenAI 兼容、自动重试、故障转移</td></tr>
+<tr><td><strong>Portkey</strong></td><td>AI 网关</td><td>多模型</td><td>可观测性、Guardrails、缓存</td></tr>
+<tr><td><strong>OpenRouter</strong></td><td>托管网关</td><td>100+ 模型</td><td>统一定价、简单接入</td></tr>
+<tr><td><strong>Helicone</strong></td><td>可观测性</td><td>多提供商</td><td>缓存、速率限制、监控</td></tr>
+</table>
+
+<h2>2. Prompt 管理工具</h2>
+<table>
+<tr><th>工具</th><th>类型</th><th>核心能力</th><th>开源</th></tr>
+<tr><td>LangSmith</td><td>平台</td><td>Prompt Hub、版本、评估、协作</td><td>❌ SaaS</td></tr>
+<tr><td>PromptLayer</td><td>平台</td><td>日志、版本、评估</td><td>❌ SaaS</td></tr>
+<tr><td>Agenta</td><td>平台</td><td>Prompt 管理、评估、部署</td><td>✅</td></tr>
+<tr><td>dspy</td><td>框架</td><td>自动 Prompt 优化</td><td>✅</td></tr>
+</table>
+
+<h3>最佳实践</h3>
+<ol>
+<li><strong>外部化</strong>: Prompt 从代码分离，独立版本管理</li>
+<li><strong>版本化</strong>: 每次变更打 Tag，支持回滚</li>
+<li><strong>评估驱动</strong>: 每次变更运行评估套件</li>
+<li><strong>环境隔离</strong>: Dev → Staging → Production</li>
+</ol>
+
+<h2>3. 数据标注与训练工具</h2>
+
+<h3>标注平台</h3>
+<table>
+<tr><th>工具</th><th>数据类型</th><th>特色</th><th>开源</th></tr>
+<tr><td>Label Studio</td><td>文本/图像/音频/视频</td><td>全能、可扩展</td><td>✅</td></tr>
+<tr><td>Argilla</td><td>LLM 输出</td><td>AI 辅助标注</td><td>✅</td></tr>
+<tr><td>Prodigy</td><td>文本</td><td>主动学习</td><td>❌</td></tr>
+</table>
+
+<h3>微调工具</h3>
+<table>
+<tr><th>工具</th><th>用途</th><th>特色</th></tr>
+<tr><td>LLaMA-Factory</td><td>LLM 微调</td><td>支持 100+ 模型、Web UI</td></tr>
+<tr><td>Unsloth</td><td>高效微调</td><td>2x 速度、60% 内存减少</td></tr>
+<tr><td>TRL</td><td>RLHF/DPO</td><td>HuggingFace 官方</td></tr>
+</table>
+
+<h2>4. 部署与推理工具</h2>
+
+<h3>推理引擎</h3>
+<table>
+<tr><th>引擎</th><th>语言</th><th>吞吐量 (A100 70B)</th><th>特色</th></tr>
+<tr><td><strong>vLLM</strong></td><td>Python/CUDA</td><td>2,000-4,000 tok/s</td><td>PagedAttention、高吞吐</td></tr>
+<tr><td>TGI</td><td>Rust/Python</td><td>1,500-3,000 tok/s</td><td>生态集成</td></tr>
+<tr><td>TensorRT-LLM</td><td>C++/CUDA</td><td>3,000-5,000 tok/s</td><td>NVIDIA 优化</td></tr>
+<tr><td>SGLang</td><td>Python</td><td>2,500-4,500 tok/s</td><td>结构化生成</td></tr>
+</table>
+
+<h3>部署方案推荐</h3>
+<table>
+<tr><th>场景</th><th>推荐</th><th>说明</th></tr>
+<tr><td>快速原型</td><td>Ollama</td><td>ollama run llama3</td></tr>
+<tr><td>开发调试</td><td>LM Studio</td><td>图形界面</td></tr>
+<tr><td>生产自建</td><td>vLLM + Docker</td><td>高性能</td></tr>
+<tr><td>边缘/低资源</td><td>llama.cpp</td><td>CPU 友好</td></tr>
+<tr><td>Serverless GPU</td><td>Modal</td><td>按秒计费</td></tr>
+</table>
+
+<h2>5. 端到端工作流</h2>
+
+<h3>推荐工具链组合</h3>
+<table>
+<tr><th>方案</th><th>Prompt</th><th>网关</th><th>框架</th><th>部署</th><th>监控</th></tr>
+<tr><td>个人项目</td><td>Git</td><td>OpenRouter</td><td>LangChain</td><td>Ollama</td><td>LangFuse</td></tr>
+<tr><td>团队项目</td><td>LangSmith</td><td>LiteLLM</td><td>LangGraph</td><td>vLLM</td><td>LangSmith</td></tr>
+<tr><td>企业生产</td><td>Humanloop</td><td>Portkey</td><td>自研+</td><td>vLLM/K8s</td><td>Grafana</td></tr>
+</table>
+
+<h3>成本优化工具链</h3>
+<table>
+<tr><th>环节</th><th>工具</th><th>优化方式</th></tr>
+<tr><td>模型选择</td><td>Unify / Martian</td><td>自动选择性价比最高</td></tr>
+<tr><td>Prompt 压缩</td><td>LLMLingua</td><td>减少 Token</td></tr>
+<tr><td>缓存</td><td>Portkey / GPTCache</td><td>命中缓存</td></tr>
+<tr><td>量化</td><td>GPTQ / AWQ / GGUF</td><td>减少推理资源</td></tr>
+<tr><td>监控</td><td>Helicone / LiteLLM</td><td>成本归因</td></tr>
+</table>
+
+<h2>参考来源</h2>
+<ol>
+<li><a href="https://docs.litellm.ai">LiteLLM 文档</a></li>
+<li><a href="https://docs.portkey.ai">Portkey 文档</a></li>
+<li><a href="https://docs.vllm.ai">vLLM 文档</a></li>
+<li><a href="https://labelstud.io">Label Studio</a></li>
+<li><a href="https://docs.smith.langchain.com">LangSmith</a></li>
+<li><a href="https://github.com/hiyouga/LLaMA-Factory">LLaMA-Factory</a></li>
+</ol>
+
+</body>
+</html>

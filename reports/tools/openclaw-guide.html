@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw 深度使用指南</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; line-height: 1.7; padding: 2rem; max-width: 900px; margin: 0 auto; }
+h1 { color: #58a6ff; font-size: 2rem; margin-bottom: 0.5rem; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; }
+h2 { color: #79c0ff; font-size: 1.5rem; margin: 2rem 0 1rem; border-left: 3px solid #58a6ff; padding-left: 0.8rem; }
+h3 { color: #a5d6ff; font-size: 1.2rem; margin: 1.5rem 0 0.8rem; }
+p { margin: 0.8rem 0; }
+blockquote { border-left: 3px solid #3fb950; background: #161b22; padding: 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0; color: #8b949e; }
+strong { color: #f0883e; }
+code { background: #161b22; color: #f0883e; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+pre { background: #161b22; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; border: 1px solid #30363d; }
+pre code { background: none; padding: 0; }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+th { background: #161b22; color: #58a6ff; padding: 0.6rem 0.8rem; text-align: left; border: 1px solid #30363d; }
+td { padding: 0.6rem 0.8rem; border: 1px solid #30363d; }
+tr:nth-child(even) { background: #161b22; }
+a { color: #58a6ff; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.meta { color: #8b949e; font-size: 0.9rem; margin-bottom: 1.5rem; }
+ul, ol { margin: 0.8rem 0 0.8rem 1.5rem; }
+li { margin: 0.3rem 0; }
+</style>
+</head>
+<body>
+
+<h1>OpenClaw 深度使用指南</h1>
+<p class="meta">最后更新: 2026-03-14 | 分类: AI Agent 平台</p>
+
+<h2>Executive Summary</h2>
+<blockquote>
+<p>OpenClaw 是一个开源的 AI Agent 编排平台，提供 Agent 运行时、多渠道接入、技能系统和 MCP 集成。定位偏向 <strong>Agent 的生产运行时</strong>——关注会话管理、多渠道消息路由、持久化记忆和技能动态加载。</p>
+</blockquote>
+
+<h2>1. 架构概览</h2>
+
+<h3>核心抽象</h3>
+<table>
+<tr><th>概念</th><th>说明</th></tr>
+<tr><td><strong>Agent</strong></td><td>AI 代理实例，拥有独立配置、记忆和技能</td></tr>
+<tr><td><strong>Channel</strong></td><td>消息渠道（Telegram、Discord、Signal 等）</td></tr>
+<tr><td><strong>Session</strong></td><td>会话上下文，管理交互状态</td></tr>
+<tr><td><strong>Skill</strong></td><td>可复用的能力模块</td></tr>
+<tr><td><strong>MCP</strong></td><td>Model Context Protocol 工具集成</td></tr>
+</table>
+
+<h3>系统架构</h3>
+<pre><code>┌─────────────────────────────────────┐
+│         OpenClaw Gateway            │
+│  ┌─────────┐ ┌────────┐ ┌────────┐ │
+│  │ Agent   │ │ Channel│ │ Skill  │ │
+│  │ Runtime │ │ Router │ │ Loader │ │
+│  └────┬────┘ └───┬────┘ └───┬────┘ │
+│       └──────────┼──────────┘      │
+│          Session Manager           │
+└─────────────────────────────────────┘
+        │           │          │
+   Telegram      Discord     Signal</code></pre>
+
+<h2>2. Agent 编排与会话管理</h2>
+
+<h3>Agent 配置</h3>
+<pre><code>agent:
+  name: my-agent
+  model: openrouter/anthropic/claude-sonnet-4
+  system_prompt: "你是一个专业的技术顾问..."
+  memory:
+    backend: file       # 或 redis
+    max_tokens: 4000
+  tools: [web_search, read, write, exec]
+  skills: [/path/to/skills/]</code></pre>
+
+<h3>会话隔离</h3>
+<ul>
+<li><strong>Direct</strong>: 用户私聊，独立会话</li>
+<li><strong>Group</strong>: 群组共享（可配置隔离）</li>
+<li><strong>Thread</strong>: 线程级隔离（Telegram topics）</li>
+</ul>
+
+<h2>3. 多渠道接入</h2>
+<table>
+<tr><th>渠道</th><th>类型</th><th>特殊功能</th></tr>
+<tr><td>Telegram</td><td>即时通讯</td><td>Inline buttons、Reaction、Topic</td></tr>
+<tr><td>Discord</td><td>即时通讯</td><td>Slash commands、Embed、Thread</td></tr>
+<tr><td>Signal</td><td>即时通讯</td><td>端到端加密</td></tr>
+<tr><td>HTTP API</td><td>REST</td><td>自定义集成</td></tr>
+<tr><td>WebSocket</td><td>实时</td><td>自定义前端</td></tr>
+</table>
+
+<h2>4. 技能系统与 MCP 集成</h2>
+
+<h3>技能目录结构</h3>
+<pre><code>skills/
+├── web-research/
+│   ├── SKILL.md          # 技能描述
+│   ├── references/       # 参考文档
+│   └── scripts/          # 辅助脚本
+├── code-review/
+│   └── SKILL.md
+└── weather/
+    └── SKILL.md</code></pre>
+
+<h3>MCP 配置</h3>
+<pre><code>mcp:
+  servers:
+    - name: filesystem
+      command: npx
+      args: ["-y", "@modelcontextprotocol/server-filesystem"]
+    - name: postgres
+      command: npx
+      args: ["-y", "@modelcontextprotocol/server-postgres"]</code></pre>
+
+<h2>5. 高级用法与最佳实践</h2>
+
+<h3>记忆管理</h3>
+<pre><code>memory:
+  backend: redis          # 生产推荐
+  max_history: 50
+  summarization: true
+  summary_interval: 20</code></pre>
+
+<h3>安全实践</h3>
+<ol>
+<li>API Key 用环境变量，不硬编码</li>
+<li>设置 <code>allowed_chats</code> 限制访问</li>
+<li>限制 exec 工具的命令白名单</li>
+<li>输入长度和内容检查</li>
+</ol>
+
+<h3>调试命令</h3>
+<pre><code>openclaw gateway status
+openclaw logs --follow
+openclaw sessions list
+openclaw sessions export &lt;session-id&gt;</code></pre>
+
+<h2>参考来源</h2>
+<ol>
+<li><a href="https://docs.openclaw.ai">OpenClaw 官方文档</a> — 安装、配置、API</li>
+<li><a href="https://github.com/openclaw/openclaw">OpenClaw GitHub</a> — 源码、Issues</li>
+<li><a href="https://modelcontextprotocol.io">MCP 协议规范</a></li>
+<li><a href="https://clawhub.com">ClawHub 技能市场</a></li>
+<li>OpenClaw Discord 社区</li>
+</ol>
+
+</body>
+</html>

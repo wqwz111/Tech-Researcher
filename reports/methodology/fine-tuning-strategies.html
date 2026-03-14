@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大模型微调策略对比研究</title>
+    <style>
+body {
+    background: #0f172a;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
+h3 { color: #93c5fd; margin-top: 1.8rem; }
+h4 { color: #a5b4fc; }
+a { color: #60a5fa; text-decoration: none; }
+code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
+pre code { background: none; padding: 0; color: #e2e8f0; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
+th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
+tr:nth-child(even) { background: #1e293b44; }
+tr:hover { background: #1e293b; }
+hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
+strong { color: #f8fafc; }
+em { color: #94a3b8; }
+ul, ol { padding-left: 1.5rem; }
+li { margin: 0.3rem 0; }
+p { margin: 0.8rem 0; }
+</style>
+</head>
+<body>
+<h1>大模型微调策略对比研究</h1>
+
+<h2>Executive Summary</h2>
+
+<p>微调是将通用大模型适配到特定领域的关键手段。本文系统对比 Full Fine-tuning、LoRA、QLoRA、PEFT 等主流微调策略，从数据准备、超参数调优、领域适应到成本权衡，提供可落地的微调决策框架。</p>
+
+<hr>
+
+<h2>1. 微调策略全景</h2>
+
+<h3>1.1 策略分类</h3>
+
+<pre><code>
+微调方法
+├── 全参数微调 (Full Fine-tuning)
+│   ├── 全精度 (FP32/BF16)
+│   └── 分布式 (DeepSpeed/FSDP)
+├── 参数高效微调 (PEFT)
+│   ├── LoRA / QLoRA
+│   ├── Adapter Tuning
+│   ├── Prefix Tuning
+│   └── Prompt Tuning
+└── 强化学习微调
+    ├── RLHF (PPO)
+    ├── DPO
+    └── GRPO
+</code></pre>
+
+<h3>1.2 核心对比</h3>
+
+<table>
+<tr><th>方法</th><th>可训练参数</th><th>显存需求</th><th>训练速度</th><th>效果</th><th>适用场景</th></tr>
+<tr><td>Full FT</td><td>100%</td><td>极高</td><td>慢</td><td>最佳</td><td>数据充足、算力充足</td></tr>
+<tr><td>LoRA</td><td>0.1-1%</td><td>低</td><td>快</td><td>接近全量</td><td>通用场景首选</td></tr>
+<tr><td>QLoRA</td><td>0.1-1%</td><td>极低</td><td>中</td><td>略低LoRA</td><td>低资源环境</td></tr>
+<tr><td>Adapter</td><td>1-5%</td><td>中</td><td>中</td><td>接近全量</td><td>多任务切换</td></tr>
+<tr><td>DPO</td><td>0.1-1%</td><td>中</td><td>快</td><td>对齐专用</td><td>偏好对齐</td></tr>
+</table>
+
+<hr>
+
+<h2>2. LoRA 系列详解</h2>
+
+<h3>2.1 LoRA 原理</h3>
+
+<p>Low-Rank Adaptation：冻结原始权重 W，新增低秩分解矩阵：</p>
+
+<pre><code>
+W' = W + ΔW = W + BA
+其中 B ∈ R^(d×r), A ∈ R^(r×k), r &lt;&lt; min(d,k)
+</code></pre>
+
+<p><strong>关键超参数</strong>:</p>
+<li>rank (r): 秩，通常 8-64，越大表达力越强但参数越多</li>
+<li>alpha: 缩放因子，通常 = 2×rank</li>
+<li>target_modules: 应用 LoRA 的层（q_proj, v_proj, k_proj, o_proj）</li>
+
+<h3>2.2 QLoRA 创新</h3>
+
+<p>在 LoRA 基础上引入三项技术：</p>
+
+<p>1. <strong>4-bit NormalFloat (NF4)</strong>: 量化基座模型权重</p>
+<p>2. <strong>Double Quantization</strong>: 对量化常数再量化</p>
+<p>3. <strong>Paged Optimizers</strong>: 利用 CPU 内存避免 OOM</p>
+
+<p><strong>显存对比</strong> (7B 模型):</p>
+<li>Full FT (BF16): ~60 GB</li>
+<li>LoRA (BF16): ~20 GB</li>
+<li>QLoRA (4-bit): ~6 GB ✅ 单卡 24GB 可跑</li>
+
+<hr>
+
+<h2>3. 数据准备与质量控制</h2>
+
+<h3>3.1 数据格式</h3>
+
+<p><strong>指令微调格式</strong>:</p>
+<pre><code>
+{
+  "instruction": "将以下英文翻译成中文",
+  "input": "Hello, world!",
+  "output": "你好，世界！"
+}
+</code></pre>
+
+<p><strong>对话格式 (Chat Template)</strong>:</p>
+<pre><code>
+{
+  "messages": [
+    {"role": "system", "content": "你是一个翻译助手"},
+    {"role": "user", "content": "Hello, world!"},
+    {"role": "assistant", "content": "你好，世界！"}
+  ]
+}
+</code></pre>
+
+<h3>3.2 数据质量控制</h3>
+
+<table>
+<tr><th>检查项</th><th>方法</th><th>工具</th></tr>
+<tr><td>去重</td><td>模糊去重 + 精确去重</td><td>datasketch, nearpy</td></tr>
+<tr><td>格式校验</td><td>Schema 验证</td><td>Pydantic, jsonschema</td></tr>
+<tr><td>质量过滤</td><td>分类器 / 启发式规则</td><td>llama-factory</td></tr>
+<tr><td>长度分布</td><td>截断 / 过短过滤</td><td>自定义脚本</td></tr>
+<tr><td>数据配比</td><td>领域混合比例</td><td>人工设计</td></tr>
+</table>
+
+<h3>3.3 数据量参考</h3>
+
+<table>
+<tr><th>场景</th><th>建议数据量</th></tr>
+<tr><td>简单格式转换</td><td>1K-5K</td></tr>
+<tr><td>领域知识注入</td><td>5K-50K</td></tr>
+<tr><td>能力增强（如推理）</td><td>50K-500K</td></tr>
+<tr><td>全面能力提升</td><td>500K+</td></tr>
+</table>
+
+<hr>
+
+<h2>4. 超参数调优指南</h2>
+
+<h3>4.1 核心超参数</h3>
+
+<table>
+<tr><th>参数</th><th>推荐范围</th><th>说明</th></tr>
+<tr><td>Learning Rate</td><td>1e-5 ~ 5e-4</td><td>LoRA 可用较高 LR</td></tr>
+<tr><td>Batch Size</td><td>4-32 (梯度累积)</td><td>受显存限制</td></tr>
+<tr><td>Epochs</td><td>2-5</td><td>数据少则多 epochs</td></tr>
+<tr><td>Warmup Steps</td><td>总步数 3-10%</td><td>预热学习率</td></tr>
+<tr><td>LoRA Rank</td><td>8-64</td><td>越大越强但也越慢</td></tr>
+<tr><td>LoRA Alpha</td><td>rank × 2</td><td>缩放因子</td></tr>
+<tr><td>Max Length</td><td>512-4096</td><td>根据任务调整</td></tr>
+</table>
+
+<h3>4.2 训练策略</h3>
+
+<pre><code>
+Phase 1: 小规模实验 (1% 数据, 1 epoch)
+  → 确保训练流程通畅
+  → 观察 loss 下降趋势
+
+Phase 2: 超参数搜索
+  → LR: [1e-5, 5e-5, 1e-4, 5e-4]
+  → rank: [8, 16, 32, 64]
+  → 小数据集快速对比
+
+Phase 3: 全量训练
+  → 最优超参数 + 全数据
+  → 监控 eval loss 防过拟合
+</code></pre>
+
+<hr>
+
+<h2>5. 领域适应最佳实践</h2>
+
+<h3>5.1 分阶段微调</h3>
+
+<pre><code>
+通用基座 → 领域继续预训练 (CPT) → 指令微调 (SFT) → 偏好对齐 (DPO)
+</code></pre>
+
+<p><strong>阶段 1 - 继续预训练</strong>:</p>
+<li>大量领域文本（如医学文献）</li>
+<li>用 MLM 或 CLM 目标</li>
+<li>学习率: 1e-5</li>
+
+<p><strong>阶段 2 - 指令微调</strong>:</p>
+<li>高质量指令数据</li>
+<li>监督学习目标</li>
+<li>学习率: 2e-4 (LoRA)</li>
+
+<p><strong>阶段 3 - 偏好对齐</strong>:</p>
+<li>偏好对比数据</li>
+<li>DPO 或 RLHF</li>
+<li>学习率: 5e-5</li>
+
+<h3>5.2 常见陷阱</h3>
+
+<li><strong>灾难性遗忘</strong>: 领域数据过多导致通用能力下降</li>
+<p>  - 解决: 混合通用数据，比例 7:3</p>
+<li><strong>过拟合</strong>: eval loss 上升</li>
+<p>  - 解决: Early stopping + 更多数据</p>
+<li><strong>格式不一致</strong>: 模型输出格式混乱</li>
+<p>  - 解决: 统一 Chat Template + 格式数据增强</p>
+
+<hr>
+
+<h2>6. 成本与效果权衡</h2>
+
+<h3>6.1 成本对比 (7B 模型)</h3>
+
+<table>
+<tr><th>方案</th><th>GPU</th><th>时间</th><th>成本估算</th></tr>
+<tr><td>Full FT (多卡)</td><td>4×A100 80G</td><td>8h</td><td>~$80</td></tr>
+<tr><td>LoRA (单卡)</td><td>1×A100 40G</td><td>2h</td><td>~$10</td></tr>
+<tr><td>QLoRA (单卡)</td><td>1×RTX 4090</td><td>4h</td><td>~$4</td></tr>
+<tr><td>API 微调 (OpenAI)</td><td>无需GPU</td><td>1h</td><td>~$25</td></tr>
+</table>
+
+<h3>6.2 决策树</h3>
+
+<pre><code>
+是否需要私有部署？
+├── 是 → 数据量 &gt; 100K？
+│   ├── 是 → Full FT (多卡)
+│   └── 否 → LoRA / QLoRA
+└── 否 → API 微调 (OpenAI / Claude)
+</code></pre>
+
+<hr>
+
+<h2>参考来源</h2>
+
+<p>1. Hu, E. et al. "LoRA: Low-Rank Adaptation of Large Language Models" (2021) — ICLR 2022</p>
+<p>2. Dettmers, T. et al. "QLoRA: Efficient Finetuning of Quantized Language Models" (2023) — NeurIPS 2023</p>
+<p>3. Hugging Face PEFT Documentation — https://huggingface.co/docs/peft</p>
+<p>4. LLaMA-Factory — https://github.com/hiyouga/LLaMA-Factory</p>
+<p>5. Wei, J. et al. "Fine-Tuned Language Models Are Zero-Shot Learners" (2022) — Google Research</p>
+
+</body>
+</html>

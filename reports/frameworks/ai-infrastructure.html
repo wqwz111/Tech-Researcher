@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 基础设施与云平台对比</title>
+    <style>
+body {
+    background: #0f172a;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
+h3 { color: #93c5fd; margin-top: 1.8rem; }
+h4 { color: #a5b4fc; }
+a { color: #60a5fa; text-decoration: none; }
+a:hover { text-decoration: underline; }
+code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
+pre code { background: none; padding: 0; color: #e2e8f0; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
+th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
+tr:nth-child(even) { background: #1e293b44; }
+tr:hover { background: #1e293b; }
+hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
+strong { color: #f8fafc; }
+em { color: #94a3b8; }
+ul, ol { padding-left: 1.5rem; }
+li { margin: 0.3rem 0; }
+p { margin: 0.8rem 0; }
+</style>
+</head>
+<body>
+<h1 id="ai">AI 基础设施与云平台对比</h1>
+<blockquote>
+<p>发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
+</blockquote>
+<hr />
+<h2 id="executive-summary">Executive Summary</h2>
+<p>选择合适的 AI 云平台是构建生产级 AI 应用的关键决策。本报告对比分析五大主流 AI 云平台——AWS Bedrock、Azure OpenAI、Google Vertex AI、Together AI 和 Fireworks——从模型可用性、延迟、定价、企业特性和多云策略等维度提供选型建议。</p>
+<p><strong>核心结论：</strong>
+- <strong>Azure OpenAI</strong> 是企业使用 OpenAI 模型的首选渠道，合规性和 SLA 最完善
+- <strong>AWS Bedrock</strong> 模型选择最丰富，适合 AWS 生态用户
+- <strong>Google Vertex AI</strong> 在 Gemini 模型上具有独家优势，成本最低
+- <strong>Together AI</strong> 和 <strong>Fireworks</strong> 提供最具竞争力的开源模型托管价格
+- 多云策略可以避免供应商锁定，但增加运维复杂度</p>
+<hr />
+<h2 id="1">1. 平台概览</h2>
+<h3 id="11-aws-bedrock">1.1 AWS Bedrock</h3>
+<p><strong>服务全称</strong>：Amazon Bedrock
+<strong>可用区域</strong>：全球多个区域
+<strong>推出时间</strong>：2023 年（GA 2024 年）</p>
+<p>Amazon Bedrock 是 AWS 的全托管 LLM 服务平台，提供来自多个供应商的基础模型。</p>
+<p><strong>支持的模型：</strong>
+- Anthropic：Claude 3.5 Sonnet / Haiku / Opus
+- Amazon：Titan Text / Titan Embeddings
+- Meta：Llama 3.1 系列
+- Mistral：Mistral Large / Mixtral
+- Cohere：Command R+
+- Stability AI：Stable Diffusion / Stable Video
+- AI21 Labs：Jamba</p>
+<p><strong>核心特性：</strong>
+- 无服务器架构：无需管理基础设施
+- 模型定制：Fine-tuning、Continued Pre-training
+- Knowledge Bases：托管 RAG 服务
+- Agents：托管 Agent 服务
+- Guardrails：内容安全过滤
+- Model Evaluation：模型评估工具</p>
+<h3 id="12-azure-openai">1.2 Azure OpenAI</h3>
+<p><strong>服务全称</strong>：Azure OpenAI Service
+<strong>可用区域</strong>：全球 30+ 区域
+<strong>推出时间</strong>：2023 年（GA）</p>
+<p>Azure OpenAI 是微软与 OpenAI 合作的企业级 OpenAI 模型托管服务。</p>
+<p><strong>支持的模型：</strong>
+- GPT-4o / GPT-4o-mini
+- GPT-4 Turbo
+- GPT-3.5 Turbo
+- o1 / o1-mini
+- DALL-E 3
+- Whisper
+- text-embedding-3-small / large
+- Assistants API</p>
+<p><strong>核心特性：</strong>
+- 企业级安全：VNet、Private Link
+- 区域数据驻留：数据不离开指定区域
+- 内容过滤：内置 Azure Content Safety
+- SLA 保证：99.9% 可用性
+- 与 Azure 生态深度集成：Cognitive Search、Functions、AKS
+- 专用部署：独占 GPU 资源</p>
+<h3 id="13-google-vertex-ai">1.3 Google Vertex AI</h3>
+<p><strong>服务全称</strong>：Vertex AI (Model Garden)
+<strong>可用区域</strong>：全球多个区域
+<strong>推出时间</strong>：2021 年（LLM 服务 2023 年扩展）</p>
+<p>Vertex AI 是 Google Cloud 的统一 AI 平台，Model Garden 提供多模型访问。</p>
+<p><strong>支持的模型：</strong>
+- Google：Gemini 2.0 Flash / Pro / Ultra、PaLM 2
+- Anthropic：Claude 3.5 系列
+- Meta：Llama 3.1 系列
+- Mistral：Mixtral、Mistral Large
+- 开源：数百个 HuggingFace 模型</p>
+<p><strong>核心特性：</strong>
+- Gemini 独家访问
+- Model Garden：一站式模型市场
+- AutoML：自动化模型训练
+- Pipelines：ML 工作流编排
+- Feature Store：特征管理
+- Vector Search：向量数据库服务
+- Grounding：Google Search 增强</p>
+<h3 id="14-together-ai">1.4 Together AI</h3>
+<p><strong>服务全称</strong>：Together AI
+<strong>总部</strong>：旧金山
+<strong>推出时间</strong>：2022 年</p>
+<p>Together AI 专注于开源模型的高性能推理服务。</p>
+<p><strong>支持的模型：</strong>
+- Meta Llama 3.1 系列
+- Mistral / Mixtral 系列
+- Qwen2 系列
+- CodeLlama
+- RedPajama
+- 超过 100 个开源模型</p>
+<p><strong>核心特性：</strong>
+- 极具竞争力的价格
+- Turbo 模式：优化推理速度
+- Fine-tuning API
+- 集群服务：专属 GPU 集群
+- Together Custom Models
+- 开源模型第一</p>
+<h3 id="15-fireworks-ai">1.5 Fireworks AI</h3>
+<p><strong>服务全称</strong>：Fireworks AI
+<strong>总部</strong>：旧金山
+<strong>推出时间</strong>：2023 年</p>
+<p>Fireworks AI 提供高性能、低延迟的开源模型推理服务。</p>
+<p><strong>支持的模型：</strong>
+- Llama 3.1 系列
+- Mixtral 系列
+- Qwen2 系列
+- Firefunction-v2（函数调用专用）
+- FireLLaVA（视觉语言）
+- 自研优化模型</p>
+<p><strong>核心特性：</strong>
+- 最低延迟优化
+- Compound AI System：多模型组合
+- FireAttention：自研注意力优化
+- 批量推理
+- Fine-tuning
+- Function Calling 优化模型</p>
+<hr />
+<h2 id="2">2. 模型可用性与延迟</h2>
+<h3 id="21">2.1 模型覆盖对比</h3>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>AWS Bedrock</th>
+<th>Azure OpenAI</th>
+<th>Vertex AI</th>
+<th>Together AI</th>
+<th>Fireworks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPT-4o</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Claude 3.5 Sonnet</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Gemini 2.0</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Llama 3.1 405B</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Mixtral 8x22B</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Mistral Large</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>o1 / o1-mini</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Stable Diffusion</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>DALL-E 3</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22">2.2 延迟对比（近似值）</h3>
+<p>以下数据基于 2024-2025 年的独立测试，TTFT（首 token 延迟）：</p>
+<table>
+<thead>
+<tr>
+<th>平台</th>
+<th>小模型 TTFT</th>
+<th>大模型 TTFT</th>
+<th>P99 延迟</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fireworks</td>
+<td>~100ms</td>
+<td>~200ms</td>
+<td>~500ms</td>
+<td>最快</td>
+</tr>
+<tr>
+<td>Together AI</td>
+<td>~120ms</td>
+<td>~250ms</td>
+<td>~600ms</td>
+<td>极快</td>
+</tr>
+<tr>
+<td>Azure OpenAI</td>
+<td>~150ms</td>
+<td>~300ms</td>
+<td>~800ms</td>
+<td>稳定</td>
+</tr>
+<tr>
+<td>AWS Bedrock</td>
+<td>~200ms</td>
+<td>~400ms</td>
+<td>~1000ms</td>
+<td>取决于模型</td>
+</tr>
+<tr>
+<td>Vertex AI</td>
+<td>~180ms</td>
+<td>~350ms</td>
+<td>~900ms</td>
+<td>Gemini 最快</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ 延迟受区域、网络、并发量等因素影响，以上为典型值。来源：Artificial Analysis、独立基准测试。</p>
+</blockquote>
+<h3 id="23-uptime">2.3 可用性（Uptime）对比</h3>
+<table>
+<thead>
+<tr>
+<th>平台</th>
+<th>SLA 保证</th>
+<th>历史可用性</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Azure OpenAI</td>
+<td>99.9%</td>
+<td>~99.95%</td>
+<td>企业级 SLA</td>
+</tr>
+<tr>
+<td>AWS Bedrock</td>
+<td>99.9%</td>
+<td>~99.9%</td>
+<td>区域级 SLA</td>
+</tr>
+<tr>
+<td>Vertex AI</td>
+<td>99.9%</td>
+<td>~99.9%</td>
+<td>区域级 SLA</td>
+</tr>
+<tr>
+<td>Together AI</td>
+<td>99.9%</td>
+<td>~99.5%</td>
+<td>较新平台</td>
+</tr>
+<tr>
+<td>Fireworks</td>
+<td>99.9%</td>
+<td>~99.5%</td>
+<td>较新平台</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3">3. 定价对比</h2>
+<h3 id="31-1m-tokens">3.1 闭源模型定价（$/1M tokens）</h3>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>AWS Bedrock</th>
+<th>Azure OpenAI</th>
+<th>Vertex AI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPT-4o (输入)</td>
+<td>N/A</td>
+<td>$2.50</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>GPT-4o (输出)</td>
+<td>N/A</td>
+<td>$10.00</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>Claude 3.5 Sonnet (输入)</td>
+<td>$3.00</td>
+<td>N/A</td>
+<td>$3.00</td>
+</tr>
+<tr>
+<td>Claude 3.5 Sonnet (输出)</td>
+<td>$15.00</td>
+<td>N/A</td>
+<td>$15.00</td>
+</tr>
+<tr>
+<td>Gemini 2.0 Flash (输入)</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>$0.10</td>
+</tr>
+<tr>
+<td>Gemini 2.0 Flash (输出)</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>$0.40</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-1m-tokens">3.2 开源模型定价（$/1M tokens）</h3>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>AWS Bedrock</th>
+<th>Together AI</th>
+<th>Fireworks</th>
+<th>Vertex AI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Llama 3.1 8B (输入)</td>
+<td>$0.20</td>
+<td>$0.10</td>
+<td>$0.10</td>
+<td>$0.15</td>
+</tr>
+<tr>
+<td>Llama 3.1 8B (输出)</td>
+<td>$0.20</td>
+<td>$0.10</td>
+<td>$0.10</td>
+<td>$0.15</td>
+</tr>
+<tr>
+<td>Llama 3.1 70B (输入)</td>
+<td>$0.99</td>
+<td>$0.54</td>
+<td>$0.54</td>
+<td>$0.75</td>
+</tr>
+<tr>
+<td>Llama 3.1 70B (输出)</td>
+<td>$2.80</td>
+<td>$0.54</td>
+<td>$0.54</td>
+<td>$0.75</td>
+</tr>
+<tr>
+<td>Mixtral 8x22B (输入)</td>
+<td>$0.90</td>
+<td>$0.65</td>
+<td>$0.65</td>
+<td>$0.90</td>
+</tr>
+<tr>
+<td>Mixtral 8x22B (输出)</td>
+<td>$0.90</td>
+<td>$0.65</td>
+<td>$0.65</td>
+<td>$0.90</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ 定价随时可能调整，以上为 2025 年初参考价格，请以各平台官网为准。</p>
+</blockquote>
+<h3 id="33">3.3 成本优化策略</h3>
+<ol>
+<li><strong>模型选择</strong>：简单任务用小模型（如 Llama 8B 而非 70B）</li>
+<li><strong>批处理</strong>：Together AI 和 Fireworks 支持批量推理折扣</li>
+<li><strong>预留容量</strong>：Azure 和 AWS 提供预留折扣</li>
+<li><strong>缓存</strong>：Azure 的 Prompt Caching、Bedrock 的模型缓存</li>
+<li><strong>开源模型自托管</strong>：高用量场景下自部署更经济</li>
+</ol>
+<hr />
+<h2 id="4">4. 企业特性对比</h2>
+<h3 id="41">4.1 安全与合规</h3>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>AWS Bedrock</th>
+<th>Azure OpenAI</th>
+<th>Vertex AI</th>
+<th>Together AI</th>
+<th>Fireworks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SOC 2</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>HIPAA</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>GDPR</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>ISO 27001</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>FedRAMP</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>数据驻留</td>
+<td>区域级</td>
+<td>区域级</td>
+<td>区域级</td>
+<td>美国</td>
+<td>美国</td>
+</tr>
+<tr>
+<td>VNet/私网</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>客户管理密钥</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42">4.2 内容安全</h3>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>AWS Bedrock</th>
+<th>Azure OpenAI</th>
+<th>Vertex AI</th>
+<th>Together AI</th>
+<th>Fireworks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>内置内容过滤</td>
+<td>✅ Guardrails</td>
+<td>✅ Content Safety</td>
+<td>✅ Safety</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>自定义过滤器</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>审计日志</td>
+<td>✅ CloudTrail</td>
+<td>✅ Azure Monitor</td>
+<td>✅ Cloud Audit</td>
+<td>有限</td>
+<td>有限</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43">4.3 模型定制</h3>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>AWS Bedrock</th>
+<th>Azure OpenAI</th>
+<th>Vertex AI</th>
+<th>Together AI</th>
+<th>Fireworks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fine-tuning</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>自定义模型导入</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>RAG 托管服务</td>
+<td>✅ Knowledge Bases</td>
+<td>✅ (via Search)</td>
+<td>✅ Vector Search</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Agent 服务</td>
+<td>✅ Bedrock Agents</td>
+<td>✅ Assistants</td>
+<td>✅ Vertex Agents</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5">5. 多云策略建议</h2>
+<h3 id="51">5.1 为什么需要多云</h3>
+<ol>
+<li><strong>避免供应商锁定</strong>：单一供应商风险</li>
+<li><strong>模型覆盖</strong>：不同平台有不同的独占模型</li>
+<li><strong>成本优化</strong>：各平台价格差异大</li>
+<li><strong>合规要求</strong>：不同地区可能需要不同供应商</li>
+<li><strong>故障转移</strong>：一个平台故障可切换到另一个</li>
+</ol>
+<h3 id="52">5.2 多云架构模式</h3>
+<div class="highlight"><pre><span></span><code>                    ┌─────────────────────────┐
+                    │     AI Gateway Layer     │
+                    │  (LiteLLM / Portkey /    │
+                    │   自定义路由层)            │
+                    └────────┬────────────────┘
+                             │
+            ┌────────────────┼────────────────┐
+            │                │                │
+     ┌──────▼──────┐  ┌─────▼──────┐  ┌──────▼──────┐
+     │ Azure OpenAI │  │ AWS Bedrock│  │Together AI  │
+     │ (GPT-4o)     │  │ (Claude)   │  │(Llama 70B)  │
+     └─────────────┘  └────────────┘  └─────────────┘
+</code></pre></div>
+
+<h3 id="53-ai-gateway">5.3 AI Gateway 方案</h3>
+<p>使用 AI Gateway 统一管理多云 LLM 调用：</p>
+<p><strong>LiteLLM（开源）：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">litellm</span> <span class="kn">import</span> <span class="n">completion</span>
+
+<span class="c1"># 统一 API 调用不同平台</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">completion</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;azure/gpt-4o&quot;</span><span class="p">,</span>  <span class="c1"># Azure OpenAI</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello&quot;</span><span class="p">}]</span>
+<span class="p">)</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">completion</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;bedrock/anthropic.claude-3-5-sonnet&quot;</span><span class="p">,</span>  <span class="c1"># AWS Bedrock</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello&quot;</span><span class="p">}]</span>
+<span class="p">)</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">completion</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;together_ai/meta-llama/Llama-3.1-70B&quot;</span><span class="p">,</span>  <span class="c1"># Together AI</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello&quot;</span><span class="p">}]</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Portkey：</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">portkey_ai</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">portkey_ai</span><span class="o">.</span><span class="n">Portkey</span><span class="p">(</span>
+    <span class="n">provider</span><span class="o">=</span><span class="s2">&quot;openai&quot;</span><span class="p">,</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;azure-openai&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;retry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;attempts&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+        <span class="s2">&quot;cache&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="54">5.4 多云选型建议</h3>
+<table>
+<thead>
+<tr>
+<th>企业类型</th>
+<th>推荐策略</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>已深度使用 AWS</td>
+<td><strong>AWS Bedrock 为主</strong> + Together AI 备选</td>
+<td>生态集成 + 开源模型价格优势</td>
+</tr>
+<tr>
+<td>已深度使用 Azure</td>
+<td><strong>Azure OpenAI 为主</strong> + Fireworks 备选</td>
+<td>GPT 独占 + 低延迟开源模型</td>
+</tr>
+<tr>
+<td>已深度使用 GCP</td>
+<td><strong>Vertex AI 为主</strong></td>
+<td>Gemini 独占 + 全栈 ML 平台</td>
+</tr>
+<tr>
+<td>中立 / 初创</td>
+<td><strong>Together/Fireworks</strong> + 按需使用大平台</td>
+<td>成本最优</td>
+</tr>
+<tr>
+<td>高合规需求</td>
+<td><strong>Azure OpenAI</strong> 或 <strong>AWS Bedrock</strong></td>
+<td>合规认证最全</td>
+</tr>
+</tbody>
+</table>
+<h3 id="55">5.5 成本对比示例</h3>
+<p>假设月处理 10 亿 tokens（约 50% 输入 / 50% 输出）：</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>模型组合</th>
+<th>月成本估算</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>纯 GPT-4o (Azure)</td>
+<td>GPT-4o 全量</td>
+<td>~$6,250</td>
+</tr>
+<tr>
+<td>混合方案 1</td>
+<td>80% Llama 70B (Together) + 20% GPT-4o</td>
+<td>~$1,460</td>
+</tr>
+<tr>
+<td>混合方案 2</td>
+<td>80% Gemini Flash (Vertex) + 20% Claude Sonnet</td>
+<td>~$2,300</td>
+</tr>
+<tr>
+<td>纯开源 (Together)</td>
+<td>Llama 70B 全量</td>
+<td>~$540</td>
+</tr>
+<tr>
+<td>自部署</td>
+<td>Llama 70B on GPU</td>
+<td>GPU 成本（~$2,000-4,000/月）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_1">参考来源</h2>
+<ol>
+<li>AWS Bedrock 文档 — <a href="https://docs.aws.amazon.com/bedrock/">docs.aws.amazon.com/bedrock</a></li>
+<li>Azure OpenAI 文档 — <a href="https://learn.microsoft.com/en-us/azure/ai-services/openai/">learn.microsoft.com/en-us/azure/ai-services/openai</a></li>
+<li>Google Vertex AI 文档 — <a href="https://cloud.google.com/vertex-ai">cloud.google.com/vertex-ai</a></li>
+<li>Together AI — <a href="https://www.together.ai">together.ai</a></li>
+<li>Fireworks AI — <a href="https://fireworks.ai">fireworks.ai</a></li>
+<li>Artificial Analysis — <a href="https://artificialanalysis.ai">artificialanalysis.ai</a></li>
+<li>LiteLLM 文档 — <a href="https://docs.litellm.ai">docs.litellm.ai</a></li>
+</ol>
+<hr />
+<p><em>本报告基于 2025 年初各平台状态撰写，AI 云平台竞争激烈，定价和功能持续变化，请以各平台官网最新信息为准。</em></p>
+</body>
+</html>

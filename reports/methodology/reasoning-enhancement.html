@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>推理增强技术全景分析</title>
+    <style>
+body {
+    background: #0f172a;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
+h3 { color: #93c5fd; margin-top: 1.8rem; }
+h4 { color: #a5b4fc; }
+a { color: #60a5fa; text-decoration: none; }
+code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
+pre code { background: none; padding: 0; color: #e2e8f0; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
+th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
+tr:nth-child(even) { background: #1e293b44; }
+tr:hover { background: #1e293b; }
+hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
+strong { color: #f8fafc; }
+em { color: #94a3b8; }
+ul, ol { padding-left: 1.5rem; }
+li { margin: 0.3rem 0; }
+p { margin: 0.8rem 0; }
+</style>
+</head>
+<body>
+<h1>推理增强技术全景分析</h1>
+
+<h2>Executive Summary</h2>
+
+<p>大模型推理能力的提升是 AI 进步的核心战场。从 Chain-of-Thought 到 Tree-of-Thought，从 Self-Consistency 到 Process Reward Models，本文全景式梳理推理增强技术的演进路线，分析各方法的原理、优劣和适用场景，并展望 Test-Time Compute 等前沿方向。</p>
+
+<hr>
+
+<h2>1. Chain-of-Thought 及其变体</h2>
+
+<h3>1.1 基础 CoT</h3>
+
+<p><strong>核心思想</strong>: 让模型"一步一步想"，将推理过程显式化。</p>
+
+<pre><code>
+Q: 一个商店有 23 个苹果，卖了 17 个，又进了 6 个，现在有多少个？
+
+CoT: 
+步骤1: 初始有 23 个苹果
+步骤2: 卖了 17 个，剩余 23 - 17 = 6 个
+步骤3: 又进了 6 个，现有 6 + 6 = 12 个
+答案: 12 个苹果
+</code></pre>
+
+<p><strong>效果</strong>: 在 GSM8K（数学推理）上准确率从 17.9% → 58.1%</p>
+
+<h3>1.2 Zero-shot CoT</h3>
+
+<p>在问题后加 "Let's think step by step" 即可触发推理，无需示例。</p>
+
+<h3>1.3 Few-shot CoT</h3>
+
+<p>提供带推理过程的示例：</p>
+
+<pre><code>
+示例1: [问题] → [推理步骤] → [答案]
+示例2: [问题] → [推理步骤] → [答案]
+问题: [新问题] → ?
+</code></pre>
+
+<h3>1.4 Auto-CoT</h3>
+
+<p>自动生成 CoT 示例：</p>
+<p>1. 对问题进行聚类</p>
+<p>2. 每类选一个代表性问题</p>
+<p>3. 用 Zero-shot CoT 生成推理链</p>
+<p>4. 作为 Few-shot 示例</p>
+
+<hr>
+
+<h2>2. Tree-of-Thought (ToT)</h2>
+
+<h3>2.1 核心思想</h3>
+
+<p>将推理从线性链扩展为树状搜索：</p>
+
+<pre><code>
+         [问题]
+        /  |  \
+     [思路1] [思路2] [思路3]
+     / \      |      / \
+  [细化] [细化] [细化] [细化] [细化]
+   ↓评估   ↓评估   ↓评估   ↓评估   ↓评估
+  [最优路径选择]
+</code></pre>
+
+<h3>2.2 与 CoT 对比</h3>
+
+<table>
+<tr><th>维度</th><th>CoT</th><th>ToT</th></tr>
+<tr><td>搜索方式</td><td>贪心（单链）</td><td>树搜索（多分支）</td></tr>
+<tr><td>回退能力</td><td>❌ 不能回退</td><td>✅ 可回溯</td></tr>
+<tr><td>计算成本</td><td>1次前向</td><td>多次前向</td></tr>
+<tr><td>适用问题</td><td>简单推理</td><td>复杂规划、创意</td></tr>
+<tr><td>实现复杂度</td><td>低</td><td>高</td></tr>
+</table>
+
+<h3>2.3 关键组件</h3>
+
+<li><strong>思维分解</strong>: 将问题拆为可独立探索的子问题</li>
+<li><strong>思维评估</strong>: 用 LLM 评估每个思路的可行性（投票或打分）</li>
+<li><strong>搜索算法</strong>: BFS（广度优先）或 DFS（深度优先）</li>
+
+<hr>
+
+<h2>3. Graph-of-Thought (GoT)</h2>
+
+<h3>3.1 核心思想</h3>
+
+<p>进一步泛化为图结构，允许思路之间的<strong>合并、循环和交叉引用</strong>：</p>
+
+<pre><code>
+[思路A] → [思路B] → [合并] → [最终答案]
+    ↘       ↗
+     [思路C]
+</code></pre>
+
+<h3>3.2 优势</h3>
+
+<li>支持思路聚合（多个部分解合并）</li>
+<li>支持循环优化（迭代改进）</li>
+<li>比 ToT 更灵活的拓扑结构</li>
+
+<h3>3.3 适用场景</h3>
+
+<li>复杂问题分解与重组</li>
+<li>多方案综合</li>
+<li>迭代优化问题</li>
+
+<hr>
+
+<h2>4. Self-Consistency 与 Self-Refine</h2>
+
+<h3>4.1 Self-Consistency</h3>
+
+<p><strong>原理</strong>: 对同一问题采样多次推理路径，取多数投票结果。</p>
+
+<pre><code>
+采样1: 推理链A → 答案 X
+采样2: 推理链B → 答案 X
+采样3: 推理链C → 答案 Y
+采样4: 推理链D → 答案 X
+采样5: 推理链E → 答案 X
+
+最终答案: X (4/5 票)
+</code></pre>
+
+<p><strong>效果</strong>: GSM8K 准确率从 58.1% (CoT) → 74.4% (SC)</p>
+
+<p><strong>缺点</strong>: 计算成本 = 采样数 × 单次推理成本</p>
+
+<h3>4.2 Self-Refine</h3>
+
+<p><strong>原理</strong>: 迭代改进，生成 → 反馈 → 优化循环：</p>
+
+<pre><code>
+1. 初始回答: [模型生成]
+2. 自我反馈: [模型批评自己的回答]
+3. 精炼回答: [基于反馈改进]
+4. 重复 2-3 直到满意
+</code></pre>
+
+<p><strong>优势</strong>: 无需外部监督，自我迭代提升</p>
+<p><strong>劣势</strong>: 可能陷入局部最优</p>
+
+<hr>
+
+<h2>5. Process Reward Models (PRM)</h2>
+
+<h3>5.1 vs Outcome Reward Models (ORM)</h3>
+
+<table>
+<tr><th>类型</th><th>评估时机</th><th>信号粒度</th><th>训练数据</th></tr>
+<tr><td>ORM</td><td>最终答案</td><td>粗（对/错）</td><td>容易获取</td></tr>
+<tr><td>PRM</td><td>每个推理步骤</td><td>细（步骤对错）</td><td>需要标注</td></tr>
+</table>
+
+<h3>5.2 PRM 训练</h3>
+
+<p>1. 采样大量推理路径</p>
+<p>2. 标注每一步的正确性</p>
+<p>3. 训练模型预测步骤质量</p>
+<p>4. 在搜索中用 PRM 引导</p>
+
+<h3>5.3 应用</h3>
+
+<pre><code>
+MATH 问题 → 多条推理路径
+    ↓ PRM 评分每一步
+    ↓ 选最高分路径
+    → 正确率显著提升
+</code></pre>
+
+<hr>
+
+<h2>6. Test-Time Compute</h2>
+
+<h3>6.1 核心思想</h3>
+
+<p>与其花更多钱训练大模型，不如在推理时投入更多计算。</p>
+
+<p><strong>代表工作</strong>: OpenAI o1/o3 系列</p>
+
+<pre><code>
+传统: 训练时大算本 → 推理时快速输出
+o1: 适中训练成本 → 推理时深度思考
+</code></pre>
+
+<h3>6.2 实现策略</h3>
+
+<p>1. <strong>长链推理</strong>: 生成超长推理链（数千 token）</p>
+<p>2. <strong>搜索 + 验证</strong>: 多路径搜索 + PRM 引导</p>
+<p>3. <strong>自我验证</strong>: 生成答案后自我检验</p>
+<p>4. <strong>迭代优化</strong>: 多轮改进直到收敛</p>
+
+<h3>6.3 Scaling Law</h3>
+
+<pre><code>
+模型性能 = f(训练算力, 推理算力)
+
+发现: 在相同总成本下，
+      训练小模型 + 推理时多算 &gt; 训练大模型 + 快速推理
+</code></pre>
+
+<h3>6.4 对比</h3>
+
+<table>
+<tr><th>模型</th><th>训练成本</th><th>推理成本</th><th>MATH 准确率</th></tr>
+<tr><td>GPT-4</td><td>极高</td><td>低</td><td>~50%</td></tr>
+<tr><td>o1-mini</td><td>中</td><td>中</td><td>~70%</td></tr>
+<tr><td>o1</td><td>高</td><td>高</td><td>~83%</td></tr>
+<tr><td>o3</td><td>高</td><td>极高</td><td>~88%</td></tr>
+</table>
+
+<hr>
+
+<h2>7. 技术选型建议</h2>
+
+<table>
+<tr><th>场景</th><th>推荐方法</th><th>理由</th></tr>
+<tr><td>简单推理</td><td>CoT (Zero-shot)</td><td>简单高效</td></tr>
+<tr><td>数学/逻辑</td><td>CoT + Self-Consistency</td><td>效果好</td></tr>
+<tr><td>复杂规划</td><td>Tree-of-Thought</td><td>支持回溯</td></tr>
+<tr><td>需要高准确率</td><td>PRM + 搜索</td><td>细粒度引导</td></tr>
+<tr><td>成本敏感</td><td>o1-mini</td><td>性价比最优</td></tr>
+<tr><td>极限性能</td><td>o3 + PRM</td><td>不计成本</td></tr>
+</table>
+
+<hr>
+
+<h2>参考来源</h2>
+
+<p>1. Wei, J. et al. "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models" (2022) — Google, NeurIPS 2022</p>
+<p>2. Yao, S. et al. "Tree of Thoughts: Deliberate Problem Solving with Large Language Models" (2023) — Princeton</p>
+<p>3. Besta, M. et al. "Graph of Thoughts: Solving Elaborate Problems with Large Language Models" (2023) — ETH Zurich</p>
+<p>4. Wang, X. et al. "Self-Consistency Improves Chain of Thought Reasoning in Language Models" (2023) — Google</p>
+<p>5. Lightman, H. et al. "Let's Verify Step by Step" (2023) — OpenAI</p>
+
+</body>
+</html>

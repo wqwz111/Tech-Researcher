@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vLLM 生产部署完全指南</title>
+    <style>
+body {
+    background: #0f172a;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
+h3 { color: #93c5fd; margin-top: 1.8rem; }
+h4 { color: #a5b4fc; }
+a { color: #60a5fa; text-decoration: none; }
+a:hover { text-decoration: underline; }
+code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
+pre code { background: none; padding: 0; color: #e2e8f0; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
+th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
+tr:nth-child(even) { background: #1e293b44; }
+tr:hover { background: #1e293b; }
+hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
+strong { color: #f8fafc; }
+em { color: #94a3b8; }
+ul, ol { padding-left: 1.5rem; }
+li { margin: 0.3rem 0; }
+p { margin: 0.8rem 0; }
+</style>
+</head>
+<body>
+<h1 id="vllm">vLLM 生产部署完全指南</h1>
+<blockquote>
+<p>发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
+</blockquote>
+<hr />
+<h2 id="executive-summary">Executive Summary</h2>
+<p>vLLM 是当前最受欢迎的开源 LLM 推理引擎，以其创新的 PagedAttention 技术和活跃的社区生态著称。本指南从架构原理出发，系统覆盖部署配置、性能调优、多租户管理、监控运维等生产部署的全生命周期。</p>
+<p><strong>核心结论：</strong>
+- PagedAttention 通过分页式 KV Cache 管理，将显存利用率提升 2-4 倍
+- 生产部署需要系统性调优：批处理参数、内存配置、并行策略
+- 多模型和多租户场景通过 Ray Serve 或 K8s 部署方案实现
+- 完善的监控体系（Prometheus + Grafana）是稳定运维的基础</p>
+<hr />
+<h2 id="1">1. 架构与核心优化</h2>
+<h3 id="11-pagedattention">1.1 PagedAttention 原理</h3>
+<p>PagedAttention 是 vLLM 的核心创新，灵感来自操作系统的虚拟内存分页机制。</p>
+<p><strong>传统 KV Cache 问题：</strong>
+- 预分配最大序列长度的连续显存
+- 实际使用量远小于分配量（通常只用 20-40%）
+- 显存碎片化严重，无法共享</p>
+<p><strong>PagedAttention 解决方案：</strong></p>
+<div class="highlight"><pre><span></span><code>┌─────────────────────────────────────────────┐
+│                GPU 显存池                    │
+│  ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐ │
+│  │ B0│ B1│ B2│ B3│ B4│ B5│ B6│ B7│   │   │ │  B = Block
+│  └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘ │
+│       ↑       ↑               ↑             │
+│  ┌────┴───┐  ┌┴──────┐  ┌────┴────┐        │
+│  │ Seq A  │  │ Seq B  │  │ Seq C   │        │  Block Table
+│  │ [0,3,7]│  │ [1,5]  │  │ [2,4,6,8]│       │
+│  └────────┘  └────────┘  └─────────┘        │
+└─────────────────────────────────────────────┘
+</code></pre></div>
+
+<p><strong>关键优势：</strong>
+- <strong>按需分配</strong>：只分配实际需要的 block
+- <strong>零碎片</strong>：block 可以不连续，消除内部碎片
+- <strong>共享前缀</strong>：多个序列可共享相同前缀的 KV block（如 Beam Search）
+- <strong>Copy-on-Write</strong>：需要修改时才复制共享 block</p>
+<h3 id="12-continuous-batching">1.2 Continuous Batching</h3>
+<p>Continuous Batching（持续批处理）也称 iteration-level scheduling：</p>
+<div class="highlight"><pre><span></span><code><span class="err">传统静态批处理</span><span class="o">:</span>
+<span class="err">请求</span><span class="mi">1</span><span class="o">:</span><span class="w"> </span><span class="o">[==========]</span><span class="w"> </span><span class="err">完成</span>
+<span class="err">请求</span><span class="mi">2</span><span class="o">:</span><span class="w"> </span><span class="o">[==================]</span><span class="w"> </span><span class="err">完成</span><span class="w">  </span>
+<span class="err">请求</span><span class="mi">3</span><span class="o">:</span><span class="w"> </span><span class="o">[============]</span><span class="w"> </span><span class="err">完成</span>
+<span class="n">GPU</span><span class="w"> </span><span class="err">利用率</span><span class="o">:</span><span class="w"> </span><span class="err">████████░░░░░░░░</span><span class="w"> </span><span class="o">(</span><span class="err">低，等待最长请求</span><span class="o">)</span>
+
+<span class="n">Continuous</span><span class="w"> </span><span class="n">Batching</span><span class="o">:</span>
+<span class="n">Step</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span><span class="w"> </span><span class="o">[</span><span class="n">Req1</span><span class="o">,</span><span class="w"> </span><span class="n">Req2</span><span class="o">,</span><span class="w"> </span><span class="n">Req3</span><span class="o">]</span>
+<span class="n">Step</span><span class="w"> </span><span class="mi">2</span><span class="o">:</span><span class="w"> </span><span class="o">[</span><span class="n">Req1</span><span class="o">,</span><span class="w"> </span><span class="n">Req2</span><span class="o">,</span><span class="w"> </span><span class="n">Req4</span><span class="o">]</span><span class="w"> </span><span class="err">←</span><span class="w"> </span><span class="n">Req3</span><span class="w"> </span><span class="err">完成，</span><span class="n">Req4</span><span class="w"> </span><span class="err">加入</span>
+<span class="n">Step</span><span class="w"> </span><span class="mi">3</span><span class="o">:</span><span class="w"> </span><span class="o">[</span><span class="n">Req2</span><span class="o">,</span><span class="w"> </span><span class="n">Req4</span><span class="o">,</span><span class="w"> </span><span class="n">Req5</span><span class="o">]</span><span class="w"> </span><span class="err">←</span><span class="w"> </span><span class="n">Req1</span><span class="w"> </span><span class="err">完成，</span><span class="n">Req5</span><span class="w"> </span><span class="err">加入</span>
+<span class="n">GPU</span><span class="w"> </span><span class="err">利用率</span><span class="o">:</span><span class="w"> </span><span class="err">████████████████</span><span class="w"> </span><span class="o">(</span><span class="err">高，始终满载</span><span class="o">)</span>
+</code></pre></div>
+
+<h3 id="13">1.3 架构组件</h3>
+<div class="highlight"><pre><span></span><code><span class="err">┌──────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">              </span><span class="n">API</span><span class="w"> </span><span class="n">Server</span><span class="w">                   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="p">(</span><span class="n">OpenAI</span><span class="o">-</span><span class="n">compatible</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">Raw</span><span class="w"> </span><span class="n">API</span><span class="p">)</span><span class="w">           </span><span class="err">│</span>
+<span class="err">├──────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w">            </span><span class="n">AsyncEngine</span><span class="w">                    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">┌──────────────┐</span><span class="w"> </span><span class="err">┌───────────────────┐</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="n">Scheduler</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w">  </span><span class="n">Tokenizer</span><span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="p">(</span><span class="n">Batching</span><span class="p">)</span><span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w">  </span><span class="p">(</span><span class="n">Encoding</span><span class="o">/</span><span class="n">Decoding</span><span class="p">)</span><span class="err">│</span><span class="w"> </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└──────────────┘</span><span class="w"> </span><span class="err">└───────────────────┘</span><span class="w">  </span><span class="err">│</span>
+<span class="err">├──────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w">           </span><span class="n">Model</span><span class="w"> </span><span class="n">Runner</span><span class="w">                    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">┌──────────────┐</span><span class="w"> </span><span class="err">┌───────────────────┐</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="n">Worker</span><span class="w">       </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w">  </span><span class="n">KV</span><span class="w"> </span><span class="n">Cache</span><span class="w"> </span><span class="n">Manager</span><span class="w"> </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="p">(</span><span class="n">Model</span><span class="w"> </span><span class="n">Exec</span><span class="p">)</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w">  </span><span class="p">(</span><span class="n">PagedAttention</span><span class="p">)</span><span class="w"> </span><span class="err">│</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">└──────────────┘</span><span class="w"> </span><span class="err">└───────────────────┘</span><span class="w">  </span><span class="err">│</span>
+<span class="err">├──────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w">          </span><span class="n">GPU</span><span class="w"> </span><span class="n">Memory</span><span class="w">                       </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="p">[</span><span class="n">Model</span><span class="w"> </span><span class="n">Weights</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="n">KV</span><span class="w"> </span><span class="n">Cache</span><span class="w"> </span><span class="n">Blocks</span><span class="p">]</span><span class="w">       </span><span class="err">│</span>
+<span class="err">└──────────────────────────────────────────┘</span>
+</code></pre></div>
+
+<hr />
+<h2 id="2">2. 部署配置与调优</h2>
+<h3 id="21">2.1 基础部署</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 最简部署</span>
+vllm<span class="w"> </span>serve<span class="w"> </span>meta-llama/Llama-3.1-8B-Instruct
+
+<span class="c1"># 生产推荐配置</span>
+vllm<span class="w"> </span>serve<span class="w"> </span>meta-llama/Llama-3.1-70B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--port<span class="w"> </span><span class="m">8000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--tensor-parallel-size<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-model-len<span class="w"> </span><span class="m">8192</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.90<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-num-seqs<span class="w"> </span><span class="m">256</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--enable-chunked-prefill<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--disable-log-requests
+</code></pre></div>
+
+<h3 id="22">2.2 关键参数详解</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>默认值</th>
+<th>推荐值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--tensor-parallel-size</code></td>
+<td>1</td>
+<td>GPU 数量</td>
+<td>张量并行度</td>
+</tr>
+<tr>
+<td><code>--gpu-memory-utilization</code></td>
+<td>0.9</td>
+<td>0.85-0.95</td>
+<td>GPU 显存使用比例</td>
+</tr>
+<tr>
+<td><code>--max-model-len</code></td>
+<td>模型最大</td>
+<td>按需限制</td>
+<td>最大序列长度</td>
+</tr>
+<tr>
+<td><code>--max-num-seqs</code></td>
+<td>256</td>
+<td>128-512</td>
+<td>最大并发序列数</td>
+</tr>
+<tr>
+<td><code>--enable-chunked-prefill</code></td>
+<td>False</td>
+<td>True</td>
+<td>分块预填充</td>
+</tr>
+<tr>
+<td><code>--enable-prefix-caching</code></td>
+<td>False</td>
+<td>True</td>
+<td>前缀缓存</td>
+</tr>
+<tr>
+<td><code>--swap-space</code></td>
+<td>4GB</td>
+<td>4-16GB</td>
+<td>CPU swap 空间</td>
+</tr>
+<tr>
+<td><code>--max-num-batched-tokens</code></td>
+<td>8192</td>
+<td>4096-16384</td>
+<td>每批最大 token 数</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23">2.3 性能调优策略</h3>
+<p><strong>高吞吐量场景：</strong></p>
+<div class="highlight"><pre><span></span><code>vllm<span class="w"> </span>serve<span class="w"> </span>model<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-num-seqs<span class="w"> </span><span class="m">512</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-num-batched-tokens<span class="w"> </span><span class="m">16384</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--enable-chunked-prefill<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.95<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--swap-space<span class="w"> </span><span class="m">8</span>
+</code></pre></div>
+
+<p><strong>低延迟场景：</strong></p>
+<div class="highlight"><pre><span></span><code>vllm<span class="w"> </span>serve<span class="w"> </span>model<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-num-seqs<span class="w"> </span><span class="m">64</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-num-batched-tokens<span class="w"> </span><span class="m">4096</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--enable-prefix-caching<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.90
+</code></pre></div>
+
+<p><strong>长上下文场景：</strong></p>
+<div class="highlight"><pre><span></span><code>vllm<span class="w"> </span>serve<span class="w"> </span>model<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-model-len<span class="w"> </span><span class="m">32768</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.95<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--swap-space<span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-num-seqs<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--enable-chunked-prefill
+</code></pre></div>
+
+<h3 id="24">2.4 量化部署</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># AWQ 量化模型</span>
+vllm<span class="w"> </span>serve<span class="w"> </span>TheBloke/Llama-3.1-70B-AWQ<span class="w"> </span>--quantization<span class="w"> </span>awq
+
+<span class="c1"># GPTQ 量化模型</span>
+vllm<span class="w"> </span>serve<span class="w"> </span>TheBloke/Llama-3.1-70B-GPTQ<span class="w"> </span>--quantization<span class="w"> </span>gptq
+
+<span class="c1"># FP8 量化（H100/A100 80GB）</span>
+vllm<span class="w"> </span>serve<span class="w"> </span>meta-llama/Llama-3.1-70B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--quantization<span class="w"> </span>fp8<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--kv-cache-dtype<span class="w"> </span>fp8
+</code></pre></div>
+
+<hr />
+<h2 id="3">3. 多模型与多租户</h2>
+<h3 id="31">3.1 多模型部署方案</h3>
+<p><strong>方案 A：多实例 + 负载均衡</strong></p>
+<div class="highlight"><pre><span></span><code>                    ┌─→ vLLM Instance 1 (Model A)
+Client → Nginx/LB ──┼─→ vLLM Instance 2 (Model B)
+                    └─→ vLLM Instance 3 (Model C)
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Nginx 配置示例</span>
+<span class="k">upstream</span><span class="w"> </span><span class="s">model_a</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kn">server</span><span class="w"> </span><span class="n">127.0.0.1</span><span class="p">:</span><span class="mi">8001</span><span class="p">;</span>
+<span class="w">    </span><span class="kn">server</span><span class="w"> </span><span class="n">127.0.0.1</span><span class="p">:</span><span class="mi">8002</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">upstream</span><span class="w"> </span><span class="s">model_b</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kn">server</span><span class="w"> </span><span class="n">127.0.0.1</span><span class="p">:</span><span class="mi">8003</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>方案 B：Ray Serve 多模型</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">serve</span>
+<span class="kn">from</span> <span class="nn">vllm</span> <span class="kn">import</span> <span class="n">LLM</span>
+
+<span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ray_actor_options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;num_gpus&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">})</span>
+<span class="k">class</span> <span class="nc">Llama70B</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">llm</span> <span class="o">=</span> <span class="n">LLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span> <span class="n">tensor_parallel_size</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">([</span><span class="n">prompt</span><span class="p">[</span><span class="s2">&quot;prompt&quot;</span><span class="p">]])</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">}</span>
+
+<span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ray_actor_options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;num_gpus&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+<span class="k">class</span> <span class="nc">Llama8B</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">llm</span> <span class="o">=</span> <span class="n">LLM</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Llama-3.1-8B-Instruct&quot;</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">([</span><span class="n">prompt</span><span class="p">[</span><span class="s2">&quot;prompt&quot;</span><span class="p">]])</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">}</span>
+
+<span class="c1"># 部署</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">Llama70B</span><span class="o">.</span><span class="n">bind</span><span class="p">()</span>
+<span class="n">serve</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">route_prefix</span><span class="o">=</span><span class="s2">&quot;/v1/chat/completions/llama-70b&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="32">3.2 多租户隔离</h3>
+<p><strong>资源隔离策略：</strong>
+- 独立 GPU 分配：不同租户使用不同 GPU
+- 速率限制：通过 API Gateway 限制每租户 QPS
+- 优先级队列：vLLM 支持请求优先级（<code>priority</code> 参数）</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 通过 API Gateway（如 Kong）实施租户限流</span>
+<span class="c1"># 每个租户有独立的 API Key，映射到不同的速率限制</span>
+
+<span class="c1"># vLLM 端接收优先级</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;llama-70b&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">],</span>
+    <span class="n">extra_body</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>  <span class="c1"># 高优先级</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="33-kubernetes">3.3 Kubernetes 部署</h3>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm-llama-70b</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm-llama-70b</span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm-llama-70b</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">containers</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm</span>
+<span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm/vllm-openai:latest</span>
+<span class="w">        </span><span class="nt">args</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--model&quot;</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;meta-llama/Llama-3.1-70B-Instruct&quot;</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--tensor-parallel-size&quot;</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;4&quot;</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--gpu-memory-utilization&quot;</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;0.90&quot;</span>
+<span class="w">        </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8000</span>
+<span class="w">        </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">limits</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">nvidia.com/gpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+<span class="w">          </span><span class="nt">requests</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">nvidia.com/gpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+<span class="w">        </span><span class="nt">livenessProbe</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">httpGet</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/health</span>
+<span class="w">            </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8000</span>
+<span class="w">          </span><span class="nt">initialDelaySeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span>
+<span class="w">          </span><span class="nt">periodSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">        </span><span class="nt">readinessProbe</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">httpGet</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/health</span>
+<span class="w">            </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8000</span>
+<span class="w">          </span><span class="nt">initialDelaySeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
+<span class="w">          </span><span class="nt">periodSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm-llama-70b</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm-llama-70b</span>
+<span class="w">  </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8000</span>
+<span class="w">    </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8000</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterIP</span>
+</code></pre></div>
+
+<hr />
+<h2 id="4">4. 监控与运维</h2>
+<h3 id="41-prometheus">4.1 Prometheus 指标</h3>
+<p>vLLM 原生暴露 Prometheus 指标（<code>--enable-metrics</code>）：</p>
+<table>
+<thead>
+<tr>
+<th>指标名称</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vllm:num_requests_running</code></td>
+<td>Gauge</td>
+<td>正在运行的请求数</td>
+</tr>
+<tr>
+<td><code>vllm:num_requests_waiting</code></td>
+<td>Gauge</td>
+<td>等待中的请求数</td>
+</tr>
+<tr>
+<td><code>vllm:gpu_cache_usage_perc</code></td>
+<td>Gauge</td>
+<td>KV Cache 使用率</td>
+</tr>
+<tr>
+<td><code>vllm:avg_generation_throughput</code></td>
+<td>Gauge</td>
+<td>平均生成吞吐量</td>
+</tr>
+<tr>
+<td><code>vllm:e2e_request_latency</code></td>
+<td>Histogram</td>
+<td>端到端请求延迟</td>
+</tr>
+<tr>
+<td><code>vllm:time_to_first_token</code></td>
+<td>Histogram</td>
+<td>TTFT 分布</td>
+</tr>
+<tr>
+<td><code>vllm:time_per_output_token</code></td>
+<td>Histogram</td>
+<td>每 token 生成时间</td>
+</tr>
+<tr>
+<td><code>vllm:num_preemptions_total</code></td>
+<td>Counter</td>
+<td>抢占次数（OOM 前兆）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-grafana-dashboard">4.2 Grafana Dashboard</h3>
+<p>推荐监控面板布局：</p>
+<div class="highlight"><pre><span></span><code>┌──────────────────┬──────────────────┐
+│  Requests        │  GPU Cache       │
+│  Running/Waiting │  Usage %         │
+├──────────────────┼──────────────────┤
+│  Throughput      │  Latency         │
+│  (tok/s)         │  (TTFT + TPOT)   │
+├──────────────────┼──────────────────┤
+│  Token Usage     │  Error Rate      │
+│  (input/output)  │  (4xx/5xx)       │
+└──────────────────┴──────────────────┘
+</code></pre></div>
+
+<h3 id="43">4.3 日志配置</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 日志级别控制</span>
+<span class="nv">VLLM_LOG_LEVEL</span><span class="o">=</span>INFO<span class="w">  </span><span class="c1"># DEBUG / INFO / WARNING / ERROR</span>
+
+<span class="c1"># 结构化日志（JSON 格式）</span>
+<span class="nv">VLLM_LOGGING_FORMAT_PATH</span><span class="o">=</span>/path/to/logging_config.json
+
+<span class="c1"># 关闭请求日志（生产环境）</span>
+--disable-log-requests
+</code></pre></div>
+
+<h3 id="44">4.4 常见问题排查</h3>
+<p><strong>问题 1：OOM（Out of Memory）</strong></p>
+<div class="highlight"><pre><span></span><code>症状：CUDA OOM error / 频繁抢占
+排查：
+  1. 检查 gpu_memory_utilization 是否过高
+  2. 减少 max_num_seqs
+  3. 减少 max_model_len
+  4. 启用量化
+  5. 增加 swap_space
+</code></pre></div>
+
+<p><strong>问题 2：高延迟</strong></p>
+<div class="highlight"><pre><span></span><code>症状：TTFT &gt; 2s / 生成速度 &lt; 20 tok/s
+排查：
+  1. 检查排队长度（num_requests_waiting）
+  2. 检查 GPU 利用率
+  3. 启用 chunked_prefill
+  4. 检查是否在进行 swap（频繁 swap 说明显存不足）
+  5. 考虑增加 GPU 副本
+</code></pre></div>
+
+<p><strong>问题 3：输出质量下降</strong></p>
+<div class="highlight"><pre><span></span><code><span class="nx">症状</span><span class="err">：</span><span class="nx">生成内容异常</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nx">重复</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nx">截断</span>
+<span class="nx">排查</span><span class="err">：</span>
+<span class="w">  </span><span class="mi">1</span><span class="p">.</span><span class="w"> </span><span class="nx">检查</span><span class="w"> </span><span class="nx">max_tokens</span><span class="w"> </span><span class="nx">是否被截断</span>
+<span class="w">  </span><span class="mi">2</span><span class="p">.</span><span class="w"> </span><span class="nx">检查量化精度</span><span class="err">（</span><span class="nx">尝试</span><span class="w"> </span><span class="nx">FP16</span><span class="w"> </span><span class="nx">验证</span><span class="err">）</span>
+<span class="w">  </span><span class="mi">3</span><span class="p">.</span><span class="w"> </span><span class="nx">确认模型加载正确</span>
+<span class="w">  </span><span class="mi">4</span><span class="p">.</span><span class="w"> </span><span class="nx">检查</span><span class="w"> </span><span class="nx">KV</span><span class="w"> </span><span class="nx">Cache</span><span class="w"> </span><span class="nx">dtype</span><span class="w"> </span><span class="nx">是否匹配</span>
+</code></pre></div>
+
+<p><strong>问题 4：模型加载缓慢</strong></p>
+<div class="highlight"><pre><span></span><code><span class="err">症状：启动时间</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="err">分钟</span>
+<span class="err">排查：</span>
+<span class="w">  </span><span class="mf">1.</span><span class="w"> </span><span class="err">使用更快的存储（</span><span class="n">NVMe</span><span class="w"> </span><span class="n">SSD</span><span class="err">）</span>
+<span class="w">  </span><span class="mf">2.</span><span class="w"> </span><span class="err">设置</span><span class="w"> </span><span class="n">VLLM_USE_MODELSCOPE</span><span class="o">=</span><span class="bp">false</span><span class="w"> </span><span class="err">或</span><span class="w"> </span><span class="bp">true</span>
+<span class="w">  </span><span class="mf">3.</span><span class="w"> </span><span class="err">启用</span><span class="w"> </span><span class="o">--</span><span class="nb">load</span><span class="o">-</span><span class="n">format</span><span class="w"> </span><span class="n">sharded</span><span class="err">（分片加载）</span>
+<span class="w">  </span><span class="mf">4.</span><span class="w"> </span><span class="err">检查网络带宽（从</span><span class="w"> </span><span class="n">HuggingFace</span><span class="w"> </span><span class="err">下载）</span>
+</code></pre></div>
+
+<hr />
+<h2 id="5">5. 高级特性</h2>
+<h3 id="51-speculative-decoding">5.1 Speculative Decoding</h3>
+<p>投机解码使用小模型快速生成候选 token，大模型并行验证：</p>
+<div class="highlight"><pre><span></span><code>vllm<span class="w"> </span>serve<span class="w"> </span>meta-llama/Llama-3.1-70B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--speculative-model<span class="w"> </span>meta-llama/Llama-3.2-1B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--num-speculative-tokens<span class="w"> </span><span class="m">5</span>
+</code></pre></div>
+
+<p>效果：可提升 1.5-2.5x 吞吐量，对长输出效果更显著。</p>
+<h3 id="52-prefix-caching">5.2 Prefix Caching</h3>
+<p>自动缓存共享前缀的 KV Cache，适用于：
+- 多用户共享相同系统提示
+- 多轮对话中重复的历史上下文
+- RAG 应用中的文档前缀</p>
+<div class="highlight"><pre><span></span><code>vllm<span class="w"> </span>serve<span class="w"> </span>model<span class="w"> </span>--enable-prefix-caching
+</code></pre></div>
+
+<h3 id="53-multi-lora">5.3 Multi-LoRA</h3>
+<p>支持动态加载多个 LoRA 适配器，无需重启服务：</p>
+<div class="highlight"><pre><span></span><code>vllm<span class="w"> </span>serve<span class="w"> </span>base-model<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--enable-lora<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--lora-modules<span class="w"> </span><span class="nv">lora_a</span><span class="o">=</span>./lora_a<span class="w"> </span><span class="nv">lora_b</span><span class="o">=</span>./lora_b<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-lora-rank<span class="w"> </span><span class="m">64</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># 使用指定 LoRA</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;base-model&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">],</span>
+    <span class="n">extra_body</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;lora_a&quot;</span><span class="p">}</span>  <span class="c1"># 使用 lora_a 适配器</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_1">参考来源</h2>
+<ol>
+<li>vLLM 官方文档 — <a href="https://docs.vllm.ai">docs.vllm.ai</a></li>
+<li>PagedAttention 论文 — Kwon et al., "Efficient Memory Management for Large Language Model Serving with PagedAttention", SOSP 2023</li>
+<li>vLLM GitHub — <a href="https://github.com/vllm-project/vllm">github.com/vllm-project/vllm</a></li>
+<li>vLLM 博客 — <a href="https://blog.vllm.ai">blog.vllm.ai</a></li>
+</ol>
+<hr />
+<p><em>本指南基于 vLLM v0.6.x 版本撰写，vLLM 迭代快速，建议关注 GitHub Release Notes 获取最新特性。</em></p>
+</body>
+</html>
