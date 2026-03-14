@@ -20,8 +20,6 @@ Model Context Protocol (MCP) 是 Anthropic 于 2024 年 11 月发布的开放协
 
 在 MCP 出现之前，每个 AI 应用都需要为每个工具编写定制集成代码：
 
-```
-Before MCP:
 ```mermaid
 flowchart LR
     subgraph Before["❌ MCP 之前"]
@@ -38,18 +36,6 @@ flowchart LR
         MC2 <--> MS2[MCP Server 2]
         MS2 <--> TT2[Tool 2]
     end
-```
-
-```
-Before MCP:
-App A ←→ Tool 1 (custom)
-App A ←→ Tool 2 (custom)
-App B ←→ Tool 1 (rewrite)
-App B ←→ Tool 2 (rewrite)
-
-After MCP:
-App A ←→ MCP Client ←→ MCP Server 1 ←→ Tool 1
-App B ←→ MCP Client ←→ MCP Server 2 ←→ Tool 2
 ```
 
 MCP 的核心价值是**解耦**: 工具提供方只需实现一次 MCP Server，任何 MCP Client 都可以使用。
