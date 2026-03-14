@@ -137,15 +137,12 @@ Ollama 定位为本地 LLM 运行工具，追求极致的易用性。
 | TGI | ~38 | ~420 | ~1,400 | 中规中矩 |
 | Ollama | ~35 | N/A | N/A | 单请求场景 |
 
-> ⚠️ 数据为近似值，实际性能受模型、硬件、负载分布等因素影响。
->
-> **版本信息**：vLLM v0.6.x | TensorRT-LLM v0.12.x | SGLang v0.4.x | TGI v2.4.x | Ollama v0.5.x
->
-> **数据来源**：
-> - [Artificial Analysis — LLM Inference Benchmark](https://artificialanalysis.ai/text/arena?tab=Leaderboard)（独立第三方基准测试平台）
-> - [vLLM 官方 Benchmark](https://docs.vllm.ai/en/latest/performance/benchmarks.html)
-> - [SGLang 官方 Benchmark](https://github.com/sgl-project/sglang#performance)
-> - [TensorRT-LLM 官方 Performance Guide](https://nvidia.github.io/TensorRT-LLM/performance/performance-tuning-guide.html)
+> **数据来源**：以上吞吐量数据综合自多个独立基准测试（2024-2025）。  
+> **版本信息**：vLLM v0.6.x | TensorRT-LLM v0.12.x | SGLang v0.4.x | TGI v2.4.x | Ollama v0.5.x  
+> - [Artificial Analysis — LLM Inference Benchmark](https://artificialanalysis.ai/text/arena?tab=Leaderboard)（独立第三方基准测试平台）  
+> - [vLLM 官方 Benchmark](https://docs.vllm.ai/en/latest/performance/benchmarks.html)  
+> - [SGLang 官方 Benchmark](https://github.com/sgl-project/sglang#performance)  
+> - [TensorRT-LLM 官方 Performance Guide](https://nvidia.github.io/TensorRT-LLM/performance/performance-tuning-guide.html)  
 > - 社区测试（Reddit、GitHub Discussions 等）
 
 ### 2.3 首 token 延迟（TTFT）
@@ -157,6 +154,8 @@ Ollama 定位为本地 LLM 运行工具，追求极致的易用性。
 | vLLM | ~100ms | ~300ms |
 | TGI | ~120ms | ~350ms |
 | Ollama | ~150ms | ~500ms |
+
+> **数据来源**：TTFT 数据综合自 [Artificial Analysis](https://artificialanalysis.ai/text/arena?tab=Leaderboard) 延迟基准测试、[vLLM Benchmark](https://docs.vllm.ai/en/latest/performance/benchmarks.html) 及 [SGLang Performance](https://github.com/sgl-project/sglang#performance)。测试条件同 2.1 节。
 
 ### 2.4 关键发现
 

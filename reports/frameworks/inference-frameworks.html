@@ -237,16 +237,18 @@ strong { color: var(--text); }
 <tr><td>Ollama</td><td>~35</td><td>N/A</td><td>N/A</td><td>单请求场景</td></tr>
 </table>
 
-<p>> ⚠️ 数据为近似值，实际性能受模型、硬件、负载分布等因素影响。</p>
-<p>></p>
-<p>> <strong>版本信息</strong>：vLLM v0.6.x | TensorRT-LLM v0.12.x | SGLang v0.4.x | TGI v2.4.x | Ollama v0.5.x</p>
-<p>></p>
-<p>> <strong>数据来源</strong>：</p>
-<p>> - <a href="https://artificialanalysis.ai/text/arena?tab=Leaderboard">Artificial Analysis — LLM Inference Benchmark</a>（独立第三方基准测试平台）</p>
-<p>> - <a href="https://docs.vllm.ai/en/latest/performance/benchmarks.html">vLLM 官方 Benchmark</a></p>
-<p>> - <a href="https://github.com/sgl-project/sglang#performance">SGLang 官方 Benchmark</a></p>
-<p>> - <a href="https://nvidia.github.io/TensorRT-LLM/performance/performance-tuning-guide.html">TensorRT-LLM 官方 Performance Guide</a></p>
-<p>> - 社区测试（Reddit、GitHub Discussions 等）</p>
+<div class="callout">
+  <p>⚠️ 数据为近似值，实际性能受模型、硬件、负载分布等因素影响。</p>
+  <p><strong>版本信息</strong>：vLLM v0.6.x | TensorRT-LLM v0.12.x | SGLang v0.4.x | TGI v2.4.x | Ollama v0.5.x</p>
+  <p><strong>数据来源</strong>：</p>
+  <ul>
+    <li><a href="https://artificialanalysis.ai/text/arena?tab=Leaderboard">Artificial Analysis — LLM Inference Benchmark</a>（独立第三方基准测试平台）</li>
+    <li><a href="https://docs.vllm.ai/en/latest/performance/benchmarks.html">vLLM 官方 Benchmark</a></li>
+    <li><a href="https://github.com/sgl-project/sglang#performance">SGLang 官方 Benchmark</a></li>
+    <li><a href="https://nvidia.github.io/TensorRT-LLM/performance/performance-tuning-guide.html">TensorRT-LLM 官方 Performance Guide</a></li>
+    <li>社区测试（Reddit、GitHub Discussions 等）</li>
+  </ul>
+</div>
 
 <h3 id="23-首-token-延迟ttft">2.3 首 token 延迟（TTFT）</h3>
 
@@ -257,6 +259,10 @@ strong { color: var(--text); }
 <tr><td>TGI</td><td>~120ms</td><td>~350ms</td></tr>
 <tr><td>Ollama</td><td>~150ms</td><td>~500ms</td></tr>
 </table>
+
+<div class="callout">
+  <p><strong>数据来源</strong>：TTFT 数据综合自 <a href="https://artificialanalysis.ai/text/arena?tab=Leaderboard">Artificial Analysis</a> 延迟基准测试、<a href="https://docs.vllm.ai/en/latest/performance/benchmarks.html">vLLM Benchmark</a> 及 <a href="https://github.com/sgl-project/sglang#performance">SGLang Performance</a>。测试条件同 2.1 节。</p>
+</div>
 
 <h3 id="24-关键发现">2.4 关键发现</h3>
 
