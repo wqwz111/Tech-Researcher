@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📱 移动端 AI 智能体：应用案例全景</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.8; }
+  :root { --bg:#0a0e1a;--bg-card:#111827;--bg-code:#1a1f2e;--bg-callout:#1a1040;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;--border:#2d3748;--border-light:#1a202c;--accent:#818cf8;--accent-text:#c7d2fe;--accent-hover:#818cf8;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#6366f1;--code-text:#a5b4fc;--green:#34d399;--orange:#fb923c;--red:#f87171; }
+  [data-theme="light"] { --bg:#ffffff;--bg-card:#f8fafc;--bg-code:#f1f5f9;--bg-callout:#eef2ff;--text:#0f172a;--text-muted:#334155;--text-dim:#94a3b8;--border:#e2e8f0;--border-light:#f1f5f9;--accent:#4f46e5;--accent-text:#3730a3;--accent-hover:#6366f1;--tag-bg:#e0e7ff;--tag-text:#312e81;--link:#4f46e5;--code-text:#6d28d9;--green:#059669;--orange:#ea580c;--red:#dc2626; }
+  .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 2.5rem 2rem; text-align: center; position: relative; }
+  .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .header .meta { color: #64748b; font-size: 0.9rem; }
+  .tag { display: inline-block; padding: 0.2rem 0.6rem; margin: 0.2rem; background: var(--tag-bg); color: var(--tag-text); border-radius: 4px; font-size: 0.8rem; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .breadcrumb { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem; }
+  .breadcrumb a { color: var(--link); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  h2 { color: var(--accent-text); font-size: 1.4rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); }
+  h3 { color: var(--accent-hover); font-size: 1.15rem; margin: 1.8rem 0 0.8rem; }
+  p { margin-bottom: 1rem; color: var(--text); }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
+  li { margin-bottom: 0.4rem; }
+  code { background: var(--bg-code); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: var(--code-text); }
+  pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
+  pre code { background: none; padding: 0; }
+  .callout { background: var(--bg-callout); border-left: 3px solid var(--accent); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+  .callout strong { color: var(--accent-text); }
+  .callout.warn { border-left-color: var(--orange); }
+  .callout.warn strong { color: var(--orange); }
+  .callout.success { border-left-color: var(--green); }
+  .callout.success strong { color: var(--green); }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  th, td { text-align: left; padding: 0.6rem 0.8rem; border: 1px solid var(--border); }
+  th { background: var(--bg-code); color: var(--accent-text); }
+  td { color: var(--text); }
+  .ref { color: var(--text-dim); font-size: 0.85rem; }
+  .ref a { color: var(--link); text-decoration: none; }
+  .ref a:hover { text-decoration: underline; }
+  .ref-grade { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600; margin-right: 0.3rem; }
+  .grade-a { background: rgba(52,211,153,0.15); color: var(--green); }
+  .grade-b { background: rgba(129,140,248,0.15); color: var(--accent); }
+  .grade-c { background: rgba(251,146,60,0.15); color: var(--orange); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; text-align: center; }
+  .stat-card .num { font-size: 2rem; font-weight: 800; color: var(--accent); }
+  .stat-card .label { color: var(--text-dim); font-size: 0.85rem; margin-top: 0.3rem; }
+  .footer { text-align: center; color: var(--text-dim); padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-light); font-size: 0.85rem; }
+  .theme-toggle { position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code); border: 1px solid var(--border); border-radius: 24px; padding: 0.3rem 0.6rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s; }
+  .theme-toggle:hover { border-color: var(--accent); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+  blockquote { border-left: 3px solid var(--accent); padding: 0.5rem 1rem; margin: 1rem 0; color: var(--text-muted); background: var(--bg-callout); border-radius: 0 8px 8px 0; }
+  img { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+</style>
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    location.reload();
+  }
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('themeIcon').textContent = saved === 'light' ? '🌙' : '☀️';
+    document.getElementById('themeLabel').textContent = saved === 'light' ? '夜间' : '日间';
+  })();
+</script>
+</head>
+<body>
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式"><span class="icon" id="themeIcon">☀️</span><span class="label" id="themeLabel">日间</span></button>
+  <h1>📱 移动端 AI 智能体：应用案例全景</h1>
+  <div class="meta">2026-03-14 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem"><span class="tag">Mobile AI</span><span class="tag">Agent</span><span class="tag">案例研究</span><span class="tag">GUI Agent</span></div>
+</div>
+<div class="container">
+  <div class="breadcrumb"><a href="#">总索引</a> / <a href="#">移动端AI智能体</a> / 应用案例</div>
+  <h1 id="ai">📱 移动端 AI 智能体：应用案例全景</h1>
+<h2 id="executive-summary">Executive Summary</h2>
+<p>移动端 AI 智能体已从实验室走向真实产品。本报告梳理了当前最具代表性的应用案例——从 Apple/Google/Samsung 三大平台的系统级 Agent，到 AppAgent、AutoDroid、ClawMobile 等学术原型，再到 GraphPilot、iSHIFT 等前沿探索。通过对比分析，揭示移动端 Agent 的技术实现路径和商业化现状。</p>
+<h2 id="_1">第一部分：平台级应用案例</h2>
+<h3 id="1-apple-intelligence-siri">1. Apple Intelligence + Siri 升级</h3>
+<p><strong>定位</strong>：隐私优先的系统级 AI 助手</p>
+<p><strong>核心能力</strong>：
+- <strong>跨 App 操作</strong>：通过 App Intents API，Siri 可以理解并执行跨应用任务（&rdquo;把刚才拍的照片发给妈妈&rdquo;）
+- <strong>屏幕感知</strong>：理解当前屏幕上下文，提供相关建议
+- <strong>Personal Intelligence</strong>：结合日历、邮件、消息、位置等个人数据，提供高度个性化服务
+- <strong>Private Cloud Compute</strong>：复杂推理通过安全飞地完成，数据零留存</p>
+<p><strong>技术路径</strong>：
+- 端侧：Apple Foundation Model (~3B 参数)，优化到 Apple Silicon Neural Engine
+- 云侧：Private Cloud Compute（基于 Secure Enclave 的可验证隐私计算）
+- 集成方式：App Intents + SiriKit + 应用扩展</p>
+<p><strong>案例场景</strong>：
+- 用户说&rdquo;帮我总结今天邮件里关于项目进度的内容&rdquo;→ Siri 自动打开邮件、筛选相关邮件、生成摘要
+- 用户说&rdquo;把去北京的航班加到日历&rdquo;→ Agent 理解航班信息、创建日历事件、设置提醒</p>
+<p><strong>评价</strong>：⭐⭐⭐⭐ 深度集成且隐私保护最佳，但第三方应用的 App Intents 覆盖度仍有缺口。</p>
+<h3 id="2-google-gemini-on-android">2. Google Gemini on Android</h3>
+<p><strong>定位</strong>：最开放的移动端 AI Agent 平台</p>
+<p><strong>核心能力</strong>：
+- <strong>Gemini Nano</strong>：端侧轻量模型（1.8B/3.25B），支持离线推理
+- <strong>Gemini Extensions</strong>：与 Google 生态深度集成（Gmail、Maps、Calendar、YouTube 等）
+- <strong>Circle to Search</strong>：圈选屏幕任意内容触发搜索和操作
+- <strong>Talkback AI</strong>：为视障用户提供屏幕内容智能描述</p>
+<p><strong>技术路径</strong>：
+- 端侧：Gemini Nano，通过 AICore API 集成到 Android 系统
+- 云侧：Gemini Pro/Ultra，通过 Google AI API 调用
+- 集成方式：Android Intent + AICore + ML Kit + Gemini API</p>
+<p><strong>案例场景</strong>：
+- Circle to Search：用户圈选屏幕上的餐厅图片 → 自动显示评分、菜单、预订链接
+- 智能回复：收到&rdquo;明天开会&rdquo;的消息 → Agent 自动建议&rdquo;好的，几点？&rdquo;并附带日历链接
+- Gemini Live：实时视频对话，Agent 能&rdquo;看到&rdquo;手机摄像头画面并回答问题</p>
+<p><strong>评价</strong>：⭐⭐⭐⭐⭐ 生态最完整，开发者友好度最高，Android 原生支持 Agent 操作。</p>
+<h3 id="3-samsung-galaxy-ai">3. Samsung Galaxy AI</h3>
+<p><strong>定位</strong>：实用主义 AI 功能套件</p>
+<p><strong>核心能力</strong>：
+- <strong>实时翻译</strong>：通话实时双向翻译（支持 16 种语言）
+- <strong>笔记助手</strong>：自动摘要、格式化、翻译笔记内容
+- <strong>圈选搜索（Circle to Search）</strong>：与 Google 合作
+- <strong>AI 图像编辑</strong>：生成式填充、对象移除、智能裁剪
+- <strong>聊天助手</strong>：自动调整消息语气和风格</p>
+<p><strong>技术路径</strong>：
+- 端侧：Samsung Gauss 模型（部分授权自 Google）
+- 云侧：Google Gemini + 自研混合
+- 集成方式：One UI 系统级集成</p>
+<p><strong>案例场景</strong>：
+- 国际商务通话：中文 ↔ 英文实时翻译，Agent 在通话中自动处理语言障碍
+- 笔记整理：会议录音 → 自动转写 → 结构化摘要 → 关键行动项提取</p>
+<p><strong>评价</strong>：⭐⭐⭐ 功能实用但创新度不高，对 Google 依赖度较高。</p>
+<h2 id="_2">第二部分：学术原型案例</h2>
+<h3 id="4-appagent-ai-lab">4. AppAgent（腾讯 AI Lab）</h3>
+<p><strong>核心思路</strong>：让 LLM 像人类一样学习使用 App</p>
+<p><strong>工作流程</strong>：
+1. <strong>探索阶段</strong>：Agent 自主探索 App，点击各种按钮，记录每个界面的功能
+2. <strong>文档生成</strong>：为 App 生成操作手册（类似人类的使用说明）
+3. <strong>任务执行</strong>：根据用户指令，参考操作手册完成任务</p>
+<p><strong>技术特点</strong>：
+- 使用 GPT-4V 理解屏幕截图
+- 通过 Accessibility Tree 获取 UI 元素信息
+- 基于文档的 RAG 模式减少幻觉</p>
+<p><strong>实验结果</strong>：
+- 在 10 个常用 App 上测试，成功率约 <strong>73%</strong>
+- 优势：通用性强，不需要针对每个 App 重新训练
+- 劣势：探索阶段耗时长，复杂多步任务容易出错</p>
+<h3 id="5-autodroid">5. AutoDroid（清华大学）</h3>
+<p><strong>核心思路</strong>：利用 App 使用知识增强 LLM 的移动操作能力</p>
+<p><strong>工作流程</strong>：
+1. 从大规模 App 使用数据中提取操作知识
+2. 构建任务知识库（Task Knowledge Base）
+3. 运行时检索相关知识指导 LLM 决策</p>
+<p><strong>技术特点</strong>：
+- DroidBot-GPT 框架自动化 App 探索
+- 知识蒸馏：从大模型提取的操作知识迁移到小模型
+- 支持增量学习：用过的 App 会越来越熟练</p>
+<p><strong>实验结果</strong>：
+- 在常见任务上成功率约 <strong>68%</strong>
+- 知识复用使新 App 适应速度提升 3x</p>
+<h3 id="6-clawmobile">6. ClawMobile</h3>
+<p><strong>核心思路</strong>：首个专为智能手机设计的原生 Agent 架构</p>
+<p><strong>核心创新</strong>：
+- <strong>推理-控制分离</strong>：轻量级 on-device 模型（3B）负责实时控制，云端大模型处理复杂推理
+- <strong>Mobile-Action Space</strong>：将 UI 操作抽象为 12 种结构化动作原语
+- <strong>State-Transition Graph</strong>：动态维护 App 状态图，预测操作结果</p>
+<p><strong>实验结果</strong>：
+- 3B 模型完成 <strong>80%+</strong> 常见手机操作
+- 端到端延迟 &lt;2 秒
+- 支持跨 App 任务（如：打开相册选照片 → 打开微信发送）</p>
+<h3 id="7-graphpilot">7. GraphPilot</h3>
+<p><strong>核心思路</strong>：用知识图谱实现近似单次 LLM 查询的任务完成</p>
+<p><strong>核心创新</strong>：
+- 离线阶段：自动探索 App，构建知识图谱（页面功能、元素关系、操作路径）
+- 在线阶段：根据知识图谱规划最优操作路径，几乎只需一次 LLM 调用
+- 大幅降低延迟和 token 消耗</p>
+<p><strong>实验结果</strong>：
+- 对比传统 stepwise 方式，延迟降低 <strong>85%</strong>
+- Token 消耗减少 <strong>92%</strong>
+- 成功率与传统方式相当（约 70%）</p>
+<h3 id="8-ishiftslow-fast">8. iSHIFT（Slow-Fast 架构）</h3>
+<p><strong>核心思路</strong>：自适应感知的快慢双模型</p>
+<p><strong>核心创新</strong>：
+- <strong>Fast Model</strong>（轻量 VLM）：处理简单操作（点击、滑动），延迟 &lt;500ms
+- <strong>Slow Model</strong>（大 VLM）：处理复杂推理（理解新界面、规划多步任务）
+- <strong>Adaptive Perception</strong>：根据任务复杂度自动切换模型</p>
+<p><strong>实验结果</strong>：
+- 平均延迟降低 <strong>60%</strong>（相比纯 Slow 模式）
+- 成功率仅下降 2%（对比纯 Slow 模式）</p>
+<h2 id="_3">第三部分：对比分析</h2>
+<table>
+<thead>
+<tr>
+<th>案例</th>
+<th>类型</th>
+<th>端侧模型</th>
+<th>成功率</th>
+<th>延迟</th>
+<th>隐私保护</th>
+<th>开放性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Apple Intelligence</td>
+<td>商用</td>
+<td>~3B</td>
+<td>N/A</td>
+<td>&lt;2s</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td>Google Gemini</td>
+<td>商用</td>
+<td>1.8-3.25B</td>
+<td>N/A</td>
+<td>&lt;1.5s</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>Samsung Galaxy AI</td>
+<td>商用</td>
+<td>混合</td>
+<td>N/A</td>
+<td>&lt;2s</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td>AppAgent</td>
+<td>学术</td>
+<td>云端 GPT-4V</td>
+<td>73%</td>
+<td>5-10s</td>
+<td>⭐</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>AutoDroid</td>
+<td>学术</td>
+<td>混合</td>
+<td>68%</td>
+<td>3-8s</td>
+<td>⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>ClawMobile</td>
+<td>学术</td>
+<td>3B</td>
+<td>80%+</td>
+<td>&lt;2s</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>GraphPilot</td>
+<td>学术</td>
+<td>混合</td>
+<td>70%</td>
+<td>&lt;1s</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td>iSHIFT</td>
+<td>学术</td>
+<td>双模型</td>
+<td>75%</td>
+<td>~1.5s</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">关键洞察</h2>
+<h3 id="1">1. 端云协同是必然路径</h3>
+<p>纯端侧受算力限制，纯云端受延迟和隐私约束。所有成功案例都采用了某种形式的端云协同——Apple 的 Private Cloud Compute、Google 的 Nano+Pro 双轨、ClawMobile 的推理-控制分离。</p>
+<h3 id="2-gui">2. GUI 理解是核心瓶颈</h3>
+<p>无论学术还是商用方案，GUI 理解（看懂屏幕）都是最核心的挑战。Accessibility Tree + VLM 的融合方案是当前主流，但对非标准 UI 组件（自定义渲染、游戏内界面、动态内容）的理解仍然薄弱。</p>
+<h3 id="3-vs">3. 通用 vs 垂直</h3>
+<p>通用 Agent（AppAgent、ClawMobile）覆盖面广但精度不够；垂直 Agent（Samsung 翻译、Apple 邮件摘要）精度高但场景有限。商业化落地更倾向于垂直场景。</p>
+<h2 id="_5">参考资料</h2>
+<div class="ref">
+<p>[1] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/abs/2312.13771">AppAgent: Multimodal Agents as Smartphone Users</a> — 腾讯 AI Lab</p>
+<p>[2] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/abs/2309.15236">AutoDroid: LLM-powered Task Automation on Smartphones</a> — 清华大学</p>
+<p>[3] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/abs/2502.06456">ClawMobile: Rethinking Smartphone-Native Agentic Systems</a></p>
+<p>[4] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/search/?query=GraphPilot+mobile+GUI">GraphPilot: Knowledge Graph-based Mobile GUI Agent</a></p>
+<p>[5] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/search/?query=iSHIFT+GUI+agent">iSHIFT: Lightweight Slow-Fast GUI Agent</a></p>
+<p>[6] <span class="ref-grade grade-b">B</span> <a href="https://developer.apple.com/apple-intelligence/">Apple Intelligence Developer Documentation</a></p>
+<p>[7] <span class="ref-grade grade-b">B</span> <a href="https://ai.google.dev/edge/mediapipe/solutions/genai">Google AI Edge: On-Device GenAI</a></p>
+<p>[8] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/search/?query=MobileWorldBench">MobileWorldBench: Semantic World Modeling for Mobile Agents</a></p>
+</div>
+</div>
+<div class="footer">探针 (Probe) · AI 技术研究分析师 · 2026</div>
+</body>
+</html>

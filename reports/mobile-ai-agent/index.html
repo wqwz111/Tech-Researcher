@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📱 移动端 AI 智能体 — 专题研究系列</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.8; }
+  :root { --bg:#0a0e1a;--bg-card:#111827;--bg-code:#1a1f2e;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;--border:#2d3748;--border-light:#1a202c;--accent:#818cf8;--accent-text:#c7d2fe;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#6366f1; }
+  [data-theme="light"] { --bg:#ffffff;--bg-card:#f8fafc;--bg-code:#f1f5f9;--text:#0f172a;--text-muted:#334155;--text-dim:#94a3b8;--border:#e2e8f0;--border-light:#f1f5f9;--accent:#4f46e5;--accent-text:#3730a3;--tag-bg:#e0e7ff;--tag-text:#312e81;--link:#4f46e5; }
+  .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 2.5rem 2rem; text-align: center; position: relative; }
+  .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .header .meta { color: #64748b; font-size: 0.9rem; }
+  .tag { display: inline-block; padding: 0.2rem 0.6rem; margin: 0.2rem; background: var(--tag-bg); color: var(--tag-text); border-radius: 4px; font-size: 0.8rem; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .breadcrumb { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem; }
+  .breadcrumb a { color: var(--link); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  .series-intro { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+  .series-intro p { color: var(--text-muted); margin-bottom: 0.5rem; }
+  .report-list { list-style: none; }
+  .report-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; transition: all 0.2s; }
+  .report-item:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .report-item .part { color: var(--accent); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .report-item a { color: var(--accent-text); text-decoration: none; font-size: 1.15rem; font-weight: 600; }
+  .report-item a:hover { text-decoration: underline; }
+  .report-item .desc { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; }
+  .report-meta { color: var(--text-dim); font-size: 0.85rem; margin-top: 0.5rem; }
+  .report-tag { display: inline-block; padding: 0.15rem 0.5rem; margin-right: 0.3rem; background: var(--bg-code); border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem; color: var(--text-muted); }
+  .footer { text-align: center; color: var(--text-dim); padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-light); font-size: 0.85rem; }
+  .theme-toggle { position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code); border: 1px solid var(--border); border-radius: 24px; padding: 0.3rem 0.6rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s; }
+  .theme-toggle:hover { border-color: var(--accent); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+</style>
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    location.reload();
+  }
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('themeIcon').textContent = saved === 'light' ? '🌙' : '☀️';
+    document.getElementById('themeLabel').textContent = saved === 'light' ? '夜间' : '日间';
+  })();
+</script>
+</head>
+<body>
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式"><span class="icon" id="themeIcon">☀️</span><span class="label" id="themeLabel">日间</span></button>
+  <h1>📱 移动端 AI 智能体 — 专题研究系列</h1>
+  <div class="meta">2026-03-14 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Mobile AI</span><span class="tag">On-Device Agent</span><span class="tag">Edge Computing</span><span class="tag">LLM</span><span class="tag">GUI Agent</span>
+  </div>
+</div>
+<div class="container">
+  <div class="breadcrumb"><a href="../index.html">📋 总索引</a> / 移动端 AI 智能体</div>
+
+  <div class="series-intro">
+    <p>本系列深入研究移动端 AI 智能体的技术架构、应用案例、发展趋势和面临挑战。覆盖 Apple Intelligence、Google Gemini、Samsung Galaxy AI 三大平台，以及 AppAgent、ClawMobile、GraphPilot 等前沿学术研究。</p>
+  </div>
+
+  <ul class="report-list">
+    <li class="report-item">
+      <div class="part">Part 1 · 应用案例</div>
+      <a href="./01-cases.html">应用案例全景</a>
+      <div class="desc">三大平台（Apple/Google/Samsung）系统级 Agent + AppAgent、AutoDroid、ClawMobile、GraphPilot、iSHIFT 等学术原型，含对比分析表。</div>
+      <div class="report-meta"><span class="report-tag">案例研究</span><span class="report-tag">GUI Agent</span><span class="report-tag">对比分析</span></div>
+    </li>
+    <li class="report-item">
+      <div class="part">Part 2 · 发展现状与趋势</div>
+      <a href="./02-status-trends.html">发展现状与趋势</a>
+      <div class="desc">端侧模型技术栈、GUI 理解路线、推理框架演进、市场格局、开发者生态。2026-2028 趋势预判含时间节点。</div>
+      <div class="report-meta"><span class="report-tag">趋势分析</span><span class="report-tag">On-Device LLM</span><span class="report-tag">市场格局</span></div>
+    </li>
+    <li class="report-item">
+      <div class="part">Part 3 · 挑战与应对</div>
+      <a href="./03-challenges.html">挑战与应对措施</a>
+      <div class="desc">六大核心挑战（算力约束、GUI 理解、动作可靠性、隐私安全、电池续航、用户信任）深度分析，每个挑战 2-4 个解决方案。</div>
+      <div class="report-meta"><span class="report-tag">技术挑战</span><span class="report-tag">安全隐私</span><span class="report-tag">解决方案</span></div>
+    </li>
+  </ul>
+</div>
+<div class="footer">探针 (Probe) · AI 技术研究分析师 · 2026-03-14</div>
+</body>
+</html>
