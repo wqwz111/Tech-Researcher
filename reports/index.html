@@ -6,49 +6,21 @@
 <title>🔬 探针研究报告</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #0f172a; color: #e2e8f0; min-height: 100vh;
-  }
-  .header {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    border-bottom: 1px solid #334155; padding: 2.5rem 2rem; text-align: center;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 2.5rem 2rem; text-align: center; }
   .header h1 { font-size: 2.2rem; margin-bottom: 0.5rem; }
   .header p { color: #94a3b8; font-size: 1rem; }
-  .header .badge {
-    display: inline-block; margin-top: 0.8rem; padding: 0.3rem 0.8rem;
-    background: #312e81; color: #a5b4fc; border-radius: 20px; font-size: 0.8rem;
-  }
+  .header .badge { display: inline-block; margin-top: 0.8rem; padding: 0.3rem 0.8rem; background: #312e81; color: #a5b4fc; border-radius: 20px; font-size: 0.8rem; }
   .container { max-width: 960px; margin: 2rem auto; padding: 0 1.5rem; }
-  .section-title {
-    font-size: 1.1rem; color: #64748b; margin-bottom: 1rem;
-    border-bottom: 1px solid #1e293b; padding-bottom: 0.5rem;
-  }
+  .section-title { font-size: 1.1rem; color: #64748b; margin: 2rem 0 1rem; border-bottom: 1px solid #1e293b; padding-bottom: 0.5rem; }
   .report-list { list-style: none; }
-  .report-item {
-    background: #1e293b; border: 1px solid #334155; border-radius: 12px;
-    padding: 1.5rem; margin-bottom: 1rem; transition: all 0.2s;
-  }
+  .report-item { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; transition: all 0.2s; }
   .report-item:hover { border-color: #6366f1; transform: translateY(-1px); }
-  .report-item a {
-    color: #a5b4fc; text-decoration: none; font-size: 1.15rem; font-weight: 600;
-  }
+  .report-item a { color: #a5b4fc; text-decoration: none; font-size: 1.15rem; font-weight: 600; }
   .report-item a:hover { color: #818cf8; text-decoration: underline; }
   .report-meta { color: #64748b; font-size: 0.85rem; margin-top: 0.5rem; }
-  .report-tag {
-    display: inline-block; padding: 0.15rem 0.5rem; margin-right: 0.3rem;
-    background: #334155; border-radius: 4px; font-size: 0.75rem; color: #94a3b8;
-  }
-  .empty {
-    text-align: center; color: #475569; padding: 4rem 2rem;
-    background: #1e293b; border-radius: 12px; border: 1px dashed #334155;
-  }
-  .empty .icon { font-size: 3rem; margin-bottom: 1rem; }
-  .footer {
-    text-align: center; color: #334155; padding: 2rem; margin-top: 3rem;
-    border-top: 1px solid #1e293b; font-size: 0.85rem;
-  }
+  .report-tag { display: inline-block; padding: 0.15rem 0.5rem; margin-right: 0.3rem; background: #334155; border-radius: 4px; font-size: 0.75rem; color: #94a3b8; }
+  .footer { text-align: center; color: #334155; padding: 2rem; margin-top: 3rem; border-top: 1px solid #1e293b; font-size: 0.85rem; }
   .footer a { color: #6366f1; text-decoration: none; }
 </style>
 </head>
@@ -59,62 +31,26 @@
   <span class="badge">AI · LLM · Architecture · Design</span>
 </div>
 <div class="container">
-  <div class="section-title">📋 研究报告</div>
-  <ul class="report-list" id="reportList">
+  <div class="section-title">📂 OpenClaw 研究系列</div>
+  <ul class="report-list">
     <li class="report-item">
-      <a href="./2026-03-14-openclaw-enterprise-patterns.html">🏢 OpenClaw 企业级部署模式与团队最佳实践</a>
-      <div class="report-meta">
-        <span class="report-tag">Enterprise</span>
-        <span class="report-tag">Sandbox</span>
-        <span class="report-tag">Security</span>
-        <span class="report-tag">Cost Optimization</span>
-        · 2026-03-14
-      </div>
+      <a href="./openclaw/01-architecture.html">1. OpenClaw 架构概览与核心概念</a>
+      <div class="report-meta"><span class="report-tag">Gateway</span><span class="report-tag">Agent</span><span class="report-tag">Binding</span><span class="report-tag">Architecture</span> · 2026-03-14</div>
     </li>
     <li class="report-item">
-      <a href="./2026-03-14-openclaw-acp-coding-agents.html">💻 ACP 集成：用 OpenClaw 管理 Codex/Claude Code/Gemini CLI 等编程智能体</a>
-      <div class="report-meta">
-        <span class="report-tag">ACP</span>
-        <span class="report-tag">Codex</span>
-        <span class="report-tag">Claude Code</span>
-        <span class="report-tag">Coding Agent</span>
-        · 2026-03-14
-      </div>
+      <a href="./openclaw/02-multi-agent-team.html">2. 多智能体团队协作模式</a>
+      <div class="report-meta"><span class="report-tag">Multi-Agent</span><span class="report-tag">Sub-agent</span><span class="report-tag">Orchestrator</span><span class="report-tag">Binding</span> · 2026-03-14</div>
     </li>
     <li class="report-item">
-      <a href="./2026-03-14-openclaw-multi-agent-team.html">🤖 使用 OpenClaw 管理 AI Agent 团队：多智能体协作模式</a>
-      <div class="report-meta">
-        <span class="report-tag">Multi-Agent</span>
-        <span class="report-tag">Sub-agent</span>
-        <span class="report-tag">Binding</span>
-        <span class="report-tag">Orchestrator</span>
-        · 2026-03-14
-      </div>
+      <a href="./openclaw/03-acp-coding-agents.html">3. ACP 编程智能体集成</a>
+      <div class="report-meta"><span class="report-tag">ACP</span><span class="report-tag">Codex</span><span class="report-tag">Claude Code</span><span class="report-tag">Gemini</span> · 2026-03-14</div>
     </li>
     <li class="report-item">
-      <a href="./2026-03-14-openclaw-architecture.html">🏗️ OpenClaw 架构概览与核心概念</a>
-      <div class="report-meta">
-        <span class="report-tag">OpenClaw</span>
-        <span class="report-tag">AI Agent Framework</span>
-        <span class="report-tag">Gateway</span>
-        <span class="report-tag">Architecture</span>
-        · 2026-03-14
-      </div>
-    </li>
-    <li class="report-item">
-      <a href="./2026-03-14-pipeline-setup.html">🔬 探针研究流水线搭建报告</a>
-      <div class="report-meta">
-        <span class="report-tag">Infrastructure</span>
-        <span class="report-tag">GitHub Pages</span>
-        <span class="report-tag">Research Pipeline</span>
-        · 2026-03-14
-      </div>
+      <a href="./openclaw/04-enterprise-patterns.html">4. 企业级部署与最佳实践</a>
+      <div class="report-meta"><span class="report-tag">Sandbox</span><span class="report-tag">Security</span><span class="report-tag">Cost</span><span class="report-tag">Team</span> · 2026-03-14</div>
     </li>
   </ul>
 </div>
-<div class="footer">
-  探针 (Probe) · AI 技术研究分析师 · 2026<br>
-  Powered by <a href="https://github.com/wqwz111/Tech-Researcher">GitHub Pages</a>
-</div>
+<div class="footer">探针 (Probe) · AI 技术研究分析师 · 2026<br>Powered by <a href="https://github.com/wqwz111/Tech-Researcher">GitHub Pages</a></div>
 </body>
 </html>
