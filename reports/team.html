@@ -4,110 +4,384 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>👥 团队 — Tech Researcher</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-  :root {
-    --bg:#0a0e1a;--bg-card:#111827;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;
-    --border:#2d3748;--accent:#818cf8;--accent-text:#c7d2fe;
+:root {
+    --bg:#0f172a;--bg2:#1e293b;--bg3:#334155;
+    --text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;
+    --border:#334155;--accent:#38bdf8;--accent2:#7dd3fc;--accent3:#93c5fd;
+    --green:#34d399;--orange:#fb923c;--pink:#f472b6;--purple:#a78bfa;
     --gradient:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  }
-  [data-theme="light"] {
-    --bg:#f8fafc;--bg-card:#ffffff;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
-    --border:#e2e8f0;--accent:#4f46e5;--accent-text:#3730a3;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans SC',sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
-  a { color:#60a5fa; text-decoration:none; }
-  a:hover { color:#a5b4fc; }
-  .hero { background:var(--gradient); padding:2.5rem 2rem; text-align:center; color:#fff; }
-  .hero h1 { font-size:2rem; }
-  .hero p { opacity:.85; margin-top:.3rem; }
-  .container { max-width:900px; margin:2rem auto; padding:0 1.5rem; }
-  .back { display:inline-flex; align-items:center; gap:.3rem; color:var(--accent-text); margin-bottom:1.5rem; font-size:.9rem; }
-  .card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:1.5rem; margin-bottom:1.2rem; }
-  .card h3 { color:var(--accent-text); margin-bottom:.5rem; display:flex; align-items:center; gap:.5rem; }
-  .card p { color:var(--text-muted); font-size:.95rem; }
-  .card .emoji { font-size:1.8rem; }
-  .card .role { font-size:.8rem; color:var(--text-dim); background:var(--border); padding:.15rem .5rem; border-radius:4px; margin-left:auto; }
-  .section-title { font-size:1.2rem; font-weight:700; margin:2rem 0 1rem; padding-bottom:.5rem; border-bottom:2px solid var(--border); }
-  .workflow { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin:1rem 0; }
-  .step { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:1rem; text-align:center; }
-  .step .step-icon { font-size:2rem; }
-  .step .step-title { font-weight:600; margin:.5rem 0 .2rem; }
-  .step .step-desc { font-size:.85rem; color:var(--text-muted); }
-  .footer { text-align:center; color:var(--text-dim); padding:2rem; border-top:1px solid var(--border); margin-top:2rem; font-size:.85rem; }
-  @media(max-width:600px) { .workflow { grid-template-columns:1fr 1fr; } }
+    --card-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+[data-theme="light"] {
+    --bg:#f8fafc;--bg2:#ffffff;--bg3:#f1f5f9;
+    --text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
+    --border:#e2e8f0;--accent:#2563eb;--accent2:#3b82f6;--accent3:#6366f1;
+    --green:#059669;--orange:#ea580c;--pink:#db2777;--purple:#7c3aed;
+    --card-shadow:0 4px 20px rgba(0,0,0,.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans SC',sans-serif;
+    background:var(--bg); color:var(--text); line-height:1.6;
+    transition:background .3s,color .3s;
+}
+a { color:#60a5fa; text-decoration:none; }
+a:hover { color:#a5b4fc; }
+
+/* Hero */
+.hero {
+    background:var(--gradient); padding:3rem 2rem; text-align:center; color:#fff;
+    position:relative; overflow:hidden;
+}
+.hero::before {
+    content:''; position:absolute; inset:0;
+    background:url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0v40M0 20h40' stroke='rgba(255,255,255,.05)' stroke-width='1'/%3E%3C/svg%3E");
+}
+.hero h1 { font-size:2.2rem; position:relative; }
+.hero p { opacity:.85; margin-top:.5rem; font-size:1.05rem; position:relative; }
+
+/* Container */
+.container { max-width:960px; margin:2rem auto; padding:0 1.5rem; }
+.top-nav {
+    background:var(--bg2); padding:.6rem 1rem; border-radius:8px;
+    margin-bottom:1.5rem; display:flex; gap:1rem; align-items:center; font-size:.85rem;
+    border:1px solid var(--border);
+}
+.top-nav a { color:var(--accent2); }
+.top-nav .sep { color:var(--text-dim); }
+.theme-btn {
+    background:var(--bg); border:1px solid var(--border); border-radius:20px;
+    padding:.2rem .6rem; cursor:pointer; font-size:.9rem; margin-left:auto;
+}
+.theme-btn:hover { border-color:var(--accent); }
+
+/* Section */
+.section-title {
+    font-size:1.3rem; font-weight:700; margin:2.5rem 0 1.2rem;
+    padding-bottom:.5rem; border-bottom:2px solid var(--border);
+    display:flex; align-items:center; gap:.5rem;
+}
+
+/* Mermaid container */
+.diagram-container {
+    background:var(--bg2); border:1px solid var(--border); border-radius:12px;
+    padding:1.5rem; margin:1.5rem 0; overflow-x:auto;
+}
+.diagram-caption {
+    text-align:center; color:var(--text-muted); font-size:.9rem;
+    margin-top:.8rem; font-style:italic;
+}
+
+/* Team grid */
+.team-grid {
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:1rem; margin:1rem 0;
+}
+.team-card {
+    background:var(--bg2); border:1px solid var(--border); border-radius:12px;
+    padding:1.3rem; transition:all .25s; position:relative; overflow:hidden;
+}
+.team-card:hover { transform:translateY(-2px); box-shadow:var(--card-shadow); border-color:var(--accent); }
+.team-card .card-header { display:flex; align-items:center; gap:.6rem; margin-bottom:.6rem; }
+.team-card .card-emoji { font-size:1.6rem; }
+.team-card .card-name { font-size:1.05rem; font-weight:700; color:var(--text); }
+.team-card .card-count {
+    font-size:.7rem; background:var(--bg3); color:var(--text-muted);
+    padding:.1rem .4rem; border-radius:10px; margin-left:auto;
+}
+.team-card .card-role {
+    font-size:.8rem; color:var(--accent2); font-weight:500; margin-bottom:.5rem;
+}
+.team-card .card-desc { font-size:.88rem; color:var(--text-muted); line-height:1.6; }
+.team-card .card-accent { position:absolute; top:0; left:0; right:0; height:3px; }
+.team-card.chief .card-accent { background:var(--gradient); }
+.team-card.probe .card-accent { background:var(--accent); }
+.team-card.palette .card-accent { background:var(--pink); }
+.team-card.collector .card-accent { background:var(--green); }
+.team-card.librarian .card-accent { background:var(--orange); }
+.team-card.reader .card-accent { background:var(--purple); }
+
+/* Philosophy */
+.philosophy-grid {
+    display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1rem 0;
+}
+.phil-card {
+    background:var(--bg2); border:1px solid var(--border); border-radius:12px;
+    padding:1.3rem;
+}
+.phil-card .phil-icon { font-size:2rem; margin-bottom:.5rem; }
+.phil-card h3 { color:var(--accent2); margin-bottom:.5rem; }
+.phil-card p { font-size:.9rem; color:var(--text-muted); }
+
+/* Footer */
+.footer {
+    text-align:center; color:var(--text-dim); padding:2rem;
+    border-top:1px solid var(--border); margin-top:3rem; font-size:.85rem;
+}
+.footer a { color:#60a5fa; }
+
+@media(max-width:600px) {
+    .philosophy-grid { grid-template-columns:1fr; }
+    .team-grid { grid-template-columns:1fr; }
+}
 </style>
 </head>
 <body>
+
 <div class="hero">
   <h1>👥 研究团队</h1>
-  <p>Tech Researcher Team · 1:N:1:1:1:N 结构</p>
+  <p>Tech Researcher Team · AI 驱动的研究报告生产系统</p>
 </div>
+
 <div class="container">
-  <a href="./index.html" class="back">← 返回报告首页</a>
-
-  <div class="section-title">核心团队</div>
-
-  <div class="card">
-    <h3><span class="emoji">📋</span> 主编 (Chief) <span class="role">选题 · 计划 · 质控</span></h3>
-    <p>研究项目主编，负责选题策划、研究计划制定、质量把控、Issue 管理、团队编排与发布分发。是团队的节奏控制器和质量守门人。</p>
+  <div class="top-nav">
+    <a href="./index.html">🏠 报告首页</a><span class="sep">|</span>
+    <a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+    <span style="color:var(--text-muted)">团队介绍</span>
+    <button class="theme-btn" onclick="toggleTheme()" title="切换日夜模式"><span id="themeIcon">☀️</span></button>
   </div>
 
-  <div class="card">
-    <h3><span class="emoji">🔬</span> 探针 (Probe) × N <span class="role">技术研究 · 深度分析</span></h3>
-    <p>技术研究员，按专题分工（AI/LLM、架构、设计…），可动态增减。负责多源研究、交叉验证、撰写深度研究报告。每份报告引用 ≥ 3 个独立来源，区分事实与推断。</p>
+  <!-- Team Structure Diagram -->
+  <div class="section-title">🏗️ 团队结构</div>
+  <div class="diagram-container">
+    <div class="mermaid">
+graph TB
+    User["👤 用户<br/>提出需求 & 反馈"]
+    Chief["📋 主编 Chief<br/>选题 · 计划 · 质控 · 发布"]
+    
+    subgraph Research["🔬 研究层"]
+        Probe1["🔬 探针-AI/LLM"]
+        Probe2["🔬 探针-架构"]
+        Probe3["🔬 探针-设计"]
+    end
+    
+    subgraph Support["🛠️ 支撑层"]
+        Palette["🎨 调色板<br/>视觉设计"]
+        Collector["📊 采集员<br/>数据收集"]
+        Librarian["🗃️ 图书管理员<br/>知识管理"]
+    end
+    
+    subgraph Review["💬 审稿层"]
+        Reader1["💬 读者-A"]
+        Reader2["💬 读者-B"]
+        Reader3["💬 读者-C"]
+    end
+    
+    User <-->|"Issues"| Chief
+    Chief -->|"分派任务"| Research
+    Chief -->|"设计需求"| Palette
+    Chief -->|"采集任务"| Collector
+    Chief -->|"索引更新"| Librarian
+    Chief -->|"审稿安排"| Review
+    
+    Research -->|"报告草稿"| Review
+    Review -->|"审稿意见"| Chief
+    Research -->|"定稿"| Palette
+    Palette -->|"美化报告"| Chief
+    Chief -->|"发布"| User
+    
+    style Chief fill:#38bdf8,color:#000,stroke:#0ea5e9
+    style User fill:#f472b6,color:#000
+    style Palette fill:#fb923c,color:#000
+    style Collector fill:#34d399,color:#000
+    style Librarian fill:#a78bfa,color:#000
+    </div>
+    <div class="diagram-caption">图 1: Tech Researcher 团队结构与协作关系（1:N:1:1:1:N）</div>
   </div>
 
-  <div class="card">
-    <h3><span class="emoji">🎨</span> 调色板 (Palette) × 1 <span class="role">视觉设计 · 模板维护</span></h3>
-    <p>美术设计师，统一视觉设计，维护报告模板一致性。负责报告的深色/浅色主题、排版规范、信息图表生成。</p>
+  <!-- Team Members -->
+  <div class="section-title">👤 团队成员</div>
+  <div class="team-grid">
+    <div class="team-card chief">
+      <div class="card-accent"></div>
+      <div class="card-header">
+        <span class="card-emoji">📋</span>
+        <span class="card-name">主编</span>
+        <span class="card-count">×1</span>
+      </div>
+      <div class="card-role">Chief · 节奏控制器 & 质量守门人</div>
+      <div class="card-desc">选题策划、研究计划制定、质量把控、Issue 管理、团队编排与发布分发。决定写什么、怎么写、什么时候交付、质量够不够。</div>
+    </div>
+    <div class="team-card probe">
+      <div class="card-accent"></div>
+      <div class="card-header">
+        <span class="card-emoji">🔬</span>
+        <span class="card-name">探针</span>
+        <span class="card-count">×N</span>
+      </div>
+      <div class="card-role">Probe · 技术研究员</div>
+      <div class="card-desc">按专题分工（AI/LLM、架构、设计…），可动态增减。多源研究、交叉验证、撰写深度报告。每份报告引用 ≥ 3 个独立来源。</div>
+    </div>
+    <div class="team-card palette">
+      <div class="card-accent"></div>
+      <div class="card-header">
+        <span class="card-emoji">🎨</span>
+        <span class="card-name">调色板</span>
+        <span class="card-count">×1</span>
+      </div>
+      <div class="card-role">Palette · 美术设计师</div>
+      <div class="card-desc">统一视觉设计，维护报告模板一致性。负责深色/浅色主题、排版规范、信息图表生成。</div>
+    </div>
+    <div class="team-card collector">
+      <div class="card-accent"></div>
+      <div class="card-header">
+        <span class="card-emoji">📊</span>
+        <span class="card-name">采集员</span>
+        <span class="card-count">×1</span>
+      </div>
+      <div class="card-role">Collector · 数据采集</div>
+      <div class="card-desc">论文检索、趋势数据采集、竞品情报收集。为探针提供高质量研究素材。</div>
+    </div>
+    <div class="team-card librarian">
+      <div class="card-accent"></div>
+      <div class="card-header">
+        <span class="card-emoji">🗃️</span>
+        <span class="card-name">图书管理员</span>
+        <span class="card-count">×1</span>
+      </div>
+      <div class="card-role">Librarian · 知识管理</div>
+      <div class="card-desc">知识库管理、标签体系维护、报告交叉引用。确保研究成果可检索、可复用。</div>
+    </div>
+    <div class="team-card reader">
+      <div class="card-accent"></div>
+      <div class="card-header">
+        <span class="card-emoji">💬</span>
+        <span class="card-name">读者</span>
+        <span class="card-count">×N</span>
+      </div>
+      <div class="card-role">Reader · 独立审稿人</div>
+      <div class="card-desc">每篇报告配备若干名独立审稿人。从技术准确性、可读性、完整性等不同角度审核，以 GitHub Issue 提交意见。</div>
+    </div>
   </div>
 
-  <div class="card">
-    <h3><span class="emoji">📊</span> 采集员 (Collector) × 1 <span class="role">数据采集 · 情报收集</span></h3>
-    <p>负责论文检索、趋势数据采集、竞品情报收集。为探针提供高质量的研究素材。</p>
+  <!-- Workflow Diagram -->
+  <div class="section-title">🔄 工作流程</div>
+  <div class="diagram-container">
+    <div class="mermaid">
+flowchart LR
+    subgraph Input["📥 输入"]
+        Issues["💬 GitHub Issues<br/>用户需求"]
+        Trends["📈 趋势监控<br/>技术动态"]
+    end
+    
+    subgraph Production["🏭 生产"]
+        Plan["📋 主编<br/>选题 & 计划"]
+        Research["🔬 探针<br/>多源研究"]
+        Review["💬 读者<br/>独立审稿"]
+        Design["🎨 调色板<br/>视觉美化"]
+    end
+    
+    subgraph Output["📤 输出"]
+        Pages["🌐 GitHub Pages<br/>在线阅读"]
+        Release["🚀 Release<br/>版本发布"]
+        Index["📑 索引页<br/>分类导航"]
+    end
+    
+    Issues --> Plan
+    Trends --> Plan
+    Plan -->|"分派任务"| Research
+    Research -->|"报告草稿"| Review
+    Review -->|"✅ 通过"| Design
+    Review -->|"🔄 修改"| Research
+    Design -->|"美化报告"| Pages
+    Design --> Release
+    Pages --> Index
+    
+    style Plan fill:#38bdf8,color:#000
+    style Research fill:#7dd3fc,color:#000
+    style Review fill:#a78bfa,color:#000
+    style Design fill:#fb923c,color:#000
+    style Pages fill:#34d399,color:#000
+    </div>
+    <div class="diagram-caption">图 2: 报告生产流程 — 从选题到发布的完整链路</div>
   </div>
 
-  <div class="card">
-    <h3><span class="emoji">🗃️</span> 图书管理员 (Librarian) × 1 <span class="role">知识管理 · 索引维护</span></h3>
-    <p>负责知识库管理、标签体系维护、报告交叉引用。确保研究成果可检索、可复用。</p>
+  <!-- Review Process Diagram -->
+  <div class="section-title">🔍 审稿流程</div>
+  <div class="diagram-container">
+    <div class="mermaid">
+flowchart TD
+    Draft["📝 探针提交报告草稿"]
+    
+    subgraph Reviewers["独立审稿（并行）"]
+        TechReader["🔬 技术审稿人<br/>事实准确性 · 逻辑完整性"]
+        ReadReader["💬 可读性审稿人<br/>Executive Summary · 术语"]
+        DomainReader["📚 领域审稿人<br/>专业深度 · 前沿性"]
+    end
+    
+    Score["📊 评分汇总<br/>每项 1-5 星"]
+    Decision{"总分 ≥ 21/25?"}
+    
+    Pass["✅ 通过 → 调色板美化"]
+    Revise["🔄 需修改 → 返回探针"]
+    
+    Draft --> Reviewers
+    Reviewers --> Score
+    Score --> Decision
+    Decision -->|">= 21"| Pass
+    Decision -->|"< 21"| Revise
+    Revise --> Draft
+    
+    style Draft fill:#38bdf8,color:#000
+    style Pass fill:#34d399,color:#000
+    style Revise fill:#fb923c,color:#000
+    style Decision fill:#f472b6,color:#000
+    </div>
+    <div class="diagram-caption">图 3: 三轮独立审稿流程 — 确保报告质量</div>
   </div>
 
-  <div class="card">
-    <h3><span class="emoji">💬</span> 读者 (Reader) × N <span class="role">独立审稿 · 质量反馈</span></h3>
-    <p>每篇报告配备若干名独立审稿人。从技术准确性、可读性、完整性等不同角度审核，以 GitHub Issue 形式提交审稿意见。</p>
-  </div>
-
-  <div class="section-title">工作流程</div>
-  <div class="workflow">
-    <div class="step"><div class="step-icon">📝</div><div class="step-title">选题</div><div class="step-desc">主编从 Issues/社区收集选题</div></div>
-    <div class="step"><div class="step-icon">🔬</div><div class="step-title">研究</div><div class="step-desc">探针多源研究、交叉验证</div></div>
-    <div class="step"><div class="step-icon">💬</div><div class="step-title">审稿</div><div class="step-desc">读者独立审核、提交意见</div></div>
-    <div class="step"><div class="step-icon">🎨</div><div class="step-title">美化</div><div class="step-desc">调色板统一视觉设计</div></div>
-    <div class="step"><div class="step-icon">🚀</div><div class="step-title">发布</div><div class="step-desc">GitHub Pages + Release</div></div>
-  </div>
-
-  <div class="section-title">项目理念</div>
-  <div class="card">
-    <h3><span class="emoji">🎯</span> 求真求实</h3>
-    <p>每个重要事实 ≥ 3 个独立来源交叉验证。来源分级：论文(A) > 官方博客(B) > 技术媒体(C) > 社区讨论(D)。明确区分事实、推断、观点、猜测。</p>
-  </div>
-  <div class="card">
-    <h3><span class="emoji">🤝</span> 开放协作</h3>
-    <p>通过 <a href="https://github.com/wqwz111/Tech-Researcher/issues">GitHub Issues</a> 收集选题建议和报告反馈。欢迎社区参与审稿和讨论。</p>
+  <!-- Philosophy -->
+  <div class="section-title">🎯 项目理念</div>
+  <div class="philosophy-grid">
+    <div class="phil-card">
+      <div class="phil-icon">🎯</div>
+      <h3>求真求实</h3>
+      <p>每个重要事实 ≥ 3 个独立来源交叉验证。来源分级：论文(A) &gt; 官方博客(B) &gt; 技术媒体(C) &gt; 社区讨论(D)。明确区分事实、推断、观点、猜测。</p>
+    </div>
+    <div class="phil-card">
+      <div class="phil-icon">🔗</div>
+      <h3>引用铁律</h3>
+      <p><strong>信息必须最新</strong> — 优先 2024-2025 年来源<br/><strong>引用必须带链接</strong> — 所有参考来源附 URL<br/><strong>禁止文本示意图</strong> — 使用 Mermaid 或信息图</p>
+    </div>
+    <div class="phil-card">
+      <div class="phil-icon">🤝</div>
+      <h3>开放协作</h3>
+      <p>通过 <a href="https://github.com/wqwz111/Tech-Researcher/issues">GitHub Issues</a> 收集选题建议和报告反馈。欢迎社区参与审稿和讨论。</p>
+    </div>
+    <div class="phil-card">
+      <div class="phil-icon">📊</div>
+      <h3>持续改进</h3>
+      <p>每次审稿都是改进机会。主编关注 Issues，收集有用信息，推动团队持续提升报告质量。</p>
+    </div>
   </div>
 </div>
 
 <div class="footer">
   <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-  <p><a href="https://github.com/wqwz111/Tech-Researcher">GitHub</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">Issues</a></p>
+  <p><a href="https://github.com/wqwz111/Tech-Researcher">GitHub</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">Issues</a> · <a href="https://github.com/wqwz111/Tech-Researcher/releases">Releases</a></p>
 </div>
 
 <script>
+function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('tr-theme', next);
+    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
+}
 (function() {
-  const saved = localStorage.getItem('tr-theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', saved);
+    const saved = localStorage.getItem('tr-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
 })();
+</script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+  mermaid.initialize({startOnLoad:true, theme:theme, themeVariables:{darkMode:theme==='dark'}});
 </script>
 </body>
 </html>
