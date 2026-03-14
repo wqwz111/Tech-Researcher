@@ -207,8 +207,8 @@ tools = [
 **b) Code Generation（代码生成）**
 Agent 生成完整代码块执行。适合需要多个步骤组合操作的场景。
 
-```
-Agent 输出:
+**示例** — Agent 输出如下 Python 代码并执行：
+
 ```python
 import requests
 data = requests.get("https://api.example.com/data").json()

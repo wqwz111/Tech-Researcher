@@ -28,9 +28,7 @@ a { color: #60a5fa; }
 code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
 pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
 pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
 .mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
 table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
 th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
 th { background: #1e293b; color: #7dd3fc; }
@@ -49,7 +47,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <div class="meta">
 <h1>向量数据库选型指南 2026</h1>
 <div class="info">2026-03-14 · 分类: 🛠️ 工具</div>
-<div class="tags"><span class="tag">fixme</span></div>
+<div class="tags"></div>
 </div>
 
 <p>> 最后更新: 2026-03-14 | 分类: 基础设施 / 数据库</p>
@@ -275,31 +273,29 @@ graph TD
     S3 --> O2
     S3 --> O3
 </div>
-<pre><code>
 
----
+<hr>
 
-## 6. 2025-2026 趋势观察
+<h2>6. 2025-2026 趋势观察</h2>
 
-1. **Serverless 化**: Pinecone Serverless 引领趋势，其他厂商跟进
-2. **稀疏+稠密混合**: 成为标配能力（2024-2025 年实现）
-3. **GPU 索引加速**: Milvus、Qdrant 开始支持 GPU 加速的索引构建
-4. **向量搜索"商品化"**: PostgreSQL (pgvector)、Redis、Elasticsearch 等传统数据库纷纷加入向量搜索能力
-5. **多模态原生**: Weaviate 引领多模态向量搜索方向
-6. **边缘部署**: 轻量级方案（Chroma、Qdrant 单机）在边缘/本地部署场景增长
+<p>1. <strong>Serverless 化</strong>: Pinecone Serverless 引领趋势，其他厂商跟进</p>
+<p>2. <strong>稀疏+稠密混合</strong>: 成为标配能力（2024-2025 年实现）</p>
+<p>3. <strong>GPU 索引加速</strong>: Milvus、Qdrant 开始支持 GPU 加速的索引构建</p>
+<p>4. <strong>向量搜索"商品化"</strong>: PostgreSQL (pgvector)、Redis、Elasticsearch 等传统数据库纷纷加入向量搜索能力</p>
+<p>5. <strong>多模态原生</strong>: Weaviate 引领多模态向量搜索方向</p>
+<p>6. <strong>边缘部署</strong>: 轻量级方案（Chroma、Qdrant 单机）在边缘/本地部署场景增长</p>
 
----
+<hr>
 
-## 参考来源
+<h2>参考来源</h2>
 
-1. **ANN Benchmarks** — [ann-benchmarks.com](https://ann-benchmarks.com) — 向量搜索性能基准测试
-2. **VectorDBBench** — [github.com/zilliz-tool/VectorDBBench](https://github.com/zilliz-tool/VectorDBBench) — Zilliz 出品的综合基准
-3. **Qdrant Benchmarks** — [qdrant.tech/benchmarks/](https://qdrant.tech/benchmarks/) — Qdrant 官方性能测试
-4. **各数据库官方文档** — Pinecone / Weaviate / Milvus / Qdrant / Chroma / pgvector 官方文档
-5. **DB-Engines Vector Database Ranking** — [db-engines.com](https://db-engines.com) — 数据库流行度趋势
-6. **LangChain Vector Store Integration Docs** — [python.langchain.com/docs/integrations/vectorstores/](https://python.langchain.com/docs/integrations/vectorstores/) — 集成支持矩阵
+<p>1. <strong>ANN Benchmarks</strong> — <a href="https://ann-benchmarks.com">ann-benchmarks.com</a> — 向量搜索性能基准测试</p>
+<p>2. <strong>VectorDBBench</strong> — <a href="https://github.com/zilliz-tool/VectorDBBench">github.com/zilliz-tool/VectorDBBench</a> — Zilliz 出品的综合基准</p>
+<p>3. <strong>Qdrant Benchmarks</strong> — <a href="https://qdrant.tech/benchmarks/">qdrant.tech/benchmarks/</a> — Qdrant 官方性能测试</p>
+<p>4. <strong>各数据库官方文档</strong> — Pinecone / Weaviate / Milvus / Qdrant / Chroma / pgvector 官方文档</p>
+<p>5. <strong>DB-Engines Vector Database Ranking</strong> — <a href="https://db-engines.com">db-engines.com</a> — 数据库流行度趋势</p>
+<p>6. <strong>LangChain Vector Store Integration Docs</strong> — <a href="https://python.langchain.com/docs/integrations/vectorstores/">python.langchain.com/docs/integrations/vectorstores/</a> — 集成支持矩阵</p>
 
-</code></pre>
 <div class="footer">
 <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
 <p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>

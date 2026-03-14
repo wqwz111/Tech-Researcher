@@ -28,9 +28,7 @@ a { color: #60a5fa; }
 code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
 pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
 pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
 .mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
 table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
 th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
 th { background: #1e293b; color: #7dd3fc; }
@@ -49,7 +47,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <div class="meta">
 <h1>AI Agent 设计模式</h1>
 <div class="info">2026-03-14 · 分类: 🔬 方法论</div>
-<div class="tags"><span class="tag">fixme</span></div>
+<div class="tags"></div>
 </div>
 
 <p>> <strong>发布日期</strong>: 2026-03-14  </p>
@@ -260,41 +258,42 @@ tools = [
 <p><strong>b) Code Generation（代码生成）</strong></p>
 <p>Agent 生成完整代码块执行。适合需要多个步骤组合操作的场景。</p>
 
+<p><strong>示例</strong> — Agent 输出如下 Python 代码并执行：</p>
+
 <pre><code>
-Agent 输出:
+import requests
+data = requests.get("https://api.example.com/data").json()
+filtered = [d for d in data if d["score"] &gt; 0.8]
+print(f"高分记录: {len(filtered)} 条")
 </code></pre>
-<p>import requests</p>
-<p>data = requests.get("https://api.example.com/data").json()</p>
-<p>filtered = [d for d in data if d["score"] > 0.8]</p>
-<p>print(f"高分记录: {len(filtered)} 条")</p>
-<pre><code>
 
-**c) Tool Chaining（工具链）**
-预定义工具调用序列，Agent 只需填充参数。适合标准化流程。
+<p><strong>c) Tool Chaining（工具链）</strong></p>
+<p>预定义工具调用序列，Agent 只需填充参数。适合标准化流程。</p>
 
-**推荐**: Function Calling 是目前最成熟的方式，建议优先采用。Code Generation 灵活性高但安全风险大，必须在沙箱中执行。
+<p><strong>推荐</strong>: Function Calling 是目前最成熟的方式，建议优先采用。Code Generation 灵活性高但安全风险大，必须在沙箱中执行。</p>
 
-### 2.3 工具结果处理
+<h3>2.3 工具结果处理</h3>
 
-工具返回的结果需要妥善处理：
+<p>工具返回的结果需要妥善处理：</p>
 
-| 结果类型 | 处理方式 |
-|----------|----------|
-| 成功 + 完整数据 | 直接传递给 LLM 继续推理 |
-| 成功 + 数据量大 | 摘要压缩后再传递，避免超出上下文窗口 |
-| 部分成功 | 标记警告，让 Agent 决定是否重试或换策略 |
-| 失败 + 可重试 | 自动重试（最多 3 次），每次增加等待时间 |
-| 失败 + 不可重试 | 返回错误描述，让 Agent 选择替代方案 |
+<table>
+<tr><th>结果类型</th><th>处理方式</th></tr>
+<tr><td>成功 + 完整数据</td><td>直接传递给 LLM 继续推理</td></tr>
+<tr><td>成功 + 数据量大</td><td>摘要压缩后再传递，避免超出上下文窗口</td></tr>
+<tr><td>部分成功</td><td>标记警告，让 Agent 决定是否重试或换策略</td></tr>
+<tr><td>失败 + 可重试</td><td>自动重试（最多 3 次），每次增加等待时间</td></tr>
+<tr><td>失败 + 不可重试</td><td>返回错误描述，让 Agent 选择替代方案</td></tr>
+</table>
 
-**Token 管理**: 工具返回的长文本需要截断或摘要。建议对超过 2000 字符的结果自动进行摘要，保留关键信息。
+<p><strong>Token 管理</strong>: 工具返回的长文本需要截断或摘要。建议对超过 2000 字符的结果自动进行摘要，保留关键信息。</p>
 
----
+<hr>
 
-## 三、错误处理策略
+<h2>三、错误处理策略</h2>
 
-Agent 系统的错误处理是生产化的关键瓶颈。据 LangSmith 统计，约 90% 的 Agent 失败源于工具调用和外部依赖环节。
+<p>Agent 系统的错误处理是生产化的关键瓶颈。据 LangSmith 统计，约 90% 的 Agent 失败源于工具调用和外部依赖环节。</p>
 
-### 3.1 错误分类
+<h3>3.1 错误分类</h3>
 
 <div class="mermaid">
 graph TD
