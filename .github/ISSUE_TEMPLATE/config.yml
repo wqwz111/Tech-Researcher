@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Issue 标签体系说明
+    url: https://github.com/wqwz111/Tech-Researcher/blob/master/.github/ISSUE_GUIDE.md
+    about: 了解我们的 Issue 分类、标签含义和提交规范

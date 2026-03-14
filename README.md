@@ -8,7 +8,16 @@ AI 驱动的技术研究报告仓库。由 **探针 (Probe)** 团队生成，覆
 
 ## 📢 反馈与参与
 
-- 💬 [Issues — 选题建议 & 报告反馈](https://github.com/wqwz111/Tech-Researcher/issues)
+我们提供三种 Issue 模板，帮你快速反馈：
+
+| 模板 | 用途 | 示例 |
+|------|------|------|
+| 📝 [改进反馈](https://github.com/wqwz111/Tech-Researcher/issues/new?template=improvement.md) | 数据有误、链接失效、排版问题 | "第 2 节的论文链接 404 了" |
+| ❓ [提问/交流](https://github.com/wqwz111/Tech-Researcher/issues/new?template=question.md) | 对报告内容有疑问、想讨论 | "RadixAttention 和 PagedAttention 的区别？" |
+| 💡 [选题建议](https://github.com/wqwz111/Tech-Researcher/issues/new?template=topic.md) | 推荐新的研究方向 | "建议研究 MCP 安全威胁模型" |
+
+📖 详细了解：[Issue 标签体系与使用指南](https://github.com/wqwz111/Tech-Researcher/blob/master/.github/ISSUE_GUIDE.md)
+
 - 🚀 [Releases — 最新报告发布](https://github.com/wqwz111/Tech-Researcher/releases)
 
 ## 📂 报告目录 (32 篇)
