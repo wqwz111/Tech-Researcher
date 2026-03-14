@@ -3,139 +3,252 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔬 探针研究报告</title>
+<title>🔬 Tech Researcher — AI 技术研究报告</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  :root { --bg:#0a0e1a;--bg-card:#111827;--bg-code:#1a1f2e;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;--border:#2d3748;--border-light:#1a202c;--accent:#818cf8;--accent-text:#c7d2fe;--accent-hover:#a5b4fc;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#818cf8;--code-text:#a5b4fc; }
-  [data-theme="light"] { --bg:#ffffff;--bg-card:#f8fafc;--bg-code:#f1f5f9;--text:#0f172a;--text-muted:#334155;--text-dim:#64748b;--border:#e2e8f0;--border-light:#f1f5f9;--accent:#4f46e5;--accent-text:#3730a3;--accent-hover:#6366f1;--tag-bg:#e0e7ff;--tag-text:#312e81;--link:#4f46e5;--code-text:#6d28d9; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; transition: background .3s, color .3s; }
-  .header { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 2.5rem 2rem; text-align: center; position: relative; }
-  .header h1 { font-size: 2.2rem; margin-bottom: 0.5rem; color: var(--text); }
-  .header p { color: var(--text-muted); font-size: 1rem; }
-  .header .badge { display: inline-block; margin-top: 0.8rem; padding: 0.3rem 0.8rem; background: var(--tag-bg); color: var(--tag-text); border-radius: 20px; font-size: 0.8rem; }
-  .container { max-width: 960px; margin: 2rem auto; padding: 0 1.5rem; }
-  .section-title { font-size: 1.1rem; color: var(--text-dim); margin: 2rem 0 1rem; border-bottom: 1px solid var(--border-light); padding-bottom: 0.5rem; }
-  .report-list { list-style: none; }
-  .report-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; transition: all 0.2s; }
-  .report-item:hover { border-color: var(--accent); transform: translateY(-1px); }
-  .report-item a { color: var(--accent-text); text-decoration: none; font-size: 1.15rem; font-weight: 600; }
-  .report-item a:hover { color: var(--accent-hover); text-decoration: underline; }
-  .report-meta { color: var(--text-dim); font-size: 0.85rem; margin-top: 0.5rem; }
-  .report-tag { display: inline-block; padding: 0.15rem 0.5rem; margin-right: 0.3rem; background: var(--bg-code); border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem; color: var(--text-muted); }
-  .footer { text-align: center; color: var(--text-dim); padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-light); font-size: 0.85rem; }
-  .footer a { color: var(--link); text-decoration: none; }
-  .theme-toggle { position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code); border: 1px solid var(--border); border-radius: 24px; padding: 0.3rem 0.6rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all .3s; }
-  .theme-toggle:hover { border-color: var(--accent); }
-  .theme-toggle .icon { font-size: 1.1rem; }
-  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+  :root {
+    --bg:#0a0e1a;--bg-card:#111827;--bg-card-hover:#1a2235;--bg-code:#1a1f2e;
+    --text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;
+    --border:#2d3748;--border-light:#1a202c;
+    --accent:#818cf8;--accent-text:#c7d2fe;--accent-hover:#a5b4fc;
+    --tag-bg:#3730a3;--tag-text:#c7d2fe;
+    --green:#34d399;--blue:#60a5fa;--orange:#fb923c;--pink:#f472b6;
+    --gradient:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  }
+  [data-theme="light"] {
+    --bg:#f8fafc;--bg-card:#ffffff;--bg-card-hover:#f1f5f9;--bg-code:#f1f5f9;
+    --text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
+    --border:#e2e8f0;--border-light:#f1f5f9;
+    --accent:#4f46e5;--accent-text:#3730a3;--accent-hover:#6366f1;
+    --tag-bg:#e0e7ff;--tag-text:#312e81;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans SC',sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  a { color:var(--blue); text-decoration:none; transition:color .2s; }
+  a:hover { color:var(--accent-hover); }
+
+  /* Hero */
+  .hero { background:var(--gradient); padding:3.5rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  .hero::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0v60M0 30h60' stroke='rgba(255,255,255,.06)' stroke-width='1'/%3E%3C/svg%3E"); }
+  .hero h1 { font-size:2.4rem; color:#fff; position:relative; }
+  .hero p { color:rgba(255,255,255,.85); font-size:1.1rem; margin-top:.5rem; position:relative; }
+  .hero .stats { display:flex; justify-content:center; gap:2rem; margin-top:1.5rem; position:relative; }
+  .hero .stat { text-align:center; color:#fff; }
+  .hero .stat-num { font-size:2rem; font-weight:700; }
+  .hero .stat-label { font-size:.8rem; opacity:.8; }
+
+  /* Nav */
+  .nav-bar { background:var(--bg-card); border-bottom:1px solid var(--border); padding:.8rem 2rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; position:sticky; top:0; z-index:100; }
+  .nav-bar a { color:var(--text-muted); font-size:.9rem; padding:.3rem .7rem; border-radius:6px; transition:all .2s; }
+  .nav-bar a:hover, .nav-bar a.active { color:var(--accent-text); background:var(--tag-bg); }
+  .nav-bar .spacer { flex:1; }
+  .theme-btn { background:var(--bg-code); border:1px solid var(--border); border-radius:20px; padding:.3rem .8rem; cursor:pointer; color:var(--text-muted); font-size:.85rem; display:flex; align-items:center; gap:.3rem; }
+  .theme-btn:hover { border-color:var(--accent); }
+  .gh-btn { background:#238636; color:#fff; padding:.35rem .9rem; border-radius:6px; font-size:.85rem; font-weight:500; display:flex; align-items:center; gap:.4rem; }
+  .gh-btn:hover { background:#2ea043; color:#fff; }
+
+  /* Container */
+  .container { max-width:1100px; margin:0 auto; padding:2rem 1.5rem; }
+
+  /* Section */
+  .section { margin-bottom:2.5rem; }
+  .section-header { display:flex; align-items:center; gap:.6rem; margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid var(--border); }
+  .section-icon { font-size:1.5rem; }
+  .section-title { font-size:1.3rem; font-weight:700; color:var(--text); }
+  .section-count { background:var(--tag-bg); color:var(--tag-text); font-size:.75rem; padding:.15rem .5rem; border-radius:10px; margin-left:auto; }
+
+  /* Grid */
+  .report-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1rem; }
+  .report-card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:1.2rem; transition:all .25s; position:relative; overflow:hidden; }
+  .report-card:hover { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 8px 25px rgba(0,0,0,.2); }
+  .report-card .card-cat { font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.5px; margin-bottom:.5rem; }
+  .report-card .card-cat.methodology { color:var(--pink); }
+  .report-card .card-cat.case-studies { color:var(--green); }
+  .report-card .card-cat.tools { color:var(--blue); }
+  .report-card .card-cat.frameworks { color:var(--orange); }
+  .report-card .card-title { font-size:1rem; font-weight:600; color:var(--text); margin-bottom:.5rem; }
+  .report-card .card-title a { color:inherit; }
+  .report-card .card-title a:hover { color:var(--accent-hover); }
+  .report-card .card-desc { font-size:.85rem; color:var(--text-muted); margin-bottom:.7rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .report-card .card-tags { display:flex; flex-wrap:wrap; gap:.3rem; }
+  .report-card .card-tag { font-size:.7rem; padding:.1rem .4rem; background:var(--bg-code); border:1px solid var(--border); border-radius:4px; color:var(--text-dim); }
+  .report-card .card-new { position:absolute; top:0; right:0; background:var(--green); color:#000; font-size:.65rem; font-weight:700; padding:.2rem .5rem; border-radius:0 12px 0 8px; }
+
+  /* Featured row */
+  .featured { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem; }
+  .featured-card { background:var(--gradient); border-radius:12px; padding:1.5rem; color:#fff; }
+  .featured-card .fc-label { font-size:.7rem; opacity:.8; text-transform:uppercase; letter-spacing:1px; }
+  .featured-card .fc-title { font-size:1.2rem; font-weight:700; margin:.5rem 0; }
+  .featured-card .fc-desc { font-size:.85rem; opacity:.9; }
+  .featured-card a { color:#fff; }
+
+  /* Footer */
+  .footer { text-align:center; color:var(--text-dim); padding:2rem; border-top:1px solid var(--border-light); margin-top:2rem; }
+  .footer a { color:var(--accent); }
+
+  /* Responsive */
+  @media(max-width:700px) {
+    .hero h1 { font-size:1.8rem; }
+    .featured { grid-template-columns:1fr; }
+    .report-grid { grid-template-columns:1fr; }
+    .hero .stats { gap:1rem; }
+    .hero .stat-num { font-size:1.5rem; }
+  }
 </style>
 </head>
 <body>
-<div class="header" style="position:relative">
-  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式"><span class="icon" id="themeIcon">☀️</span><span class="label" id="themeLabel">日间</span></button>
-  <h1>🔬 探针研究报告</h1>
-  <p>Tech Research Reports — by Probe</p>
-  <span class="badge">AI · LLM · Architecture · Design</span>
+
+<!-- Hero -->
+<div class="hero">
+  <h1>🔬 Tech Researcher</h1>
+  <p>AI 驱动的技术研究报告 · 求真求实 · 深度分析</p>
+  <div class="stats">
+    <div class="stat"><div class="stat-num">32</div><div class="stat-label">研究报告</div></div>
+    <div class="stat"><div class="stat-num">4</div><div class="stat-label">研究方向</div></div>
+    <div class="stat"><div class="stat-num">64</div><div class="stat-label">文件产出</div></div>
+  </div>
 </div>
+
+<!-- Nav -->
+<div class="nav-bar">
+  <a href="#" class="active" onclick="showAll()">全部</a>
+  <a href="#methodology" onclick="filterCat('methodology')">🔬 方法论</a>
+  <a href="#case-studies" onclick="filterCat('case-studies')">📊 案例实践</a>
+  <a href="#tools" onclick="filterCat('tools')">🛠️ 工具</a>
+  <a href="#frameworks" onclick="filterCat('frameworks')">🏗️ 框架</a>
+  <a href="./team.html">👥 团队</a>
+  <div class="spacer"></div>
+  <a href="https://github.com/wqwz111/Tech-Researcher/issues" target="_blank" class="gh-btn">💬 Issues</a>
+  <button class="theme-btn" onclick="toggleTheme()"><span id="themeIcon">☀️</span></button>
+</div>
+
+<!-- Content -->
 <div class="container">
-  <div class="section-title">📂 OpenClaw 研究系列</div>
-  <ul class="report-list">
-    <li class="report-item">
-      <a href="./openclaw/01-architecture.html">1. OpenClaw 架构概览与核心概念</a>
-      <div class="report-meta"><span class="report-tag">Gateway</span><span class="report-tag">Agent</span><span class="report-tag">Binding</span><span class="report-tag">Architecture</span> · 2026-03-14</div>
-    </li>
-    <li class="report-item">
-      <a href="./openclaw/02-multi-agent-team.html">2. 多智能体团队协作模式</a>
-      <div class="report-meta"><span class="report-tag">Multi-Agent</span><span class="report-tag">Sub-agent</span><span class="report-tag">Orchestrator</span><span class="report-tag">Binding</span> · 2026-03-14</div>
-    </li>
-    <li class="report-item">
-      <a href="./openclaw/03-acp-coding-agents.html">3. ACP 编程智能体集成</a>
-      <div class="report-meta"><span class="report-tag">ACP</span><span class="report-tag">Codex</span><span class="report-tag">Claude Code</span><span class="report-tag">Gemini</span> · 2026-03-14</div>
-    </li>
-    <li class="report-item">
-      <a href="./openclaw/04-enterprise-patterns.html">4. 企业级部署与最佳实践</a>
-      <div class="report-meta"><span class="report-tag">Sandbox</span><span class="report-tag">Security</span><span class="report-tag">Cost</span><span class="report-tag">Team</span> · 2026-03-14</div>
-    </li>
-  </ul>
-  <div class="section-title">📂 移动端 AI 智能体系列</div>
-  <ul class="report-list">
-    <li class="report-item">
-      <a href="./mobile-ai-agent/index.html">📱 移动端 AI 智能体 — 专题研究系列</a>
-      <div class="report-meta"><span class="report-tag">应用案例</span><span class="report-tag">发展趋势</span><span class="report-tag">挑战应对</span> · 2026-03-14</div>
-    </li>
-  </ul>
-  <div class="section-title">📂 方法论 (Methodology) — 8 篇</div>
-  <ul class="report-list">
-    <li class="report-item"><a href="./methodology/prompt-engineering.html">Prompt Engineering 系统化方法论</a><div class="report-meta"><span class="report-tag">CoT</span><span class="report-tag">Few-shot</span><span class="report-tag">ToT</span><span class="report-tag">企业实践</span></div></li>
-    <li class="report-item"><a href="./methodology/rag-patterns.html">RAG 架构设计模式全解析</a><div class="report-meta"><span class="report-tag">Naive RAG</span><span class="report-tag">Advanced RAG</span><span class="report-tag">Modular RAG</span><span class="report-tag">混合检索</span></div></li>
-    <li class="report-item"><a href="./methodology/agent-design-patterns.html">AI Agent 设计模式</a><div class="report-meta"><span class="report-tag">ReAct</span><span class="report-tag">Plan-and-Execute</span><span class="report-tag">Reflection</span><span class="report-tag">工具使用</span></div></li>
-    <li class="report-item"><a href="./methodology/fine-tuning-strategies.html">大模型微调策略对比研究</a><div class="report-meta"><span class="report-tag">LoRA</span><span class="report-tag">QLoRA</span><span class="report-tag">PEFT</span><span class="report-tag">DPO</span></div></li>
-    <li class="report-item"><a href="./methodology/llm-evaluation.html">LLM 评估与 Benchmark 方法论</a><div class="report-meta"><span class="report-tag">MMLU</span><span class="report-tag">HumanEval</span><span class="report-tag">RAGAS</span><span class="report-tag">评估陷阱</span></div></li>
-    <li class="report-item"><a href="./methodology/agent-memory.html">Agent 记忆系统架构研究</a><div class="report-meta"><span class="report-tag">短期记忆</span><span class="report-tag">长期记忆</span><span class="report-tag">向量存储</span><span class="report-tag">Mem0</span></div></li>
-    <li class="report-item"><a href="./methodology/multi-agent-collaboration.html">多智能体协作模式研究</a><div class="report-meta"><span class="report-tag">层级式</span><span class="report-tag">扁平式</span><span class="report-tag">CrewAI</span><span class="report-tag">AutoGen</span></div></li>
-    <li class="report-item"><a href="./methodology/reasoning-enhancement.html">推理增强技术全景分析</a><div class="report-meta"><span class="report-tag">CoT</span><span class="report-tag">ToT</span><span class="report-tag">Self-Consistency</span><span class="report-tag">Test-Time Compute</span></div></li>
-  </ul>
 
-  <div class="section-title">📂 案例实践 (Case Studies) — 8 篇</div>
-  <ul class="report-list">
-    <li class="report-item"><a href="./case-studies/openai-ecosystem.html">OpenAI 产品生态深度拆解</a><div class="report-meta"><span class="report-tag">GPT-4o</span><span class="report-tag">o1/o3</span><span class="report-tag">API</span><span class="report-tag">GPTs</span></div></li>
-    <li class="report-item"><a href="./case-studies/anthropic-enterprise.html">Anthropic Claude 企业级实践</a><div class="report-meta"><span class="report-tag">Claude 3.5</span><span class="report-tag">Claude Code</span><span class="report-tag">Artifacts</span><span class="report-tag">Constitutional AI</span></div></li>
-    <li class="report-item"><a href="./case-studies/gemini-multimodal.html">Google Gemini 多模态应用实践</a><div class="report-meta"><span class="report-tag">Gemini 2.0</span><span class="report-tag">多模态</span><span class="report-tag">Vertex AI</span></div></li>
-    <li class="report-item"><a href="./case-studies/ai-coding-assistants.html">AI 编程助手实战对比</a><div class="report-meta"><span class="report-tag">Copilot</span><span class="report-tag">Cursor</span><span class="report-tag">Claude Code</span><span class="report-tag">Windsurf</span></div></li>
-    <li class="report-item"><a href="./case-studies/ai-finance.html">AI 在金融领域落地案例研究</a><div class="report-meta"><span class="report-tag">风控</span><span class="report-tag">智能投顾</span><span class="report-tag">合规</span></div></li>
-    <li class="report-item"><a href="./case-studies/ai-healthcare.html">AI 在医疗领域落地案例研究</a><div class="report-meta"><span class="report-tag">医学影像</span><span class="report-tag">药物研发</span><span class="report-tag">临床决策</span></div></li>
-    <li class="report-item"><a href="./case-studies/open-source-deployment.html">开源大模型部署实战指南</a><div class="report-meta"><span class="report-tag">Llama 3</span><span class="report-tag">Qwen 2.5</span><span class="report-tag">DeepSeek</span><span class="report-tag">量化</span></div></li>
-    <li class="report-item"><a href="./case-studies/rag-production.html">RAG 生产环境踩坑实录</a><div class="report-meta"><span class="report-tag">数据质量</span><span class="report-tag">幻觉控制</span><span class="report-tag">监控优化</span></div></li>
-  </ul>
+  <!-- Featured -->
+  <div class="featured">
+    <div class="featured-card">
+      <div class="fc-label">🆕 最新发布</div>
+      <div class="fc-title">32 篇研究报告 · 四大类别</div>
+      <div class="fc-desc">涵盖方法论、案例实践、工具与框架，系统梳理 AI 技术栈全景</div>
+    </div>
+    <div class="featured-card" style="background:linear-gradient(135deg,#1e3a5f,#0f172a);border:1px solid #38bdf8;">
+      <div class="fc-label">🔥 推荐阅读</div>
+      <div class="fc-title">RAG 架构设计模式全解析</div>
+      <div class="fc-desc">从 Naive RAG 到 Modular RAG，覆盖检索策略、分块方法、生产实践</div>
+    </div>
+  </div>
 
-  <div class="section-title">📂 工具 (Tools) — 8 篇</div>
-  <ul class="report-list">
-    <li class="report-item"><a href="./tools/langchain-vs-llamaindex.html">LangChain vs LlamaIndex 深度对比</a><div class="report-meta"><span class="report-tag">LangChain</span><span class="report-tag">LlamaIndex</span><span class="report-tag">RAG框架</span></div></li>
-    <li class="report-item"><a href="./tools/vector-databases.html">向量数据库选型指南 2026</a><div class="report-meta"><span class="report-tag">Pinecone</span><span class="report-tag">Milvus</span><span class="report-tag">Qdrant</span><span class="report-tag">pgvector</span></div></li>
-    <li class="report-item"><a href="./tools/ai-orchestration.html">AI 编排平台横向对比</a><div class="report-meta"><span class="report-tag">Dify</span><span class="report-tag">Coze</span><span class="report-tag">n8n</span><span class="report-tag">LangFlow</span></div></li>
-    <li class="report-item"><a href="./tools/openclaw-guide.html">OpenClaw 深度使用指南</a><div class="report-meta"><span class="report-tag">Agent 编排</span><span class="report-tag">多渠道接入</span><span class="report-tag">MCP</span></div></li>
-    <li class="report-item"><a href="./tools/mcp-ecosystem.html">MCP 协议生态深度分析</a><div class="report-meta"><span class="report-tag">Model Context Protocol</span><span class="report-tag">Function Calling</span></div></li>
-    <li class="report-item"><a href="./tools/ai-devtools.html">AI 开发者工具链全景图</a><div class="report-meta"><span class="report-tag">LiteLLM</span><span class="report-tag">Prompt管理</span><span class="report-tag">训练工具</span></div></li>
-    <li class="report-item"><a href="./tools/observability-tools.html">AI 可观测性与调试工具研究</a><div class="report-meta"><span class="report-tag">LangSmith</span><span class="report-tag">LangFuse</span><span class="report-tag">成本监控</span></div></li>
-    <li class="report-item"><a href="./tools/ai-security-tools.html">AI 安全与防护工具研究</a><div class="report-meta"><span class="report-tag">Prompt Injection</span><span class="report-tag">内容安全</span><span class="report-tag">合规</span></div></li>
-  </ul>
+  <!-- Methodology -->
+  <div class="section" id="methodology">
+    <div class="section-header">
+      <span class="section-icon">🔬</span>
+      <span class="section-title">方法论 Methodology</span>
+      <span class="section-count">8 篇</span>
+    </div>
+    <div class="report-grid">
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/prompt-engineering.html">Prompt Engineering 系统化方法论</a></div><div class="card-desc">从 Zero-shot CoT 到 Tree-of-Thought，系统梳理 Prompt 工程的核心技巧与高级策略</div><div class="card-tags"><span class="card-tag">CoT</span><span class="card-tag">ToT</span><span class="card-tag">Few-shot</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/rag-patterns.html">RAG 架构设计模式全解析</a></div><div class="card-desc">Naive → Advanced → Modular RAG 三代演进，检索策略与分块方法深度分析</div><div class="card-tags"><span class="card-tag">RAG</span><span class="card-tag">混合检索</span><span class="card-tag">Reranking</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/agent-design-patterns.html">AI Agent 设计模式</a></div><div class="card-desc">ReAct、Plan-and-Execute、Reflection 等核心 Agent 设计模式与实践</div><div class="card-tags"><span class="card-tag">ReAct</span><span class="card-tag">Reflection</span><span class="card-tag">工具使用</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/fine-tuning-strategies.html">大模型微调策略对比研究</a></div><div class="card-desc">LoRA vs QLoRA vs Full FT，含 RLHF/DPO/GRPO 深度对比与实证数据</div><div class="card-tags"><span class="card-tag">LoRA</span><span class="card-tag">DPO</span><span class="card-tag">QLoRA</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/llm-evaluation.html">LLM 评估与 Benchmark 方法论</a></div><div class="card-desc">MMLU、HumanEval、RAGAS 等评估体系深度解析，6 大常见陷阱</div><div class="card-tags"><span class="card-tag">Benchmark</span><span class="card-tag">RAGAS</span><span class="card-tag">评估</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/agent-memory.html">Agent 记忆系统架构研究</a></div><div class="card-desc">短期/长期/工作记忆分类，向量存储检索策略，Mem0 与 MemGPT 对比</div><div class="card-tags"><span class="card-tag">记忆</span><span class="card-tag">向量存储</span><span class="card-tag">Mem0</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/multi-agent-collaboration.html">多智能体协作模式研究</a></div><div class="card-desc">层级式/扁平式/市场式组织，CrewAI/AutoGen/MetaGPT 框架对比</div><div class="card-tags"><span class="card-tag">Multi-Agent</span><span class="card-tag">CrewAI</span><span class="card-tag">AutoGen</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/reasoning-enhancement.html">推理增强技术全景分析</a></div><div class="card-desc">CoT/ToT/GoT 演进，Self-Consistency，Process Reward Models，Test-Time Compute</div><div class="card-tags"><span class="card-tag">CoT</span><span class="card-tag">PRM</span><span class="card-tag">o1/o3</span></div></div>
+    </div>
+  </div>
 
-  <div class="section-title">📂 框架 (Frameworks) — 8 篇</div>
-  <ul class="report-list">
-    <li class="report-item"><a href="./frameworks/openai-api.html">OpenAI API 最佳实践指南</a><div class="report-meta"><span class="report-tag">Function Calling</span><span class="report-tag">Structured Output</span><span class="report-tag">流式处理</span></div></li>
-    <li class="report-item"><a href="./frameworks/claude-api.html">Anthropic Claude API 深度指南</a><div class="report-meta"><span class="report-tag">Tool Use</span><span class="report-tag">Computer Use</span><span class="report-tag">Prompt Caching</span></div></li>
-    <li class="report-item"><a href="./frameworks/inference-frameworks.html">开源模型推理框架对比研究</a><div class="report-meta"><span class="report-tag">vLLM</span><span class="report-tag">TGI</span><span class="report-tag">SGLang</span><span class="report-tag">Ollama</span></div></li>
-    <li class="report-item"><a href="./frameworks/vllm-production.html">vLLM 生产部署完全指南</a><div class="report-meta"><span class="report-tag">PagedAttention</span><span class="report-tag">部署调优</span><span class="report-tag">多租户</span></div></li>
-    <li class="report-item"><a href="./frameworks/agent-frameworks.html">AI Agent 框架横向对比</a><div class="report-meta"><span class="report-tag">LangGraph</span><span class="report-tag">CrewAI</span><span class="report-tag">AutoGen</span><span class="report-tag">OpenClaw</span></div></li>
-    <li class="report-item"><a href="./frameworks/multimodal-frameworks.html">多模态 AI 框架分析</a><div class="report-meta"><span class="report-tag">视觉理解</span><span class="report-tag">音频处理</span><span class="report-tag">视频理解</span></div></li>
-    <li class="report-item"><a href="./frameworks/ai-frontend.html">AI 应用前端框架选型指南</a><div class="report-meta"><span class="report-tag">Vercel AI SDK</span><span class="report-tag">Streamlit</span><span class="report-tag">Gradio</span></div></li>
-    <li class="report-item"><a href="./frameworks/ai-infrastructure.html">AI 基础设施与云平台对比</a><div class="report-meta"><span class="report-tag">AWS Bedrock</span><span class="report-tag">Azure OpenAI</span><span class="report-tag">Vertex AI</span></div></li>
-  </ul>
+  <!-- Case Studies -->
+  <div class="section" id="case-studies">
+    <div class="section-header">
+      <span class="section-icon">📊</span>
+      <span class="section-title">案例实践 Case Studies</span>
+      <span class="section-count">8 篇</span>
+    </div>
+    <div class="report-grid">
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/openai-ecosystem.html">OpenAI 产品生态深度拆解</a></div><div class="card-desc">GPT-4o/o1/o3 模型演进，API 产品线与定价策略，GPTs 生态分析</div><div class="card-tags"><span class="card-tag">GPT-4o</span><span class="card-tag">o1</span><span class="card-tag">API</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/anthropic-enterprise.html">Anthropic Claude 企业级实践</a></div><div class="card-desc">Claude 3.5/4 能力分析，Claude Code 编程实践，Constitutional AI 安全</div><div class="card-tags"><span class="card-tag">Claude</span><span class="card-tag">Claude Code</span><span class="card-tag">Artifacts</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/gemini-multimodal.html">Google Gemini 多模态应用实践</a></div><div class="card-desc">Gemini 2.0 架构，多模态应用场景，Google AI Studio 与 Vertex AI</div><div class="card-tags"><span class="card-tag">Gemini</span><span class="card-tag">多模态</span><span class="card-tag">Vertex AI</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/ai-coding-assistants.html">AI 编程助手实战对比</a></div><div class="card-desc">Copilot vs Cursor vs Claude Code vs Windsurf，效率提升数据分析</div><div class="card-tags"><span class="card-tag">Copilot</span><span class="card-tag">Cursor</span><span class="card-tag">Windsurf</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/ai-finance.html">AI 在金融领域落地案例研究</a></div><div class="card-desc">风控反欺诈、智能投顾、合规文档处理、客服营销自动化深度案例</div><div class="card-tags"><span class="card-tag">风控</span><span class="card-tag">智能投顾</span><span class="card-tag">合规</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/ai-healthcare.html">AI 在医疗领域落地案例研究</a></div><div class="card-desc">医学影像诊断、药物研发加速、电子病历分析、临床决策辅助</div><div class="card-tags"><span class="card-tag">医学影像</span><span class="card-tag">药物研发</span><span class="card-tag">FDA</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/open-source-deployment.html">开源大模型部署实战指南</a></div><div class="card-desc">Llama 3/Qwen 2.5/DeepSeek 部署方案对比，量化技术与成本分析</div><div class="card-tags"><span class="card-tag">Llama</span><span class="card-tag">DeepSeek</span><span class="card-tag">量化</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/rag-production.html">RAG 生产环境踩坑实录</a></div><div class="card-desc">真实生产 RAG 挑战，数据质量、检索失败、幻觉控制、监控优化</div><div class="card-tags"><span class="card-tag">RAG</span><span class="card-tag">幻觉控制</span><span class="card-tag">监控</span></div></div>
+    </div>
+  </div>
 
-  <div class="section-title">📂 独立研究</div>
-  <ul class="report-list">
-    <li class="report-item">
-      <a href="./2026-03-14-mobile-ai-agent.html">📱 移动端 AI 智能体应用 — 深度研究报告</a>
-      <div class="report-meta"><span class="report-tag">Mobile AI</span><span class="report-tag">On-Device Agent</span><span class="report-tag">Edge Computing</span><span class="report-tag">LLM</span><span class="report-tag">GUI Agent</span> · 2026-03-14</div>
-    </li>
-  </ul>
+  <!-- Tools -->
+  <div class="section" id="tools">
+    <div class="section-header">
+      <span class="section-icon">🛠️</span>
+      <span class="section-title">工具 Tools</span>
+      <span class="section-count">8 篇</span>
+    </div>
+    <div class="report-grid">
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/langchain-vs-llamaindex.html">LangChain vs LlamaIndex 深度对比</a></div><div class="card-desc">架构设计哲学差异，核心组件对比，生态系统与选型建议</div><div class="card-tags"><span class="card-tag">LangChain</span><span class="card-tag">LlamaIndex</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/vector-databases.html">向量数据库选型指南 2026</a></div><div class="card-desc">Pinecone/Milvus/Qdrant/Chroma/pgvector 性能基准与选型决策树</div><div class="card-tags"><span class="card-tag">Milvus</span><span class="card-tag">Qdrant</span><span class="card-tag">pgvector</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/ai-orchestration.html">AI 编排平台横向对比</a></div><div class="card-desc">Dify/Coze/n8n/LangFlow/Flowise 可视化编排与代码优先方案对比</div><div class="card-tags"><span class="card-tag">Dify</span><span class="card-tag">n8n</span><span class="card-tag">编排</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/openclaw-guide.html">OpenClaw 深度使用指南</a></div><div class="card-desc">Agent 编排、多渠道接入、技能系统与 MCP 集成完整指南</div><div class="card-tags"><span class="card-tag">OpenClaw</span><span class="card-tag">Agent</span><span class="card-tag">MCP</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/mcp-ecosystem.html">MCP 协议生态深度分析</a></div><div class="card-desc">Model Context Protocol 设计原理，服务端架构，与 Function Calling 对比</div><div class="card-tags"><span class="card-tag">MCP</span><span class="card-tag">Protocol</span><span class="card-tag">Function Calling</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/ai-devtools.html">AI 开发者工具链全景图</a></div><div class="card-desc">API 网关、Prompt 管理、数据标注、训练工具、端到端工作流</div><div class="card-tags"><span class="card-tag">LiteLLM</span><span class="card-tag">Prompt管理</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/observability-tools.html">AI 可观测性与调试工具研究</a></div><div class="card-desc">LangSmith/LangFuse/Phoenix 追踪，成本监控，质量回归测试</div><div class="card-tags"><span class="card-tag">LangSmith</span><span class="card-tag">LangFuse</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/ai-security-tools.html">AI 安全与防护工具研究</a></div><div class="card-desc">Prompt Injection 防护、内容安全过滤、模型安全评估、隐私保护</div><div class="card-tags"><span class="card-tag">安全</span><span class="card-tag">Prompt Injection</span><span class="card-tag">合规</span></div></div>
+    </div>
+  </div>
+
+  <!-- Frameworks -->
+  <div class="section" id="frameworks">
+    <div class="section-header">
+      <span class="section-icon">🏗️</span>
+      <span class="section-title">框架 Frameworks</span>
+      <span class="section-count">8 篇</span>
+    </div>
+    <div class="report-grid">
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/openai-api.html">OpenAI API 最佳实践指南</a></div><div class="card-desc">Function Calling、Structured Output、流式处理、成本优化</div><div class="card-tags"><span class="card-tag">OpenAI</span><span class="card-tag">API</span><span class="card-tag">Function Calling</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/claude-api.html">Anthropic Claude API 深度指南</a></div><div class="card-desc">Tool Use、Computer Use、Prompt Caching、系统提示词最佳实践</div><div class="card-tags"><span class="card-tag">Claude API</span><span class="card-tag">Tool Use</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/inference-frameworks.html">开源模型推理框架对比研究</a></div><div class="card-desc">vLLM/TGI/SGLang/Ollama 吞吐量延迟对比与选型建议</div><div class="card-tags"><span class="card-tag">vLLM</span><span class="card-tag">SGLang</span><span class="card-tag">Ollama</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/vllm-production.html">vLLM 生产部署完全指南</a></div><div class="card-desc">PagedAttention 原理、部署调优、多模型多租户、运维监控</div><div class="card-tags"><span class="card-tag">vLLM</span><span class="card-tag">PagedAttention</span><span class="card-tag">部署</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/agent-frameworks.html">AI Agent 框架横向对比</a></div><div class="card-desc">LangGraph/CrewAI/AutoGen/MetaGPT/OpenClaw 编程模型与生产就绪度</div><div class="card-tags"><span class="card-tag">LangGraph</span><span class="card-tag">CrewAI</span><span class="card-tag">OpenClaw</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/multimodal-frameworks.html">多模态 AI 框架分析</a></div><div class="card-desc">视觉/音频/视频理解框架，多模态融合策略与应用选型</div><div class="card-tags"><span class="card-tag">多模态</span><span class="card-tag">Vision</span><span class="card-tag">Whisper</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/ai-frontend.html">AI 应用前端框架选型指南</a></div><div class="card-desc">Vercel AI SDK/Streamlit/Gradio，流式响应与聊天界面组件库</div><div class="card-tags"><span class="card-tag">Vercel AI SDK</span><span class="card-tag">Streamlit</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/ai-infrastructure.html">AI 基础设施与云平台对比</a></div><div class="card-desc">AWS Bedrock/Azure OpenAI/Vertex AI/Together AI 定价与企业特性对比</div><div class="card-tags"><span class="card-tag">AWS</span><span class="card-tag">Azure</span><span class="card-tag">GCP</span></div></div>
+    </div>
+  </div>
+
 </div>
-<div class="footer">探针 (Probe) · AI 技术研究分析师 · 2026<br>Powered by <a href="https://github.com/wqwz111/Tech-Researcher">GitHub Pages</a></div>
+
+<!-- Footer -->
+<div class="footer">
+  <p>🔬 Tech Researcher · 探针 (Probe) · AI 技术研究分析师 · 2026</p>
+  <p><a href="https://github.com/wqwz111/Tech-Researcher">GitHub</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">Issues</a> · <a href="https://github.com/wqwz111/Tech-Researcher/releases">Releases</a></p>
+</div>
+
 <script>
-  function toggleTheme() {
-    const html = document.documentElement;
-    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('probe-theme', next);
-    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
-    document.getElementById('themeLabel').textContent = next === 'light' ? '夜间' : '日间';
-  }
-  (function() {
-    const saved = localStorage.getItem('probe-theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
-    document.getElementById('themeIcon').textContent = saved === 'light' ? '🌙' : '☀️';
-    document.getElementById('themeLabel').textContent = saved === 'light' ? '夜间' : '日间';
-  })();
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('tr-theme', next);
+  document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
+}
+(function() {
+  const saved = localStorage.getItem('tr-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  const icon = document.getElementById('themeIcon');
+  if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
+})();
+
+function filterCat(cat) {
+  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+  const el = document.getElementById(cat);
+  if (el) el.style.display = 'block';
+  document.querySelectorAll('.nav-bar a').forEach(a => a.classList.remove('active'));
+  event.target.classList.add('active');
+}
+function showAll() {
+  document.querySelectorAll('.section').forEach(s => s.style.display = 'block');
+  document.querySelectorAll('.nav-bar a').forEach(a => a.classList.remove('active'));
+  event.target.classList.add('active');
+}
 </script>
 </body>
 </html>

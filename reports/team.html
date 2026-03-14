@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>👥 团队 — Tech Researcher</title>
+<style>
+  :root {
+    --bg:#0a0e1a;--bg-card:#111827;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;
+    --border:#2d3748;--accent:#818cf8;--accent-text:#c7d2fe;
+    --gradient:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  }
+  [data-theme="light"] {
+    --bg:#f8fafc;--bg-card:#ffffff;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
+    --border:#e2e8f0;--accent:#4f46e5;--accent-text:#3730a3;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans SC',sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  a { color:#60a5fa; text-decoration:none; }
+  a:hover { color:#a5b4fc; }
+  .hero { background:var(--gradient); padding:2.5rem 2rem; text-align:center; color:#fff; }
+  .hero h1 { font-size:2rem; }
+  .hero p { opacity:.85; margin-top:.3rem; }
+  .container { max-width:900px; margin:2rem auto; padding:0 1.5rem; }
+  .back { display:inline-flex; align-items:center; gap:.3rem; color:var(--accent-text); margin-bottom:1.5rem; font-size:.9rem; }
+  .card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:1.5rem; margin-bottom:1.2rem; }
+  .card h3 { color:var(--accent-text); margin-bottom:.5rem; display:flex; align-items:center; gap:.5rem; }
+  .card p { color:var(--text-muted); font-size:.95rem; }
+  .card .emoji { font-size:1.8rem; }
+  .card .role { font-size:.8rem; color:var(--text-dim); background:var(--border); padding:.15rem .5rem; border-radius:4px; margin-left:auto; }
+  .section-title { font-size:1.2rem; font-weight:700; margin:2rem 0 1rem; padding-bottom:.5rem; border-bottom:2px solid var(--border); }
+  .workflow { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin:1rem 0; }
+  .step { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:1rem; text-align:center; }
+  .step .step-icon { font-size:2rem; }
+  .step .step-title { font-weight:600; margin:.5rem 0 .2rem; }
+  .step .step-desc { font-size:.85rem; color:var(--text-muted); }
+  .footer { text-align:center; color:var(--text-dim); padding:2rem; border-top:1px solid var(--border); margin-top:2rem; font-size:.85rem; }
+  @media(max-width:600px) { .workflow { grid-template-columns:1fr 1fr; } }
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>👥 研究团队</h1>
+  <p>Tech Researcher Team · 1:N:1:1:1:N 结构</p>
+</div>
+<div class="container">
+  <a href="./index.html" class="back">← 返回报告首页</a>
+
+  <div class="section-title">核心团队</div>
+
+  <div class="card">
+    <h3><span class="emoji">📋</span> 主编 (Chief) <span class="role">选题 · 计划 · 质控</span></h3>
+    <p>研究项目主编，负责选题策划、研究计划制定、质量把控、Issue 管理、团队编排与发布分发。是团队的节奏控制器和质量守门人。</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="emoji">🔬</span> 探针 (Probe) × N <span class="role">技术研究 · 深度分析</span></h3>
+    <p>技术研究员，按专题分工（AI/LLM、架构、设计…），可动态增减。负责多源研究、交叉验证、撰写深度研究报告。每份报告引用 ≥ 3 个独立来源，区分事实与推断。</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="emoji">🎨</span> 调色板 (Palette) × 1 <span class="role">视觉设计 · 模板维护</span></h3>
+    <p>美术设计师，统一视觉设计，维护报告模板一致性。负责报告的深色/浅色主题、排版规范、信息图表生成。</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="emoji">📊</span> 采集员 (Collector) × 1 <span class="role">数据采集 · 情报收集</span></h3>
+    <p>负责论文检索、趋势数据采集、竞品情报收集。为探针提供高质量的研究素材。</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="emoji">🗃️</span> 图书管理员 (Librarian) × 1 <span class="role">知识管理 · 索引维护</span></h3>
+    <p>负责知识库管理、标签体系维护、报告交叉引用。确保研究成果可检索、可复用。</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="emoji">💬</span> 读者 (Reader) × N <span class="role">独立审稿 · 质量反馈</span></h3>
+    <p>每篇报告配备若干名独立审稿人。从技术准确性、可读性、完整性等不同角度审核，以 GitHub Issue 形式提交审稿意见。</p>
+  </div>
+
+  <div class="section-title">工作流程</div>
+  <div class="workflow">
+    <div class="step"><div class="step-icon">📝</div><div class="step-title">选题</div><div class="step-desc">主编从 Issues/社区收集选题</div></div>
+    <div class="step"><div class="step-icon">🔬</div><div class="step-title">研究</div><div class="step-desc">探针多源研究、交叉验证</div></div>
+    <div class="step"><div class="step-icon">💬</div><div class="step-title">审稿</div><div class="step-desc">读者独立审核、提交意见</div></div>
+    <div class="step"><div class="step-icon">🎨</div><div class="step-title">美化</div><div class="step-desc">调色板统一视觉设计</div></div>
+    <div class="step"><div class="step-icon">🚀</div><div class="step-title">发布</div><div class="step-desc">GitHub Pages + Release</div></div>
+  </div>
+
+  <div class="section-title">项目理念</div>
+  <div class="card">
+    <h3><span class="emoji">🎯</span> 求真求实</h3>
+    <p>每个重要事实 ≥ 3 个独立来源交叉验证。来源分级：论文(A) > 官方博客(B) > 技术媒体(C) > 社区讨论(D)。明确区分事实、推断、观点、猜测。</p>
+  </div>
+  <div class="card">
+    <h3><span class="emoji">🤝</span> 开放协作</h3>
+    <p>通过 <a href="https://github.com/wqwz111/Tech-Researcher/issues">GitHub Issues</a> 收集选题建议和报告反馈。欢迎社区参与审稿和讨论。</p>
+  </div>
+</div>
+
+<div class="footer">
+  <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+  <p><a href="https://github.com/wqwz111/Tech-Researcher">GitHub</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">Issues</a></p>
+</div>
+
+<script>
+(function() {
+  const saved = localStorage.getItem('tr-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+})();
+</script>
+</body>
+</html>
