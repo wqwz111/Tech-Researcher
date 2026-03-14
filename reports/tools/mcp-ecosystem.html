@@ -228,7 +228,7 @@ flowchart TD
     U[User] --> APP[AI App]
     APP --> MC[MCP Client]
     MC --> LLM[LLM]
-    LLM -->|调用 search(query='...')| MC
+    LLM -->|调用 search| MC
     MC <--> MS[MCP Server(s)]
 </div>
 
