@@ -207,10 +207,20 @@ flowchart TD
 
 ## 参考来源
 
+### 经典论文（基础性工作）
 1. Gao, Y. et al. "Retrieval-Augmented Generation for Large Language Models: A Survey" (2023) — [arXiv:2312.10997](https://arxiv.org/abs/2312.10997)
 2. Asai, A. et al. "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection" (2023) — [arXiv:2310.11511](https://arxiv.org/abs/2310.11511)
-3. Yan, S. et al. "Corrective Retrieval Augmented Generation" (2024) — [arXiv:2401.15884](https://arxiv.org/abs/2401.15884)
-4. RAGAS Documentation — https://docs.ragas.io/
-5. LlamaIndex RAG Guide — https://docs.llamaindex.ai/
-6. LangChain RAG Tutorial — https://python.langchain.com/docs/tutorials/rag/
-7. Wei, Z. et al. "Dense Passage Retrieval for Open-Domain Question Answering" (2020) — Facebook AI Research — [arXiv:2004.04906](https://arxiv.org/abs/2004.04906)
+3. Wei, Z. et al. "Dense Passage Retrieval for Open-Domain Question Answering" (2020) — Facebook AI Research — [arXiv:2004.04906](https://arxiv.org/abs/2004.04906)
+
+### 最新论文（2024-2025）
+4. Yan, S. et al. "Corrective Retrieval Augmented Generation" (2024) — [arXiv:2401.15884](https://arxiv.org/abs/2401.15884)
+5. Edge, D. et al. "From Local to Global: A Graph RAG Approach to Query-Focused Summarization" (2024, Microsoft) — [arXiv:2404.16130](https://arxiv.org/abs/2404.16130)
+6. Jeong, S. et al. "Adaptive-RAG: Learning to Adapt Retrieval-Augmented Large Language Models through Question Complexity" (2024) — [arXiv:2403.14403](https://arxiv.org/abs/2403.14403)
+7. Zhangy, Y. et al. "RAFT: Adapting Language Model to Domain Specific RAG" (2024, UC Berkeley) — [arXiv:2403.10131](https://arxiv.org/abs/2403.10131)
+8. Lyu, X. et al. "A Survey on RAG Meeting LLMs: Towards Retrieval-Augmented Large Language Models" (2024) — [arXiv:2405.06211](https://arxiv.org/abs/2405.06211)
+
+### 工具与实践
+9. RAGAS Documentation — [docs.ragas.io](https://docs.ragas.io/)
+10. LlamaIndex RAG Guide — [docs.llamaindex.ai](https://docs.llamaindex.ai/)
+11. LangChain RAG Tutorial — [python.langchain.com/docs/tutorials/rag](https://python.langchain.com/docs/tutorials/rag/)
+12. Anthropic: RAG Best Practices — [docs.anthropic.com/en/docs/build-with-claude/rag](https://docs.anthropic.com/en/docs/build-with-claude/rag)（2024）

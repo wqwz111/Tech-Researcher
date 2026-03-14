@@ -680,22 +680,22 @@ def route_model(task_complexity: str, budget: str) -> str:
 ## 参考来源
 
 1. **OpenAI Prompt Engineering Guide** — OpenAI 官方提示工程指南，覆盖 GPT-4o 系列最佳实践
-   - https://platform.openai.com/docs/guides/prompt-engineering
+   - [platform.openai.com/docs/guides/prompt-engineering](https://platform.openai.com/docs/guides/prompt-engineering)
 
 2. **Anthropic Prompt Engineering Documentation** — Claude 系列模型的提示工程文档，强调 XML 标签结构化
-   - https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview
+   - [docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview)
 
 3. **"Chain-of-Thought Prompting Elicits Reasoning in Large Language Models"** (Wei et al., 2022) — CoT 技术的奠基论文
-   - https://arxiv.org/abs/2201.11903
+   - [arXiv:2201.11903](https://arxiv.org/abs/2201.11903)
 
 4. **"Tree of Thoughts: Deliberate Problem Solving with Large Language Models"** (Yao et al., 2023) — ToT 方法论原始论文
-   - https://arxiv.org/abs/2305.10601
+   - [arXiv:2305.10601](https://arxiv.org/abs/2305.10601)
 
 5. **"Self-Consistency Improves Chain of Thought Reasoning in Language Models"** (Wang et al., 2023) — Self-Consistency 策略论文
-   - https://arxiv.org/abs/2203.11171
+   - [arXiv:2203.11171](https://arxiv.org/abs/2203.11171)
 
 6. **DSPy Documentation** — Stanford 的自动化 Prompt 优化框架
-   - 官方网站: https://dspy.ai | GitHub: https://github.com/stanfordnlp/dspy
+   - 官方网站: [dspy.ai](https://dspy.ai) | GitHub: [stanfordnlp/dspy](https://github.com/stanfordnlp/dspy)
 
 ---
 
