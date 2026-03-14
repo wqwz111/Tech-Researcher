@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Agent 框架横向对比</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
 <style>
 body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
 .top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
@@ -49,14 +48,13 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <div class="meta">
 <h1>AI Agent 框架横向对比</h1>
 <div class="info">2026-03-14 · 分类: 🏗️ 框架</div>
-<div class="tags"><span class="tag">fixme</span></div>
 </div>
 
 <p>> 发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
 
 <hr>
 
-<h2>Executive Summary</h2>
+<h2 id="executive-summary">Executive Summary</h2>
 
 <p>AI Agent 框架是 2024-2025 年 AI 领域最活跃的方向之一。本报告对比分析五个主流 Agent 框架——LangGraph、CrewAI、AutoGen、MetaGPT 和 OpenClaw——从编程模型、状态管理、多 Agent 协作、生产就绪度等维度进行系统性评估。</p>
 
@@ -69,9 +67,9 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <hr>
 
-<h2>1. 框架概览</h2>
+<h2 id="1-框架概览">1. 框架概览</h2>
 
-<h3>1.1 LangGraph</h3>
+<h3 id="11-langgraph">1.1 LangGraph</h3>
 
 <p><strong>项目地址</strong>：<a href="https://github.com/langchain-ai/langgraph">github.com/langchain-ai/langgraph</a></p>
 <p><strong>维护方</strong>：LangChain Inc.</p>
@@ -88,7 +86,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <li>时间旅行调试：回溯到任意历史状态</li>
 
 <p><strong>编程模型：</strong></p>
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 from langgraph.graph import StateGraph, END
 from typing import TypedDict
 
@@ -115,7 +113,7 @@ graph.add_edge("write", END)
 app = graph.compile()
 </code></pre>
 
-<h3>1.2 CrewAI</h3>
+<h3 id="12-crewai">1.2 CrewAI</h3>
 
 <p><strong>项目地址</strong>：<a href="https://github.com/crewAIInc/crewAI">github.com/crewAIInc/crewAI</a></p>
 <p><strong>维护方</strong>：CrewAI Inc.</p>
@@ -131,7 +129,7 @@ app = graph.compile()
 <li>记忆系统：短期、长期、实体记忆</li>
 
 <p><strong>编程模型：</strong></p>
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 from crewai import Agent, Task, Crew, Process
 
 researcher = Agent(
@@ -169,7 +167,7 @@ crew = Crew(
 result = crew.kickoff()
 </code></pre>
 
-<h3>1.3 AutoGen</h3>
+<h3 id="13-autogen">1.3 AutoGen</h3>
 
 <p><strong>项目地址</strong>：<a href="https://github.com/microsoft/autogen">github.com/microsoft/autogen</a></p>
 <p><strong>维护方</strong>：Microsoft</p>
@@ -185,7 +183,7 @@ result = crew.kickoff()
 <li>0.4 版本重构：更模块化的架构</li>
 
 <p><strong>编程模型：</strong></p>
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
 
 llm_config = {"model": "gpt-4o", "api_key": "..."}
@@ -224,7 +222,7 @@ manager = GroupChatManager(groupchat=group_chat, llm_config=llm_config)
 user_proxy.initiate_chat(manager, message="请写一篇关于 AI Agent 的技术报告")
 </code></pre>
 
-<h3>1.4 MetaGPT</h3>
+<h3 id="14-metagpt">1.4 MetaGPT</h3>
 
 <p><strong>项目地址</strong>：<a href="https://github.com/geekan/MetaGPT">github.com/geekan/MetaGPT</a></p>
 <p><strong>维护方</strong>：DeepWisdom</p>
@@ -240,7 +238,7 @@ user_proxy.initiate_chat(manager, message="请写一篇关于 AI Agent 的技术
 <li>环境共享：Agent 共享黑板（消息池）</li>
 
 <p><strong>编程模型：</strong></p>
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 from metagpt.software_company import SoftwareCompany
 from metagpt.roles import ProjectManager, Architect, Engineer
 
@@ -256,7 +254,7 @@ async def main():
     await company.run(n_round=5)
 </code></pre>
 
-<h3>1.5 OpenClaw</h3>
+<h3 id="15-openclaw">1.5 OpenClaw</h3>
 
 <p><strong>项目地址</strong>：<a href="https://github.com/openclaw/openclaw">github.com/openclaw/openclaw</a></p>
 <p><strong>维护方</strong>：OpenClaw 社区</p>
@@ -274,7 +272,7 @@ async def main():
 <p><strong>编程模型：</strong></p>
 <p>OpenClaw 更多通过配置驱动：</p>
 
-<pre><code>
+<pre><span class="lang-label">yaml</span><code>
 # AGENTS.md 配置示例
 agent:
   name: tech-researcher
@@ -294,9 +292,9 @@ tools:
 
 <hr>
 
-<h2>2. 编程模型对比</h2>
+<h2 id="2-编程模型对比">2. 编程模型对比</h2>
 
-<h3>2.1 设计范式</h3>
+<h3 id="21-设计范式">2.1 设计范式</h3>
 
 <table>
 <tr><th>框架</th><th>核心范式</th><th>抽象层级</th></tr>
@@ -307,7 +305,7 @@ tools:
 <tr><td>OpenClaw</td><td>通信驱动（Messaging）</td><td>中等 — 配置 + 技能</td></tr>
 </table>
 
-<h3>2.2 灵活性 vs 易用性</h3>
+<h3 id="22-灵活性-vs-易用性">2.2 灵活性 vs 易用性</h3>
 
 <div class="mermaid">
 graph LR
@@ -322,7 +320,7 @@ graph LR
     CREW --> MG
 </div>
 
-<h3>2.3 学习曲线</h3>
+<h3 id="23-学习曲线">2.3 学习曲线</h3>
 
 <table>
 <tr><th>框架</th><th>上手时间</th><th>精通时间</th><th>说明</th></tr>
@@ -335,9 +333,9 @@ graph LR
 
 <hr>
 
-<h2>3. 状态管理与持久化</h2>
+<h2 id="3-状态管理与持久化">3. 状态管理与持久化</h2>
 
-<h3>3.1 状态管理对比</h3>
+<h3 id="31-状态管理对比">3.1 状态管理对比</h3>
 
 <table>
 <tr><th>框架</th><th>状态模型</th><th>持久化</th><th>时间旅行</th></tr>
@@ -348,11 +346,11 @@ graph LR
 <tr><td>OpenClaw</td><td>会话上下文</td><td>✅ 内置</td><td>❌</td></tr>
 </table>
 
-<h3>3.2 LangGraph 的 Checkpoint 机制</h3>
+<h3 id="32-langgraph-的-checkpoint-机制">3.2 LangGraph 的 Checkpoint 机制</h3>
 
 <p>LangGraph 的持久化能力最为成熟：</p>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 from langgraph.checkpoint.sqlite import SqliteSaver
 
 checkpointer = SqliteSaver.from_conn_string(":memory:")
@@ -368,9 +366,9 @@ result = app.invoke(None, config)  # 继续之前的执行
 
 <hr>
 
-<h2>4. 多 Agent 协作能力</h2>
+<h2 id="4-多-agent-协作能力">4. 多 Agent 协作能力</h2>
 
-<h3>4.1 协作模式对比</h3>
+<h3 id="41-协作模式对比">4.1 协作模式对比</h3>
 
 <table>
 <tr><th>框架</th><th>顺序执行</th><th>层级管理</th><th>群聊对话</th><th>动态路由</th></tr>
@@ -381,7 +379,7 @@ result = app.invoke(None, config)  # 继续之前的执行
 <tr><td>OpenClaw</td><td>✅</td><td>✅</td><td>有限</td><td>✅</td></tr>
 </table>
 
-<h3>4.2 通信机制</h3>
+<h3 id="42-通信机制">4.2 通信机制</h3>
 
 <table>
 <tr><th>框架</th><th>通信方式</th><th>消息格式</th><th>并行执行</th></tr>
@@ -394,9 +392,9 @@ result = app.invoke(None, config)  # 继续之前的执行
 
 <hr>
 
-<h2>5. 生产就绪度评估</h2>
+<h2 id="5-生产就绪度评估">5. 生产就绪度评估</h2>
 
-<h3>5.1 综合评分</h3>
+<h3 id="51-综合评分">5.1 综合评分</h3>
 
 <table>
 <tr><th>维度</th><th>LangGraph</th><th>CrewAI</th><th>AutoGen</th><th>MetaGPT</th><th>OpenClaw</th></tr>
@@ -409,7 +407,7 @@ result = app.invoke(None, config)  # 继续之前的执行
 <tr><td>生产案例</td><td>多</td><td>多</td><td>多</td><td>少</td><td>增长中</td></tr>
 </table>
 
-<h3>5.2 选型建议</h3>
+<h3 id="52-选型建议">5.2 选型建议</h3>
 
 <table>
 <tr><th>场景</th><th>推荐框架</th><th>理由</th></tr>
@@ -421,7 +419,7 @@ result = app.invoke(None, config)  # 继续之前的执行
 <tr><td>生产级关键系统</td><td>**LangGraph**</td><td>持久化、时间旅行、可观测性最好</td></tr>
 </table>
 
-<h3>5.3 风险提示</h3>
+<h3 id="53-风险提示">5.3 风险提示</h3>
 
 <p>1. <strong>Agent 框架变化快</strong>：各框架 API 迭代频繁，锁定效应需考虑</p>
 <p>2. <strong>成本不可预测</strong>：多 Agent 协作的 token 消耗可能指数级增长</p>
@@ -430,7 +428,7 @@ result = app.invoke(None, config)  # 继续之前的执行
 
 <hr>
 
-<h2>参考来源</h2>
+<h2 id="参考来源">参考来源</h2>
 
 <p>1. LangGraph 文档 — <a href="https://langchain-ai.github.io/langgraph">langchain-ai.github.io/langgraph</a></p>
 <p>2. CrewAI 文档 — <a href="https://docs.crewai.com">docs.crewai.com</a></p>
@@ -446,5 +444,8 @@ result = app.invoke(None, config)  # 继续之前的执行
 <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
 <p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
 </div>
-<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});
+</script>
 </body></html>

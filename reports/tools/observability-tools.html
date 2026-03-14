@@ -1,43 +1,54 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 可观测性与调试工具研究</title>
-    <style>
-body {
-    background: #0f172a;
-    color: #e2e8f0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 可观测性与调试工具研究</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-h4 { color: #a5b4fc; }
-a { color: #60a5fa; text-decoration: none; }
-code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
-pre code { background: none; padding: 0; color: #e2e8f0; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
-th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
 tr:nth-child(even) { background: #1e293b44; }
-tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-strong { color: #f8fafc; }
-em { color: #94a3b8; }
-ul, ol { padding-left: 1.5rem; }
-li { margin: 0.3rem 0; }
-p { margin: 0.8rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
 </style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">🛠️ 工具</span>
+</div>
+<div class="meta">
 <h1>AI 可观测性与调试工具研究</h1>
+<div class="info">2026-03-14 · 分类: 🛠️ 工具</div>
+</div>
 
 <p>> <strong>发布日期</strong>: 2026-03-14  </p>
 <p>> <strong>分类</strong>: 工具研究  </p>
@@ -45,7 +56,7 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>Executive Summary</h2>
+<h2 id="executive-summary">Executive Summary</h2>
 
 <p>当 LLM 应用从原型走向生产，"可观测性"（Observability）成为不可回避的核心问题。传统软件的可观测性依赖日志、指标、追踪三大支柱，而 LLM 应用在此基础上又增加了新的维度：<strong>Prompt 调试</strong>、<strong>模型输出质量</strong>、<strong>Token 成本</strong>、<strong>幻觉检测</strong>等。</p>
 
@@ -61,9 +72,9 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>一、LLM 追踪（Tracing）</h2>
+<h2 id="一llm-追踪tracing">一、LLM 追踪（Tracing）</h2>
 
-<h3>1.1 为什么 LLM 应用需要专用追踪？</h3>
+<h3 id="11-为什么-llm-应用需要专用追踪">1.1 为什么 LLM 应用需要专用追踪？</h3>
 
 <p>传统 APM 工具（Datadog、New Relic）可以追踪 API 调用延迟和错误率，但无法回答 LLM 应用特有的问题：</p>
 
@@ -75,7 +86,7 @@ p { margin: 0.8rem 0; }
 
 <p>LLM 追踪工具就是为了解决这些问题而生。</p>
 
-<h3>1.2 LangSmith</h3>
+<h3 id="12-langsmith">1.2 LangSmith</h3>
 
 <p><strong><a href="https://smith.langchain.com">LangSmith</a></strong> 是 LangChain 团队推出的 LLM 应用开发平台，追踪是其核心功能之一。</p>
 
@@ -89,7 +100,7 @@ p { margin: 0.8rem 0; }
 
 <p><strong>不依赖 LangChain 也能用</strong>：通过 <code>@traceable</code> 装饰器或 SDK 手动追踪任意代码。</p>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 from langsmith import traceable
 
 @traceable
@@ -100,7 +111,7 @@ def my_llm_call(prompt: str):
 
 <p><strong>定价</strong>：免费层有调用量限制，团队版按追踪量计费。</p>
 
-<h3>1.3 LangFuse</h3>
+<h3 id="13-langfuse">1.3 LangFuse</h3>
 
 <p><strong><a href="https://langfuse.com">LangFuse</a></strong> 是完全开源的 LLM 工程平台，是 LangSmith 的主要竞争对手。</p>
 
@@ -127,7 +138,7 @@ def my_llm_call(prompt: str):
 
 <p><strong>典型集成</strong>：</p>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 from langfuse.openai import openai  # 自动追踪
 
 response = openai.chat.completions.create(
@@ -137,7 +148,7 @@ response = openai.chat.completions.create(
 # 自动记录到 LangFuse
 </code></pre>
 
-<h3>1.4 Phoenix（Arize）</h3>
+<h3 id="14-phoenixarize">1.4 Phoenix（Arize）</h3>
 
 <p><strong><a href="https://github.com/Arize-AI/phoenix">Phoenix</a></strong> 是 Arize AI 推出的开源 LLM 可观测性工具。</p>
 
@@ -151,7 +162,7 @@ response = openai.chat.completions.create(
 
 <p><strong>典型用法</strong>：</p>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 import phoenix as px
 
 # 启动 Phoenix UI
@@ -164,13 +175,13 @@ OpenInferenceInstrumentor().instrument()
 
 <p><strong>适用场景</strong>：RAG 系统评估、幻觉检测、检索质量分析。</p>
 
-<h3>1.5 Helicone</h3>
+<h3 id="15-helicone">1.5 Helicone</h3>
 
 <p><strong><a href="https://helicone.ai">Helicone</a></strong> 定位为 LLM 应用的可观测性网关。</p>
 
 <p><strong>核心模式</strong>：通过反向代理拦截 API 调用，无需修改代码。</p>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 # 只需修改 base_url
 client = openai.OpenAI(
     base_url="https://oai.helicone.ai/v1",
@@ -185,7 +196,7 @@ client = openai.OpenAI(
 <li>自定义属性和标签</li>
 <li>支持 100+ 模型提供商</li>
 
-<h3>1.6 其他追踪工具</h3>
+<h3 id="16-其他追踪工具">1.6 其他追踪工具</h3>
 
 <table>
 <tr><th>工具</th><th>特点</th><th>适用场景</th></tr>
@@ -198,9 +209,9 @@ client = openai.OpenAI(
 
 <hr>
 
-<h2>二、Prompt 调试与版本管理</h2>
+<h2 id="二prompt-调试与版本管理">二、Prompt 调试与版本管理</h2>
 
-<h3>2.1 Prompt 调试的挑战</h3>
+<h3 id="21-prompt-调试的挑战">2.1 Prompt 调试的挑战</h3>
 
 <p>Prompt 开发不同于传统代码开发，面临独特挑战：</p>
 
@@ -209,7 +220,7 @@ client = openai.OpenAI(
 <li><strong>缺乏断点调试</strong>：不能像调试代码那样单步执行</li>
 <li><strong>评估主观性</strong>：很多场景下，"好不好"依赖人工判断</li>
 
-<h3>2.2 调试方法论</h3>
+<h3 id="22-调试方法论">2.2 调试方法论</h3>
 
 <p><strong>系统化 Prompt 调试的五个步骤</strong>：</p>
 
@@ -219,13 +230,13 @@ client = openai.OpenAI(
 <p>4. <strong>自动化评估</strong>：用 LLM-as-Judge 或其他指标自动评分</p>
 <p>5. <strong>人工校验</strong>：自动化评估的抽样验证</p>
 
-<h3>2.3 版本管理最佳实践</h3>
+<h3 id="23-版本管理最佳实践">2.3 版本管理最佳实践</h3>
 
 <h4>使用 Git 管理 Prompt</h4>
 
 <p>最简单但有效的方式：</p>
 
-<pre><code>
+<div class="mermaid">
 graph TD
     P["📁 prompts/"]
     V1["📁 v1/"]
@@ -237,16 +248,16 @@ graph TD
     SP2["system_prompt.md"]
     FE2["few_shot_examples.json"]
     CL2["changelog.md"]
-    P --&gt; V1
-    P --&gt; V2
-    P --&gt; ACTIVE
-    V1 --&gt; SP1
-    V1 --&gt; FE1
-    V1 --&gt; CL1
-    V2 --&gt; SP2
-    V2 --&gt; FE2
-    V2 --&gt; CL2
-</code></pre>
+    P --> V1
+    P --> V2
+    P --> ACTIVE
+    V1 --> SP1
+    V1 --> FE1
+    V1 --> CL1
+    V2 --> SP2
+    V2 --> FE2
+    V2 --> CL2
+</div>
 
 <h4>使用专业工具</h4>
 
@@ -263,21 +274,21 @@ graph TD
 <li>支持多环境（dev/staging/prod）</li>
 <li>团队协作功能</li>
 
-<h3>2.4 A/B 测试</h3>
+<h3 id="24-ab-测试">2.4 A/B 测试</h3>
 
 <p>在生产环境中测试不同 Prompt 版本的效果：</p>
 
-<pre><code>
+<div class="mermaid">
 graph TD
     REQ["用户请求"]
     V1["50% → Prompt v1 → 输出 A"]
     V2["50% → Prompt v2 → 输出 B"]
-    FB["收集反馈&lt;br/&gt;用户评分 / 业务指标 / 自动评估"]
-    REQ --&gt; V1
-    REQ --&gt; V2
-    V1 --&gt; FB
-    V2 --&gt; FB
-</code></pre>
+    FB["收集反馈<br/>用户评分 / 业务指标 / 自动评估"]
+    REQ --> V1
+    REQ --> V2
+    V1 --> FB
+    V2 --> FB
+</div>
 
 <p><strong>工具支持</strong>：</p>
 <li>Portkey：内置路由和 A/B 测试</li>
@@ -286,9 +297,9 @@ graph TD
 
 <hr>
 
-<h2>三、成本监控</h2>
+<h2 id="三成本监控">三、成本监控</h2>
 
-<h3>3.1 成本失控的常见原因</h3>
+<h3 id="31-成本失控的常见原因">3.1 成本失控的常见原因</h3>
 
 <li><strong>没有预算控制</strong>：开发者调用量失控</li>
 <li><strong>模型选择不当</strong>：简单任务用了最贵的模型</li>
@@ -296,12 +307,12 @@ graph TD
 <li><strong>上下文过长</strong>：不必要的长上下文</li>
 <li><strong>循环调用</strong>：Agent 陷入死循环</li>
 
-<h3>3.2 成本追踪工具</h3>
+<h3 id="32-成本追踪工具">3.2 成本追踪工具</h3>
 
 <h4>API 网关层</h4>
 
 <p><strong>LiteLLM</strong>：内置成本追踪</p>
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 # LiteLLM 自动记录每次调用的成本
 litellm.success_callback = ["lunary"]  # 推送到成本追踪工具
 </code></pre>
@@ -323,7 +334,7 @@ litellm.success_callback = ["lunary"]  # 推送到成本追踪工具
 <li>按 trace、user、session 归因</li>
 <li>与追踪数据结合，找出高成本调用</li>
 
-<h3>3.3 成本优化策略</h3>
+<h3 id="33-成本优化策略">3.3 成本优化策略</h3>
 
 <table>
 <tr><th>策略</th><th>节省幅度</th><th>实现难度</th></tr>
@@ -336,15 +347,15 @@ litellm.success_callback = ["lunary"]  # 推送到成本追踪工具
 </table>
 
 <p><strong>模型路由示例</strong>：</p>
-<pre><code>
+<div class="mermaid">
 graph TD
-    Q["用户查询"] --&gt; CL{"分类器"}
-    CL --&gt;|"简单问答"| MINI["GPT-4o-mini 便宜"]
-    CL --&gt;|"复杂推理"| GPT4["GPT-4 贵但准确"]
-    CL --&gt;|"代码生成"| CLAUDE["Claude Sonnet 代码能力强"]
-</code></pre>
+    Q["用户查询"] --> CL{"分类器"}
+    CL -->|"简单问答"| MINI["GPT-4o-mini 便宜"]
+    CL -->|"复杂推理"| GPT4["GPT-4 贵但准确"]
+    CL -->|"代码生成"| CLAUDE["Claude Sonnet 代码能力强"]
+</div>
 
-<h3>3.4 预算管理</h3>
+<h3 id="34-预算管理">3.4 预算管理</h3>
 
 <p><strong>Per-Key 预算</strong>：为每个 API Key 设置消费上限  </p>
 <p><strong>Per-User 预算</strong>：跟踪每个用户的消费  </p>
@@ -353,9 +364,9 @@ graph TD
 
 <hr>
 
-<h2>四、质量监控与回归测试</h2>
+<h2 id="四质量监控与回归测试">四、质量监控与回归测试</h2>
 
-<h3>4.1 LLM 输出质量的挑战</h3>
+<h3 id="41-llm-输出质量的挑战">4.1 LLM 输出质量的挑战</h3>
 
 <p>传统软件可以通过单元测试验证正确性，但 LLM 输出是概率性的：</p>
 
@@ -364,13 +375,13 @@ graph TD
 <li>质量评估需要理解语义，不能简单比较字符串</li>
 <li>有些场景（创意写作）甚至没有"标准答案"</li>
 
-<h3>4.2 评估方法</h3>
+<h3 id="42-评估方法">4.2 评估方法</h3>
 
 <h4>自动化评估</h4>
 
 <p><strong>LLM-as-Judge</strong>：用一个 LLM 来评估另一个 LLM 的输出</p>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 from langfuse import Langfuse
 
 evaluator_prompt = """
@@ -396,7 +407,7 @@ score = evaluate_with_llm(evaluator_prompt, question, answer)
 <li><strong>偏好评估</strong>：比较两个输出的优劣</li>
 <li><strong>评分评估</strong>：多维度打分</li>
 
-<h3>4.3 回归测试框架</h3>
+<h3 id="43-回归测试框架">4.3 回归测试框架</h3>
 
 <h4>Braintrust</h4>
 
@@ -407,7 +418,7 @@ score = evaluate_with_llm(evaluator_prompt, question, answer)
 <li><strong>自动化 CI</strong>：集成到 CI/CD 流程</li>
 <li><strong>评分追踪</strong>：追踪每次改动对质量的影响</li>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 from braintrust import Eval
 
 Eval(
@@ -427,7 +438,7 @@ Eval(
 <li>可视化对比结果</li>
 <li>支持自定义评估器</li>
 
-<pre><code>
+<pre><span class="lang-label">yaml</span><code>
 # promptfooconfig.yaml
 prompts:
   - "Answer this question: {{question}}"
@@ -450,7 +461,7 @@ tests:
 <li>支持 pytest 集成</li>
 <li>可以自定义评估器</li>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 from deepeval import assert_test
 from deepeval.metrics import HallucinationMetric
 
@@ -459,7 +470,7 @@ def test_hallucination():
     assert_test(test_case, [metric])
 </code></pre>
 
-<h3>4.4 质量监控最佳实践</h3>
+<h3 id="44-质量监控最佳实践">4.4 质量监控最佳实践</h3>
 
 <p>1. <strong>基线测试集</strong>：维护一组代表性测试用例</p>
 <p>2. <strong>CI/CD 集成</strong>：每次 Prompt 修改都跑测试</p>
@@ -469,9 +480,9 @@ def test_hallucination():
 
 <hr>
 
-<h2>五、生产告警</h2>
+<h2 id="五生产告警">五、生产告警</h2>
 
-<h3>5.1 LLM 应用特有的告警场景</h3>
+<h3 id="51-llm-应用特有的告警场景">5.1 LLM 应用特有的告警场景</h3>
 
 <table>
 <tr><th>告警类型</th><th>触发条件</th><th>严重程度</th></tr>
@@ -484,7 +495,7 @@ def test_hallucination():
 <tr><td>**模型不可用**</td><td>API 返回 429/503</td><td>严重</td></tr>
 </table>
 
-<h3>5.2 告警集成</h3>
+<h3 id="52-告警集成">5.2 告警集成</h3>
 
 <p><strong>与现有监控栈集成</strong>：</p>
 
@@ -504,7 +515,7 @@ def test_hallucination():
 <li>错误率告警</li>
 <li>速率限制告警</li>
 
-<h3>5.3 告警策略</h3>
+<h3 id="53-告警策略">5.3 告警策略</h3>
 
 <p><strong>分级告警</strong>：</p>
 
@@ -526,7 +537,7 @@ P3 - 低（每周报告）
   - 缓存命中率下降
 </code></pre>
 
-<h3>5.4 常见问题排查</h3>
+<h3 id="54-常见问题排查">5.4 常见问题排查</h3>
 
 <p><strong>延迟突然增加</strong>：</p>
 <p>1. 检查模型提供商状态页</p>
@@ -545,84 +556,84 @@ P3 - 低（每周报告）
 
 <hr>
 
-<h2>六、工具链整合方案</h2>
+<h2 id="六工具链整合方案">六、工具链整合方案</h2>
 
-<h3>6.1 最小可行可观测性栈</h3>
+<h3 id="61-最小可行可观测性栈">6.1 最小可行可观测性栈</h3>
 
 <p><strong>适合：个人项目或小团队 MVP</strong></p>
 
-<pre><code>
+<div class="mermaid">
 flowchart TD
-    APP[应用代码] --&gt; H[Helicone&lt;br/&gt;代理追踪]
-    H --&gt; |成本 + 延迟 + 错误率| PF[PromptFoo&lt;br/&gt;本地测试]
-    PF --&gt; |回归测试| Done[✅]
-</code></pre>
+    APP[应用代码] --> H[Helicone<br/>代理追踪]
+    H --> |成本 + 延迟 + 错误率| PF[PromptFoo<br/>本地测试]
+    PF --> |回归测试| Done[✅]
+</div>
 
-<h3>6.2 标准可观测性栈</h3>
+<h3 id="62-标准可观测性栈">6.2 标准可观测性栈</h3>
 
 <p><strong>适合：生产环境的中型团队</strong></p>
 
-<pre><code>
+<div class="mermaid">
 flowchart TD
-    APP[应用代码] --&gt; LF[LangFuse&lt;br/&gt;自部署]
-    LF --&gt; |追踪 + 成本 + Prompt管理| DE[DeepEval&lt;br/&gt;评估]
-    DE --&gt; |质量监控| GP[Grafana + Prometheus]
-    GP --&gt; |系统指标| Slack[Slack 通知]
-    Slack --&gt; |告警| Done[✅]
-</code></pre>
+    APP[应用代码] --> LF[LangFuse<br/>自部署]
+    LF --> |追踪 + 成本 + Prompt管理| DE[DeepEval<br/>评估]
+    DE --> |质量监控| GP[Grafana + Prometheus]
+    GP --> |系统指标| Slack[Slack 通知]
+    Slack --> |告警| Done[✅]
+</div>
 
-<h3>6.3 企业级可观测性栈</h3>
+<h3 id="63-企业级可观测性栈">6.3 企业级可观测性栈</h3>
 
 <p><strong>适合：大型团队和企业</strong></p>
 
-<pre><code>
+<div class="mermaid">
 graph TD
-    APP["应用代码"] --&gt; OTEL["OpenTelemetry SDK&lt;br/&gt;标准化追踪"]
-    OTEL --&gt; LS["LangSmith&lt;br/&gt;LLM 追踪和评估"]
-    OTEL --&gt; DD["Datadog&lt;br/&gt;系统 APM"]
-    OTEL --&gt; HEL["Helicone&lt;br/&gt;成本网关"]
-    OTEL --&gt; BT["Braintrust&lt;br/&gt;回归测试"]
-    LS --&gt; PD["PagerDuty&lt;br/&gt;告警分发"]
-    DD --&gt; PD
-    HEL --&gt; PD
-    BT --&gt; PD
-</code></pre>
+    APP["应用代码"] --> OTEL["OpenTelemetry SDK<br/>标准化追踪"]
+    OTEL --> LS["LangSmith<br/>LLM 追踪和评估"]
+    OTEL --> DD["Datadog<br/>系统 APM"]
+    OTEL --> HEL["Helicone<br/>成本网关"]
+    OTEL --> BT["Braintrust<br/>回归测试"]
+    LS --> PD["PagerDuty<br/>告警分发"]
+    DD --> PD
+    HEL --> PD
+    BT --> PD
+</div>
 
 <hr>
 
-<h2>实践建议</h2>
+<h2 id="实践建议">实践建议</h2>
 
-<h3>1. Day 1 就加追踪</h3>
+<h3 id="1-day-1-就加追踪">1. Day 1 就加追踪</h3>
 
 <p>不要等到出了问题才加追踪。在项目第一天就集成 LangFuse 或 Helicone，成本几乎为零，但价值巨大。</p>
 
-<h3>2. 成本追踪是底线</h3>
+<h3 id="2-成本追踪是底线">2. 成本追踪是底线</h3>
 
 <p>即使不加完整的可观测性栈，至少要追踪成本。LLM 应用的成本很容易失控，没有监控就是盲目飞行。</p>
 
-<h3>3. 构建评估数据集</h3>
+<h3 id="3-构建评估数据集">3. 构建评估数据集</h3>
 
 <p>花时间构建好的评估数据集，这是最值得的投资。数据集比工具更重要——有了数据集，换工具很容易。</p>
 
-<h3>4. 自动化回归测试</h3>
+<h3 id="4-自动化回归测试">4. 自动化回归测试</h3>
 
 <p>每次修改 Prompt 或模型配置，都应该跑自动化测试。把评估集成到 CI/CD 流程中。</p>
 
-<h3>5. 保留人工抽样</h3>
+<h3 id="5-保留人工抽样">5. 保留人工抽样</h3>
 
 <p>自动化评估再好，也要定期人工抽检。LLM-as-Judge 本身也有局限性。</p>
 
-<h3>6. 分级告警</h3>
+<h3 id="6-分级告警">6. 分级告警</h3>
 
 <p>不要所有告警都一样处理。明确分级，避免告警疲劳。</p>
 
-<h3>7. 关注趋势而非单点</h3>
+<h3 id="7-关注趋势而非单点">7. 关注趋势而非单点</h3>
 
 <p>单次异常可能不需要太关注，但趋势性的质量下降或成本增加必须重视。</p>
 
 <hr>
 
-<h2>参考来源</h2>
+<h2 id="参考来源">参考来源</h2>
 
 <p>1. <strong>LangFuse 文档</strong> — https://langfuse.com/docs — 开源 LLM 工程平台的完整文档</p>
 <p>2. <strong>LangSmith 文档</strong> — https://docs.smith.langchain.com — LangChain 团队的可观测性平台</p>
@@ -637,5 +648,12 @@ graph TD
 
 <p><em>本报告基于 2024-2025 年间 AI 可观测性工具生态的研究整理。AI 应用的可观测性领域仍在快速演进，建议读者关注 OpenTelemetry 社区在 LLM 可观测性标准化方面的进展。</em></p>
 
-</body>
-</html>
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});
+</script>
+</body></html>

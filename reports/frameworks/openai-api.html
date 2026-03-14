@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OpenAI API 最佳实践指南</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
 <style>
 body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
 .top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
@@ -49,14 +48,13 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <div class="meta">
 <h1>OpenAI API 最佳实践指南</h1>
 <div class="info">2026-03-14 · 分类: 🏗️ 框架</div>
-<div class="tags"><span class="tag">fixme</span></div>
 </div>
 
 <p>> 发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
 
 <hr>
 
-<h2>Executive Summary</h2>
+<h2 id="executive-summary">Executive Summary</h2>
 
 <p>OpenAI API 是当前最广泛使用的 LLM 服务接口之一。本指南系统梳理了 OpenAI API 的设计模式、核心功能（Function Calling、Structured Output）、处理策略（批处理与流式）、错误处理与成本优化等关键主题。无论你是构建 Chatbot、Agent 系统还是企业级 AI 应用，这份指南都能帮助你更高效、更可靠地使用 OpenAI API。</p>
 
@@ -68,9 +66,9 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <hr>
 
-<h2>1. API 设计模式与版本策略</h2>
+<h2 id="1-api-设计模式与版本策略">1. API 设计模式与版本策略</h2>
 
-<h3>1.1 基础架构</h3>
+<h3 id="11-基础架构">1.1 基础架构</h3>
 
 <p>OpenAI API 遵循 RESTful 设计原则，核心端点包括：</p>
 
@@ -83,7 +81,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <tr><td>`/v1/batches`</td><td>批量处理</td><td>大规模离线任务</td></tr>
 </table>
 
-<h3>1.2 版本策略</h3>
+<h3 id="12-版本策略">1.2 版本策略</h3>
 
 <p>OpenAI 采用日期版本控制（如 <code>2024-10-01-preview</code>），主要规则：</p>
 
@@ -92,7 +90,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <li><strong>废弃通知</strong>：通常提前 3-6 个月公告，新版本向后兼容</li>
 
 <p><strong>最佳实践：</strong></p>
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 # 固定 API 版本，避免意外行为变更
 client = OpenAI(
     api_key="sk-...",
@@ -100,7 +98,7 @@ client = OpenAI(
 )
 </code></pre>
 
-<h3>1.3 SDK 选择</h3>
+<h3 id="13-sdk-选择">1.3 SDK 选择</h3>
 
 <p>官方提供 Python 和 Node.js SDK，社区维护 Go、Java、.NET 等版本。关键考量：</p>
 
@@ -108,7 +106,7 @@ client = OpenAI(
 <li><strong>Node.js SDK</strong>（<code>openai</code>）：适合全栈应用</li>
 <li><strong>直接 HTTP 调用</strong>：适合需要精细控制的场景</li>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 # 推荐的初始化模式
 from openai import OpenAI
 
@@ -121,9 +119,9 @@ client = OpenAI(
 
 <hr>
 
-<h2>2. Function Calling / Structured Output</h2>
+<h2 id="2-function-calling--structured-output">2. Function Calling / Structured Output</h2>
 
-<h3>2.1 Function Calling</h3>
+<h3 id="21-function-calling">2.1 Function Calling</h3>
 
 <p>Function Calling 允许模型以结构化方式调用外部函数，是构建 Agent 系统的基石。</p>
 
@@ -133,7 +131,7 @@ client = OpenAI(
 <p>3. 执行函数，将结果回传</p>
 <p>4. 模型基于结果生成最终回复</p>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 tools = [{
     "type": "function",
     "function": {
@@ -163,11 +161,11 @@ response = client.chat.completions.create(
 <li><strong>严格模式</strong>：设置 <code>strict: true</code> 启用参数级别的严格验证</li>
 <li><strong>强制调用</strong>：<code>tool_choice="required"</code> 强制模型调用工具</li>
 
-<h3>2.2 Structured Output</h3>
+<h3 id="22-structured-output">2.2 Structured Output</h3>
 
 <p>Structured Output（结构化输出）是 2024 年引入的重要功能，确保模型输出严格符合指定的 JSON Schema。</p>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 from pydantic import BaseModel
 
 class CalendarEvent(BaseModel):
@@ -197,13 +195,13 @@ event = response.choices[0].message.parsed
 
 <hr>
 
-<h2>3. 批处理与流式处理</h2>
+<h2 id="3-批处理与流式处理">3. 批处理与流式处理</h2>
 
-<h3>3.1 流式处理（Streaming）</h3>
+<h3 id="31-流式处理streaming">3.1 流式处理（Streaming）</h3>
 
 <p>流式处理将响应逐 token 返回，显著改善用户体验。</p>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 stream = client.chat.completions.create(
     model="gpt-4o",
     messages=[{"role": "user", "content": "写一首关于春天的诗"}],
@@ -224,11 +222,11 @@ for chunk in stream:
 <li>流式模式下 token 用量需要从 <code>usage</code> 字段获取（需设置 <code>stream_options={"include_usage": True}</code>）</li>
 <li>错误处理需在流中间检查</li>
 
-<h3>3.2 批处理（Batch API）</h3>
+<h3 id="32-批处理batch-api">3.2 批处理（Batch API）</h3>
 
 <p>Batch API 是 2024 年推出的功能，针对大规模离线任务提供 50% 折扣。</p>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 # 1. 准备 JSONL 文件
 # {"custom_id": "req-1", "method": "POST", "url": "/v1/chat/completions", "body": {...}}
 
@@ -260,9 +258,9 @@ result = client.files.content(batch.output_file_id)
 
 <hr>
 
-<h2>4. 错误处理与重试策略</h2>
+<h2 id="4-错误处理与重试策略">4. 错误处理与重试策略</h2>
 
-<h3>4.1 错误类型</h3>
+<h3 id="41-错误类型">4.1 错误类型</h3>
 
 <table>
 <tr><th>HTTP 状态码</th><th>类型</th><th>原因</th><th>建议处理</th></tr>
@@ -273,9 +271,9 @@ result = client.files.content(batch.output_file_id)
 <tr><td>503</td><td>Service Unavailable</td><td>服务过载</td><td>指数退避重试</td></tr>
 </table>
 
-<h3>4.2 重试策略</h3>
+<h3 id="42-重试策略">4.2 重试策略</h3>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 import tenacity
 
 @tenacity.retry(
@@ -300,9 +298,9 @@ def call_openai(messages):
 <li>设置合理的超时时间（默认 10 分钟过长，建议 30-60 秒）</li>
 <li>记录所有错误用于监控</li>
 
-<h3>4.3 降级策略</h3>
+<h3 id="43-降级策略">4.3 降级策略</h3>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 def call_with_fallback(messages):
     models = ["gpt-4o", "gpt-4o-mini", "gpt-3.5-turbo"]
     for model in models:
@@ -315,9 +313,9 @@ def call_with_fallback(messages):
 
 <hr>
 
-<h2>5. 成本优化技巧</h2>
+<h2 id="5-成本优化技巧">5. 成本优化技巧</h2>
 
-<h3>5.1 模型选择</h3>
+<h3 id="51-模型选择">5.1 模型选择</h3>
 
 <p>不同模型的价格差异巨大：</p>
 
@@ -330,15 +328,15 @@ def call_with_fallback(messages):
 
 <p><strong>策略：</strong> 用 GPT-4o-mini 处理 80% 的简单任务，仅对复杂任务使用 GPT-4o。</p>
 
-<h3>5.2 Prompt 优化</h3>
+<h3 id="52-prompt-优化">5.2 Prompt 优化</h3>
 
 <li><strong>精简系统提示</strong>：每轮对话都发送系统提示，压缩到必要的最小长度</li>
 <li><strong>使用 Prompt Caching</strong>：超过 1024 tokens 的重复前缀自动缓存，折扣可达 50-90%</li>
 <li><strong>Few-shot 精选</strong>：少而精的示例比大量示例更有效</li>
 
-<h3>5.3 Token 管理</h3>
+<h3 id="53-token-管理">5.3 Token 管理</h3>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 # 使用 tiktoken 精确计算 token 用量
 import tiktoken
 
@@ -346,7 +344,7 @@ encoding = tiktoken.encoding_for_model("gpt-4o")
 token_count = len(encoding.encode(your_text))
 </code></pre>
 
-<h3>5.4 其他技巧</h3>
+<h3 id="54-其他技巧">5.4 其他技巧</h3>
 
 <li><strong>Temperature = 0</strong>：确定性输出，可减少重试次数</li>
 <li><strong>max_tokens 限制</strong>：防止模型生成过长输出</li>
@@ -355,7 +353,7 @@ token_count = len(encoding.encode(your_text))
 
 <hr>
 
-<h2>参考来源</h2>
+<h2 id="参考来源">参考来源</h2>
 
 <p>1. OpenAI 官方文档 — <a href="https://platform.openai.com/docs">platform.openai.com/docs</a></p>
 <p>2. OpenAI Cookbook — <a href="https://cookbook.openai.com">cookbook.openai.com</a></p>
@@ -370,5 +368,8 @@ token_count = len(encoding.encode(your_text))
 <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
 <p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
 </div>
-<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});
+</script>
 </body></html>

@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI 应用前端框架选型指南</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
 <style>
 body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
 .top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
@@ -49,14 +48,13 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <div class="meta">
 <h1>AI 应用前端框架选型指南</h1>
 <div class="info">2026-03-14 · 分类: 🏗️ 框架</div>
-<div class="tags"><span class="tag">fixme</span></div>
 </div>
 
 <p>> 发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
 
 <hr>
 
-<h2>Executive Summary</h2>
+<h2 id="executive-summary">Executive Summary</h2>
 
 <p>AI 应用的用户体验很大程度上取决于前端框架的选择。本指南对比分析主流 AI 前端方案——Vercel AI SDK、LangChain.js、Streamlit 和 Gradio——从流式响应、聊天界面、部署方案等维度提供选型建议。</p>
 
@@ -69,9 +67,9 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <hr>
 
-<h2>1. 框架概览</h2>
+<h2 id="1-框架概览">1. 框架概览</h2>
 
-<h3>1.1 Vercel AI SDK</h3>
+<h3 id="11-vercel-ai-sdk">1.1 Vercel AI SDK</h3>
 
 <p><strong>定位</strong>：React/Next.js 生态的 AI 应用工具包</p>
 <p><strong>许可证</strong>：Apache 2.0</p>
@@ -87,7 +85,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <li>流式传输协议：SSE、Text Stream、Data Stream</li>
 <li>RSC（React Server Components）支持</li>
 
-<pre><code>
+<pre><span class="lang-label">tsx</span><code>
 "use client";
 
 import { useChat } from "ai/react";
@@ -122,7 +120,7 @@ export default function Chat() {
 }
 </code></pre>
 
-<pre><code>
+<pre><span class="lang-label">typescript</span><code>
 // app/api/chat/route.ts
 import { openai } from "@ai-sdk/openai";
 import { streamText } from "ai";
@@ -147,7 +145,7 @@ export async function POST(req: Request) {
 <li>与 Vercel 部署无缝集成</li>
 <li>支持工具调用的 UI 渲染</li>
 
-<h3>1.2 LangChain.js</h3>
+<h3 id="12-langchainjs">1.2 LangChain.js</h3>
 
 <p><strong>定位</strong>：JavaScript/TypeScript 的 AI 应用框架</p>
 <p><strong>许可证</strong>：MIT</p>
@@ -162,7 +160,7 @@ export async function POST(req: Request) {
 <li>Memory：对话历史管理</li>
 <li>Agent：工具调用和推理</li>
 
-<pre><code>
+<pre><span class="lang-label">typescript</span><code>
 import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 
@@ -192,7 +190,7 @@ const response = await model.invoke([
 <li>前端体验需要自行构建</li>
 <li>包体积较大</li>
 
-<h3>1.3 Streamlit</h3>
+<h3 id="13-streamlit">1.3 Streamlit</h3>
 
 <p><strong>定位</strong>：Python 数据应用快速原型框架</p>
 <p><strong>许可证</strong>：Apache 2.0</p>
@@ -207,7 +205,7 @@ const response = await model.invoke([
 <li>自动热重载</li>
 <li>一行部署到 Streamlit Cloud</li>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 import streamlit as st
 from openai import OpenAI
 
@@ -257,7 +255,7 @@ if prompt := st.chat_input("输入消息..."):
 <li>不适合复杂 UI 需求</li>
 <li>每次交互全页面刷新（虽然体验流畅）</li>
 
-<h3>1.4 Gradio</h3>
+<h3 id="14-gradio">1.4 Gradio</h3>
 
 <p><strong>定位</strong>：机器学习模型演示和分享框架</p>
 <p><strong>许可证</strong>：Apache 2.0</p>
@@ -272,7 +270,7 @@ if prompt := st.chat_input("输入消息..."):
 <li>HuggingFace Spaces 一键部署</li>
 <li>内置分享链接</li>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 import gradio as gr
 from openai import OpenAI
 
@@ -319,9 +317,9 @@ demo.launch()
 
 <hr>
 
-<h2>2. 流式响应与用户体验</h2>
+<h2 id="2-流式响应与用户体验">2. 流式响应与用户体验</h2>
 
-<h3>2.1 流式响应方案对比</h3>
+<h3 id="21-流式响应方案对比">2.1 流式响应方案对比</h3>
 
 <table>
 <tr><th>方案</th><th>机制</th><th>延迟</th><th>实现复杂度</th></tr>
@@ -331,9 +329,9 @@ demo.launch()
 <tr><td>chunked Transfer-Encoding</td><td>HTTP 分块</td><td>中</td><td>低</td></tr>
 </table>
 
-<h3>2.2 Vercel AI SDK 的流式实现</h3>
+<h3 id="22-vercel-ai-sdk-的流式实现">2.2 Vercel AI SDK 的流式实现</h3>
 
-<pre><code>
+<pre><span class="lang-label">typescript</span><code>
 // 服务端 - 使用 AI SDK 的流式协议
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
@@ -355,7 +353,7 @@ export async function POST(req: Request) {
 <li><strong>Data Stream</strong>：包含元数据的结构化流（推荐）</li>
 <li><strong>SSE</strong>：标准 Server-Sent Events</li>
 
-<h3>2.3 首 Token 延迟优化</h3>
+<h3 id="23-首-token-延迟优化">2.3 首 Token 延迟优化</h3>
 
 <table>
 <tr><th>优化策略</th><th>效果</th><th>实现</th></tr>
@@ -366,11 +364,11 @@ export async function POST(req: Request) {
 <tr><td>缓存</td><td>热点查询加速</td><td>Redis / CDN</td></tr>
 </table>
 
-<h3>2.4 流式 Markdown 渲染</h3>
+<h3 id="24-流式-markdown-渲染">2.4 流式 Markdown 渲染</h3>
 
 <p>AI 输出通常是 Markdown 格式，流式渲染需要特殊处理：</p>
 
-<pre><code>
+<pre><span class="lang-label">tsx</span><code>
 import { useChat } from "ai/react";
 import { MemoizedReactMarkdown } from "./markdown";
 
@@ -392,9 +390,9 @@ function StreamingChat() {
 
 <hr>
 
-<h2>3. 聊天界面组件库</h2>
+<h2 id="3-聊天界面组件库">3. 聊天界面组件库</h2>
 
-<h3>3.1 现成组件库</h3>
+<h3 id="31-现成组件库">3.1 现成组件库</h3>
 
 <table>
 <tr><th>库</th><th>框架</th><th>特点</th></tr>
@@ -405,9 +403,9 @@ function StreamingChat() {
 <tr><td>`botui`</td><td>JS</td><td>轻量级聊天组件</td></tr>
 </table>
 
-<h3>3.2 assistant-ui 示例</h3>
+<h3 id="32-assistant-ui-示例">3.2 assistant-ui 示例</h3>
 
-<pre><code>
+<pre><span class="lang-label">tsx</span><code>
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import { useChatRuntime } from "@assistant-ui/react-ai-sdk";
 import {
@@ -435,7 +433,7 @@ function ChatApp() {
 }
 </code></pre>
 
-<h3>3.3 聊天界面最佳实践</h3>
+<h3 id="33-聊天界面最佳实践">3.3 聊天界面最佳实践</h3>
 
 <p>1. <strong>消息区分</strong>：用户/AI/系统消息使用不同样式</p>
 <p>2. <strong>代码高亮</strong>：集成 <code>react-syntax-highlighter</code> 或 <code>shiki</code></p>
@@ -448,9 +446,9 @@ function ChatApp() {
 
 <hr>
 
-<h2>4. 部署方案</h2>
+<h2 id="4-部署方案">4. 部署方案</h2>
 
-<h3>4.1 部署选项对比</h3>
+<h3 id="41-部署选项对比">4.1 部署选项对比</h3>
 
 <table>
 <tr><th>方案</th><th>适用框架</th><th>成本</th><th>性能</th><th>配置复杂度</th></tr>
@@ -462,9 +460,9 @@ function ChatApp() {
 <tr><td>Docker 自建</td><td>全部</td><td>按需</td><td>按需</td><td>中</td></tr>
 </table>
 
-<h3>4.2 Vercel 部署</h3>
+<h3 id="42-vercel-部署">4.2 Vercel 部署</h3>
 
-<pre><code>
+<pre><span class="lang-label">json</span><code>
 // vercel.json
 {
   "functions": {
@@ -475,7 +473,7 @@ function ChatApp() {
 }
 </code></pre>
 
-<pre><code>
+<pre><span class="lang-label">bash</span><code>
 # 部署
 npx vercel
 
@@ -488,9 +486,9 @@ vercel env add OPENAI_API_KEY
 <li>Edge Functions 支持流式响应</li>
 <li>自动 HTTPS 和全球 CDN</li>
 
-<h3>4.3 Docker 自建部署</h3>
+<h3 id="43-docker-自建部署">4.3 Docker 自建部署</h3>
 
-<pre><code>
+<pre><span class="lang-label">dockerfile</span><code>
 FROM node:20-slim
 
 WORKDIR /app
@@ -503,7 +501,7 @@ EXPOSE 3000
 CMD ["npm", "start"]
 </code></pre>
 
-<pre><code>
+<pre><span class="lang-label">yaml</span><code>
 # docker-compose.yml
 version: "3"
 services:
@@ -518,9 +516,9 @@ services:
 
 <hr>
 
-<h2>5. 选型决策框架</h2>
+<h2 id="5-选型决策框架">5. 选型决策框架</h2>
 
-<h3>5.1 决策树</h3>
+<h3 id="51-决策树">5.1 决策树</h3>
 
 <div class="mermaid">
 graph TD
@@ -547,7 +545,7 @@ graph TD
     ANY --> A2
 </div>
 
-<h3>5.2 综合评分</h3>
+<h3 id="52-综合评分">5.2 综合评分</h3>
 
 <table>
 <tr><th>维度</th><th>Vercel AI SDK</th><th>LangChain.js</th><th>Streamlit</th><th>Gradio</th></tr>
@@ -560,7 +558,7 @@ graph TD
 <tr><td>文档质量</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td></tr>
 </table>
 
-<h3>5.3 选型建议</h3>
+<h3 id="53-选型建议">5.3 选型建议</h3>
 
 <table>
 <tr><th>场景</th><th>推荐</th><th>理由</th></tr>
@@ -574,7 +572,7 @@ graph TD
 
 <hr>
 
-<h2>参考来源</h2>
+<h2 id="参考来源">参考来源</h2>
 
 <p>1. Vercel AI SDK 文档 — <a href="https://sdk.vercel.ai">sdk.vercel.ai</a></p>
 <p>2. LangChain.js 文档 — <a href="https://js.langchain.com">js.langchain.com</a></p>
@@ -590,5 +588,8 @@ graph TD
 <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
 <p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
 </div>
-<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});
+</script>
 </body></html>

@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OpenClaw 深度使用指南</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
 <style>
 body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
 .top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
@@ -49,14 +48,13 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <div class="meta">
 <h1>OpenClaw 深度使用指南</h1>
 <div class="info">2026-03-14 · 分类: 🛠️ 工具</div>
-<div class="tags"><span class="tag">fixme</span></div>
 </div>
 
 <p>> 最后更新: 2026-03-14 | 分类: AI Agent 平台</p>
 
 <hr>
 
-<h2>Executive Summary</h2>
+<h2 id="executive-summary">Executive Summary</h2>
 
 <p>OpenClaw 是一个开源的 AI Agent 编排平台，提供 Agent 运行时、多渠道接入、技能系统和 MCP 集成等能力。与 LangChain/LlamaIndex 等偏重"LLM 调用抽象"的框架不同，OpenClaw 定位更偏向于<strong>Agent 的生产运行时</strong>——关注会话管理、多渠道消息路由、持久化记忆和技能的动态加载。</p>
 
@@ -66,9 +64,9 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <hr>
 
-<h2>1. OpenClaw 架构概览</h2>
+<h2 id="1-openclaw-架构概览">1. OpenClaw 架构概览</h2>
 
-<h3>核心设计理念</h3>
+<h3 id="核心设计理念">核心设计理念</h3>
 
 <p>OpenClaw 的核心设计围绕三个抽象：</p>
 
@@ -76,7 +74,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <p>2. <strong>Channel</strong>: 消息渠道（Telegram、Discord、Signal、HTTP 等）</p>
 <p>3. <strong>Session</strong>: 会话上下文，管理 Agent 与用户的交互状态</p>
 
-<h3>系统架构</h3>
+<h3 id="系统架构">系统架构</h3>
 
 <div class="mermaid">
 graph TD
@@ -99,7 +97,7 @@ graph TD
     SM --> SG
 </div>
 
-<h3>主要组件</h3>
+<h3 id="主要组件">主要组件</h3>
 
 <table>
 <tr><th>组件</th><th>功能</th><th>说明</th></tr>
@@ -113,13 +111,13 @@ graph TD
 
 <hr>
 
-<h2>2. Agent 编排与会话管理</h2>
+<h2 id="2-agent-编排与会话管理">2. Agent 编排与会话管理</h2>
 
-<h3>Agent 配置</h3>
+<h3 id="agent-配置">Agent 配置</h3>
 
 <p>OpenClaw 的 Agent 通过配置文件定义，核心配置项：</p>
 
-<pre><code>
+<pre><span class="lang-label">yaml</span><code>
 # Agent 配置示例
 agent:
   name: my-agent
@@ -145,7 +143,7 @@ agent:
     - /path/to/skills/
 </code></pre>
 
-<h3>会话管理</h3>
+<h3 id="会话管理">会话管理</h3>
 
 <p>OpenClaw 的会话有以下关键概念：</p>
 
@@ -158,7 +156,7 @@ agent:
 <li><strong>Group</strong>: 群组共享会话（可配置隔离策略）</li>
 <li><strong>Thread</strong>: 线程级会话隔离（Telegram topics 等）</li>
 
-<h3>多 Agent 编排</h3>
+<h3 id="多-agent-编排">多 Agent 编排</h3>
 
 <p>OpenClaw 支持在同一 Gateway 下运行多个 Agent：</p>
 
@@ -183,9 +181,9 @@ agents:
 
 <hr>
 
-<h2>3. 多渠道接入</h2>
+<h2 id="3-多渠道接入">3. 多渠道接入</h2>
 
-<h3>支持的渠道</h3>
+<h3 id="支持的渠道">支持的渠道</h3>
 
 <table>
 <tr><th>渠道</th><th>类型</th><th>特殊功能</th></tr>
@@ -197,9 +195,9 @@ agents:
 <tr><td>**WebSocket**</td><td>实时</td><td>自定义前端</td></tr>
 </table>
 
-<h3>Telegram 渠道配置示例</h3>
+<h3 id="telegram-渠道配置示例">Telegram 渠道配置示例</h3>
 
-<pre><code>
+<pre><span class="lang-label">bash</span><code>
 # 安装 Telegram 插件
 openclaw plugin add telegram
 
@@ -210,7 +208,7 @@ openclaw configure --section telegram
 # 在 Agent 配置中指定 allowed_chats
 </code></pre>
 
-<h3>渠道路由规则</h3>
+<h3 id="渠道路由规则">渠道路由规则</h3>
 
 <p>OpenClaw 支持灵活的路由配置：</p>
 
@@ -220,9 +218,9 @@ openclaw configure --section telegram
 
 <hr>
 
-<h2>4. 技能系统与 MCP 集成</h2>
+<h2 id="4-技能系统与-mcp-集成">4. 技能系统与 MCP 集成</h2>
 
-<h3>技能系统 (Skills)</h3>
+<h3 id="技能系统-skills">技能系统 (Skills)</h3>
 
 <p>OpenClaw 的技能是可复用的能力模块，每个技能是一个目录：</p>
 
@@ -250,7 +248,7 @@ graph TD
 </div>
 
 <p><strong>SKILL.md 示例</strong>:</p>
-<pre><code>
+<pre><span class="lang-label">markdown</span><code>
 # Weather Skill
 
 ## 触发条件
@@ -268,11 +266,11 @@ graph TD
 
 <p><strong>技能加载机制</strong>: Agent 在处理消息时，扫描可用技能的 SKILL.md，根据描述决定是否加载对应技能。</p>
 
-<h3>MCP 集成</h3>
+<h3 id="mcp-集成">MCP 集成</h3>
 
 <p>OpenClaw 支持 MCP (Model Context Protocol) 作为工具扩展：</p>
 
-<pre><code>
+<pre><span class="lang-label">yaml</span><code>
 # MCP Server 配置
 mcp:
   servers:
@@ -293,11 +291,11 @@ mcp:
 
 <hr>
 
-<h2>5. 高级用法与最佳实践</h2>
+<h2 id="5-高级用法与最佳实践">5. 高级用法与最佳实践</h2>
 
-<h3>5.1 记忆管理优化</h3>
+<h3 id="51-记忆管理优化">5.1 记忆管理优化</h3>
 
-<pre><code>
+<pre><span class="lang-label">yaml</span><code>
 memory:
   backend: redis           # 推荐生产环境
   max_history: 50          # 保留最近 50 条消息
@@ -311,10 +309,10 @@ memory:
 <li>生产环境用 <code>redis</code> backend，支持分布式</li>
 <li>定期导出重要会话的完整上下文</li>
 
-<h3>5.2 性能调优</h3>
+<h3 id="52-性能调优">5.2 性能调优</h3>
 
 <p>1. <strong>模型选择</strong>: 不同任务用不同模型</p>
-<pre><code>
+<pre><span class="lang-label">yaml</span><code>
    # 主 Agent 用强模型，子 Agent 用轻模型
    agent:
      model: openrouter/anthropic/claude-sonnet-4
@@ -323,7 +321,7 @@ memory:
 </code></pre>
 
 <p>2. <strong>并发控制</strong>:</p>
-<pre><code>
+<pre><span class="lang-label">yaml</span><code>
    runtime:
      max_concurrent: 10     # 最大并发会话数
      timeout: 120           # 单次调用超时（秒）
@@ -331,19 +329,19 @@ memory:
 </code></pre>
 
 <p>3. <strong>缓存策略</strong>:</p>
-<pre><code>
+<pre><span class="lang-label">yaml</span><code>
    cache:
      enabled: true
      ttl: 3600             # 缓存 1 小时
      backend: redis
 </code></pre>
 
-<h3>5.3 安全实践</h3>
+<h3 id="53-安全实践">5.3 安全实践</h3>
 
 <p>1. <strong>API Key 管理</strong>: 使用环境变量或密钥管理服务，不要硬编码</p>
 <p>2. <strong>渠道限制</strong>: 设置 <code>allowed_chats</code> 限制可访问的用户/群组</p>
 <p>3. <strong>工具权限</strong>: 限制 Agent 可执行的命令范围</p>
-<pre><code>
+<pre><span class="lang-label">yaml</span><code>
    tools:
      exec:
        allowed_commands: ["git", "npm", "python"]
@@ -351,9 +349,9 @@ memory:
 </code></pre>
 <p>4. <strong>输入验证</strong>: 对用户输入进行长度和内容检查</p>
 
-<h3>5.4 调试技巧</h3>
+<h3 id="54-调试技巧">5.4 调试技巧</h3>
 
-<pre><code>
+<pre><span class="lang-label">bash</span><code>
 # 查看 Gateway 状态
 openclaw gateway status
 
@@ -370,10 +368,10 @@ openclaw sessions view &lt;session-id&gt;
 openclaw sessions export &lt;session-id&gt; --format markdown
 </code></pre>
 
-<h3>5.5 部署建议</h3>
+<h3 id="55-部署建议">5.5 部署建议</h3>
 
 <p><strong>单机部署</strong>:</p>
-<pre><code>
+<pre><span class="lang-label">bash</span><code>
 # 开发环境
 openclaw gateway start --dev
 
@@ -383,7 +381,7 @@ sudo systemctl start openclaw
 </code></pre>
 
 <p><strong>容器部署</strong>:</p>
-<pre><code>
+<pre><span class="lang-label">dockerfile</span><code>
 FROM node:22-slim
 RUN npm install -g openclaw
 COPY config/ /root/.openclaw/config/
@@ -393,7 +391,7 @@ CMD ["openclaw", "gateway", "start"]
 
 <hr>
 
-<h2>参考来源</h2>
+<h2 id="参考来源">参考来源</h2>
 
 <p>1. <strong>OpenClaw 官方文档</strong> — <a href="https://docs.openclaw.ai">docs.openclaw.ai</a> — 安装、配置、API</p>
 <p>2. <strong>OpenClaw GitHub</strong> — <a href="https://github.com/openclaw/openclaw">github.com/openclaw/openclaw</a> — 源码、Issues、Releases</p>
@@ -409,5 +407,8 @@ CMD ["openclaw", "gateway", "start"]
 <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
 <p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
 </div>
-<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});
+</script>
 </body></html>

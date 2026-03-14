@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LangChain vs LlamaIndex 深度对比</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
 <style>
 body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
 .top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
@@ -49,14 +48,13 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <div class="meta">
 <h1>LangChain vs LlamaIndex 深度对比</h1>
 <div class="info">2026-03-14 · 分类: 🛠️ 工具</div>
-<div class="tags"><span class="tag">fixme</span></div>
 </div>
 
 <p>> 最后更新: 2026-03-14 | 分类: AI 开发框架</p>
 
 <hr>
 
-<h2>Executive Summary</h2>
+<h2 id="executive-summary">Executive Summary</h2>
 
 <p>LangChain 和 LlamaIndex 是当前 LLM 应用开发领域最具影响力的两个开源框架。两者虽然都服务于"用 LLM 构建应用"这一目标，但设计哲学和侧重点有本质差异：</p>
 
@@ -69,9 +67,9 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <hr>
 
-<h2>1. 架构设计哲学差异</h2>
+<h2 id="1-架构设计哲学差异">1. 架构设计哲学差异</h2>
 
-<h3>LangChain: "万物皆可链"</h3>
+<h3 id="langchain-万物皆可链">LangChain: "万物皆可链"</h3>
 
 <p>LangChain 的核心抽象是 <strong>Chain</strong>（链）——将多个步骤串联起来形成完整的工作流。其设计哲学是：</p>
 
@@ -93,7 +91,7 @@ graph TD
     CORE --> LSV
 </div>
 
-<h3>LlamaIndex: "数据是第一公民"</h3>
+<h3 id="llamaindex-数据是第一公民">LlamaIndex: "数据是第一公民"</h3>
 
 <p>LlamaIndex 的核心抽象是 <strong>Index</strong>（索引）——将非结构化数据构建为可高效检索的结构。其设计哲学是：</p>
 
@@ -117,7 +115,7 @@ graph TD
     CORE --> DEPLOY
 </div>
 
-<h3>设计哲学对比</h3>
+<h3 id="设计哲学对比">设计哲学对比</h3>
 
 <table>
 <tr><th>维度</th><th>LangChain</th><th>LlamaIndex</th></tr>
@@ -130,9 +128,9 @@ graph TD
 
 <hr>
 
-<h2>2. 核心组件对比</h2>
+<h2 id="2-核心组件对比">2. 核心组件对比</h2>
 
-<h3>2.1 LLM 抽象与模型支持</h3>
+<h3 id="21-llm-抽象与模型支持">2.1 LLM 抽象与模型支持</h3>
 
 <p><strong>LangChain</strong> 通过 <code>BaseChatModel</code> 统一接口，支持 OpenAI、Anthropic、Google、Mistral、Cohere 等数十家提供商。通过 <code>langchain-openai</code>、<code>langchain-anthropic</code> 等独立包维护。</p>
 
@@ -144,7 +142,7 @@ graph TD
 <li>结构化输出 (Structured Output)</li>
 <li>多模态输入（图像、PDF）</li>
 
-<h3>2.2 Agent 系统</h3>
+<h3 id="22-agent-系统">2.2 Agent 系统</h3>
 
 <p><strong>LangChain Agent 演进</strong>:</p>
 <li>早期: <code>AgentExecutor</code>（单轮工具选择循环）</li>
@@ -163,7 +161,7 @@ graph TD
 
 <p><strong>对比</strong>: LangGraph 更通用、功能更强；LlamaIndex Workflows 更简洁、对 RAG 场景更友好。</p>
 
-<h3>2.3 索引与检索</h3>
+<h3 id="23-索引与检索">2.3 索引与检索</h3>
 
 <p>这是 <strong>LlamaIndex 的绝对优势领域</strong>：</p>
 
@@ -179,7 +177,7 @@ graph TD
 
 <p>LangChain 的检索能力主要通过 <code>VectorStore</code> 和 <code>Retriever</code> 抽象实现，相对更基础，需要更多手动配置。</p>
 
-<h3>2.4 记忆 (Memory)</h3>
+<h3 id="24-记忆-memory">2.4 记忆 (Memory)</h3>
 
 <p><strong>LangChain</strong> 提供丰富的记忆类型：</p>
 <li><code>ConversationBufferMemory</code>: 完整历史</li>
@@ -191,9 +189,9 @@ graph TD
 
 <hr>
 
-<h2>3. 生态系统与集成</h2>
+<h2 id="3-生态系统与集成">3. 生态系统与集成</h2>
 
-<h3>3.1 集成数量与质量</h3>
+<h3 id="31-集成数量与质量">3.1 集成数量与质量</h3>
 
 <table>
 <tr><th>类别</th><th>LangChain</th><th>LlamaIndex</th></tr>
@@ -204,7 +202,7 @@ graph TD
 <tr><td>可观测性</td><td>LangSmith, LangFuse, etc.</td><td>LlamaTrace, LangFuse</td></tr>
 </table>
 
-<h3>3.2 社区活跃度 (2025 Q4 数据)</h3>
+<h3 id="32-社区活跃度-2025-q4-数据">3.2 社区活跃度 (2025 Q4 数据)</h3>
 
 <table>
 <tr><th>指标</th><th>LangChain</th><th>LlamaIndex</th></tr>
@@ -217,7 +215,7 @@ graph TD
 
 <p>（数据来源: GitHub 仓库统计及 PyPI 下载趋势，2025 年第四季度）</p>
 
-<h3>3.3 商业化支持</h3>
+<h3 id="33-商业化支持">3.3 商业化支持</h3>
 
 <p><strong>LangChain 生态</strong>:</p>
 <li><strong>LangSmith</strong>: 托管的可观测性、评估、Prompt 管理平台</li>
@@ -231,9 +229,9 @@ graph TD
 
 <hr>
 
-<h2>4. 性能与扩展性</h2>
+<h2 id="4-性能与扩展性">4. 性能与扩展性</h2>
 
-<h3>4.1 RAG 管线性能</h3>
+<h3 id="41-rag-管线性能">4.1 RAG 管线性能</h3>
 
 <p>在标准 RAG 基准测试（HotpotQA、SQuAD）中，两者表现差异不大，主要取决于：</p>
 <li>嵌入模型选择</li>
@@ -247,7 +245,7 @@ graph TD
 <li><code>Metadata Filtering</code>: 结合元数据过滤提升精度</li>
 <li><code>Hybrid Search</code>: 关键词 + 向量混合检索</li>
 
-<h3>4.2 大规模生产部署</h3>
+<h3 id="42-大规模生产部署">4.2 大规模生产部署</h3>
 
 <table>
 <tr><th>维度</th><th>LangChain</th><th>LlamaIndex</th></tr>
@@ -258,7 +256,7 @@ graph TD
 <tr><td>缓存策略</td><td>内置 LLM 缓存</td><td>内置嵌入缓存</td></tr>
 </table>
 
-<h3>4.3 版本稳定性</h3>
+<h3 id="43-版本稳定性">4.3 版本稳定性</h3>
 
 <p>两个框架都经历了重大 API 变更：</p>
 <li><strong>LangChain</strong>: 0.1 → 0.2 版本进行了大幅重构，引发社区争议。稳定后 API 变更频率降低。</li>
@@ -268,9 +266,9 @@ graph TD
 
 <hr>
 
-<h2>5. 选型建议</h2>
+<h2 id="5-选型建议">5. 选型建议</h2>
 
-<h3>场景决策树</h3>
+<h3 id="场景决策树">场景决策树</h3>
 
 <div class="mermaid">
 graph TD
@@ -298,7 +296,7 @@ graph TD
     AGENT_MULTI --> "LangGraph Supervisor 模式"
 </div>
 
-<h3>具体建议</h3>
+<h3 id="具体建议">具体建议</h3>
 
 <p>1. <strong>纯 RAG 应用</strong>: 选 LlamaIndex。其索引类型丰富、检索优化开箱即用。</p>
 <p>2. <strong>复杂 Agent 系统</strong>: 选 LangChain + LangGraph。LangGraph 的有状态循环是当前最成熟的 Agent 编排方案。</p>
@@ -309,7 +307,7 @@ graph TD
 
 <hr>
 
-<h2>参考来源</h2>
+<h2 id="参考来源">参考来源</h2>
 
 <p>1. <strong>LangChain 官方文档</strong> — <a href="https://python.langchain.com">python.langchain.com</a> — 架构、API、集成列表</p>
 <p>2. <strong>LlamaIndex 官方文档</strong> — <a href="https://docs.llamaindex.ai">docs.llamaindex.ai</a> — 索引类型、Workflows、LlamaHub</p>
@@ -322,5 +320,8 @@ graph TD
 <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
 <p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
 </div>
-<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});
+</script>
 </body></html>

@@ -1,43 +1,54 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAG 生产环境踩坑实录</title>
-    <style>
-body {
-    background: #0f172a;
-    color: #e2e8f0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG 生产环境踩坑实录</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
+.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
+.top-nav a { color: #7dd3fc; text-decoration: none; }
+.top-nav .sep { color: #475569; }
+.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
+.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
+.meta .info { color: #94a3b8; font-size: .85rem; }
+.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: #93c5fd; text-decoration: none; }
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-h4 { color: #a5b4fc; }
-a { color: #60a5fa; text-decoration: none; }
-code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
-pre code { background: none; padding: 0; color: #e2e8f0; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
-th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
+a { color: #60a5fa; }
+code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
+pre code { background: none; color: #e2e8f0; }
+pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
+.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; }
 tr:nth-child(even) { background: #1e293b44; }
-tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-strong { color: #f8fafc; }
-em { color: #94a3b8; }
-ul, ol { padding-left: 1.5rem; }
-li { margin: 0.3rem 0; }
-p { margin: 0.8rem 0; }
+.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
+.footer a { color: #60a5fa; }
 </style>
 </head>
 <body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:#94a3b8">📊 案例实践</span>
+</div>
+<div class="meta">
 <h1>RAG 生产环境踩坑实录</h1>
+<div class="info">2026-03-14 · 分类: 📊 案例实践</div>
+</div>
 
 <p>> <strong>发布日期</strong>: 2025年3月  </p>
 <p>> <strong>分类</strong>: 案例实践  </p>
@@ -45,7 +56,7 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>Executive Summary</h2>
+<h2 id="executive-summary">Executive Summary</h2>
 
 <p>RAG（Retrieval-Augmented Generation）已成为企业部署 LLM 最主流的架构模式。它通过检索外部知识库来增强模型回答，避免了纯 LLM 的知识截止和幻觉问题。但在从 PoC 到生产的过程中，RAG 系统面临着大量意料之外的挑战。本文基于真实生产经验，总结 RAG 落地的关键问题和解决方案。</p>
 
@@ -58,9 +69,9 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>1. 真实生产环境中的 RAG 挑战</h2>
+<h2 id="1-真实生产环境中的-rag-挑战">1. 真实生产环境中的 RAG 挑战</h2>
 
-<h3>1.1 从 PoC 到生产的鸿沟</h3>
+<h3 id="11-从-poc-到生产的鸿沟">1.1 从 PoC 到生产的鸿沟</h3>
 
 <p>RAG 的 PoC（概念验证）往往令人印象深刻：上传几篇文档，问几个问题，模型给出看似合理的回答。但生产环境完全是另一回事：</p>
 
@@ -78,7 +89,7 @@ p { margin: 0.8rem 0; }
 
 <p>这个鸿沟比大多数人预期的大得多。</p>
 
-<h3>1.2 典型问题场景</h3>
+<h3 id="12-典型问题场景">1.2 典型问题场景</h3>
 
 <p><strong>场景一：检索到了但没用</strong></p>
 <p>用户问"我们公司的产假政策是什么？"，检索系统返回了 HR 制度文档的第 1 页（目录页），LLM 基于目录回答了一堆废话。</p>
@@ -94,9 +105,9 @@ p { margin: 0.8rem 0; }
 
 <hr>
 
-<h2>2. 数据质量与清洗</h2>
+<h2 id="2-数据质量与清洗">2. 数据质量与清洗</h2>
 
-<h3>2.1 文档摄入的挑战</h3>
+<h3 id="21-文档摄入的挑战">2.1 文档摄入的挑战</h3>
 
 <p>生产环境的文档远比 PoC 中的"干净 PDF"复杂：</p>
 
@@ -109,20 +120,20 @@ p { margin: 0.8rem 0; }
 
 <p><strong>清洗管线示例</strong>：</p>
 
-<pre><code>
+<div class="mermaid">
 flowchart TD
-    A["原始文档"] --&gt; B["格式检测"] --&gt; C["文本提取"] --&gt; D["清洗"] --&gt; E["分块"] --&gt; F["嵌入"] --&gt; G["向量存储"]
-    C --&gt; C1["OCR&lt;br/&gt;如果是扫描件"]
-    C --&gt; C2["表格/图表提取"]
+    A["原始文档"] --> B["格式检测"] --> C["文本提取"] --> D["清洗"] --> E["分块"] --> F["嵌入"] --> G["向量存储"]
+    C --> C1["OCR<br/>如果是扫描件"]
+    C --> C2["表格/图表提取"]
     style A fill:#f5f5f5
     style D fill:#fff3e0
     style F fill:#e8f5e9
     style G fill:#e3f2fd
-</code></pre>
+</div>
 
 <p>> <strong>图2.1 文档处理管线</strong>：原始文档经过格式检测后进入文本提取阶段，扫描件需额外 OCR 处理，含表格/图表的文档需专项提取。提取后的文本经清洗、分块、嵌入，最终存入向量数据库供检索使用。</p>
 
-<h3>2.2 关键清洗步骤</h3>
+<h3 id="22-关键清洗步骤">2.2 关键清洗步骤</h3>
 
 <p><strong>文本提取质量</strong></p>
 <li>PyPDF2/pdfplumber 对简单 PDF 有效，复杂 PDF 推荐使用 Adobe PDF Services API 或 DocTR</li>
@@ -142,7 +153,7 @@ flowchart TD
 
 <p><strong>元数据是 RAG 系统中最被低估的部分</strong>。它使检索可以进行过滤（"只搜索 2024 年以后的政策"），也是回答溯源的基础。</p>
 
-<h3>2.3 文档更新管理</h3>
+<h3 id="23-文档更新管理">2.3 文档更新管理</h3>
 
 <p><strong>增量更新 vs 全量重建</strong></p>
 <li>增量更新：只处理新增/修改的文档，但需要追踪文档变更</li>
@@ -155,9 +166,9 @@ flowchart TD
 
 <hr>
 
-<h2>3. 检索失败模式与应对</h2>
+<h2 id="3-检索失败模式与应对">3. 检索失败模式与应对</h2>
 
-<h3>3.1 检索失败的类型</h3>
+<h3 id="31-检索失败的类型">3.1 检索失败的类型</h3>
 
 <p><strong>类型一：语义不匹配</strong></p>
 <p>用户问"入职需要准备什么材料？"，但文档标题是"新员工报到须知"。语义相似但用词不同，导致检索失败。</p>
@@ -171,7 +182,7 @@ flowchart TD
 <p><strong>类型四：否定性问题</strong></p>
 <p>"我们是否支持退款？"——文档可能说"不支持退款"，但如果检索不准确，LLM 可能给出错误的肯定回答。</p>
 
-<h3>3.2 混合检索策略</h3>
+<h3 id="32-混合检索策略">3.2 混合检索策略</h3>
 
 <p>单一的向量检索往往不够，生产环境通常需要混合策略：</p>
 
@@ -184,26 +195,26 @@ flowchart TD
 <li>缺点：无法理解语义</li>
 
 <p><strong>混合检索</strong></p>
-<pre><code>
+<div class="mermaid">
 graph TD
     Q["用户查询"]
-    VS["向量检索&lt;br/&gt;语义相似度"]
-    BM["BM25 检索&lt;br/&gt;关键词匹配"]
+    VS["向量检索<br/>语义相似度"]
+    BM["BM25 检索<br/>关键词匹配"]
     RRF["RRF Reciprocal Rank Fusion"]
     RE["重排序 Reranker"]
     TOP["Top-K 文档"]
-    Q --&gt; VS
-    Q --&gt; BM
-    VS --&gt; RRF
-    BM --&gt; RRF
-    RRF --&gt; RE
-    RE --&gt; TOP
-</code></pre>
+    Q --> VS
+    Q --> BM
+    VS --> RRF
+    BM --> RRF
+    RRF --> RE
+    RE --> TOP
+</div>
 
 <p><strong>重排序（Reranking）</strong></p>
 <p>使用专门的 Reranker 模型（如 Cohere Rerank、BGE-Reranker）对初始检索结果进行精排，通常能将检索准确率提升 10-20%。</p>
 
-<h3>3.3 查询改写</h3>
+<h3 id="33-查询改写">3.3 查询改写</h3>
 
 <p>用户原始查询往往不适合直接用于检索：</p>
 
@@ -220,9 +231,9 @@ graph TD
 
 <hr>
 
-<h2>4. 幻觉控制策略</h2>
+<h2 id="4-幻觉控制策略">4. 幻觉控制策略</h2>
 
-<h3>4.1 RAG 中幻觉的来源</h3>
+<h3 id="41-rag-中幻觉的来源">4.1 RAG 中幻觉的来源</h3>
 
 <p>即使有 RAG，LLM 仍然会产生幻觉：</p>
 
@@ -231,7 +242,7 @@ graph TD
 <li><strong>检索文档冲突</strong>：多个文档信息矛盾，LLM 选择性采纳或自行判断</li>
 <li><strong>模型先验知识干扰</strong>：LLM 的训练数据与检索文档不一致</li>
 
-<h3>4.2 控制策略</h3>
+<h3 id="42-控制策略">4.2 控制策略</h3>
 
 <p><strong>Prompt 工程</strong></p>
 <p>最简单但有效的策略：</p>
@@ -268,7 +279,7 @@ graph TD
 <li>置信度必须高于阈值</li>
 <li>否则返回"请咨询相关部门"</li>
 
-<h3>4.3 评估框架</h3>
+<h3 id="43-评估框架">4.3 评估框架</h3>
 
 <p>RAG 系统的评估应该包括：</p>
 
@@ -288,9 +299,9 @@ graph TD
 
 <hr>
 
-<h2>5. 监控与持续优化</h2>
+<h2 id="5-监控与持续优化">5. 监控与持续优化</h2>
 
-<h3>5.1 监控维度</h3>
+<h3 id="51-监控维度">5.1 监控维度</h3>
 
 <p><strong>系统监控</strong>：</p>
 <li>API 延迟（P50/P95/P99）</li>
@@ -316,7 +327,7 @@ graph TD
 <li>人工转接率</li>
 <li>最常被问的问题</li>
 
-<h3>5.2 反馈循环</h3>
+<h3 id="52-反馈循环">5.2 反馈循环</h3>
 
 <p><strong>显式反馈</strong></p>
 <li>回答下方的 👍/👎 按钮</li>
@@ -330,14 +341,14 @@ graph TD
 
 <p><strong>反馈驱动优化</strong></p>
 
-<pre><code>
+<div class="mermaid">
 flowchart TD
-    A["收集反馈"] --&gt; B["分析模式"] --&gt; C["定位问题"] --&gt; D["优化"] --&gt; E["部署"] --&gt; F["验证"] --&gt;|"持续循环"| A
+    A["收集反馈"] --> B["分析模式"] --> C["定位问题"] --> D["优化"] --> E["部署"] --> F["验证"] -->|"持续循环"| A
     style A fill:#e3f2fd
     style C fill:#fff3e0
     style D fill:#e8f5e9
     style F fill:#fce4ec
-</code></pre>
+</div>
 
 <p>> <strong>图5.1 RAG 优化循环</strong>：以用户反馈为驱动的持续优化闭环——收集反馈后分析使用模式、定位检索或生成问题，针对性优化后部署上线并验证效果，形成持续迭代的质量提升飞轮。</p>
 
@@ -346,7 +357,7 @@ flowchart TD
 <li>特定类型问题幻觉率高 → 针对性 prompt 优化</li>
 <li>检索延迟高 → 索引优化或换用更快的嵌入模型</li>
 
-<h3>5.3 生产环境踩坑清单</h3>
+<h3 id="53-生产环境踩坑清单">5.3 生产环境踩坑清单</h3>
 
 <p>基于真实经验的常见坑：</p>
 
@@ -363,9 +374,9 @@ flowchart TD
 
 <hr>
 
-<h2>实践建议</h2>
+<h2 id="实践建议">实践建议</h2>
 
-<h3>技术选型</h3>
+<h3 id="技术选型">技术选型</h3>
 
 <p><strong>向量数据库</strong>：</p>
 <li>Pinecone / Weaviate：托管服务，快速起步</li>
@@ -382,7 +393,7 @@ flowchart TD
 <li>LangChain / LlamaIndex：快速原型</li>
 <li>自建管线：生产环境建议自建核心逻辑</li>
 
-<h3>架构建议</h3>
+<h3 id="架构建议">架构建议</h3>
 
 <p>1. <strong>从简单开始</strong>：不要第一天就上 Hybrid Search + Reranking + Query Rewriting</p>
 <p>2. <strong>先保证召回，再优化精度</strong>：Recall@10 > 85% 是基本要求</p>
@@ -390,7 +401,7 @@ flowchart TD
 <p>4. <strong>为高风险问题设置安全网</strong>：没有文档支持 = 不回答</p>
 <p>5. <strong>版本化一切</strong>：嵌入模型版本、chunking 策略版本、prompt 版本</p>
 
-<h3>运营建议</h3>
+<h3 id="运营建议">运营建议</h3>
 
 <p>1. <strong>建立评估基准</strong>：准备 100-200 个测试问题及标准答案</p>
 <p>2. <strong>每周抽样审查</strong>：随机抽取 50 个真实问答，人工评估质量</p>
@@ -400,7 +411,7 @@ flowchart TD
 
 <hr>
 
-<h2>参考来源</h2>
+<h2 id="参考来源">参考来源</h2>
 
 <p>1. Gao L et al. "Precise Zero-Shot Dense Retrieval without Relevance Labels." ACL 2023. (HyDE)</p>
 <p>2. RAGAS: Retrieval Augmented Generation Assessment. https://github.com/explodinggradients/ragas</p>
@@ -411,5 +422,12 @@ flowchart TD
 <hr>
 
 <p><em>本报告基于截至 2025 年 2 月的公开信息和生产环境实践经验编写。RAG 技术栈发展迅速，部分工具和最佳实践可能已有更新。</em></p>
-</body>
-</html>
+<div class="footer">
+<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
+<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+</div>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});
+</script>
+</body></html>

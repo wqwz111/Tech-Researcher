@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI 开发者工具链全景图</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
 <style>
 body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
 .top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
@@ -49,7 +48,6 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <div class="meta">
 <h1>AI 开发者工具链全景图</h1>
 <div class="info">2026-03-14 · 分类: 🛠️ 工具</div>
-<div class="tags"><span class="tag">fixme</span></div>
 </div>
 
 <p>> <strong>发布日期</strong>: 2026-03-14  </p>
@@ -58,7 +56,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <hr>
 
-<h2>Executive Summary</h2>
+<h2 id="executive-summary">Executive Summary</h2>
 
 <p>随着大语言模型（LLM）应用的爆发式增长，围绕 AI 开发的工具链也在快速成熟。从 API 网关代理到 Prompt 管理，从数据标注训练到模型部署推理，再到端到端的工作流编排，整个生态已经形成了完整的工具矩阵。本报告系统梳理了 2024–2025 年间 AI 开发者工具链的全景，重点关注以下几个核心环节：</p>
 
@@ -72,9 +70,9 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <hr>
 
-<h2>一、API 网关与代理层</h2>
+<h2 id="一api-网关与代理层">一、API 网关与代理层</h2>
 
-<h3>1.1 为什么需要 API 网关？</h3>
+<h3 id="11-为什么需要-api-网关">1.1 为什么需要 API 网关？</h3>
 
 <p>在实际开发中，企业往往需要同时接入多个模型提供商——OpenAI、Anthropic、Google、Mistral，以及各种国内大模型。每个提供商的 API 格式、认证方式、定价模型都不相同。API 网关的核心价值在于：</p>
 
@@ -83,7 +81,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <li><strong>高可用性</strong>：自动重试、故障转移</li>
 <li><strong>可观测性</strong>：统一的调用日志和指标</li>
 
-<h3>1.2 LiteLLM</h3>
+<h3 id="12-litellm">1.2 LiteLLM</h3>
 
 <p><strong><a href="https://github.com/BerriAI/litellm">LiteLLM</a></strong> 是目前最流行的开源 LLM API 网关之一，支持 100+ 种模型的统一调用。</p>
 
@@ -97,7 +95,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <p><strong>典型用法</strong>：</p>
 
-<pre><code>
+<pre><span class="lang-label">python</span><code>
 import litellm
 
 # 统一调用不同模型
@@ -109,7 +107,7 @@ response = litellm.completion(
 
 <p><strong>部署架构</strong>：LiteLLM 可以作为代理服务器部署（Proxy Server），为团队提供统一的 API 入口，支持虚拟 API Key、预算限制和团队管理。</p>
 
-<h3>1.3 Portkey</h3>
+<h3 id="13-portkey">1.3 Portkey</h3>
 
 <p><strong><a href="https://github.com/Portkey-ai/gateway">Portkey</a></strong> 是另一款备受关注的 AI 网关，相比 LiteLLM 更侧重于生产环境的可靠性和可观测性。</p>
 
@@ -127,7 +125,7 @@ response = litellm.completion(
 <li>支持请求/响应的中间件链</li>
 <li>内置 Prompt 缓存，显著降低延迟和成本</li>
 
-<h3>1.4 其他值得关注的工具</h3>
+<h3 id="14-其他值得关注的工具">1.4 其他值得关注的工具</h3>
 
 <table>
 <tr><th>工具</th><th>特点</th><th>适用场景</th></tr>
@@ -139,9 +137,9 @@ response = litellm.completion(
 
 <hr>
 
-<h2>二、Prompt 管理</h2>
+<h2 id="二prompt-管理">二、Prompt 管理</h2>
 
-<h3>2.1 从脚本到工程：PromptOps 的兴起</h3>
+<h3 id="21-从脚本到工程promptops-的兴起">2.1 从脚本到工程：PromptOps 的兴起</h3>
 
 <p>早期的 Prompt 开发往往是"写在代码里"或"存在记事本中"，但随着应用复杂度提升，这种做法的问题日益凸显：</p>
 
@@ -152,7 +150,7 @@ response = litellm.completion(
 
 <p><strong>PromptOps</strong>（Prompt Operations）应运而生，将软件工程的最佳实践引入 Prompt 开发。</p>
 
-<h3>2.2 主流 Prompt 管理工具</h3>
+<h3 id="22-主流-prompt-管理工具">2.2 主流 Prompt 管理工具</h3>
 
 <h4>PromptLayer</h4>
 
@@ -187,7 +185,7 @@ response = litellm.completion(
 <li>版本控制和发布流程</li>
 <li>与网关层无缝集成</li>
 
-<h3>2.3 实践建议</h3>
+<h3 id="23-实践建议">2.3 实践建议</h3>
 
 <p>1. <strong>从第一天就用版本控制</strong>：哪怕只是 Git 管理的 Markdown 文件</p>
 <p>2. <strong>建立评估基线</strong>：每次 Prompt 修改都要跑回归测试</p>
@@ -196,13 +194,13 @@ response = litellm.completion(
 
 <hr>
 
-<h2>三、数据标注与训练</h2>
+<h2 id="三数据标注与训练">三、数据标注与训练</h2>
 
-<h3>3.1 高质量数据的核心价值</h3>
+<h3 id="31-高质量数据的核心价值">3.1 高质量数据的核心价值</h3>
 
 <p>"Garbage in, garbage out" 在 AI 时代依然适用。无论是 fine-tuning、RAG 还是 RLHF，高质量的标注数据都是成功的关键。</p>
 
-<h3>3.2 开源标注工具</h3>
+<h3 id="32-开源标注工具">3.2 开源标注工具</h3>
 
 <h4>Label Studio</h4>
 
@@ -235,7 +233,7 @@ response = litellm.completion(
 <li>支持命名实体识别、文本分类、关系抽取等</li>
 <li>快速迭代，适合小团队</li>
 
-<h3>3.3 专业 SaaS 平台</h3>
+<h3 id="33-专业-saas-平台">3.3 专业 SaaS 平台</h3>
 
 <table>
 <tr><th>平台</th><th>特点</th><th>适合场景</th></tr>
@@ -245,7 +243,7 @@ response = litellm.completion(
 <tr><td>**Labelbox**</td><td>综合数据平台，支持模型辅助标注</td><td>大规模标注项目</td></tr>
 </table>
 
-<h3>3.4 训练工具链</h3>
+<h3 id="34-训练工具链">3.4 训练工具链</h3>
 
 <p>在数据准备好之后，训练环节的主流工具：</p>
 
@@ -257,9 +255,9 @@ response = litellm.completion(
 
 <hr>
 
-<h2>四、部署与推理</h2>
+<h2 id="四部署与推理">四、部署与推理</h2>
 
-<h3>4.1 推理引擎对比</h3>
+<h3 id="41-推理引擎对比">4.1 推理引擎对比</h3>
 
 <p>部署大模型的核心挑战在于：如何在有限的硬件资源下实现高吞吐、低延迟的推理服务。</p>
 
@@ -301,7 +299,7 @@ response = litellm.completion(
 <li>RadixAttention 技术</li>
 <li>在复杂工作流场景下性能优异</li>
 
-<h3>4.2 云服务与托管方案</h3>
+<h3 id="42-云服务与托管方案">4.2 云服务与托管方案</h3>
 
 <table>
 <tr><th>方案</th><th>优势</th><th>适合场景</th></tr>
@@ -312,7 +310,7 @@ response = litellm.completion(
 <tr><td>**Anyscale (Ray)**</td><td>分布式计算，企业级</td><td>大规模部署</td></tr>
 </table>
 
-<h3>4.3 部署决策树</h3>
+<h3 id="43-部署决策树">4.3 部署决策树</h3>
 
 <div class="mermaid">
 graph TD
@@ -339,9 +337,9 @@ graph TD
 
 <hr>
 
-<h2>五、端到端工作流框架</h2>
+<h2 id="五端到端工作流框架">五、端到端工作流框架</h2>
 
-<h3>5.1 应用开发框架</h3>
+<h3 id="51-应用开发框架">5.1 应用开发框架</h3>
 
 <h4>LangChain</h4>
 
@@ -372,7 +370,7 @@ graph TD
 <li>支持编译器自动优化 Pipeline</li>
 <li>适合需要大量 Prompt 调优的场景</li>
 
-<h3>5.2 低代码/可视化平台</h3>
+<h3 id="52-低代码可视化平台">5.2 低代码/可视化平台</h3>
 
 <h4>Dify</h4>
 
@@ -401,7 +399,7 @@ graph TD
 <li>开源，可自部署</li>
 <li>适合快速原型</li>
 
-<h3>5.3 Agent 框架</h3>
+<h3 id="53-agent-框架">5.3 Agent 框架</h3>
 
 <p>AI Agent（自主智能体）是 2024-2025 年最热门的方向之一：</p>
 
@@ -416,9 +414,9 @@ graph TD
 
 <hr>
 
-<h2>六、工具链选择指南</h2>
+<h2 id="六工具链选择指南">六、工具链选择指南</h2>
 
-<h3>6.1 按团队规模</h3>
+<h3 id="61-按团队规模">6.1 按团队规模</h3>
 
 <p><strong>个人开发者 / 小团队</strong>：</p>
 <li>API 网关：LiteLLM（开源自部署）</li>
@@ -441,7 +439,7 @@ graph TD
 <li>部署：TensorRT-LLM 或 云服务商</li>
 <li>工作流：Semantic Kernel 或自研框架</li>
 
-<h3>6.2 按技术栈偏好</h3>
+<h3 id="62-按技术栈偏好">6.2 按技术栈偏好</h3>
 
 <li><strong>Python 优先</strong>：LangChain + vLLM + LiteLLM</li>
 <li><strong>云原生</strong>：Kubernetes + KServe + Prometheus</li>
@@ -450,9 +448,9 @@ graph TD
 
 <hr>
 
-<h2>实践建议</h2>
+<h2 id="实践建议">实践建议</h2>
 
-<h3>1. 从简单开始，逐步复杂化</h3>
+<h3 id="1-从简单开始逐步复杂化">1. 从简单开始，逐步复杂化</h3>
 
 <p>不要一开始就搭建完整的工具链。建议路径：</p>
 <p>1. 先用 API 直连验证想法</p>
@@ -461,14 +459,14 @@ graph TD
 <p>4. 加入评估和监控</p>
 <p>5. 最后优化部署和推理</p>
 
-<h3>2. 投资评估体系</h3>
+<h3 id="2-投资评估体系">2. 投资评估体系</h3>
 
 <p>工具可以随时换，但评估体系是核心资产。尽早建立：</p>
 <li>自动化的测试数据集</li>
 <li>标准化的评估指标</li>
 <li>A/B 测试能力</li>
 
-<h3>3. 关注成本</h3>
+<h3 id="3-关注成本">3. 关注成本</h3>
 
 <p>AI 应用的成本很容易失控。务必：</p>
 <li>使用 API 网关的预算控制功能</li>
@@ -476,14 +474,14 @@ graph TD
 <li>对高成本操作使用缓存</li>
 <li>考虑模型路由（简单任务用小模型）</li>
 
-<h3>4. 保持供应商灵活性</h3>
+<h3 id="4-保持供应商灵活性">4. 保持供应商灵活性</h3>
 
 <p>避免深度绑定单一提供商：</p>
 <li>使用 LiteLLM/Portkey 等抽象层</li>
 <li>本地备选模型（Ollama）</li>
 <li>定期评估其他提供商的性价比</li>
 
-<h3>5. 拥抱开源</h3>
+<h3 id="5-拥抱开源">5. 拥抱开源</h3>
 
 <p>AI 工具链的开源生态极其活跃。优先考虑：</p>
 <li>vLLM（推理）</li>
@@ -493,7 +491,7 @@ graph TD
 
 <hr>
 
-<h2>参考来源</h2>
+<h2 id="参考来源">参考来源</h2>
 
 <p>1. <strong>LiteLLM 官方文档</strong> — https://docs.litellm.ai/ — 多模型统一调用的完整指南</p>
 <p>2. <strong>Portkey AI Gateway</strong> — https://portkey.ai/docs — AI 网关的架构和配置文档</p>
@@ -511,5 +509,8 @@ graph TD
 <p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
 <p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
 </div>
-<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});
+</script>
 </body></html>
