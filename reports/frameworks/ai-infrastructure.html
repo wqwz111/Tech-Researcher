@@ -1,56 +1,43 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI 基础设施与云平台对比</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
-<style>
-body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
-.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
-.top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav .sep { color: #475569; }
-.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
-.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
-.meta .info { color: #94a3b8; font-size: .85rem; }
-.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
-.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: #93c5fd; text-decoration: none; }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 基础设施与云平台对比</title>
+    <style>
+body {
+    background: #0f172a;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-a { color: #60a5fa; }
-code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
-pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
-.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; }
+h4 { color: #a5b4fc; }
+a { color: #60a5fa; text-decoration: none; }
+code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
+pre code { background: none; padding: 0; color: #e2e8f0; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
+th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
 tr:nth-child(even) { background: #1e293b44; }
+tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
-.footer a { color: #60a5fa; }
+strong { color: #f8fafc; }
+em { color: #94a3b8; }
+ul, ol { padding-left: 1.5rem; }
+li { margin: 0.3rem 0; }
+p { margin: 0.8rem 0; }
 </style>
 </head>
 <body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:#94a3b8">🏗️ 框架</span>
-</div>
-<div class="meta">
 <h1>AI 基础设施与云平台对比</h1>
-<div class="info">2026-03-14 · 分类: 🏗️ 框架</div>
-<div class="tags"><span class="tag">fixme</span></div>
-</div>
 
 <p>> <strong>分类</strong>: 框架类 | <strong>更新</strong>: 2026-03-14 | <strong>字数</strong>: ~3500字</p>
 
@@ -369,8 +356,21 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <p><strong>模式一：模型路由层（Model Router）</strong></p>
 
 <pre><code>
-应用层 → 路由层（LiteLLM / Portkey / 自建）→ [AWS Bedrock | Azure OpenAI | Together AI | ...]
+flowchart TD
+    A["应用层"] --&gt; B["路由层&lt;br/&gt;LiteLLM / Portkey / 自建"]
+    B --&gt; C1["AWS Bedrock"]
+    B --&gt; C2["Azure OpenAI"]
+    B --&gt; C3["Together AI"]
+    B --&gt; C4["OpenRouter"]
+    B --&gt; C5["..."]
+    style A fill:#e3f2fd
+    style B fill:#fff3e0
+    style C1 fill:#e8f5e9
+    style C2 fill:#e8f5e9
+    style C3 fill:#e8f5e9
 </code></pre>
+
+<p>> <strong>图5.2 多云模型路由架构</strong>：路由层统一 API 格式，按成本/延迟/可用性智能路由请求到不同云厂商的 LLM 服务，支持失败自动降级和 Token 用量聚合计费，有效规避供应商锁定风险。</p>
 
 <p>路由层的功能：</p>
 <li>统一 API 格式（OpenAI 兼容接口）</li>
@@ -454,7 +454,7 @@ else → 主要云平台 (统一管理)
 
 <h3>6.4 决策流程图</h3>
 
-<div class="mermaid">
+<pre><code>
 graph TD
     Q{"你的应用需要什么模型？"}
     GPT["GPT-4o / o1 / o3 → Azure OpenAI"]
@@ -468,18 +468,18 @@ graph TD
     O1["企业合规 → AWS Bedrock / Vertex AI"]
     O2["成本敏感 → Fireworks AI"]
     O3["需要微调 → Together AI"]
-    Q --> GPT
-    Q --> GEM
-    Q --> CLAUDE
-    Q --> OPEN
-    Q --> UNKNOWN
-    CLAUDE --> C1
-    CLAUDE --> C2
-    CLAUDE --> C3
-    OPEN --> O1
-    OPEN --> O2
-    OPEN --> O3
-</div>
+    Q --&gt; GPT
+    Q --&gt; GEM
+    Q --&gt; CLAUDE
+    Q --&gt; OPEN
+    Q --&gt; UNKNOWN
+    CLAUDE --&gt; C1
+    CLAUDE --&gt; C2
+    CLAUDE --&gt; C3
+    OPEN --&gt; O1
+    OPEN --&gt; O2
+    OPEN --&gt; O3
+</code></pre>
 
 <hr>
 
@@ -517,9 +517,5 @@ graph TD
 
 <p>> <strong>免责声明</strong>：定价和模型可用性信息基于 2025 年 Q4 至 2026 年 Q1 公开数据，可能随时变更。建议在做出采购决策前查阅各平台最新官方文档。本报告不构成商业建议。</p>
 
-<div class="footer">
-<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
-</div>
-<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
-</body></html>
+</body>
+</html>

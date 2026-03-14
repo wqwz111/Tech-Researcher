@@ -12,6 +12,20 @@
 
 最基础的"检索-阅读"范式：
 
+```mermaid
+flowchart LR
+    subgraph 索引阶段["📥 索引阶段"]
+        D[文档] --> S[切块 Chunking]
+        S --> E[生成 Embedding]
+        E --> V[存入向量数据库]
+    end
+    subgraph 查询阶段["🔍 查询阶段"]
+        Q[用户问题] --> R[向量检索 Top-K]
+        R --> P[拼接 Prompt]
+        P --> L[LLM 生成回答]
+    end
+```
+
 1. **索引阶段**: 将文档切块 → 生成 Embedding → 存入向量数据库
 2. **查询阶段**: 用户问题 → 向量检索 Top-K → 拼接 Prompt → LLM 生成回答
 
@@ -178,8 +192,15 @@ result = evaluate(
 
 ### 5.2 架构建议
 
-```
-用户查询 → 查询分析 → 路由选择 → 混合检索 → Rerank → 上下文压缩 → LLM 生成 → 引用标注
+```mermaid
+flowchart TD
+    Q[用户查询] --> QA[查询分析]
+    QA --> R[路由选择]
+    R --> HR[混合检索]
+    HR --> RR[Rerank]
+    RR --> CC[上下文压缩]
+    CC --> LLM[LLM 生成]
+    LLM --> CIT[引用标注]
 ```
 
 ---

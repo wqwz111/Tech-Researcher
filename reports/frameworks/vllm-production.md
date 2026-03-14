@@ -66,9 +66,11 @@ Continuous Batching（持续批处理）也称 iteration-level scheduling：
 GPU 利用率: ████████░░░░░░░░ (低，等待最长请求)
 
 Continuous Batching:
-Step 1: [Req1, Req2, Req3]
-Step 2: [Req1, Req2, Req4] ← Req3 完成，Req4 加入
-Step 3: [Req2, Req4, Req5] ← Req1 完成，Req5 加入
+```mermaid
+flowchart LR
+    S1["Step 1: [Req1, Req2, Req3]"] --> S2["Step 2: [Req1, Req2, Req4]<br/>← Req3 完成，Req4 加入"]
+    S2 --> S3["Step 3: [Req2, Req4, Req5]<br/>← Req1 完成，Req5 加入"]
+```
 GPU 利用率: ████████████████ (高，始终满载)
 ```
 

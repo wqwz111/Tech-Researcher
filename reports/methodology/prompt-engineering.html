@@ -1,56 +1,43 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prompt Engineering 系统化方法论</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
-<style>
-body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
-.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
-.top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav .sep { color: #475569; }
-.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
-.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
-.meta .info { color: #94a3b8; font-size: .85rem; }
-.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
-.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: #93c5fd; text-decoration: none; }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Engineering 系统化方法论</title>
+    <style>
+body {
+    background: #0f172a;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-a { color: #60a5fa; }
-code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
-pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
-.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; }
+h4 { color: #a5b4fc; }
+a { color: #60a5fa; text-decoration: none; }
+code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
+pre code { background: none; padding: 0; color: #e2e8f0; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
+th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
 tr:nth-child(even) { background: #1e293b44; }
+tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
-.footer a { color: #60a5fa; }
+strong { color: #f8fafc; }
+em { color: #94a3b8; }
+ul, ol { padding-left: 1.5rem; }
+li { margin: 0.3rem 0; }
+p { margin: 0.8rem 0; }
 </style>
 </head>
 <body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:#94a3b8">🔬 方法论</span>
-</div>
-<div class="meta">
 <h1>Prompt Engineering 系统化方法论</h1>
-<div class="info">2026-03-14 · 分类: 🔬 方法论</div>
-<div class="tags"><span class="tag">fixme</span></div>
-</div>
 
 <p>> <strong>最后更新</strong>: 2026-03-14 | <strong>分类</strong>: 方法论 | <strong>阅读时间</strong>: 约 25 分钟</p>
 
@@ -434,7 +421,7 @@ class PromptAdapter:
 
 <h4>方式一：Git + 文本文件（推荐起步）</h4>
 
-<div class="mermaid">
+<pre><code>
 graph TD
     P["📁 prompts/"]
     CL["📁 classification/"]
@@ -447,17 +434,17 @@ graph TD
     E2["relation_v1.0.md"]
     G1["summary_v1.0.md"]
     G2["email_v1.0.md"]
-    P --> CL
-    P --> EX
-    P --> GEN
-    CL --> S1
-    CL --> S2
-    CL --> S3
-    EX --> E1
-    EX --> E2
-    GEN --> G1
-    GEN --> G2
-</div>
+    P --&gt; CL
+    P --&gt; EX
+    P --&gt; GEN
+    CL --&gt; S1
+    CL --&gt; S2
+    CL --&gt; S3
+    EX --&gt; E1
+    EX --&gt; E2
+    GEN --&gt; G1
+    GEN --&gt; G2
+</code></pre>
 
 <p>优点：简单、可靠、与现有 Git 工具链集成</p>
 <p>缺点：缺乏运行时管理能力</p>
@@ -529,7 +516,14 @@ SENTIMENT_ANALYSIS = PromptTemplate(
 <h3>5.1 Prompt 生命周期管理（PLM）</h3>
 
 <pre><code>
-设计 → 开发 → 测试 → 部署 → 监控 → 优化 → 废弃
+flowchart LR
+    A[设计] --&gt; B[开发]
+    B --&gt; C[测试]
+    C --&gt; D[部署]
+    D --&gt; E[监控]
+    E --&gt; F[优化]
+    F -.-&gt;|迭代| B
+    F --&gt; G[废弃]
 </code></pre>
 
 <p><strong>每个阶段的关键活动：</strong></p>
@@ -751,9 +745,5 @@ def route_model(task_complexity: str, budget: str) -&gt; str:
 
 <p><em>本报告由 Tech-Researcher 团队编写，基于公开文献和行业实践总结。内容截至 2026 年 3 月。</em></p>
 
-<div class="footer">
-<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
-</div>
-<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
-</body></html>
+</body>
+</html>

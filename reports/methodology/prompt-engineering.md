@@ -473,8 +473,15 @@ SENTIMENT_ANALYSIS = PromptTemplate(
 
 ### 5.1 Prompt 生命周期管理（PLM）
 
-```
-设计 → 开发 → 测试 → 部署 → 监控 → 优化 → 废弃
+```mermaid
+flowchart LR
+    A[设计] --> B[开发]
+    B --> C[测试]
+    C --> D[部署]
+    D --> E[监控]
+    E --> F[优化]
+    F -.->|迭代| B
+    F --> G[废弃]
 ```
 
 **每个阶段的关键活动：**

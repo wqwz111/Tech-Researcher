@@ -22,6 +22,26 @@ Model Context Protocol (MCP) 是 Anthropic 于 2024 年 11 月发布的开放协
 
 ```
 Before MCP:
+```mermaid
+flowchart LR
+    subgraph Before["❌ MCP 之前"]
+        AA1[App A] <--> T1[Tool 1 custom]
+        AA1 <--> T2[Tool 2 custom]
+        AB1[App B] <--> T1r[Tool 1 rewrite]
+        AB1 <--> T2r[Tool 2 rewrite]
+    end
+    subgraph After["✅ MCP 之后"]
+        AA2[App A] <--> MC1[MCP Client]
+        MC1 <--> MS1[MCP Server 1]
+        MS1 <--> TT1[Tool 1]
+        AB2[App B] <--> MC2[MCP Client]
+        MC2 <--> MS2[MCP Server 2]
+        MS2 <--> TT2[Tool 2]
+    end
+```
+
+```
+Before MCP:
 App A ←→ Tool 1 (custom)
 App A ←→ Tool 2 (custom)
 App B ←→ Tool 1 (rewrite)
@@ -62,11 +82,13 @@ MCP 支持两种传输方式：
 | **stdio** | 本地工具 | 通过标准输入输出通信，延迟最低 |
 | **HTTP + SSE** | 远程服务 | 通过 HTTP 发送请求，SSE 推送事件 |
 
-```
-# stdio 传输示例
-Client spawn → Server 进程 (stdin/stdout)
-Client → {"jsonrpc":"2.0","method":"tools/call",...} → Server stdin
-Client ← {"jsonrpc":"2.0","result":{...}} ← Server stdout
+```mermaid
+sequenceDiagram
+    participant C as MCP Client
+    participant S as MCP Server (stdio)
+    C->>S: spawn 进程 (stdin/stdout)
+    C->>S: stdin: {"jsonrpc":"2.0","method":"tools/call",...}
+    S-->>C: stdout: {"jsonrpc":"2.0","result":{...}}
 ```
 
 ---
@@ -115,10 +137,13 @@ MCP Client 内置于 AI 应用中，负责：
 3. **执行**: 收到 LLM 的工具调用请求后，转发给对应 Server
 4. **返回**: 将结果返回给 LLM
 
-```
-User → AI App → MCP Client → LLM
-                    ↑↓          ↓
-              MCP Server(s)   "调用 search(query='...')"
+```mermaid
+flowchart TD
+    U[User] --> APP[AI App]
+    APP --> MC[MCP Client]
+    MC --> LLM[LLM]
+    LLM -->|调用 search(query='...')| MC
+    MC <--> MS[MCP Server(s)]
 ```
 
 ### 主流 Client 实现

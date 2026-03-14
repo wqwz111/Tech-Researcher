@@ -149,22 +149,37 @@ Anthropic 的 API 产品线相对简洁：
 ### 4.3 典型企业集成模式
 
 **模式一：客服增强**
+
+```mermaid
+flowchart TD
+    A["用户提问"] --> B["检索知识库"] --> C["构建 Prompt<br/>含相关文档"] --> D["Claude API"] --> E["审核"] --> F["回复"]
+    style D fill:#e8f5e9
+    style E fill:#fff3e0
 ```
-用户提问 → 检索知识库 → 构建 Prompt（含相关文档）→ Claude API → 审核 → 回复
-```
-关键点：利用 Claude 的指令遵循能力确保回复风格一致；长上下文支持大量参考文档。
+
+> 利用 Claude 的指令遵循能力确保回复风格一致；长上下文支持大量参考文档。
 
 **模式二：文档处理管道**
+
+```mermaid
+flowchart TD
+    A["上传文档"] --> B["Claude 分析提取关键信息"] --> C["结构化输出"] --> D["数据库存储"] --> E["人工审核"]
+    style B fill:#e8f5e9
+    style E fill:#fff3e0
 ```
-上传文档 → Claude 分析提取关键信息 → 结构化输出 → 数据库存储 → 人工审核
-```
-关键点：Claude 的视觉理解能力可以直接"阅读"PDF、扫描件；结构化输出保证数据质量。
+
+> Claude 的视觉理解能力可以直接"阅读"PDF、扫描件；结构化输出保证数据质量。
 
 **模式三：代码审查助手**
+
+```mermaid
+flowchart TD
+    A["PR 提交"] --> B["Claude 分析代码变更"] --> C["生成审查意见"] --> D["开发者确认"] --> E["合并"]
+    style B fill:#e8f5e9
+    style D fill:#fff3e0
 ```
-PR 提交 → Claude 分析代码变更 → 生成审查意见 → 开发者确认 → 合并
-```
-关键点：Claude 的编程能力使其在代码审查场景中比通用模型更有价值。
+
+> Claude 的编程能力使其在代码审查场景中比通用模型更有价值。
 
 ---
 

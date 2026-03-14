@@ -1,56 +1,43 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MCP 协议生态深度分析</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
-<style>
-body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
-.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
-.top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav .sep { color: #475569; }
-.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
-.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
-.meta .info { color: #94a3b8; font-size: .85rem; }
-.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
-.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: #93c5fd; text-decoration: none; }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP 协议生态深度分析</title>
+    <style>
+body {
+    background: #0f172a;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-a { color: #60a5fa; }
-code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
-pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
-.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; }
+h4 { color: #a5b4fc; }
+a { color: #60a5fa; text-decoration: none; }
+code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
+pre code { background: none; padding: 0; color: #e2e8f0; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
+th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
 tr:nth-child(even) { background: #1e293b44; }
+tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
-.footer a { color: #60a5fa; }
+strong { color: #f8fafc; }
+em { color: #94a3b8; }
+ul, ol { padding-left: 1.5rem; }
+li { margin: 0.3rem 0; }
+p { margin: 0.8rem 0; }
 </style>
 </head>
 <body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:#94a3b8">🛠️ 工具</span>
-</div>
-<div class="meta">
 <h1>MCP 协议生态深度分析</h1>
-<div class="info">2026-03-14 · 分类: 🛠️ 工具</div>
-<div class="tags"><span class="tag">fixme</span></div>
-</div>
 
 <p>> 最后更新: 2026-03-14 | 分类: AI 基础设施 / 协议</p>
 
@@ -74,278 +61,294 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 <pre><code>
 Before MCP:
-App A ←→ Tool 1 (custom)
-App A ←→ Tool 2 (custom)
-App B ←→ Tool 1 (rewrite)
-App B ←→ Tool 2 (rewrite)
-
-After MCP:
-App A ←→ MCP Client ←→ MCP Server 1 ←→ Tool 1
-App B ←→ MCP Client ←→ MCP Server 2 ←→ Tool 2
 </code></pre>
-
-<p>MCP 的核心价值是<strong>解耦</strong>: 工具提供方只需实现一次 MCP Server，任何 MCP Client 都可以使用。</p>
-
-<h3>协议层次</h3>
-
-<p>MCP 基于 JSON-RPC 2.0 协议，定义了三层能力：</p>
-
-<p>1. <strong>Tools（工具）</strong>: AI 模型可调用的函数（类似 Function Calling）</p>
-<p>   - 由 Client 发起调用请求</p>
-<p>   - Server 执行并返回结果</p>
-<p>   - 支持参数验证和错误处理</p>
-
-<p>2. <strong>Resources（资源）</strong>: 可读取的数据上下文</p>
-<p>   - 类似 GET 请求，提供只读数据</p>
-<p>   - 支持 URI 模式访问（如 <code>file:///path</code>）</p>
-<p>   - 可订阅变更通知</p>
-
-<p>3. <strong>Prompts（提示模板）</strong>: 预定义的提示模板</p>
-<p>   - Server 提供可复用的提示词</p>
-<p>   - 支持参数化</p>
-<p>   - 帮助标准化常见任务</p>
-
-<h3>传输层</h3>
-
-<p>MCP 支持两种传输方式：</p>
-
-<table>
-<tr><th>传输方式</th><th>适用场景</th><th>说明</th></tr>
-<tr><td>**stdio**</td><td>本地工具</td><td>通过标准输入输出通信，延迟最低</td></tr>
-<tr><td>**HTTP + SSE**</td><td>远程服务</td><td>通过 HTTP 发送请求，SSE 推送事件</td></tr>
-</table>
-
+<p>flowchart LR</p>
+<p>    subgraph Before["❌ MCP 之前"]</p>
+<p>        AA1[App A] <--> T1[Tool 1 custom]</p>
+<p>        AA1 <--> T2[Tool 2 custom]</p>
+<p>        AB1[App B] <--> T1r[Tool 1 rewrite]</p>
+<p>        AB1 <--> T2r[Tool 2 rewrite]</p>
+<p>    end</p>
+<p>    subgraph After["✅ MCP 之后"]</p>
+<p>        AA2[App A] <--> MC1[MCP Client]</p>
+<p>        MC1 <--> MS1[MCP Server 1]</p>
+<p>        MS1 <--> TT1[Tool 1]</p>
+<p>        AB2[App B] <--> MC2[MCP Client]</p>
+<p>        MC2 <--> MS2[MCP Server 2]</p>
+<p>        MS2 <--> TT2[Tool 2]</p>
+<p>    end</p>
 <pre><code>
-# stdio 传输示例
-Client spawn → Server 进程 (stdin/stdout)
-Client → {"jsonrpc":"2.0","method":"tools/call",...} → Server stdin
-Client ← {"jsonrpc":"2.0","result":{...}} ← Server stdout
+
 </code></pre>
+<p>Before MCP:</p>
+<p>App A ←→ Tool 1 (custom)</p>
+<p>App A ←→ Tool 2 (custom)</p>
+<p>App B ←→ Tool 1 (rewrite)</p>
+<p>App B ←→ Tool 2 (rewrite)</p>
 
-<hr>
-
-<h2>2. 服务端与客户端架构</h2>
-
-<h3>MCP Server 架构</h3>
-
-<p>一个 MCP Server 通常包含：</p>
-
+<p>After MCP:</p>
+<p>App A ←→ MCP Client ←→ MCP Server 1 ←→ Tool 1</p>
+<p>App B ←→ MCP Client ←→ MCP Server 2 ←→ Tool 2</p>
 <pre><code>
-# 简化的 MCP Server 结构
-from mcp.server import Server
 
-server = Server("my-tool")
+MCP 的核心价值是**解耦**: 工具提供方只需实现一次 MCP Server，任何 MCP Client 都可以使用。
 
-@server.tool()
-def search(query: str) -&gt; str:
-    """搜索功能"""
-    return perform_search(query)
+### 协议层次
 
-@server.resource("config://settings")
-def get_config() -&gt; str:
-    """读取配置"""
-    return load_config()
+MCP 基于 JSON-RPC 2.0 协议，定义了三层能力：
 
-@server.prompt()
-def summarize(text: str) -&gt; str:
-    """摘要提示模板"""
-    return f"请总结以下内容:\n{text}"
+1. **Tools（工具）**: AI 模型可调用的函数（类似 Function Calling）
+   - 由 Client 发起调用请求
+   - Server 执行并返回结果
+   - 支持参数验证和错误处理
+
+2. **Resources（资源）**: 可读取的数据上下文
+   - 类似 GET 请求，提供只读数据
+   - 支持 URI 模式访问（如 `file:///path`）
+   - 可订阅变更通知
+
+3. **Prompts（提示模板）**: 预定义的提示模板
+   - Server 提供可复用的提示词
+   - 支持参数化
+   - 帮助标准化常见任务
+
+### 传输层
+
+MCP 支持两种传输方式：
+
+| 传输方式 | 适用场景 | 说明 |
+|---------|---------|------|
+| **stdio** | 本地工具 | 通过标准输入输出通信，延迟最低 |
+| **HTTP + SSE** | 远程服务 | 通过 HTTP 发送请求，SSE 推送事件 |
+
 </code></pre>
-
-<p><strong>Server 生命周期</strong>:</p>
-<p>1. Client 启动 Server 进程（stdio）或连接 Server（HTTP）</p>
-<p>2. 双方进行初始化握手（<code>initialize</code>）</p>
-<p>3. Server 声明能力（Tools / Resources / Prompts）</p>
-<p>4. Client 按需调用</p>
-<p>5. 连接关闭或超时</p>
-
-<h3>MCP Client 架构</h3>
-
-<p>MCP Client 内置于 AI 应用中，负责：</p>
-
-<p>1. <strong>发现</strong>: 连接 Server 并获取可用工具列表</p>
-<p>2. <strong>调度</strong>: 将工具信息注入 LLM 的 System Prompt</p>
-<p>3. <strong>执行</strong>: 收到 LLM 的工具调用请求后，转发给对应 Server</p>
-<p>4. <strong>返回</strong>: 将结果返回给 LLM</p>
-
+<p>sequenceDiagram</p>
+<p>    participant C as MCP Client</p>
+<p>    participant S as MCP Server (stdio)</p>
+<p>    C->>S: spawn 进程 (stdin/stdout)</p>
+<p>    C->>S: stdin: {"jsonrpc":"2.0","method":"tools/call",...}</p>
+<p>    S-->>C: stdout: {"jsonrpc":"2.0","result":{...}}</p>
 <pre><code>
-User → AI App → MCP Client → LLM
-                    ↑↓          ↓
-              MCP Server(s)   "调用 search(query='...')"
+
+---
+
+## 2. 服务端与客户端架构
+
+### MCP Server 架构
+
+一个 MCP Server 通常包含：
+
 </code></pre>
+<h1>简化的 MCP Server 结构</h1>
+<p>from mcp.server import Server</p>
 
-<h3>主流 Client 实现</h3>
+<p>server = Server("my-tool")</p>
 
-<table>
-<tr><th>Client</th><th>类型</th><th>MCP 支持程度</th></tr>
-<tr><td>Claude Desktop</td><td>桌面应用</td><td>⭐ 原生支持，最早实现</td></tr>
-<tr><td>Cursor</td><td>AI IDE</td><td>✅ 完整支持</td></tr>
-<tr><td>Windsurf</td><td>AI IDE</td><td>✅ 完整支持</td></tr>
-<tr><td>Cline</td><td>VS Code 插件</td><td>✅ 完整支持</td></tr>
-<tr><td>OpenClaw</td><td>Agent 平台</td><td>✅ 完整支持</td></tr>
-<tr><td>LangChain</td><td>框架</td><td>✅ 通过适配器</td></tr>
-<tr><td>Dify</td><td>LLMOps 平台</td><td>✅ 支持</td></tr>
-</table>
+<p>@server.tool()</p>
+<p>def search(query: str) -> str:</p>
+<p>    """搜索功能"""</p>
+<p>    return perform_search(query)</p>
 
-<hr>
+<p>@server.resource("config://settings")</p>
+<p>def get_config() -> str:</p>
+<p>    """读取配置"""</p>
+<p>    return load_config()</p>
 
-<h2>3. 现有 MCP Server 生态</h2>
+<p>@server.prompt()</p>
+<p>def summarize(text: str) -> str:</p>
+<p>    """摘要提示模板"""</p>
+<p>    return f"请总结以下内容:\n{text}"</p>
+<pre><code>
 
-<h3>官方参考实现 (Anthropic)</h3>
+**Server 生命周期**:
+1. Client 启动 Server 进程（stdio）或连接 Server（HTTP）
+2. 双方进行初始化握手（`initialize`）
+3. Server 声明能力（Tools / Resources / Prompts）
+4. Client 按需调用
+5. 连接关闭或超时
 
-<table>
-<tr><th>Server</th><th>功能</th><th>说明</th></tr>
-<tr><td>**filesystem**</td><td>文件系统操作</td><td>读写文件、目录浏览</td></tr>
-<tr><td>**github**</td><td>GitHub API</td><td>Issues、PR、代码搜索</td></tr>
-<tr><td>**git**</td><td>Git 操作</td><td>提交、分支、diff</td></tr>
-<tr><td>**postgres**</td><td>PostgreSQL</td><td>SQL 查询、Schema 浏览</td></tr>
-<tr><td>**sqlite**</td><td>SQLite</td><td>轻量数据库操作</td></tr>
-<tr><td>**puppeteer**</td><td>浏览器自动化</td><td>网页截图、DOM 操作</td></tr>
-<tr><td>**brave-search**</td><td>网络搜索</td><td>Brave Search API</td></tr>
-<tr><td>**fetch**</td><td>HTTP 请求</td><td>网页内容抓取</td></tr>
-<tr><td>**memory**</td><td>知识图谱</td><td>持久化记忆存储</td></tr>
-<tr><td>**slack**</td><td>Slack 集成</td><td>消息、频道操作</td></tr>
-</table>
+### MCP Client 架构
 
-<h3>社区生态（2025 年数据）</h3>
+MCP Client 内置于 AI 应用中，负责：
 
-<table>
-<tr><th>类别</th><th>代表项目</th><th>数量级</th></tr>
-<tr><td>**云服务**</td><td>AWS、GCP、Azure、Cloudflare</td><td>50+</td></tr>
-<tr><td>**数据库**</td><td>MongoDB、Redis、Supabase、Prisma</td><td>40+</td></tr>
-<tr><td>**开发工具**</td><td>Linear、Jira、Notion、Obsidian</td><td>60+</td></tr>
-<tr><td>**设计工具**</td><td>Figma、Canva</td><td>10+</td></tr>
-<tr><td>**通信**</td><td>Slack、Discord、Email</td><td>20+</td></tr>
-<tr><td>**数据/分析**</td><td>BigQuery、Snowflake、Metabase</td><td>30+</td></tr>
-<tr><td>**本地工具**</td><td>终端、Python REPL、Node REPL</td><td>20+</td></tr>
-<tr><td>**AI 工具**</td><td>图像生成、语音合成、翻译</td><td>30+</td></tr>
-<tr><td>**总计**</td><td></td><td>1,000+</td></tr>
-</table>
+1. **发现**: 连接 Server 并获取可用工具列表
+2. **调度**: 将工具信息注入 LLM 的 System Prompt
+3. **执行**: 收到 LLM 的工具调用请求后，转发给对应 Server
+4. **返回**: 将结果返回给 LLM
 
-<h3>热门 MCP Server 深入</h3>
+</code></pre>
+<p>flowchart TD</p>
+<p>    U[User] --> APP[AI App]</p>
+<p>    APP --> MC[MCP Client]</p>
+<p>    MC --> LLM[LLM]</p>
+<p>    LLM -->|调用 search(query='...')| MC</p>
+<p>    MC <--> MS[MCP Server(s)]</p>
+<pre><code>
 
-<p><strong>1. Filesystem Server</strong></p>
-<li>读写本地文件、目录导航</li>
-<li>支持路径权限控制</li>
-<li>最基础也最常用的 Server</li>
+### 主流 Client 实现
 
-<p><strong>2. GitHub Server</strong></p>
-<li>创建/管理 Issues 和 PR</li>
-<li>代码搜索、文件浏览</li>
-<li>CI/CD 状态查询</li>
-<li>适合开发工作流自动化</li>
+| Client | 类型 | MCP 支持程度 |
+|--------|------|-------------|
+| Claude Desktop | 桌面应用 | ⭐ 原生支持，最早实现 |
+| Cursor | AI IDE | ✅ 完整支持 |
+| Windsurf | AI IDE | ✅ 完整支持 |
+| Cline | VS Code 插件 | ✅ 完整支持 |
+| OpenClaw | Agent 平台 | ✅ 完整支持 |
+| LangChain | 框架 | ✅ 通过适配器 |
+| Dify | LLMOps 平台 | ✅ 支持 |
 
-<p><strong>3. PostgreSQL Server</strong></p>
-<li>只读查询（安全考虑）</li>
-<li>Schema 浏览和表结构查看</li>
-<li>支持复杂 JOIN 和聚合</li>
+---
 
-<p><strong>4. Puppeteer Server</strong></p>
-<li>无头浏览器控制</li>
-<li>网页截图、PDF 生成</li>
-<li>表单填写、点击操作</li>
-<li>需要注意沙箱安全</li>
+## 3. 现有 MCP Server 生态
 
-<hr>
+### 官方参考实现 (Anthropic)
 
-<h2>4. MCP vs Function Calling 对比</h2>
+| Server | 功能 | 说明 |
+|--------|------|------|
+| **filesystem** | 文件系统操作 | 读写文件、目录浏览 |
+| **github** | GitHub API | Issues、PR、代码搜索 |
+| **git** | Git 操作 | 提交、分支、diff |
+| **postgres** | PostgreSQL | SQL 查询、Schema 浏览 |
+| **sqlite** | SQLite | 轻量数据库操作 |
+| **puppeteer** | 浏览器自动化 | 网页截图、DOM 操作 |
+| **brave-search** | 网络搜索 | Brave Search API |
+| **fetch** | HTTP 请求 | 网页内容抓取 |
+| **memory** | 知识图谱 | 持久化记忆存储 |
+| **slack** | Slack 集成 | 消息、频道操作 |
 
-<h3>设计层面</h3>
+### 社区生态（2025 年数据）
 
-<table>
-<tr><th>维度</th><th>Function Calling</th><th>MCP</th></tr>
-<tr><td>**标准化**</td><td>各提供商不同（OpenAI、Anthropic 各自定义）</td><td>统一协议（JSON-RPC 2.0）</td></tr>
-<tr><td>**复用性**</td><td>需为每个模型重新实现</td><td>一次实现，所有 Client 可用</td></tr>
-<tr><td>**发现机制**</td><td>无（硬编码在调用中）</td><td>动态发现（`tools/list`）</td></tr>
-<tr><td>**工具类型**</td><td>仅函数调用</td><td>Tools + Resources + Prompts</td></tr>
-<tr><td>**传输方式**</td><td>API 层（内嵌在聊天 API 中）</td><td>独立协议（stdio / HTTP SSE）</td></tr>
-<tr><td>**状态管理**</td><td>无状态（每次调用独立）</td><td>有状态（长连接、订阅通知）</td></tr>
-<tr><td>**版本管理**</td><td>无</td><td>Server 版本化</td></tr>
-</table>
+| 类别 | 代表项目 | 数量级 |
+|------|---------|--------|
+| **云服务** | AWS、GCP、Azure、Cloudflare | 50+ |
+| **数据库** | MongoDB、Redis、Supabase、Prisma | 40+ |
+| **开发工具** | Linear、Jira、Notion、Obsidian | 60+ |
+| **设计工具** | Figma、Canva | 10+ |
+| **通信** | Slack、Discord、Email | 20+ |
+| **数据/分析** | BigQuery、Snowflake、Metabase | 30+ |
+| **本地工具** | 终端、Python REPL、Node REPL | 20+ |
+| **AI 工具** | 图像生成、语音合成、翻译 | 30+ |
+| **总计** | | 1,000+ |
 
-<h3>功能对比</h3>
+### 热门 MCP Server 深入
 
-<table>
-<tr><th>功能</th><th>Function Calling</th><th>MCP</th></tr>
-<tr><td>函数调用</td><td>✅</td><td>✅</td></tr>
-<tr><td>参数校验</td><td>✅</td><td>✅</td></tr>
-<tr><td>错误处理</td><td>⚠️ 基础</td><td>✅ 结构化错误</td></tr>
-<tr><td>流式返回</td><td>✅ 部分支持</td><td>✅ 原生支持</td></tr>
-<tr><td>资源访问</td><td>❌</td><td>✅ Resources</td></tr>
-<tr><td>提示模板</td><td>❌</td><td>✅ Prompts</td></tr>
-<tr><td>通知/订阅</td><td>❌</td><td>✅ 支持</td></tr>
-<tr><td>跨模型兼容</td><td>❌ 需适配</td><td>✅ 统一接口</td></tr>
-</table>
+**1. Filesystem Server**
+- 读写本地文件、目录导航
+- 支持路径权限控制
+- 最基础也最常用的 Server
 
-<h3>使用场景对比</h3>
+**2. GitHub Server**
+- 创建/管理 Issues 和 PR
+- 代码搜索、文件浏览
+- CI/CD 状态查询
+- 适合开发工作流自动化
 
-<p><strong>Function Calling 更适合</strong>:</p>
-<li>简单的单次函数调用</li>
-<li>不需要复用的临时工具</li>
-<li>对延迟极度敏感的场景</li>
-<li>模型提供商原生支持的场景</li>
+**3. PostgreSQL Server**
+- 只读查询（安全考虑）
+- Schema 浏览和表结构查看
+- 支持复杂 JOIN 和聚合
 
-<p><strong>MCP 更适合</strong>:</p>
-<li>需要跨多个 AI 应用复用的工具</li>
-<li>复杂的工具生态（多种工具类型）</li>
-<li>需要资源访问和订阅的场景</li>
-<li>长期维护的工具集成</li>
+**4. Puppeteer Server**
+- 无头浏览器控制
+- 网页截图、PDF 生成
+- 表单填写、点击操作
+- 需要注意沙箱安全
 
-<p><strong>两者关系</strong>: Function Calling 是 LLM 的底层能力，MCP 是更高层的协议标准。MCP Server 通常在内部使用 Function Calling 来触发工具执行。</p>
+---
 
-<hr>
+## 4. MCP vs Function Calling 对比
 
-<h2>5. 未来发展方向</h2>
+### 设计层面
 
-<h3>2025-2026 演进趋势</h3>
+| 维度 | Function Calling | MCP |
+|------|-----------------|-----|
+| **标准化** | 各提供商不同（OpenAI、Anthropic 各自定义） | 统一协议（JSON-RPC 2.0） |
+| **复用性** | 需为每个模型重新实现 | 一次实现，所有 Client 可用 |
+| **发现机制** | 无（硬编码在调用中） | 动态发现（`tools/list`） |
+| **工具类型** | 仅函数调用 | Tools + Resources + Prompts |
+| **传输方式** | API 层（内嵌在聊天 API 中） | 独立协议（stdio / HTTP SSE） |
+| **状态管理** | 无状态（每次调用独立） | 有状态（长连接、订阅通知） |
+| **版本管理** | 无 | Server 版本化 |
 
-<p>1. <strong>远程 MCP Server 普及</strong></p>
-<p>   - 从本地 stdio 转向 HTTP + SSE 远程服务</p>
-<p>   - 企业级 MCP Server 需要认证、限流、审计</p>
-<p>   - MCP Gateway 模式出现（聚合多个 Server）</p>
+### 功能对比
 
-<p>2. <strong>认证与安全标准化</strong></p>
-<p>   - OAuth 2.1 集成（进行中）</p>
-<p>   - 工具级权限控制</p>
-<p>   - 沙箱化执行环境</p>
+| 功能 | Function Calling | MCP |
+|------|-----------------|-----|
+| 函数调用 | ✅ | ✅ |
+| 参数校验 | ✅ | ✅ |
+| 错误处理 | ⚠️ 基础 | ✅ 结构化错误 |
+| 流式返回 | ✅ 部分支持 | ✅ 原生支持 |
+| 资源访问 | ❌ | ✅ Resources |
+| 提示模板 | ❌ | ✅ Prompts |
+| 通知/订阅 | ❌ | ✅ 支持 |
+| 跨模型兼容 | ❌ 需适配 | ✅ 统一接口 |
 
-<p>3. <strong>性能优化</strong></p>
-<p>   - 工具描述压缩（减少 Prompt Token）</p>
-<p>   - 批量调用支持</p>
-<p>   - 缓存层标准化</p>
+### 使用场景对比
 
-<p>4. <strong>企业特性</strong></p>
-<p>   - MCP Server 注册中心（Registry）</p>
-<p>   - 版本管理和灰度发布</p>
-<p>   - 监控和可观测性</p>
-<p>   - 合规审计</p>
+**Function Calling 更适合**:
+- 简单的单次函数调用
+- 不需要复用的临时工具
+- 对延迟极度敏感的场景
+- 模型提供商原生支持的场景
 
-<p>5. <strong>与 Agent 框架深度集成</strong></p>
-<p>   - LangChain / LlamaIndex 原生 MCP 支持</p>
-<p>   - Agent 自动发现和选择 MCP Server</p>
-<p>   - MCP Server 编排（Agent 调度多个 Server）</p>
+**MCP 更适合**:
+- 需要跨多个 AI 应用复用的工具
+- 复杂的工具生态（多种工具类型）
+- 需要资源访问和订阅的场景
+- 长期维护的工具集成
 
-<h3>潜在挑战</h3>
+**两者关系**: Function Calling 是 LLM 的底层能力，MCP 是更高层的协议标准。MCP Server 通常在内部使用 Function Calling 来触发工具执行。
 
-<p>1. <strong>安全风险</strong>: 远程 MCP Server 可能成为攻击向量（提示注入、数据泄露）</p>
-<p>2. <strong>工具爆炸</strong>: 大量 Server 涌现，质量参差不齐</p>
-<p>3. <strong>性能开销</strong>: 每次工具调用增加一次 RPC 往返</p>
-<p>4. <strong>标准化碎片</strong>: 不同 Client 对协议的实现可能有差异</p>
+---
 
-<hr>
+## 5. 未来发展方向
 
-<h2>参考来源</h2>
+### 2025-2026 演进趋势
 
-<p>1. <strong>MCP 官方文档</strong> — <a href="https://modelcontextprotocol.io">modelcontextprotocol.io</a> — 协议规范、SDK</p>
-<p>2. <strong>MCP Specification</strong> — <a href="https://spec.modelcontextprotocol.io">spec.modelcontextprotocol.io</a> — 完整协议规范</p>
-<p>3. <strong>MCP GitHub 仓库</strong> — <a href="https://github.com/modelcontextprotocol">github.com/modelcontextprotocol</a> — 参考实现、SDK</p>
-<p>4. <strong>Anthropic MCP 公告</strong> — <a href="https://www.anthropic.com/news/model-context-protocol">anthropic.com/news/model-context-protocol</a> — 发布背景</p>
-<p>5. <strong>MCP Server Registry</strong> — <a href="https://mcp.so">mcp.so</a> / <a href="https://glama.ai/mcp/servers">glama.ai/mcp/servers</a> — 社区 Server 目录</p>
-<p>6. <strong>OpenClaw MCP 集成文档</strong> — <a href="https://docs.openclaw.ai">docs.openclaw.ai/tools/mcporter</a> — MCP Client 实践</p>
+1. **远程 MCP Server 普及**
+   - 从本地 stdio 转向 HTTP + SSE 远程服务
+   - 企业级 MCP Server 需要认证、限流、审计
+   - MCP Gateway 模式出现（聚合多个 Server）
 
-<div class="footer">
-<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
-</div>
-<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
-</body></html>
+2. **认证与安全标准化**
+   - OAuth 2.1 集成（进行中）
+   - 工具级权限控制
+   - 沙箱化执行环境
+
+3. **性能优化**
+   - 工具描述压缩（减少 Prompt Token）
+   - 批量调用支持
+   - 缓存层标准化
+
+4. **企业特性**
+   - MCP Server 注册中心（Registry）
+   - 版本管理和灰度发布
+   - 监控和可观测性
+   - 合规审计
+
+5. **与 Agent 框架深度集成**
+   - LangChain / LlamaIndex 原生 MCP 支持
+   - Agent 自动发现和选择 MCP Server
+   - MCP Server 编排（Agent 调度多个 Server）
+
+### 潜在挑战
+
+1. **安全风险**: 远程 MCP Server 可能成为攻击向量（提示注入、数据泄露）
+2. **工具爆炸**: 大量 Server 涌现，质量参差不齐
+3. **性能开销**: 每次工具调用增加一次 RPC 往返
+4. **标准化碎片**: 不同 Client 对协议的实现可能有差异
+
+---
+
+## 参考来源
+
+1. **MCP 官方文档** — [modelcontextprotocol.io](https://modelcontextprotocol.io) — 协议规范、SDK
+2. **MCP Specification** — [spec.modelcontextprotocol.io](https://spec.modelcontextprotocol.io) — 完整协议规范
+3. **MCP GitHub 仓库** — [github.com/modelcontextprotocol](https://github.com/modelcontextprotocol) — 参考实现、SDK
+4. **Anthropic MCP 公告** — [anthropic.com/news/model-context-protocol](https://www.anthropic.com/news/model-context-protocol) — 发布背景
+5. **MCP Server Registry** — [mcp.so](https://mcp.so) / [glama.ai/mcp/servers](https://glama.ai/mcp/servers) — 社区 Server 目录
+6. **OpenClaw MCP 集成文档** — [docs.openclaw.ai/tools/mcporter](https://docs.openclaw.ai) — MCP Client 实践
+
+</code></pre>
+</body>
+</html>

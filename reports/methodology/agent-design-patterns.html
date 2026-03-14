@@ -1,54 +1,43 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Agent 设计模式</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
-<style>
-body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
-.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
-.top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav .sep { color: #475569; }
-.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
-.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
-.meta .info { color: #94a3b8; font-size: .85rem; }
-.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
-.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: #93c5fd; text-decoration: none; }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent 设计模式</title>
+    <style>
+body {
+    background: #0f172a;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-a { color: #60a5fa; }
-code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
-pre code { background: none; color: #e2e8f0; }
-.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; }
+h4 { color: #a5b4fc; }
+a { color: #60a5fa; text-decoration: none; }
+code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
+pre code { background: none; padding: 0; color: #e2e8f0; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
+th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
 tr:nth-child(even) { background: #1e293b44; }
+tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
-.footer a { color: #60a5fa; }
+strong { color: #f8fafc; }
+em { color: #94a3b8; }
+ul, ol { padding-left: 1.5rem; }
+li { margin: 0.3rem 0; }
+p { margin: 0.8rem 0; }
 </style>
 </head>
 <body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:#94a3b8">🔬 方法论</span>
-</div>
-<div class="meta">
 <h1>AI Agent 设计模式</h1>
-<div class="info">2026-03-14 · 分类: 🔬 方法论</div>
-<div class="tags"></div>
-</div>
 
 <p>> <strong>发布日期</strong>: 2026-03-14  </p>
 <p>> <strong>分类</strong>: 方法论  </p>
@@ -295,31 +284,31 @@ print(f"高分记录: {len(filtered)} 条")
 
 <h3>3.1 错误分类</h3>
 
-<div class="mermaid">
+<pre><code>
 graph TD
     ERR["错误类型"]
-    PARSE["1. 解析错误<br/>模型输出不符合预期格式"]
-    EXEC["2. 执行错误<br/>工具调用失败"]
-    LOGIC["3. 逻辑错误<br/>工具返回正确但 Agent 误解"]
-    SYS["4. 系统错误<br/>框架或基础设施问题"]
-    ERR --> PARSE
-    ERR --> EXEC
-    ERR --> LOGIC
-    ERR --> SYS
-    PARSE --> P1["JSON 解析失败"]
-    PARSE --> P2["工具名称不存在"]
-    PARSE --> P3["参数类型不匹配"]
-    EXEC --> E1["API 限流 429"]
-    EXEC --> E2["网络超时"]
-    EXEC --> E3["认证过期"]
-    EXEC --> E4["参数值越界"]
-    LOGIC --> L1["错误解读数据"]
-    LOGIC --> L2["忽略关键字段"]
-    LOGIC --> L3["循环调用同一工具"]
-    SYS --> S1["上下文窗口溢出"]
-    SYS --> S2["LLM API 不可用"]
-    SYS --> S3["内存/磁盘耗尽"]
-</div>
+    PARSE["1. 解析错误&lt;br/&gt;模型输出不符合预期格式"]
+    EXEC["2. 执行错误&lt;br/&gt;工具调用失败"]
+    LOGIC["3. 逻辑错误&lt;br/&gt;工具返回正确但 Agent 误解"]
+    SYS["4. 系统错误&lt;br/&gt;框架或基础设施问题"]
+    ERR --&gt; PARSE
+    ERR --&gt; EXEC
+    ERR --&gt; LOGIC
+    ERR --&gt; SYS
+    PARSE --&gt; P1["JSON 解析失败"]
+    PARSE --&gt; P2["工具名称不存在"]
+    PARSE --&gt; P3["参数类型不匹配"]
+    EXEC --&gt; E1["API 限流 429"]
+    EXEC --&gt; E2["网络超时"]
+    EXEC --&gt; E3["认证过期"]
+    EXEC --&gt; E4["参数值越界"]
+    LOGIC --&gt; L1["错误解读数据"]
+    LOGIC --&gt; L2["忽略关键字段"]
+    LOGIC --&gt; L3["循环调用同一工具"]
+    SYS --&gt; S1["上下文窗口溢出"]
+    SYS --&gt; S2["LLM API 不可用"]
+    SYS --&gt; S3["内存/磁盘耗尽"]
+</code></pre>
 
 <h3>3.2 分层错误处理</h3>
 
@@ -351,12 +340,15 @@ Agent 修正: 改用 search_web 并重试
 <p><strong>层3 - 降级策略 (Graceful Degradation)</strong></p>
 
 <pre><code>
-主路径: 调用实时 API 获取数据
-  ↓ 失败
-降级1: 使用本地缓存数据（标注"缓存时间"）
-  ↓ 无缓存
-降级2: 用模型知识回答（标注"基于训练数据"）
+flowchart TD
+    A["主路径：调用实时 API 获取数据"] --&gt;|"失败"| B["降级1：使用本地缓存数据"]
+    B --&gt;|"无缓存"| C["降级2：用模型知识回答"]
+    style A fill:#e8f5e9
+    style B fill:#fff3e0
+    style C fill:#fce4ec
 </code></pre>
+
+<p>> <strong>图3.2 三级降级策略</strong>：正常情况下调用实时 API；API 失败时自动切换到本地缓存（标注缓存时间）；无可用缓存时，使用模型训练知识回答（标注"基于训练数据"），确保服务不中断。</p>
 
 <p><strong>层4 - 人工介入 (Human-in-the-loop)</strong></p>
 
@@ -405,51 +397,66 @@ class LoopDetector:
 <p>一个协调者（Orchestrator）负责分配任务和汇总结果。</p>
 
 <pre><code>
-        Agent A
-           ↑
-Agent B ← Orchestrator → Agent C
-           ↓
-        Agent D
+flowchart TD
+    O["Orchestrator&lt;br/&gt;协调者"]
+    A["Agent A"] --- O
+    B["Agent B"] --- O
+    C["Agent C"] --- O
+    D["Agent D"] --- O
+    style O fill:#fff3e0
 </code></pre>
 
-<p>优点: 控制集中，容易管理优先级和冲突</p>
-<p>缺点: 协调者成为瓶颈和单点故障</p>
+<p>> <strong>优点</strong>：控制集中，容易管理优先级和冲突</p>
+<p>> <strong>缺点</strong>：协调者成为瓶颈和单点故障</p>
 
 <p><strong>b) 管道拓扑 (Pipeline)</strong></p>
 <p>Agent 按顺序排列，前一个的输出是后一个的输入。</p>
 
 <pre><code>
-Agent A → Agent B → Agent C → 最终输出
+flowchart LR
+    A["Agent A"] --&gt; B["Agent B"] --&gt; C["Agent C"] --&gt; D["最终输出"]
+    style D fill:#e8f5e9
 </code></pre>
 
-<p>优点: 结构简单，适合流水线任务</p>
-<p>缺点: 无法并行，前一步失败则全部阻塞</p>
+<p>> <strong>优点</strong>：结构简单，适合流水线任务</p>
+<p>> <strong>缺点</strong>：无法并行，前一步失败则全部阻塞</p>
 
 <p><strong>c) 网状拓扑 (Mesh)</strong></p>
 <p>Agent 之间可以自由通信，形成动态协作网络。</p>
 
 <pre><code>
-Agent A ←→ Agent B
-   ↕          ↕
-Agent C ←→ Agent D
+flowchart TD
+    A["Agent A"] &lt;--&gt; B["Agent B"]
+    A &lt;--&gt; C["Agent C"]
+    B &lt;--&gt; D["Agent D"]
+    C &lt;--&gt; D
+    style A fill:#e3f2fd
+    style D fill:#e3f2fd
 </code></pre>
 
-<p>优点: 灵活性最高，容错性强</p>
-<p>缺点: 通信复杂度 O(n²)，可能出现"聊天噪音"</p>
+<p>> <strong>优点</strong>：灵活性最高，容错性强</p>
+<p>> <strong>缺点</strong>：通信复杂度 O(n²)，可能出现"聊天噪音"</p>
 
 <p><strong>d) 层次拓扑 (Hierarchical)</strong></p>
 <p>Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 
 <pre><code>
-        Manager Agent
-       /      |      \
-   Team A   Team B   Team C
-   / \      / \      / \
- A1  A2   B1  B2   C1  C2
+flowchart TD
+    M["Manager Agent&lt;br/&gt;管理者"]
+    TA["Team A"] --- M
+    TB["Team B"] --- M
+    TC["Team C"] --- M
+    A1["Agent A1"] --- TA
+    A2["Agent A2"] --- TA
+    B1["Agent B1"] --- TB
+    B2["Agent B2"] --- TB
+    C1["Agent C1"] --- TC
+    C2["Agent C2"] --- TC
+    style M fill:#fff3e0
 </code></pre>
 
-<p>优点: 可扩展性强，职责清晰</p>
-<p>缺点: 通信延迟，上层决策影响全局</p>
+<p>> <strong>优点</strong>：可扩展性强，职责清晰</p>
+<p>> <strong>缺点</strong>：通信延迟，上层决策影响全局</p>
 
 <h3>4.2 消息协议</h3>
 
@@ -701,9 +708,5 @@ user_proxy.initiate_chat(
 
 <p><em>本报告由 Tech-Researcher 团队编写，旨在为 AI Agent 系统设计提供实践指导。如有反馈，欢迎在 GitHub Issues 中提出。</em></p>
 
-<div class="footer">
-<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
-</div>
-<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
-</body></html>
+</body>
+</html>

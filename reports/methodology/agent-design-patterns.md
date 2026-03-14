@@ -298,13 +298,16 @@ Agent 修正: 改用 search_web 并重试
 
 **层3 - 降级策略 (Graceful Degradation)**
 
+```mermaid
+flowchart TD
+    A["主路径：调用实时 API 获取数据"] -->|"失败"| B["降级1：使用本地缓存数据"]
+    B -->|"无缓存"| C["降级2：用模型知识回答"]
+    style A fill:#e8f5e9
+    style B fill:#fff3e0
+    style C fill:#fce4ec
 ```
-主路径: 调用实时 API 获取数据
-  ↓ 失败
-降级1: 使用本地缓存数据（标注"缓存时间"）
-  ↓ 无缓存
-降级2: 用模型知识回答（标注"基于训练数据"）
-```
+
+> **图3.2 三级降级策略**：正常情况下调用实时 API；API 失败时自动切换到本地缓存（标注缓存时间）；无可用缓存时，使用模型训练知识回答（标注"基于训练数据"），确保服务不中断。
 
 **层4 - 人工介入 (Human-in-the-loop)**
 
@@ -352,52 +355,67 @@ class LoopDetector:
 **a) 星型拓扑 (Star)**
 一个协调者（Orchestrator）负责分配任务和汇总结果。
 
-```
-        Agent A
-           ↑
-Agent B ← Orchestrator → Agent C
-           ↓
-        Agent D
+```mermaid
+flowchart TD
+    O["Orchestrator<br/>协调者"]
+    A["Agent A"] --- O
+    B["Agent B"] --- O
+    C["Agent C"] --- O
+    D["Agent D"] --- O
+    style O fill:#fff3e0
 ```
 
-优点: 控制集中，容易管理优先级和冲突
-缺点: 协调者成为瓶颈和单点故障
+> **优点**：控制集中，容易管理优先级和冲突
+> **缺点**：协调者成为瓶颈和单点故障
 
 **b) 管道拓扑 (Pipeline)**
 Agent 按顺序排列，前一个的输出是后一个的输入。
 
-```
-Agent A → Agent B → Agent C → 最终输出
+```mermaid
+flowchart LR
+    A["Agent A"] --> B["Agent B"] --> C["Agent C"] --> D["最终输出"]
+    style D fill:#e8f5e9
 ```
 
-优点: 结构简单，适合流水线任务
-缺点: 无法并行，前一步失败则全部阻塞
+> **优点**：结构简单，适合流水线任务
+> **缺点**：无法并行，前一步失败则全部阻塞
 
 **c) 网状拓扑 (Mesh)**
 Agent 之间可以自由通信，形成动态协作网络。
 
-```
-Agent A ←→ Agent B
-   ↕          ↕
-Agent C ←→ Agent D
+```mermaid
+flowchart TD
+    A["Agent A"] <--> B["Agent B"]
+    A <--> C["Agent C"]
+    B <--> D["Agent D"]
+    C <--> D
+    style A fill:#e3f2fd
+    style D fill:#e3f2fd
 ```
 
-优点: 灵活性最高，容错性强
-缺点: 通信复杂度 O(n²)，可能出现"聊天噪音"
+> **优点**：灵活性最高，容错性强
+> **缺点**：通信复杂度 O(n²)，可能出现"聊天噪音"
 
 **d) 层次拓扑 (Hierarchical)**
 Agent 组织成树状结构，上层 Agent 协调下层 Agent。
 
-```
-        Manager Agent
-       /      |      \
-   Team A   Team B   Team C
-   / \      / \      / \
- A1  A2   B1  B2   C1  C2
+```mermaid
+flowchart TD
+    M["Manager Agent<br/>管理者"]
+    TA["Team A"] --- M
+    TB["Team B"] --- M
+    TC["Team C"] --- M
+    A1["Agent A1"] --- TA
+    A2["Agent A2"] --- TA
+    B1["Agent B1"] --- TB
+    B2["Agent B2"] --- TB
+    C1["Agent C1"] --- TC
+    C2["Agent C2"] --- TC
+    style M fill:#fff3e0
 ```
 
-优点: 可扩展性强，职责清晰
-缺点: 通信延迟，上层决策影响全局
+> **优点**：可扩展性强，职责清晰
+> **缺点**：通信延迟，上层决策影响全局
 
 ### 4.2 消息协议
 

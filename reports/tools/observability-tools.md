@@ -508,28 +508,24 @@ P3 - 低（每周报告）
 
 **适合：个人项目或小团队 MVP**
 
-```
-应用代码
-  ↓
-Helicone（代理追踪） → 成本 + 延迟 + 错误率
-  ↓
-PromptFoo（本地测试） → 回归测试
+```mermaid
+flowchart TD
+    APP[应用代码] --> H[Helicone<br/>代理追踪]
+    H --> |成本 + 延迟 + 错误率| PF[PromptFoo<br/>本地测试]
+    PF --> |回归测试| Done[✅]
 ```
 
 ### 6.2 标准可观测性栈
 
 **适合：生产环境的中型团队**
 
-```
-应用代码
-  ↓
-LangFuse（自部署） → 追踪 + 成本 + Prompt管理
-  ↓
-DeepEval（评估） → 质量监控
-  ↓
-Grafana + Prometheus → 系统指标
-  ↓
-Slack 通知 → 告警
+```mermaid
+flowchart TD
+    APP[应用代码] --> LF[LangFuse<br/>自部署]
+    LF --> |追踪 + 成本 + Prompt管理| DE[DeepEval<br/>评估]
+    DE --> |质量监控| GP[Grafana + Prometheus]
+    GP --> |系统指标| Slack[Slack 通知]
+    Slack --> |告警| Done[✅]
 ```
 
 ### 6.3 企业级可观测性栈

@@ -90,12 +90,18 @@ graph TD
 
 向量存储是 Agent 长期记忆的核心基础设施。其工作原理：
 
-```
-文本 → Embedding Model → 高维向量 (e.g., 1536-dim)
-                              ↓
-                     向量数据库存储
-                              ↓
-查询 → Embedding → 相似度搜索 → Top-K 相关文档
+```mermaid
+flowchart TD
+    subgraph 索引["📥 索引流程"]
+        T[文本] --> EM[Embedding Model]
+        EM --> HV[高维向量 e.g. 1536-dim]
+        HV --> VDB[(向量数据库存储)]
+    end
+    subgraph 检索["🔍 检索流程"]
+        Q[查询] --> QE[Embedding]
+        QE --> SS[相似度搜索]
+        SS --> TK[Top-K 相关文档]
+    end
 ```
 
 **主流 Embedding 模型：**
@@ -237,14 +243,11 @@ final_results = reranker(query, candidates, top_k=5)  # 再精排
 
 **（2）分层压缩（Tiered Compression）：**
 
-```
-Level 0: 原始记忆（完整细节）
-  ↓ 超过 7 天
-Level 1: 详细摘要（保留关键细节）
-  ↓ 超过 30 天
-Level 2: 概要摘要（只保留结论）
-  ↓ 超过 90 天
-Level 3: 归档 / 删除
+```mermaid
+flowchart TD
+    L0["Level 0: 原始记忆<br/>完整细节"] -->|超过 7 天| L1["Level 1: 详细摘要<br/>保留关键细节"]
+    L1 -->|超过 30 天| L2["Level 2: 概要摘要<br/>只保留结论"]
+    L2 -->|超过 90 天| L3["Level 3: 归档 / 删除"]
 ```
 
 **（3）重要性加权压缩：**
@@ -448,8 +451,14 @@ Mem0（原 Embedchain）是一个专注于 Agent 记忆管理的框架。
 - **混合检索**：向量搜索 + 关键词搜索 + 图关系
 
 **记忆生命周期：**
-```
-对话输入 → 信息提取 → 相关性判断 → 冲突检测 → 存储/更新 → 检索 → 注入上下文
+```mermaid
+flowchart LR
+    DI[对话输入] --> IE[信息提取]
+    IE --> RJ[相关性判断]
+    RJ --> CD[冲突检测]
+    CD --> SU[存储/更新]
+    SU --> RT[检索]
+    RT --> IC[注入上下文]
 ```
 
 **优势**：开箱即用的智能记忆管理，自动处理压缩和冲突

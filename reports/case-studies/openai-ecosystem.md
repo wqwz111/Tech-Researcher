@@ -24,6 +24,21 @@ OpenAI 从 2022 年底推出 ChatGPT 以来，已经构建了业界最完整的 
 
 GPT-4 于 2023 年 3 月发布，标志着大语言模型从"能用"到"好用"的跨越。其后续演进可以分为三个阶段：
 
+**GPT-4 系列演进路线：**
+
+```mermaid
+flowchart LR
+    A["GPT-4<br/>2023.03<br/>8K→32K context"] --> B["GPT-4 Turbo<br/>2023.11<br/>128K context<br/>$10/1M tokens"]
+    B --> C["GPT-4o<br/>2024.05<br/>原生多模态<br/>$5/1M tokens"]
+    C --> D["GPT-4o mini<br/>2024.07<br/>$0.15/1M tokens"]
+    style A fill:#e3f2fd
+    style B fill:#e8f5e9
+    style C fill:#fff3e0
+    style D fill:#fce4ec
+```
+
+> **图1.1 GPT-4 系列演进**：从 2023 年 3 月的 GPT-4 到 2024 年 7 月的 GPT-4o mini，经历四次迭代——context 从 8K 扩展到 128K，支持原生多模态（文本+图像+音频），价格从 $30/1M 降至 $0.15/1M，性能和可及性实现了质的飞跃。
+
 **第一阶段：GPT-4 → GPT-4 Turbo（2023.03 - 2023.11）**
 
 GPT-4 初始版本支持 8K context，后续扩展到 32K。2023 年 11 月 DevDay 发布 GPT-4 Turbo，将 context 扩展到 128K tokens，知识截止日期更新到 2023 年 4 月，同时价格大幅下降——input tokens 从 $30/1M 降至 $10/1M。

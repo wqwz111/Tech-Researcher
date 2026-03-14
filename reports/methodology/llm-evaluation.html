@@ -1,56 +1,43 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LLM 评估与 Benchmark 方法论</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true,primaryColor:'#38bdf8',primaryTextColor:'#e2e8f0',lineColor:'#7dd3fc'}});</script>
-<style>
-body { background: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif; line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem; }
-.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
-.top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav .sep { color: #475569; }
-.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
-.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
-.meta .info { color: #94a3b8; font-size: .85rem; }
-.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
-.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: #93c5fd; text-decoration: none; }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM 评估与 Benchmark 方法论</title>
+    <style>
+body {
+    background: #0f172a;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; margin-top: 1.5rem; }
+h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: 0.3rem; }
 h3 { color: #93c5fd; margin-top: 1.8rem; }
-a { color: #60a5fa; }
-code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
-pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
-.mermaid { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; }
+h4 { color: #a5b4fc; }
+a { color: #60a5fa; text-decoration: none; }
+code { background: #1e293b; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.88em; color: #f472b6; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; }
+pre code { background: none; padding: 0; color: #e2e8f0; }
+blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: 0.8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: 0.92em; }
+th, td { border: 1px solid #334155; padding: 0.7rem 1rem; text-align: left; }
+th { background: #1e293b; color: #7dd3fc; font-weight: 600; }
 tr:nth-child(even) { background: #1e293b44; }
+tr:hover { background: #1e293b; }
 hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
-.footer a { color: #60a5fa; }
+strong { color: #f8fafc; }
+em { color: #94a3b8; }
+ul, ol { padding-left: 1.5rem; }
+li { margin: 0.3rem 0; }
+p { margin: 0.8rem 0; }
 </style>
 </head>
 <body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:#94a3b8">🔬 方法论</span>
-</div>
-<div class="meta">
 <h1>LLM 评估与 Benchmark 方法论</h1>
-<div class="info">2026-03-14 · 分类: 🔬 方法论</div>
-<div class="tags"><span class="tag">fixme</span></div>
-</div>
 
 <p>> 发布日期: 2026-03-14</p>
 <p>> 分类: 方法论</p>
@@ -221,12 +208,12 @@ Level 4: 安全性测试 — 是否存在风险？（对抗测试）
 
 <h3>2.4 自动化评估流水线</h3>
 
-<div class="mermaid">
+<pre><code>
 graph LR
-    DS["📊 评估数据集<br/>JSONL"] --> IN["🔍 模型推理<br/>Batch API"]
-    IN --> SC["✅ 自动评分<br/>规则/LLM"]
-    SC --> RP["📈 报告生成<br/>Dashboard"]
-</div>
+    DS["📊 评估数据集&lt;br/&gt;JSONL"] --&gt; IN["🔍 模型推理&lt;br/&gt;Batch API"]
+    IN --&gt; SC["✅ 自动评分&lt;br/&gt;规则/LLM"]
+    SC --&gt; RP["📈 报告生成&lt;br/&gt;Dashboard"]
+</code></pre>
 
 <p><strong>关键组件：</strong></p>
 <li><strong>数据管理</strong>：版本控制评估集，追踪变更历史</li>
@@ -288,14 +275,14 @@ graph LR
 
 <p>推荐的三层评估策略：</p>
 
-<div class="mermaid">
+<pre><code>
 graph TD
-    L3["Layer 3: 人工深度评估（每月/每季度）<br/>领域专家审阅 / 失败模式分析 / 评估标准校准"]
-    L2["Layer 2: 人工抽样验证（每周）<br/>LLM-as-Judge 结果抽样验证 / 评判模型偏差监控"]
-    L1["Layer 1: 自动化评估（每次模型更新）<br/>规则评分 / LLM-as-Judge / 回归测试"]
-    L3 --> L2
-    L2 --> L1
-</div>
+    L3["Layer 3: 人工深度评估（每月/每季度）&lt;br/&gt;领域专家审阅 / 失败模式分析 / 评估标准校准"]
+    L2["Layer 2: 人工抽样验证（每周）&lt;br/&gt;LLM-as-Judge 结果抽样验证 / 评判模型偏差监控"]
+    L1["Layer 1: 自动化评估（每次模型更新）&lt;br/&gt;规则评分 / LLM-as-Judge / 回归测试"]
+    L3 --&gt; L2
+    L2 --&gt; L1
+</code></pre>
 
 <hr>
 
@@ -482,23 +469,12 @@ eval_cases = [
 <p>当需要在多个模型中选择时，按以下流程：</p>
 
 <pre><code>
-Step 1: 必须条件过滤
-  - 是否满足延迟要求？
-  - 是否满足成本预算？
-  - 是否通过安全测试？
-
-Step 2: 能力基准测试
-  - 在领域评估集上的表现
-  - 关键场景的通过率
-
-Step 3: 质量深度评估
-  - 人工评估核心场景输出质量
-  - 失败模式分析（最差情况表现）
-
-Step 4: 生产环境验证
-  - A/B 测试
-  - 灰度发布
-  - 持续监控
+flowchart TD
+    S1["Step 1: 必须条件过滤&lt;br/&gt;延迟 / 成本 / 安全"] --&gt; S2["Step 2: 能力基准测试&lt;br/&gt;领域评估集表现"]
+    S2 --&gt; S3["Step 3: 质量深度评估&lt;br/&gt;人工评估 + 失败模式分析"]
+    S3 --&gt; S4["Step 4: 生产环境验证&lt;br/&gt;A/B 测试 → 灰度发布 → 持续监控"]
+    S1 -.-&gt;|不通过| Reject["❌ 淘汰"]
+    S2 -.-&gt;|不达标| Reject
 </code></pre>
 
 <hr>
@@ -541,9 +517,5 @@ Step 4: 生产环境验证
 
 <p><em>本报告为 Tech-Researcher 系列方法论报告之一。如有反馈或建议，欢迎通过 GitHub Issues 提出。</em></p>
 
-<div class="footer">
-<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
-</div>
-<script>mermaid.init(undefined,document.querySelectorAll('.mermaid'));</script>
-</body></html>
+</body>
+</html>
