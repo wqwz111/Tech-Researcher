@@ -579,17 +579,41 @@ user_proxy.initiate_chat(
 
 ## 六、实践建议
 
-### 6.1 选择合适的模式
+### 6.1 Agent 设计模式选型决策树
 
-```
-任务复杂度 vs 模式选择:
+```mermaid
+flowchart TD
+    START["🎯 选择 Agent 设计模式"] --> Q1{"任务步骤数?"}
+    Q1 -->|"1-2 步"| REACT["✅ ReAct"]
+    Q1 -->|"3-10 步"| PE["✅ Plan-and-Execute"]
+    Q1 -->|"10+ 步"| Q2{"需要质量保证?"}
+    Q2 -->|"是"| PER["✅ Plan-and-Execute + Reflection"]
+    Q2 -->|"否"| PE
+    Q1 -->|"多角色协作"| Q3{"协作方式?"}
+    Q3 -->|"分工明确"| CREWAI["✅ CrewAI"]
+    Q3 -->|"讨论决策"| AUTOGEN["✅ AutoGen"]
+    Q3 -->|"层级管理"| METAGPT["✅ MetaGPT"]
+    Q1 -->|"操作 GUI/浏览器"| COMPUTER["✅ Computer Use"]
 
-简单（1-2步） → ReAct
-中等（3-10步） → Plan-and-Execute
-复杂（10+步，需质量保证） → Plan-and-Execute + Reflection
-需要团队协作 → 多 Agent（CrewAI/AutoGen）
-需要操作GUI → Computer Use
+    style START fill:#4f46e5,stroke:#818cf8,color:#fff
+    style REACT fill:#059669,stroke:#34d399,color:#fff
+    style PE fill:#059669,stroke:#34d399,color:#fff
+    style PER fill:#059669,stroke:#34d399,color:#fff
+    style CREWAI fill:#7c3aed,stroke:#a78bfa,color:#fff
+    style AUTOGEN fill:#7c3aed,stroke:#a78bfa,color:#fff
+    style METAGPT fill:#7c3aed,stroke:#a78bfa,color:#fff
+    style COMPUTER fill:#b45309,stroke:#fbbf24,color:#fff
 ```
+
+**快速参考**：
+
+| 场景 | 推荐模式 | 理由 |
+|------|----------|------|
+| 简单问答、单步工具调用 | ReAct | 最快上手，开销最低 |
+| 多步骤任务（如数据分析） | Plan-and-Execute | 先规划后执行，避免中途迷失 |
+| 高质量输出（如代码生成） | Plan + Execute + Reflection | 迭代改进提升质量 |
+| 团队协作（如研发流程） | 多 Agent（CrewAI/AutoGen） | 角色分工，专业化输出 |
+| 操作 GUI / 浏览器自动化 | Computer Use | 视觉理解 + 操作 |
 
 ### 6.2 设计检查清单
 

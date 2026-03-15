@@ -335,12 +335,18 @@ graph TD
 
 ## 参考来源
 
-1. Meta. "The Llama 3 Herd of Models." July 2024. https://ai.meta.com/research/publications/the-llama-3-herd-of-models/
-2. DeepSeek-AI. "DeepSeek-V3 Technical Report." December 2024. https://github.com/deepseek-ai/DeepSeek-V3
+### 官方来源
+1. Meta. "The Llama 3 Herd of Models." July 2024. [ai.meta.com/research/publications/the-llama-3-herd-of-models](https://ai.meta.com/research/publications/the-llama-3-herd-of-models/)
+2. DeepSeek-AI. "DeepSeek-V3 Technical Report." December 2024. [github.com/deepseek-ai/DeepSeek-V3](https://github.com/deepseek-ai/DeepSeek-V3)
 3. Kwon W et al. "Efficient Memory Management for Large Language Model Serving with PagedAttention." SOSP 2023.
-4. vLLM Documentation. https://docs.vllm.ai/
-5. Ollama. https://ollama.com/
-6. Mistral AI. https://mistral.ai/
+4. vLLM Documentation — [docs.vllm.ai](https://docs.vllm.ai/)
+5. Ollama — [ollama.com](https://ollama.com/)
+6. Mistral AI — [mistral.ai](https://mistral.ai/)
+
+### 独立第三方评测
+7. Artificial Analysis — LLM 推理性能独立基准 — [artificialanalysis.ai](https://artificialanalysis.ai)（2024-2025）
+8. LMSYS Chatbot Arena — 众包 LLM 评测平台 — [lmsys.org](https://chat.lmsys.org)（2024-2025）
+9. MLOps Community — 开源模型部署基准测试 — [mlops.community](https://mlops.community)（2024）
 
 ---
 

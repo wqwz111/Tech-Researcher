@@ -351,7 +351,33 @@ result = app.invoke(None, config)  # 继续之前的执行
 | 部署便利性 | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
 | 生产案例 | 多 | 多 | 多 | 少 | 增长中 |
 
-### 5.2 选型建议
+### 5.2 框架选型决策树
+
+```mermaid
+flowchart TD
+    START["🎯 选择 Agent 框架"] --> Q1{"主要用途?"}
+    Q1 -->|"复杂工作流编排"| LANGGRAPH["✅ LangGraph"]
+    Q1 -->|"快速原型/MVP"| Q2{"单Agent还是多Agent?"}
+    Q2 -->|"单 Agent"| OPENCLAW["✅ OpenClaw"]
+    Q2 -->|"多 Agent"| CREWAI["✅ CrewAI"]
+    Q1 -->|"学术研究/实验"| AUTOGEN["✅ AutoGen"]
+    Q1 -->|"软件开发自动化"| METAGPT["✅ MetaGPT"]
+    Q1 -->|"即时通讯集成"| OPENCLAW
+    Q1 -->|"生产级关键系统"| Q3{"需要状态持久化?"}
+    Q3 -->|"是"| LANGGRAPH2["✅ LangGraph"]
+    Q3 -->|"否"| CREWAI2["✅ CrewAI"]
+
+    style START fill:#4f46e5,stroke:#818cf8,color:#fff
+    style LANGGRAPH fill:#059669,stroke:#34d399,color:#fff
+    style LANGGRAPH2 fill:#059669,stroke:#34d399,color:#fff
+    style CREWAI fill:#7c3aed,stroke:#a78bfa,color:#fff
+    style CREWAI2 fill:#7c3aed,stroke:#a78bfa,color:#fff
+    style AUTOGEN fill:#7c3aed,stroke:#a78bfa,color:#fff
+    style METAGPT fill:#7c3aed,stroke:#a78bfa,color:#fff
+    style OPENCLAW fill:#7c3aed,stroke:#a78bfa,color:#fff
+```
+
+**快速参考**：
 
 | 场景 | 推荐框架 | 理由 |
 |------|----------|------|
