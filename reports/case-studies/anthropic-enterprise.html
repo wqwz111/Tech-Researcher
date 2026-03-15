@@ -389,45 +389,25 @@ strong { color: var(--text-primary); }
 <p><strong>Citations（2025 新增）</strong>：Claude 4 系列支持引用溯源，返回答案时标注来源文档的具体位置。</p>
 <h3 id="43">4.3 典型企业集成模式</h3>
 <p><strong>模式一：客服增强</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">flowchart</span><span class="w"> </span><span class="n">TD</span>
-<span class="w">    </span><span class="n">A</span><span class="p">[</span><span class="s">&quot;用户提问&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="s">&quot;检索知识库&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">C</span><span class="p">[</span><span class="s">&quot;构建 Prompt&lt;br/&gt;含相关文档&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">C</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">D</span><span class="p">[</span><span class="s">&quot;Claude API&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">E</span><span class="p">[</span><span class="s">&quot;审核&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">F</span><span class="p">[</span><span class="s">&quot;回复&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e8f5e9</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">fff3e0</span>
-</code></pre></div>
+<div class="mermaid">
+flowchart TD    A["用户提问"] --> B["检索知识库"]    B --> C["构建 Prompt<br/>含相关文档"]    C --> D["Claude API"]    D --> E["审核"]    E --> F["回复"]    style D fill:#e8f5e9    style E fill:#fff3e0
+</div>
 
 <blockquote>
 <p>利用 Claude 的指令遵循能力确保回复风格一致；长上下文支持大量参考文档。</p>
 </blockquote>
 <p><strong>模式二：文档处理管道</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">flowchart</span><span class="w"> </span><span class="n">TD</span>
-<span class="w">    </span><span class="n">A</span><span class="p">[</span><span class="s">&quot;上传文档&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="s">&quot;Claude 分析提取关键信息&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">C</span><span class="p">[</span><span class="s">&quot;结构化输出&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">C</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">D</span><span class="p">[</span><span class="s">&quot;数据库存储&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">E</span><span class="p">[</span><span class="s">&quot;人工审核&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e8f5e9</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">fff3e0</span>
-</code></pre></div>
+<div class="mermaid">
+flowchart TD    A["上传文档"] --> B["Claude 分析提取关键信息"]    B --> C["结构化输出"]    C --> D["数据库存储"]    D --> E["人工审核"]    style B fill:#e8f5e9    style E fill:#fff3e0
+</div>
 
 <blockquote>
 <p>Claude 的视觉理解能力可以直接"阅读"PDF、扫描件；结构化输出保证数据质量。</p>
 </blockquote>
 <p><strong>模式三：Agent 编程工作流</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">flowchart</span><span class="w"> </span><span class="n">TD</span>
-<span class="w">    </span><span class="n">A</span><span class="p">[</span><span class="s">&quot;任务描述&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="s">&quot;Claude Code Agent&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">C</span><span class="p">[</span><span class="s">&quot;读取代码库&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">C</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">D</span><span class="p">[</span><span class="s">&quot;制定计划&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">E</span><span class="p">[</span><span class="s">&quot;执行修改&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">F</span><span class="p">[</span><span class="s">&quot;运行测试&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">F</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G</span><span class="p">{</span><span class="s">&quot;测试通过?&quot;</span><span class="p">}</span>
-<span class="w">    </span><span class="n">G</span><span class="w"> </span><span class="o">--</span><span class="w"> </span><span class="err">否</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">D</span>
-<span class="w">    </span><span class="n">G</span><span class="w"> </span><span class="o">--</span><span class="w"> </span><span class="err">是</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">H</span><span class="p">[</span><span class="s">&quot;提交代码&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e8f5e9</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">fff3e0</span>
-</code></pre></div>
+<div class="mermaid">
+flowchart TD    A["任务描述"] --> B["Claude Code Agent"]    B --> C["读取代码库"]    C --> D["制定计划"]    D --> E["执行修改"]    E --> F["运行测试"]    F --> G{"测试通过?"}    G -- 否 --> D    G -- 是 --> H["提交代码"]    style B fill:#e8f5e9    style G fill:#fff3e0
+</div>
 
 <blockquote>
 <p>Claude Code 的 Agent 循环：计划 → 执行 → 测试 → 迭代，直到任务完成。</p>
