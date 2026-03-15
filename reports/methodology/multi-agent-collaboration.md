@@ -10,10 +10,15 @@
 
 ### 1.1 层级式（Hierarchical）
 
-```
-        [管理者 Agent]
-       /      |       \
-  [专家A]  [专家B]  [专家C]
+```mermaid
+graph TD
+    M["👔 管理者 Agent"] --> A["🔬 专家A"]
+    M --> B["📊 专家B"]
+    M --> C["💻 专家C"]
+    style M fill:#4f46e5,color:#fff
+    style A fill:#0ea5e9,color:#fff
+    style B fill:#0ea5e9,color:#fff
+    style C fill:#0ea5e9,color:#fff
 ```
 
 - **特点**: 上级分配任务，下级执行并汇报
@@ -23,10 +28,18 @@
 
 ### 1.2 扁平式（Flat / Peer-to-Peer）
 
-```
-[Agent A] ←→ [Agent B]
-    ↕           ↕
-[Agent C] ←→ [Agent D]
+```mermaid
+graph LR
+    A["🤖 Agent A"] <--> B["🤖 Agent B"]
+    A <--> C["🤖 Agent C"]
+    A <--> D["🤖 Agent D"]
+    B <--> C
+    B <--> D
+    C <--> D
+    style A fill:#059669,color:#fff
+    style B fill:#059669,color:#fff
+    style C fill:#059669,color:#fff
+    style D fill:#059669,color:#fff
 ```
 
 - **特点**: 所有 Agent 平等，自主协商
@@ -106,11 +119,28 @@ flowchart LR
 
 ### 3.3 共识算法
 
-```
-1. 提案阶段: Agent A 提出方案
-2. 讨论阶段: 各 Agent 发表意见
-3. 投票阶段: 各 Agent 投票
-4. 执行阶段: 通过则执行，否则修订重来
+```mermaid
+sequenceDiagram
+    participant A as Agent A (提案者)
+    participant B as Agent B
+    participant C as Agent C
+    participant D as Agent D
+    A->>B: 1. 提出方案
+    A->>C: 1. 提出方案
+    A->>D: 1. 提出方案
+    B->>A: 2. 发表意见
+    C->>A: 2. 发表意见
+    D->>A: 2. 发表意见
+    B->>A: 3. 投票
+    C->>A: 3. 投票
+    D->>A: 3. 投票
+    alt 方案通过
+        A->>B: 4. 执行方案
+        A->>C: 4. 执行方案
+        A->>D: 4. 执行方案
+    else 方案未通过
+        A->>A: 4. 修订方案，返回步骤 1
+    end
 ```
 
 ---
@@ -228,6 +258,54 @@ graph TD
 - Agent-2: 代码审查，找 Bug
 - Agent-3: 编写测试
 - 循环直到测试通过
+
+---
+
+## 6. 选型决策指引
+
+选择合适的多智能体协作模式，取决于任务特性、团队规模和可靠性要求。以下决策流程图帮助快速定位最佳方案：
+
+```mermaid
+flowchart TD
+    START["🎯 确定协作需求"] --> Q1{"任务是否可分解为\n独立子任务？"}
+    Q1 -->|是| Q2{"子任务之间\n依赖关系强吗？"}
+    Q1 -->|否| FLAT["🤝 扁平式\n所有 Agent 平等协商"]
+    Q2 -->|强依赖，需严格顺序| HIER["🏢 层级式\n管理者统筹编排"]
+    Q2 -->|弱依赖，可并行| Q3{"是否需要\n资源优化？"}
+    Q3 -->|是| MARKET["💰 市场式\n竞标分配任务"]
+    Q3 -->|否| HIER2["🏢 层级式\n分配即可"]
+
+    FLAT --> C1["适用: 头脑风暴、民主决策\n示例: 团队讨论技术选型"]
+    HIER --> C2["适用: 项目管理、复杂工作流\n示例: 研究团队完成文献综述"]
+    MARKET --> C3["适用: 资源调度、动态分配\n示例: 多模型路由、算力调度"]
+
+    style START fill:#4f46e5,color:#fff
+    style FLAT fill:#059669,color:#fff
+    style HIER fill:#0ea5e9,color:#fff
+    style HIER2 fill:#0ea5e9,color:#fff
+    style MARKET fill:#f59e0b,color:#000
+```
+
+### 模式速查表
+
+| 场景 | 推荐模式 | 推荐框架 | 理由 |
+|------|---------|---------|------|
+| 软件开发全流程 | 层级式 | MetaGPT | SOP 明确，角色分工固定 |
+| 研究/分析任务 | 层级式 | CrewAI | 任务可分解，需协调交付 |
+| 开放式讨论/头脑风暴 | 扁平式 | AutoGen | 需要多方自由交流 |
+| 多模型路由调度 | 市场式 | 自研 + LiteLLM | 竞标机制优化成本 |
+| 代码审查协作 | 扁平式 | AutoGen | 平等对话，迭代改进 |
+| 客服工单分发 | 层级式 | CrewAI | 按专长分配，统一出口 |
+
+### 混合模式建议
+
+实际生产中，单一模式往往不够。推荐组合策略：
+
+1. **层级式 + 扁平式**：总体层级编排，子团队内部平等协作
+2. **层级式 + 市场式**：管理者负责分解，具体任务通过竞标分配
+3. **多层级嵌套**：顶层管理者 → 中层专项负责人 → 底层执行 Agent
+
+> 💡 **经验法则**：不确定时从层级式开始，它最容易理解和调试。随着经验积累，再逐步引入市场式或混合模式。
 
 ---
 

@@ -1,6 +1,6 @@
 # AI Agent 设计模式
 
-> **发布日期**: 2026-03-14  
+> **发布日期**: 2026-03-14 | **更新**: 2026-03-15（v1.1 补充 MCP/A2A 协议、Swarm/ADK 框架对比）  
 > **分类**: 方法论  
 > **关键词**: Agent, ReAct, Plan-and-Execute, Reflection, 工具使用, 错误处理, 多Agent通信
 
@@ -14,7 +14,7 @@ AI Agent（智能体）正在成为大语言模型应用的主流范式。从 20
 - **ReAct 仍是入门首选**，但面对复杂任务时效率和稳定性不足
 - **Plan-and-Execute 在多步骤任务中表现优异**，已成为 LangChain、CrewAI 等框架的默认模式
 - **Reflection 机制能显著提升输出质量**，但计算成本翻倍，需权衡使用
-- **工具使用设计是 Agent 稳定性的关键**，90% 的 Agent 失败源于工具调用环节
+- **工具使用设计是 Agent 稳定性的关键**，工具调用失败是最常见的 Agent 失败场景（参考 [LangSmith 可观测性报告](https://docs.smith.langchain.com/observability/concepts) 和 [Anthropic 构建有效 Agent 指南](https://www.anthropic.com/engineering/building-effective-agents)）
 - **多 Agent 协作正从"概念验证"走向"生产部署"**，通信协议标准化是下一步重点
 
 ---
@@ -464,6 +464,116 @@ flowchart TD
 - **状态数据库**: 持久化存储，支持断点恢复
 - **向量存储 (Vector Store)**: 共享知识库，支持语义检索
 
+### 4.5 MCP 协议：标准化工具接入
+
+**MCP（Model Context Protocol）** 是由 Anthropic 于 2024 年 11 月开源的协议标准，旨在解决 AI Agent 与外部工具/数据源之间的碎片化连接问题。MCP 采用客户端-服务器架构，类似于 "AI 版的 USB-C 接口"——一个协议连接所有工具。
+
+**核心架构**:
+
+```mermaid
+flowchart LR
+    HOST["Host 应用<br/>(如 Claude Desktop)"]
+    CLI["MCP Client"]
+    S1["MCP Server<br/>文件系统"]
+    S2["MCP Server<br/>数据库"]
+    S3["MCP Server<br/>GitHub API"]
+    S4["MCP Server<br/>Slack"]
+    HOST --> CLI
+    CLI --> S1
+    CLI --> S2
+    CLI --> S3
+    CLI --> S4
+```
+
+**三大核心原语**:
+
+| 原语 | 方向 | 说明 |
+|------|------|------|
+| **Resources** | Server → Client | 数据读取（文件、数据库记录、API 响应），由应用控制 |
+| **Tools** | Client → Server | 可执行操作（搜索、写入、调用 API），由模型控制 |
+| **Prompts** | Server → Client | 预定义的提示模板，由用户控制 |
+
+**传输层**: MCP 支持两种传输方式：
+- **stdio** — 本地进程间通信，延迟最低
+- **Streamable HTTP** — 远程服务调用，支持无状态和有状态模式
+
+**生态现状（截至 2025 年 3 月）**:
+- 官方参考服务器：文件系统、GitHub、Slack、Google Maps、PostgreSQL、Puppeteer 等（[github.com/modelcontextprotocol](https://github.com/modelcontextprotocol)）
+- 社区服务器：超过 1000+ 个 MCP Server（参考 [mcp.so](https://mcp.so) 服务器目录）
+- 框架支持：OpenClaw、Claude Desktop、Cursor、Zed、Continue 等已原生集成
+
+**MCP 的优势**:
+- **标准化**: 统一的工具描述和调用协议，告别为每个 Agent 单独写集成
+- **生态复用**: 一个 MCP Server 可被所有支持 MCP 的 Agent 使用
+- **安全隔离**: 工具执行在独立进程中，Agent 通过协议间接访问
+- **可发现性**: Agent 可以动态发现服务器提供的工具列表
+
+**MCP 的局限**:
+- **延迟开销**: 多一层协议栈，本地 stdio 延迟约 5-20ms，HTTP 模式更高
+- **状态管理**: 有状态模式下需要管理 session，增加了复杂度
+- **认证仍在演进**: OAuth 2.0 集成尚不成熟，企业级认证方案有限
+
+### 4.6 A2A 协议：Agent 间的标准通信
+
+**A2A（Agent-to-Agent Protocol）** 是 Google 于 2025 年 4 月联合 50+ 家技术公司发布的开放协议，旨在解决 Agent 之间互操作性的问题。如果说 MCP 是 Agent 连接工具的标准，A2A 就是 Agent 连接其他 Agent 的标准。
+
+**核心设计理念**:
+- **不暴露内部实现**: Agent 之间通过标准化的 "Agent Card" 发现能力，无需了解对方内部状态或工具
+- **任务为中心**: 所有交互围绕 Task 对象进行，包含状态、消息和产物
+- **模态无关**: 支持文本、文件、表单、iframe 等多种交互方式
+- **异步优先**: 原生支持长时间运行任务和推送通知
+
+**核心概念**:
+
+```mermaid
+flowchart TD
+    C["Client Agent<br/>发起任务"]
+    S["Server Agent<br/>执行任务"]
+    AC["Agent Card<br/>(能力描述)"]
+    T["Task<br/>(任务对象)"]
+    MSG["Message<br/>(消息)"]
+    ART["Artifact<br/>(产物)"]
+    C -->|"1. 发现"| AC
+    C -->|"2. 发送任务"| T
+    T --> MSG
+    T --> ART
+    C <-->|"3. 交互"| S
+```
+
+**Agent Card**: JSON 格式的能力描述文件，通常托管在 `/.well-known/agent.json`，包含：
+- Agent 名称、描述、版本
+- 支持的技能列表（含输入/输出模式）
+- 认证要求
+- 支持的传输方式
+
+**A2A vs MCP 对比**:
+
+| 维度 | MCP | A2A |
+|------|-----|-----|
+| **定位** | Agent ↔ 工具/数据 | Agent ↔ Agent |
+| **连接对象** | 数据库、API、文件系统 | 其他 AI Agent |
+| **架构** | Client-Server（Host 连接多个 Server） | Peer-to-Peer（Agent 间直接通信） |
+| **核心原语** | Resources、Tools、Prompts | Agent Card、Task、Message、Artifact |
+| **状态管理** | Session（可选） | Task 状态机（submitted → working → completed） |
+| **发布方** | Anthropic（2024.11） | Google + 联盟（2025.04） |
+| **厂商支持** | Anthropic 生态为主 | Google、Microsoft、Salesforce、SAP 等 50+ 家 |
+
+**互补关系**: MCP 和 A2A 并非竞争关系，而是互补的。一个 Agent 可以通过 MCP 连接工具，同时通过 A2A 与其他 Agent 协作：
+
+```mermaid
+flowchart TB
+    A1["Agent A"] -->|"MCP"| T1["工具: 数据库"]
+    A1 -->|"MCP"| T2["工具: 搜索"]
+    A1 -->|"A2A"| A2["Agent B"]
+    A2 -->|"MCP"| T3["工具: 邮件"]
+    A2 -->|"A2A"| A3["Agent C"]
+```
+
+**实际应用（截至 2025 年 3 月）**:
+- Google 已在 Vertex AI Agent Builder 中集成 A2A
+- Salesforce Agentforce 支持 A2A 跨平台协作
+- LangGraph 和 CrewAI 正在开发 A2A 适配器
+
 ---
 
 ## 五、架构案例分析
@@ -552,7 +662,62 @@ user_proxy.initiate_chat(
 
 **适用场景**: 代码审查、技术讨论、交互式问题解决。
 
-### 案例 4: Anthropic Claude Computer Use
+### 案例 4: OpenAI Swarm — 轻量级多 Agent 编排（2024.10）
+
+**设计哲学**: 极简主义的多 Agent 编排框架。Swarm 不是生产级框架，而是 OpenAI 于 2024 年 10 月发布的教育性示例代码，展示了多 Agent 协作的最简实现。
+
+**核心特性**:
+- **Agents**: 拥有指令和工具的独立实体
+- **Handoffs**: Agent 之间通过交接（handoff）转移控制权，无需中央调度
+- **零状态**: 框架本身不维护状态，每次调用都是无状态的
+- **极简 API**: 核心代码约 500 行，易于理解和修改
+
+**典型用法**:
+```python
+from swarm import Swarm, Agent
+
+def transfer_to_triage():
+    return triage_agent
+
+triage_agent = Agent(
+    name="Triage Agent",
+    instructions="分类用户问题并路由到正确的专家",
+    functions=[transfer_to_triage],
+)
+
+tech_agent = Agent(
+    name="Tech Support",
+    instructions="解决技术问题",
+)
+
+client = Swarm()
+response = client.run(agent=triage_agent, messages=[...])
+```
+
+**优势**: 学习曲线极低；Handoff 模式直观自然；与 OpenAI API 深度集成。
+
+**局限**: 非生产级框架（OpenAI 明确声明）；缺乏持久化状态管理、错误恢复等生产特性；2024 年发布时仅支持 OpenAI 模型。
+
+**GitHub**: [github.com/openai/swarm](https://github.com/openai/swarm)（截至 2025 年 3 月已有 20k+ Stars）
+
+### 案例 5: Google ADK（Agent Development Kit）— 企业级 Agent 框架（2025.03）
+
+**设计哲学**: Google 于 2025 年 3 月发布的 Agent 开发框架，与 Vertex AI 深度集成，主打企业级部署和 A2A 协议支持。
+
+**核心特性**:
+- **多 Agent 层级**: 支持 Agent 的嵌套和层级编排
+- **原生 A2A 支持**: 内建 A2A 协议实现，Agent 可直接对外暴露 A2A 接口
+- **工具生态**: 支持 MCP 工具、预构建工具（搜索、代码执行等）、自定义函数
+- **Vertex AI 集成**: 无缝对接 Google Cloud 的模型、评估、部署管线
+- **流式交互**: 支持流式响应和实时双向通信
+
+**与 A2A 的关系**: ADK 是 Google A2A 协议的首个官方框架实现。ADK 构建的 Agent 可自动获得 A2A Server 能力，其他 A2A 兼容的 Agent/客户端可以直接发现和调用。
+
+**典型场景**: 企业内部多个 Agent 协作（如客服 Agent + 工单 Agent + 知识库 Agent），通过 A2A 跨部门、跨平台通信。
+
+**文档**: [google.github.io/adk-docs](https://google.github.io/adk-docs)
+
+### 案例 6: Anthropic Claude Computer Use
 
 **设计哲学**: Agent 直接操作计算机（屏幕截图 + 鼠标键盘），实现 GUI 自动化。
 
@@ -566,14 +731,17 @@ user_proxy.initiate_chat(
 
 ### 案例对比
 
-| 维度 | LangGraph | CrewAI | AutoGen | Claude Computer Use |
-|------|-----------|--------|---------|---------------------|
-| 推理模式 | 图结构自定义 | ReAct + Plan | 对话式 | ReAct + 视觉 |
-| 多Agent | ✅ 支持 | ✅ 核心能力 | ✅ 核心能力 | ❌ 单Agent |
-| 工具使用 | ✅ 灵活 | ✅ 内置 | ✅ 代码执行 | ✅ GUI操作 |
-| 错误处理 | ✅ 条件分支 | ⚠️ 基础 | ✅ 对话重试 | ⚠️ 基础 |
-| 学习曲线 | 中等 | 低 | 中等 | 低 |
-| 生产就绪 | ✅ 高 | ✅ 中高 | ✅ 中 | ⚠️ 实验性 |
+| 维度 | LangGraph | CrewAI | AutoGen | OpenAI Swarm | Google ADK | Claude Computer Use |
+|------|-----------|--------|---------|-------------|------------|---------------------|
+| 推理模式 | 图结构自定义 | ReAct + Plan | 对话式 | ReAct + Handoff | 多模态 | ReAct + 视觉 |
+| 多Agent | ✅ 支持 | ✅ 核心能力 | ✅ 核心能力 | ✅ Handoff | ✅ 层级+A2A | ❌ 单Agent |
+| 工具使用 | ✅ 灵活 | ✅ 内置 | ✅ 代码执行 | ✅ 函数调用 | ✅ MCP+A2A | ✅ GUI操作 |
+| A2A 支持 | 🔧 适配中 | 🔧 适配中 | ❌ | ❌ | ✅ 原生 | ❌ |
+| MCP 支持 | ✅ | ✅ | 🔧 适配中 | ❌ | ✅ | ✅ |
+| 错误处理 | ✅ 条件分支 | ⚠️ 基础 | ✅ 对话重试 | ⚠️ 无内置 | ✅ 企业级 | ⚠️ 基础 |
+| 学习曲线 | 中等 | 低 | 中等 | 极低 | 中等 | 低 |
+| 生产就绪 | ✅ 高 | ✅ 中高 | ✅ 中 | ⚠️ 教育性 | ✅ 企业级 | ⚠️ 实验性 |
+| 发布日期 | 2024 持续迭代 | 2024 持续迭代 | 2023 持续迭代 | 2024.10 | 2025.03 | 2024.10 |
 
 ---
 
@@ -670,21 +838,49 @@ flowchart TD
    https://arxiv.org/abs/2210.03629  
    *ReAct 模式的原始论文，定义了推理与行动交替的 Agent 范式*
 
-2. **LangChain LangGraph Documentation** — LangChain, 2024-2025  
-   https://langchain-ai.github.io/langgraph/  
-   *LangGraph 框架文档，图结构 Agent 的参考实现*
-
-3. **LLM Powered Autonomous Agents** — Lilian Weng, 2023  
+2. **LLM Powered Autonomous Agents** — Lilian Weng, 2023  
    https://lilianweng.github.io/posts/2023-06-23-agent/  
-   *OpenAI 研究员 Lilian Weng 的经典综述，系统梳理 Agent 架构组件*
+   *OpenAI 研究员的经典综述，系统梳理 Agent 架构组件（引用 2023 年版本作为奠基性工作）*
 
-4. **CrewAI Documentation** — CrewAI, 2024-2025  
+3. **Building Effective Agents** — Anthropic, 2024  
+   https://www.anthropic.com/engineering/building-effective-agents  
+   *Anthropic 官方 Agent 构建指南，涵盖模式选型、工具设计、错误处理的最佳实践*
+
+4. **LangChain LangGraph Documentation** — LangChain, 2024-2025  
+   https://langchain-ai.github.io/langgraph/  
+   *LangGraph 框架文档（v0.2.x），图结构 Agent 的参考实现*
+
+5. **CrewAI Documentation** — CrewAI, 2024-2025  
    https://docs.crewai.com/  
    *多 Agent 协作框架文档，角色驱动的 Agent 编排*
 
-5. **Anthropic Claude Computer Use** — Anthropic, 2024  
-   https://docs.anthropic.com/en/docs/build-with-claude/computer-use  
-   *Claude 的计算机使用功能文档，GUI Agent 的前沿实践*
+6. **Microsoft AutoGen** — Microsoft Research, 2023-2025  
+   https://microsoft.github.io/autogen/  
+   *AutoGen 框架文档，对话式多 Agent 协作的参考实现*
+
+7. **OpenAI Swarm** — OpenAI, 2024  
+   https://github.com/openai/swarm  
+   *轻量级多 Agent 编排教育框架，展示了 Handoff 模式的最简实现*
+
+8. **Google Agent Development Kit (ADK)** — Google, 2025  
+   https://google.github.io/adk-docs  
+   *Google 企业级 Agent 框架，原生支持 A2A 协议和 Vertex AI 集成*
+
+9. **Model Context Protocol (MCP)** — Anthropic, 2024  
+   https://modelcontextprotocol.io  
+   *MCP 协议规范，定义了 Agent 与工具/数据源的标准化连接方式*
+
+10. **Agent-to-Agent Protocol (A2A)** — Google + 联盟, 2025  
+    https://github.com/a2aproject/A2A
+    *A2A 开放协议规范，定义了 Agent 间的互操作标准*
+
+11. **Claude Computer Use** — Anthropic, 2024  
+    https://docs.anthropic.com/en/docs/build-with-claude/computer-use  
+    *Claude 的计算机使用功能文档，GUI Agent 的前沿实践*
+
+12. **The Batch Newsletter — AI Agent Trends** — Andrew Ng / DeepLearning.AI, 2024-2025  
+    https://www.deeplearning.ai/the-batch/  
+    *Andrew Ng 的 AI 周刊，持续跟踪 Agent 技术趋势和行业动态*
 
 ---
 

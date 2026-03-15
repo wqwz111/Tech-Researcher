@@ -494,6 +494,100 @@ graph TD
 
 <hr>
 
+<h2 id="七llm-监控与可观测性">七、LLM 监控与可观测性</h2>
+
+<p>随着 AI 应用进入生产环境，<strong>可观测性（Observability）</strong> 成为不可忽视的关键环节。不同于传统应用，LLM 应用的可观测性需要关注独特的指标：Token 消耗、延迟分布、幻觉率、成本归因等。</p>
+
+<h3 id="71-为什么-llm-可观测性至关重要">7.1 为什么 LLM 可观测性至关重要</h3>
+
+<p>LLM 应用的"黑盒"特性使得传统 APM 工具力不从心。生产环境中的典型问题包括：</p>
+
+<li><strong>成本失控</strong>：一次用户查询可能触发多次 LLM 调用，Token 消耗难以预估</li>
+<li><strong>延迟波动</strong>：模型提供商的响应时间不稳定，影响用户体验</li>
+<li><strong>质量退化</strong>：Prompt 修改或模型版本更新后，输出质量悄然下降</li>
+<li><strong>幻觉检测</strong>：模型生成了看似合理但完全错误的信息</li>
+
+<h3 id="72-主流可观测性工具">7.2 主流可观测性工具</h3>
+
+<h4>LangSmith</h4>
+
+<p><strong><a href="https://smith.langchain.com">LangSmith</a></strong> 是 LangChain 生态的官方可观测性平台：</p>
+
+<li><strong>链路追踪</strong>：记录每次 LLM 调用的完整 trace，包括输入、输出、Token 用量</li>
+<li><strong>评估框架</strong>：内置评估 pipeline，支持自动化质量检测</li>
+<li><strong>数据集管理</strong>：收集生产数据构建评估集</li>
+<li><strong>Prompt Hub</strong>：版本管理和协作</li>
+<li><strong>与 LangChain 深度集成</strong>：零代码接入</li>
+
+<p><strong>适用场景</strong>：使用 LangChain/LangGraph 的项目</p>
+
+<h4>Langfuse</h4>
+
+<p><strong><a href="https://langfuse.com">Langfuse</a></strong> 是开源的 LLM 可观测性平台（<a href="https://github.com/langfuse/langfuse">GitHub</a>）：</p>
+
+<li><strong>框架无关</strong>：支持 LangChain、LlamaIndex、OpenAI SDK 等任意框架</li>
+<li><strong>自部署友好</strong>：Docker 一键部署，数据完全自主</li>
+<li><strong>成本追踪</strong>：按模型/用户/功能维度归因成本</li>
+<li><strong>Prompt 管理</strong>：内置版本控制和 A/B 测试</li>
+<li><strong>评估集成</strong>：支持自定义评估函数</li>
+
+<p><strong>亮点</strong>：2025 年获得广泛关注，社区活跃度快速增长</p>
+
+<h4>Helicone</h4>
+
+<p><strong><a href="https://helicone.ai">Helicone</a></strong> 定位为"LLM 可观测性网关"（<a href="https://github.com/Helicone/helicone">GitHub</a>）：</p>
+
+<li><strong>一行代码集成</strong>：只需修改 API base URL</li>
+<li><strong>实时监控</strong>：请求量、延迟、错误率、成本的实时仪表盘</li>
+<li><strong>速率限制</strong>：按用户/API Key 控制调用频率</li>
+<li><strong>缓存层</strong>：语义缓存降低重复调用成本</li>
+<li><strong>与 OpenAI、Anthropic、Azure 等无缝集成</strong></li>
+
+<p><strong>差异化</strong>：作为反向代理部署，完全不侵入业务代码</p>
+
+<h4>自建方案（OpenTelemetry + Grafana）</h4>
+
+<p>对于有强定制需求的团队，可以基于开源工具自建：</p>
+
+<div class="mermaid">
+graph LR
+    APP["LLM 应用"] --> OTEL["OpenTelemetry SDK"]
+    OTEL --> COLLECTOR["OTel Collector"]
+    COLLECTOR --> PROM["Prometheus"]
+    COLLECTOR --> TEMPO["Tempo (Traces)"]
+    COLLECTOR --> LOKI["Loki (Logs)"]
+    PROM --> GRAFANA["Grafana 仪表盘"]
+    TEMPO --> GRAFANA
+    LOKI --> GRAFANA
+    style APP fill:#4f46e5,color:#fff
+    style GRAFANA fill:#f59e0b,color:#000
+</div>
+
+<h3 id="73-关键监控指标">7.3 关键监控指标</h3>
+
+<table><tr><th>指标类别</th><th>具体指标</th><th>告警阈值建议</th></tr>
+<tr><td><strong>成本</strong></td><td>每次请求平均 Token 消耗</td><td>超过基线 50% 告警</td></tr>
+<tr><td><strong>成本</strong></td><td>每日总费用</td><td>接近预算 80% 告警</td></tr>
+<tr><td><strong>性能</strong></td><td>P95 响应延迟</td><td>> 5 秒告警</td></tr>
+<tr><td><strong>性能</strong></td><td>首 Token 延迟 (TTFT)</td><td>> 2 秒告警</td></tr>
+<tr><td><strong>质量</strong></td><td>幻觉检测率</td><td>> 5% 告警</td></tr>
+<tr><td><strong>质量</strong></td><td>用户满意度评分</td><td>< 3/5 告警</td></tr>
+<tr><td><strong>可用性</strong></td><td>API 错误率</td><td>> 1% 告警</td></tr>
+<tr><td><strong>可用性</strong></td><td>模型降级触发频率</td><td>频繁降级检查路由策略</td></tr>
+</table>
+
+<h3 id="74-实施建议">7.4 实施建议</h3>
+
+<p>1. <strong>从 Day 1 集成</strong>：可观测性不是事后补救，而是从首个原型就应接入</p>
+<p>2. <strong>分级告警</strong>：成本和可用性设 P0 告警，质量指标设 P1 告警</p>
+<p>3. <strong>Trace 采样</strong>：生产环境全量记录 trace 太贵，建议 100% 记录元数据，采样保存完整 trace</p>
+<p>4. <strong>与 CI/CD 集成</strong>：每次部署后自动运行评估 pipeline，检测质量退化</p>
+<p>5. <strong>定期复盘</strong>：每周审查成本和质量趋势，优化 Prompt 和模型选择</p>
+
+<blockquote>💡 <strong>推荐组合</strong>：Langfuse（自部署） + Grafana（可视化） 构成完整的开源可观测性栈，兼顾灵活性和成本控制。</blockquote>
+
+<hr>
+
 <h2 id="实践建议">实践建议</h2>
 
 <h3 id="1-从简单开始逐步复杂化">1. 从简单开始，逐步复杂化</h3>
@@ -546,6 +640,9 @@ graph TD
 <p>5. <strong>Dify 官方文档</strong> — https://docs.dify.ai/ — 开源 LLM 应用开发平台</p>
 <p>6. <strong>Label Studio 文档</strong> — https://labelstud.io/guide/ — 数据标注平台的使用指南</p>
 <p>7. <strong>Hugging Face PEFT</strong> — https://huggingface.co/docs/peft — 参数高效微调的官方教程</p>
+<p>8. <strong>Langfuse 文档</strong> — https://langfuse.com/docs — 开源 LLM 可观测性平台</p>
+<p>9. <strong>Helicone 文档</strong> — https://docs.helicone.ai/ — LLM 可观测性网关使用指南</p>
+<p>10. <strong>LangSmith 文档</strong> — https://docs.smith.langchain.com/ — LangChain 生态的可观测性和评估平台</p>
 
 <hr>
 

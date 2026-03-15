@@ -260,9 +260,222 @@ def call_with_fallback(messages):
 
 ---
 
-## 5. 成本优化技巧
+## 5. 推理模型 API（o1/o3）
 
-### 5.1 模型选择
+OpenAI 的 o1 和 o3 系列是专为深度推理设计的模型，与传统 GPT 模型的 API 使用方式有显著差异。
+
+### 5.1 o1/o3 模型概览
+
+| 模型 | 发布时间 | 推理能力 | 输入价格 ($/1M tokens) | 输出价格 ($/1M tokens) |
+|------|----------|----------|----------------------|----------------------|
+| o1 | 2024-12 | 强 | $15.00 | $60.00 |
+| o1-mini | 2024-09 | 中 | $3.00 | $12.00 |
+| o1-pro | 2025-03 | 最强 | $60.00 | $240.00 |
+| o3-mini | 2025-01 | 中-强 | $1.10 | $4.40 |
+| o3 | 2025-04 | 最强 | $10.00 | $40.00 |
+
+### 5.2 API 差异要点
+
+**与 GPT-4o 的关键区别：**
+
+1. **不支持 System Prompt**：所有指令必须放在 User Message 中
+2. **隐藏推理过程**：模型内部推理 token 不返回，仅输出最终答案
+3. **`reasoning_effort` 参数**：控制推理深度（`low` / `medium` / `high`）
+4. **不支持 `temperature`**：推理模型使用确定性推理路径
+5. **不支持流式输出**（部分版本）：需等待完整响应
+
+**调用示例：**
+
+```python
+response = client.chat.completions.create(
+    model="o3-mini",
+    reasoning_effort="medium",  # low | medium | high
+    messages=[
+        {"role": "user", "content": "分析这个算法的时间复杂度并给出证明:\n\n[算法代码]"}
+    ]
+)
+
+# 推理 token 消耗在 response.usage 中单独列出
+print(f"推理 token: {response.usage.completion_tokens_details.reasoning_tokens}")
+```
+
+### 5.3 推理模型使用策略
+
+**适合场景：**
+- 数学证明与计算
+- 复杂逻辑推理
+- 代码分析与调试
+- 科学研究辅助
+
+**不适合场景：**
+- 实时对话（延迟过高）
+- 简单问答（性价比低）
+- 创意写作（推理模型偏向逻辑而非创意）
+
+**成本优化建议：**
+- 先用 o3-mini 测试，确认需要更强推理时再升级到 o3
+- 设置 `reasoning_effort="low"` 处理中等复杂度任务
+- 对批量任务使用 Batch API（推理模型同样享受 50% 折扣）
+
+---
+
+## 6. Assistants API
+
+Assistants API 是 OpenAI 提供的高级抽象层，用于构建有状态的 AI 助手，内置了代码解释器、文件检索和函数调用能力。
+
+### 6.1 核心概念
+
+| 概念 | 说明 |
+|------|------|
+| **Assistant** | 预配置的 AI 实体，包含模型、指令和工具 |
+| **Thread** | 对话会话，自动管理消息历史 |
+| **Message** | 用户或助手的消息，支持文本和文件 |
+| **Run** | 在 Thread 上执行 Assistant 的任务 |
+| **Run Step** | Run 的执行步骤（工具调用等） |
+
+### 6.2 基本用法
+
+```python
+# 1. 创建 Assistant
+assistant = client.beta.assistants.create(
+    name="代码审查助手",
+    instructions="你是一个代码审查专家，帮助用户审查代码并提供改进建议。",
+    model="gpt-4o",
+    tools=[
+        {"type": "code_interpreter"},
+        {"type": "file_search"},
+        {"type": "function", "function": {...}}
+    ]
+)
+
+# 2. 创建 Thread（会话）
+thread = client.beta.threads.create()
+
+# 3. 添加消息
+client.beta.threads.messages.create(
+    thread_id=thread.id,
+    role="user",
+    content="请审查这段 Python 代码：[代码内容]"
+)
+
+# 4. 运行 Assistant
+run = client.beta.threads.runs.create(
+    thread_id=thread.id,
+    assistant_id=assistant.id
+)
+
+# 5. 轮询等待完成
+while run.status in ["queued", "in_progress"]:
+    time.sleep(1)
+    run = client.beta.threads.runs.retrieve(
+        thread_id=thread.id,
+        run_id=run.id
+    )
+
+# 6. 获取回复
+messages = client.beta.threads.messages.list(thread_id=thread.id)
+```
+
+### 6.3 Assistants API vs Chat Completions API
+
+| 维度 | Chat Completions | Assistants API |
+|------|-----------------|----------------|
+| 状态管理 | 无（需自行维护） | 内置 Thread 管理 |
+| 工具集成 | 需手动实现 | 内置代码解释器/文件检索 |
+| 上下文管理 | 需自行截断/摘要 | 自动管理 |
+| 灵活性 | 高 | 中（受 API 约束） |
+| 成本 | 低 | 略高（含工具调用开销） |
+| 适用场景 | 自定义架构 | 快速构建对话助手 |
+
+### 6.4 注意事项
+
+- **Thread 会持久化存储**消息，注意敏感数据清理
+- **异步执行模型**：Run 创建后需轮询或使用 webhook 获取结果
+- **文件限制**：单个 Assistant 最多关联 20 个文件
+- **定价**：除模型 token 费用外，代码解释器按会话收费
+
+---
+
+## 7. Embeddings API
+
+Embeddings API 将文本转换为向量表示，是语义搜索、聚类和推荐系统的核心基础设施。
+
+### 7.1 模型选择
+
+| 模型 | 维度 | 最大输入 | 价格 ($/1M tokens) | 特点 |
+|------|------|----------|-------------------|------|
+| text-embedding-3-small | 1536 | 8191 | $0.02 | 性价比最优 |
+| text-embedding-3-large | 3072 | 8191 | $0.13 | 精度最高 |
+| text-embedding-ada-002 | 1536 | 8191 | $0.10 | 旧模型，建议迁移 |
+
+### 7.2 基本用法
+
+```python
+# 生成嵌入向量
+response = client.embeddings.create(
+    model="text-embedding-3-small",
+    input=["第一条文本", "第二条文本"],
+    encoding_format="float"  # "float" | "base64"
+)
+
+# 获取向量
+embedding = response.data[0].embedding  # list[float], 1536 维
+```
+
+### 7.3 维度缩减
+
+`text-embedding-3` 系列支持动态调整维度，在精度和存储之间灵活取舍：
+
+```python
+response = client.embeddings.create(
+    model="text-embedding-3-large",
+    input="示例文本",
+    dimensions=1024  # 从 3072 缩减到 1024 维
+)
+```
+
+**维度选择建议：**
+- **1536 维**：通用场景，精度与成本平衡
+- **256 维**：大规模检索，存储敏感场景
+- **3072 维**：精度要求最高的场景
+
+### 7.4 应用模式
+
+**语义搜索：**
+```python
+import numpy as np
+
+def cosine_similarity(a, b):
+    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+# 对查询和文档分别生成嵌入，计算余弦相似度
+query_emb = get_embedding("搜索查询")
+doc_embs = [get_embedding(doc) for doc in documents]
+scores = [cosine_similarity(query_emb, doc_emb) for doc_emb in doc_embs]
+top_k = np.argsort(scores)[-5:][::-1]  # 取前 5 个最相关文档
+```
+
+**聚类与分类：**
+```python
+from sklearn.cluster import KMeans
+
+embeddings = [get_embedding(text) for text in texts]
+kmeans = KMeans(n_clusters=5).fit(embeddings)
+labels = kmeans.labels_
+```
+
+### 7.5 最佳实践
+
+- **批处理输入**：一次请求最多支持 2048 条文本，大幅降低延迟
+- **缓存嵌入**：静态文档的嵌入结果缓存复用，避免重复调用
+- **归一化向量**：使用余弦相似度时先归一化向量
+- **监控用量**：嵌入调用量容易被低估，建议设置用量告警
+
+---
+
+## 8. 成本优化技巧
+
+### 8.1 模型选择
 
 不同模型的价格差异巨大：
 
@@ -305,6 +518,10 @@ token_count = len(encoding.encode(your_text))
 2. OpenAI Cookbook — [cookbook.openai.com](https://cookbook.openai.com)
 3. OpenAI API Reference — [platform.openai.com/docs/api-reference](https://platform.openai.com/docs/api-reference)
 4. OpenAI Pricing — [openai.com/pricing](https://openai.com/pricing)
+5. OpenAI 推理模型文档 — [platform.openai.com/docs/guides/reasoning](https://platform.openai.com/docs/guides/reasoning)
+6. OpenAI Assistants API 文档 — [platform.openai.com/docs/assistants/overview](https://platform.openai.com/docs/assistants/overview)
+7. OpenAI Embeddings 文档 — [platform.openai.com/docs/guides/embeddings](https://platform.openai.com/docs/guides/embeddings)
+8. tiktoken 库 — [github.com/openai/tiktoken](https://github.com/openai/tiktoken)
 
 ---
 

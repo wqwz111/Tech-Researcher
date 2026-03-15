@@ -230,12 +230,12 @@ response = model.generate_content([
 
 ### 3.1 视频理解
 
-| 模型 | 视频长度 | 帧率 | 特点 |
-|------|----------|------|------|
-| Gemini 2.0 | 1+ 小时 | 可变 | 原生视频理解 |
-| GPT-4o | ~20 分钟 | 提取帧 | 图片序列处理 |
-| Claude Vision | 提取帧 | 手动 | 需要预处理 |
-| Video-LLaVA (开源) | 分钟级 | 固定 | 开源方案 |
+| 模型 | 视频长度 | 帧率 | 特点 | 状态 |
+|------|----------|------|------|------|
+| Gemini 2.0 | 1+ 小时 | 可变 | 原生视频理解，音频同步 | GA (2025) |
+| GPT-4o | ~20 分钟 | 提取帧 | 图片序列处理，时间戳支持 | GA (2025) |
+| Claude 3.5 Sonnet | 提取帧 | 手动 | 需要预处理，长上下文优势 | GA (2025) |
+| Video-LLaVA (开源) | 分钟级 | 固定 | 开源方案，社区活跃 | 开源 |
 
 ```python
 # Gemini 视频分析
@@ -253,14 +253,16 @@ response = model.generate_content([
 
 ### 3.2 视频生成
 
-| 模型 | 分辨率 | 时长 | 特点 |
-|------|--------|------|------|
-| Sora (OpenAI) | 1080p | 60s | 高质量，物理合理 |
-| Veo 2 (Google) | 4K | 60s+ | 高质量，长时长 |
-| Runway Gen-3 | 1080p | 10s | 专业视频工具 |
-| Kling (快手) | 1080p | 10s | 中文提示词友好 |
+| 模型 | 分辨率 | 时长 | 特点 | 更新时间 |
+|------|--------|------|------|---------|
+| Sora (OpenAI) | 1080p | 20s | 高质量，物理合理，支持文字生成 | 2025-02 |
+| Veo 2 (Google) | 4K | 60s+ | 高质量，长时长，音视频同步 | 2025-03 |
+| Runway Gen-3 Alpha | 1080p | 10s | 专业视频工具，风格控制强 | 2025-01 |
+| Kling 1.6 (快手) | 1080p | 10s | 中文提示词友好，物理模拟好 | 2025-02 |
+| Pika 2.0 | 1080p | 10s | 简单易用，特效丰富 | 2025-03 |
+| Dream Machine (Luma) | 1080p | 5s | 速度快，适合原型设计 | 2025-01 |
 
-> ⚠️ 视频生成领域变化极快，以上信息可能已过时，建议查阅各平台最新状态。
+> ⚠️ 视频生成领域变化极快，以上信息基于 2025 年 3 月数据，建议查阅各平台最新状态。
 
 ### 3.3 视频处理框架
 
@@ -401,10 +403,10 @@ graph TD
 
 1. OpenAI 视觉 API 文档 — [platform.openai.com/docs/guides/vision](https://platform.openai.com/docs/guides/vision)
 2. Anthropic 视觉文档 — [docs.anthropic.com/docs/vision](https://docs.anthropic.com/docs/vision)
-3. Google Gemini 文文 — [ai.google.dev/gemini-api](https://ai.google.dev/gemini-api)
+3. Google Gemini 文档 — [ai.google.dev/gemini-api](https://ai.google.dev/gemini-api)
 4. Whisper 论文 — Radford et al., "Robust Speech Recognition via Large-Scale Weak Supervision", ICML 2023
 5. LLaVA 论文 — Liu et al., "Visual Instruction Tuning", NeurIPS 2023
 
 ---
 
-*本报告基于 2025 年初的多模态 AI 生态撰写，该领域发展极快，视频生成和理解能力尤为如此，请持续关注最新进展。*
+*本报告基于 2025 年初至 2026 年 3 月的多模态 AI 生态撰写，该领域发展极快，视频生成和理解能力尤为如此，请持续关注最新进展。*

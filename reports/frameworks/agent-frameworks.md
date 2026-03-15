@@ -404,7 +404,8 @@ flowchart TD
 3. AutoGen 文档 — [microsoft.github.io/autogen](https://microsoft.github.io/autogen)
 4. MetaGPT 论文 — Hong et al., "MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework", ICLR 2024
 5. OpenClaw 文档 — [docs.openclaw.ai](https://docs.openclaw.ai)
-
----
+6. AgentBench 基准 — Liu et al., "AgentBench: Evaluating LLMs as Agents", ICLR 2024 — [arXiv:2308.03688](https://arxiv.org/abs/2308.03688)
+7. SWE-bench 基准 — Jimenez et al., "SWE-bench: Can Language Models Resolve Real-World GitHub Issues?", 2024 — [arXiv:2310.06770](https://arxiv.org/abs/2310.06770)
 
 *本报告基于 2025 年初各框架版本撰写，Agent 框架领域发展极为迅速，建议关注各项目 GitHub 获取最新状态。*
+

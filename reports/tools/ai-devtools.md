@@ -394,6 +394,108 @@ AI Agent（自主智能体）是 2024-2025 年最热门的方向之一：
 
 ---
 
+## 七、LLM 监控与可观测性
+
+随着 AI 应用进入生产环境，**可观测性（Observability）** 成为不可忽视的关键环节。不同于传统应用，LLM 应用的可观测性需要关注独特的指标：Token 消耗、延迟分布、幻觉率、成本归因等。
+
+### 7.1 为什么 LLM 可观测性至关重要
+
+LLM 应用的"黑盒"特性使得传统 APM 工具力不从心。生产环境中的典型问题包括：
+
+- **成本失控**：一次用户查询可能触发多次 LLM 调用，Token 消耗难以预估
+- **延迟波动**：模型提供商的响应时间不稳定，影响用户体验
+- **质量退化**：Prompt 修改或模型版本更新后，输出质量悄然下降
+- **幻觉检测**：模型生成了看似合理但完全错误的信息
+
+### 7.2 主流可观测性工具
+
+#### LangSmith
+
+**[LangSmith](https://smith.langchain.com)** 是 LangChain 生态的官方可观测性平台：
+
+- **链路追踪**：记录每次 LLM 调用的完整 trace，包括输入、输出、Token 用量
+- **评估框架**：内置评估 pipeline，支持自动化质量检测
+- **数据集管理**：收集生产数据构建评估集
+- **Prompt Hub**：版本管理和协作
+- **与 LangChain 深度集成**：零代码接入
+
+**适用场景**：使用 LangChain/LangGraph 的项目
+
+#### Langfuse
+
+**[Langfuse](https://langfuse.com)** 是开源的 LLM 可观测性平台（[GitHub](https://github.com/langfuse/langfuse)）：
+
+- **框架无关**：支持 LangChain、LlamaIndex、OpenAI SDK 等任意框架
+- **自部署友好**：Docker 一键部署，数据完全自主
+- **成本追踪**：按模型/用户/功能维度归因成本
+- **Prompt 管理**：内置版本控制和 A/B 测试
+- **评估集成**：支持自定义评估函数
+
+**亮点**：2025 年获得广泛关注，社区活跃度快速增长
+
+#### Helicone
+
+**[Helicone](https://helicone.ai)** 定位为"LLM 可观测性网关"（[GitHub](https://github.com/Helicone/helicone)）：
+
+- **一行代码集成**：只需修改 API base URL
+- **实时监控**：请求量、延迟、错误率、成本的实时仪表盘
+- **速率限制**：按用户/API Key 控制调用频率
+- **缓存层**：语义缓存降低重复调用成本
+- **与 OpenAI、Anthropic、Azure 等无缝集成**
+
+**差异化**：作为反向代理部署，完全不侵入业务代码
+
+#### PromptLayer
+
+除了 Prompt 管理，[PromptLayer](https://promptlayer.com) 也提供可观测性能力：
+
+- 请求级别的详细日志
+- 按标签和版本追踪性能
+- 与 Prompt 版本管理一体化
+
+#### 自建方案（OpenTelemetry + Grafana）
+
+对于有强定制需求的团队，可以基于开源工具自建：
+
+```mermaid
+graph LR
+    APP["LLM 应用"] --> OTEL["OpenTelemetry SDK"]
+    OTEL --> COLLECTOR["OTel Collector"]
+    COLLECTOR --> PROM["Prometheus"]
+    COLLECTOR --> TEMPO["Tempo (Traces)"]
+    COLLECTOR --> LOKI["Loki (Logs)"]
+    PROM --> GRAFANA["Grafana 仪表盘"]
+    TEMPO --> GRAFANA
+    LOKI --> GRAFANA
+    style APP fill:#4f46e5,color:#fff
+    style GRAFANA fill:#f59e0b,color:#000
+```
+
+### 7.3 关键监控指标
+
+| 指标类别 | 具体指标 | 告警阈值建议 |
+|---------|---------|-------------|
+| **成本** | 每次请求平均 Token 消耗 | 超过基线 50% 告警 |
+| **成本** | 每日总费用 | 接近预算 80% 告警 |
+| **性能** | P95 响应延迟 | > 5 秒告警 |
+| **性能** | 首 Token 延迟 (TTFT) | > 2 秒告警 |
+| **质量** | 幻觉检测率 | > 5% 告警 |
+| **质量** | 用户满意度评分 | < 3/5 告警 |
+| **可用性** | API 错误率 | > 1% 告警 |
+| **可用性** | 模型降级触发频率 | 频繁降级检查路由策略 |
+
+### 7.4 实施建议
+
+1. **从 Day 1 集成**：可观测性不是事后补救，而是从首个原型就应接入
+2. **分级告警**：成本和可用性设 P0 告警，质量指标设 P1 告警
+3. **Trace 采样**：生产环境全量记录 trace 太贵，建议 100% 记录元数据，采样保存完整 trace
+4. **与 CI/CD 集成**：每次部署后自动运行评估 pipeline，检测质量退化
+5. **定期复盘**：每周审查成本和质量趋势，优化 Prompt 和模型选择
+
+> 💡 **推荐组合**：Langfuse（自部署） + Grafana（可视化） 构成完整的开源可观测性栈，兼顾灵活性和成本控制。
+
+---
+
 ## 实践建议
 
 ### 1. 从简单开始，逐步复杂化
@@ -446,6 +548,9 @@ AI 工具链的开源生态极其活跃。优先考虑：
 5. **Dify 官方文档** — https://docs.dify.ai/ — 开源 LLM 应用开发平台
 6. **Label Studio 文档** — https://labelstud.io/guide/ — 数据标注平台的使用指南
 7. **Hugging Face PEFT** — https://huggingface.co/docs/peft — 参数高效微调的官方教程
+8. **Langfuse 文档** — https://langfuse.com/docs — 开源 LLM 可观测性平台
+9. **Helicone 文档** — https://docs.helicone.ai/ — LLM 可观测性网关使用指南
+10. **LangSmith 文档** — https://docs.smith.langchain.com/ — LangChain 生态的可观测性和评估平台
 
 ---
 

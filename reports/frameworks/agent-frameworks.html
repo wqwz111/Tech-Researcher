@@ -4,468 +4,627 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Agent 框架横向对比</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-:root {
-    --bg:#0f172a;--bg2:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;
-    --border:#334155;--accent:#38bdf8;--accent2:#7dd3fc;--accent3:#93c5fd;
-    --code-bg:#1e293b;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#60a5fa;
-    --pink:#f472b6;
-}
-[data-theme="light"] {
-    --bg:#ffffff;--bg2:#f8fafc;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
-    --border:#e2e8f0;--accent:#2563eb;--accent2:#3b82f6;--accent3:#6366f1;
-    --code-bg:#f1f5f9;--tag-bg:#dbeafe;--tag-text:#1e40af;--link:#2563eb;
-    --pink:#db2777;
-}
-body {
-    background: var(--bg); color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
-    transition: background .3s, color .3s;
-}
-.top-nav {
-    background: var(--bg2); padding: .6rem 1rem; border-radius: 8px;
-    margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
-    border: 1px solid var(--border);
-}
-.top-nav a { color: var(--accent2); text-decoration: none; }
-.top-nav a:hover { text-decoration: underline; }
-.top-nav .sep { color: var(--text-dim); }
-.theme-btn {
-    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
-    padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
-    transition: border-color .2s;
-}
-.theme-btn:hover { border-color: var(--accent); }
-.meta {
-    background: var(--bg2); border-left: 4px solid var(--accent);
-    padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
-}
-.meta h1 { color: var(--accent); margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .info { color: var(--text-muted); font-size: .85rem; }
-.toc {
-    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
-    padding: 1rem 1.5rem; margin-bottom: 2rem;
-}
-.toc h2 { color: var(--accent2); font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: var(--accent3); text-decoration: none; }
-h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: .5rem; }
-h2 { color: var(--accent2); margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
-h3 { color: var(--accent3); margin-top: 1.8rem; }
-a { color: var(--link); }
-code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; color: var(--pink); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre {
-    background: var(--code-bg); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; border-left: 3px solid var(--accent); margin: 1.2rem 0; position: relative;
-}
-pre code { background: none; color: var(--text); }
-pre .lang-label {
-    position: absolute; top: 0; right: 0; background: var(--border);
-    color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
-}
-.mermaid { background: var(--bg2); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote {
-    border-left: 4px solid var(--accent); margin: 1.5rem 0; padding: .8rem 1.2rem;
-    background: var(--bg2); border-radius: 0 8px 8px 0;
-}
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid var(--border); padding: .7rem 1rem; text-align: left; }
-th { background: var(--bg2); color: var(--accent2); }
-tr:nth-child(even) { background: var(--bg2); }
-hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
-strong { color: var(--text); }
-.footer {
-    text-align: center; color: var(--text-dim); padding: 2rem 0 1rem;
-    border-top: 1px solid var(--border); margin-top: 3rem; font-size: .85rem;
-}
-.footer a { color: var(--link); }
-@media print {
-    body { background: #fff; color: #000; max-width: 100%; }
-    .top-nav, .toc { display: none; }
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.8; }
+  :root { --bg:#0a0e1a;--bg-card:#111827;--bg-code:#1a1f2e;--bg-callout:#1a1040;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;--border:#2d3748;--border-light:#1a202c;--accent:#818cf8;--accent-text:#c7d2fe;--accent-hover:#818cf8;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#6366f1;--code-text:#a5b4fc;--green:#34d399;--orange:#fb923c;--red:#f87171; }
+  [data-theme="light"] { --bg:#ffffff;--bg-card:#f8fafc;--bg-code:#f1f5f9;--bg-callout:#eef2ff;--text:#0f172a;--text-muted:#334155;--text-dim:#94a3b8;--border:#e2e8f0;--border-light:#f1f5f9;--accent:#4f46e5;--accent-text:#3730a3;--accent-hover:#6366f1;--tag-bg:#e0e7ff;--tag-text:#312e81;--link:#4f46e5;--code-text:#6d28d9;--green:#059669;--orange:#ea580c;--red:#dc2626; }
+  .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 2.5rem 2rem; text-align: center; position: relative; }
+  .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .header .meta { color: #64748b; font-size: 0.9rem; }
+  .tag { display: inline-block; padding: 0.2rem 0.6rem; margin: 0.2rem; background: var(--tag-bg); color: var(--tag-text); border-radius: 4px; font-size: 0.8rem; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .breadcrumb { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem; }
+  .breadcrumb a { color: var(--link); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  h2 { color: var(--accent-text); font-size: 1.4rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); }
+  h3 { color: var(--accent-hover); font-size: 1.15rem; margin: 1.8rem 0 0.8rem; }
+  p { margin-bottom: 1rem; color: var(--text); }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
+  li { margin-bottom: 0.4rem; }
+  code { background: var(--bg-code); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: var(--code-text); }
+  pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
+  pre code { background: none; padding: 0; }
+  .callout { background: var(--bg-callout); border-left: 3px solid var(--accent); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+  .callout strong { color: var(--accent-text); }
+  .callout.warn { border-left-color: var(--orange); }
+  .callout.warn strong { color: var(--orange); }
+  .callout.success { border-left-color: var(--green); }
+  .callout.success strong { color: var(--green); }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  th, td { text-align: left; padding: 0.6rem 0.8rem; border: 1px solid var(--border); }
+  th { background: var(--bg-code); color: var(--accent-text); }
+  td { color: var(--text); }
+  .ref { color: var(--text-dim); font-size: 0.85rem; }
+  .ref a { color: var(--link); text-decoration: none; }
+  .ref a:hover { text-decoration: underline; }
+  .ref-grade { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600; margin-right: 0.3rem; }
+  .grade-a { background: rgba(52,211,153,0.15); color: var(--green); }
+  .grade-b { background: rgba(129,140,248,0.15); color: var(--accent); }
+  .grade-c { background: rgba(251,146,60,0.15); color: var(--orange); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; text-align: center; }
+  .stat-card .num { font-size: 2rem; font-weight: 800; color: var(--accent); }
+  .stat-card .label { color: var(--text-dim); font-size: 0.85rem; margin-top: 0.3rem; }
+  .footer { text-align: center; color: var(--text-dim); padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-light); font-size: 0.85rem; }
+  .theme-toggle { position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code); border: 1px solid var(--border); border-radius: 24px; padding: 0.3rem 0.6rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s; }
+  .theme-toggle:hover { border-color: var(--accent); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+  blockquote { border-left: 3px solid var(--accent); padding: 0.5rem 1rem; margin: 1rem 0; color: var(--text-muted); background: var(--bg-callout); border-radius: 0 8px 8px 0; }
+  img { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
 </style>
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    location.reload();
+  }
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('themeIcon').textContent = saved === 'light' ? '🌙' : '☀️';
+    document.getElementById('themeLabel').textContent = saved === 'light' ? '夜间' : '日间';
+  })();
+</script>
 </head>
 <body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:var(--text-muted)">🏗️ 框架</span>
-<button class="theme-btn" onclick="toggleTheme()" title="切换日夜模式"><span id="themeIcon">☀️</span></button>
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式"><span class="icon" id="themeIcon">☀️</span><span class="label" id="themeLabel">日间</span></button>
+  <h1>AI Agent 框架横向对比</h1>
+  <div class="meta">2026-03-15 · 探针 (Probe)</div>
+  
 </div>
-<div class="meta">
-<h1>AI Agent 框架横向对比</h1>
-<div class="info">2026-03-14 · 分类: 🏗️ 框架</div>
-</div>
-
-<p>> 发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
-
-<hr>
-
+<div class="container">
+  
+  <h1 id="ai-agent">AI Agent 框架横向对比</h1>
+<blockquote>
+<p>发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
+</blockquote>
+<hr />
 <h2 id="executive-summary">Executive Summary</h2>
-
 <p>AI Agent 框架是 2024-2025 年 AI 领域最活跃的方向之一。本报告对比分析五个主流 Agent 框架——LangGraph、CrewAI、AutoGen、MetaGPT 和 OpenClaw——从编程模型、状态管理、多 Agent 协作、生产就绪度等维度进行系统性评估。</p>
-
-<p><strong>核心结论：</strong></p>
-<li><strong>LangGraph</strong> 适合需要精细控制状态转换的复杂工作流，学习曲线较陡</li>
-<li><strong>CrewAI</strong> 以角色扮演范式著称，快速构建多 Agent 团队的最佳选择</li>
-<li><strong>AutoGen</strong> 微软力推，对话驱动的多 Agent 协作框架</li>
-<li><strong>MetaGPT</strong> 模拟软件公司组织架构，适合代码生成和软件开发</li>
-<li><strong>OpenClaw</strong> 以通信为中心的 Agent 框架，集成 Telegram 等实时通讯平台</li>
-
-<hr>
-
-<h2 id="1-框架概览">1. 框架概览</h2>
-
+<p><strong>核心结论：</strong>
+- <strong>LangGraph</strong> 适合需要精细控制状态转换的复杂工作流，学习曲线较陡
+- <strong>CrewAI</strong> 以角色扮演范式著称，快速构建多 Agent 团队的最佳选择
+- <strong>AutoGen</strong> 微软力推，对话驱动的多 Agent 协作框架
+- <strong>MetaGPT</strong> 模拟软件公司组织架构，适合代码生成和软件开发
+- <strong>OpenClaw</strong> 以通信为中心的 Agent 框架，集成 Telegram 等实时通讯平台</p>
+<hr />
+<h2 id="1">1. 框架概览</h2>
 <h3 id="11-langgraph">1.1 LangGraph</h3>
-
-<p><strong>项目地址</strong>：<a href="https://github.com/langchain-ai/langgraph">github.com/langchain-ai/langgraph</a></p>
-<p><strong>维护方</strong>：LangChain Inc.</p>
-<p><strong>许可证</strong>：MIT</p>
-
+<p><strong>项目地址</strong>：<a href="https://github.com/langchain-ai/langgraph">github.com/langchain-ai/langgraph</a>
+<strong>维护方</strong>：LangChain Inc.
+<strong>许可证</strong>：MIT</p>
 <p>LangGraph 是 LangChain 团队推出的图结构 Agent 框架，将 Agent 工作流建模为有向图。</p>
-
-<p><strong>核心特性：</strong></p>
-<li>图结构工作流：Node（节点）+ Edge（边）</li>
-<li>状态管理：TypedDict 定义全局状态</li>
-<li>条件路由：基于状态动态选择下一步</li>
-<li>持久化：内置 checkpoint 机制</li>
-<li>人在环路（Human-in-the-loop）支持</li>
-<li>时间旅行调试：回溯到任意历史状态</li>
-
+<p><strong>核心特性：</strong>
+- 图结构工作流：Node（节点）+ Edge（边）
+- 状态管理：TypedDict 定义全局状态
+- 条件路由：基于状态动态选择下一步
+- 持久化：内置 checkpoint 机制
+- 人在环路（Human-in-the-loop）支持
+- 时间旅行调试：回溯到任意历史状态</p>
 <p><strong>编程模型：</strong></p>
-<pre><span class="lang-label">python</span><code>
-from langgraph.graph import StateGraph, END
-from typing import TypedDict
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langgraph.graph</span> <span class="kn">import</span> <span class="n">StateGraph</span><span class="p">,</span> <span class="n">END</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypedDict</span>
 
-class AgentState(TypedDict):
-    messages: list
-    current_step: str
+<span class="k">class</span> <span class="nc">AgentState</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+    <span class="n">messages</span><span class="p">:</span> <span class="nb">list</span>
+    <span class="n">current_step</span><span class="p">:</span> <span class="nb">str</span>
 
-def research_node(state: AgentState) -&gt; AgentState:
-    # 研究节点逻辑
-    return {"messages": state["messages"] + [research_result]}
+<span class="k">def</span> <span class="nf">research_node</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">AgentState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AgentState</span><span class="p">:</span>
+    <span class="c1"># 研究节点逻辑</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">research_result</span><span class="p">]}</span>
 
-def write_node(state: AgentState) -&gt; AgentState:
-    # 写作节点逻辑
-    return {"messages": state["messages"] + [write_result]}
+<span class="k">def</span> <span class="nf">write_node</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">AgentState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AgentState</span><span class="p">:</span>
+    <span class="c1"># 写作节点逻辑</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">write_result</span><span class="p">]}</span>
 
-def route(state: AgentState) -&gt; str:
-    return "write" if state["current_step"] == "research_done" else "research"
+<span class="k">def</span> <span class="nf">route</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">AgentState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s2">&quot;write&quot;</span> <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;current_step&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;research_done&quot;</span> <span class="k">else</span> <span class="s2">&quot;research&quot;</span>
 
-graph = StateGraph(AgentState)
-graph.add_node("research", research_node)
-graph.add_node("write", write_node)
-graph.add_conditional_edges("research", route)
-graph.add_edge("write", END)
-app = graph.compile()
-</code></pre>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">AgentState</span><span class="p">)</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;research&quot;</span><span class="p">,</span> <span class="n">research_node</span><span class="p">)</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;write&quot;</span><span class="p">,</span> <span class="n">write_node</span><span class="p">)</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span><span class="s2">&quot;research&quot;</span><span class="p">,</span> <span class="n">route</span><span class="p">)</span>
+<span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;write&quot;</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</code></pre></div>
 
 <h3 id="12-crewai">1.2 CrewAI</h3>
-
-<p><strong>项目地址</strong>：<a href="https://github.com/crewAIInc/crewAI">github.com/crewAIInc/crewAI</a></p>
-<p><strong>维护方</strong>：CrewAI Inc.</p>
-<p><strong>许可证</strong>：MIT</p>
-
+<p><strong>项目地址</strong>：<a href="https://github.com/crewAIInc/crewAI">github.com/crewAIInc/crewAI</a>
+<strong>维护方</strong>：CrewAI Inc.
+<strong>许可证</strong>：MIT</p>
 <p>CrewAI 采用「团队协作」的隐喻，通过定义角色（Agent）、任务（Task）和流程（Process）来构建多 Agent 系统。</p>
-
-<p><strong>核心特性：</strong></p>
-<li>角色扮演：每个 Agent 有明确的角色、目标和背景故事</li>
-<li>任务委派：Agent 之间自动分配和协作</li>
-<li>流程编排：Sequential（顺序）和 Hierarchical（层级）</li>
-<li>工具集成：内置工具 + 自定义工具</li>
-<li>记忆系统：短期、长期、实体记忆</li>
-
+<p><strong>核心特性：</strong>
+- 角色扮演：每个 Agent 有明确的角色、目标和背景故事
+- 任务委派：Agent 之间自动分配和协作
+- 流程编排：Sequential（顺序）和 Hierarchical（层级）
+- 工具集成：内置工具 + 自定义工具
+- 记忆系统：短期、长期、实体记忆</p>
 <p><strong>编程模型：</strong></p>
-<pre><span class="lang-label">python</span><code>
-from crewai import Agent, Task, Crew, Process
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">crewai</span> <span class="kn">import</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">Task</span><span class="p">,</span> <span class="n">Crew</span><span class="p">,</span> <span class="n">Process</span>
 
-researcher = Agent(
-    role="资深技术研究员",
-    goal="深入分析指定技术领域的最新进展",
-    backstory="你拥有10年技术研究经验，擅长文献综述和趋势分析",
-    tools=[search_tool, scraper_tool]
-)
+<span class="n">researcher</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">role</span><span class="o">=</span><span class="s2">&quot;资深技术研究员&quot;</span><span class="p">,</span>
+    <span class="n">goal</span><span class="o">=</span><span class="s2">&quot;深入分析指定技术领域的最新进展&quot;</span><span class="p">,</span>
+    <span class="n">backstory</span><span class="o">=</span><span class="s2">&quot;你拥有10年技术研究经验，擅长文献综述和趋势分析&quot;</span><span class="p">,</span>
+    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">search_tool</span><span class="p">,</span> <span class="n">scraper_tool</span><span class="p">]</span>
+<span class="p">)</span>
 
-writer = Agent(
-    role="技术写作者",
-    goal="将研究发现转化为清晰易懂的技术文档",
-    backstory="你是知名科技媒体的专栏作者，以深入浅出著称"
-)
+<span class="n">writer</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">role</span><span class="o">=</span><span class="s2">&quot;技术写作者&quot;</span><span class="p">,</span>
+    <span class="n">goal</span><span class="o">=</span><span class="s2">&quot;将研究发现转化为清晰易懂的技术文档&quot;</span><span class="p">,</span>
+    <span class="n">backstory</span><span class="o">=</span><span class="s2">&quot;你是知名科技媒体的专栏作者，以深入浅出著称&quot;</span>
+<span class="p">)</span>
 
-research_task = Task(
-    description="调研 2025 年 AI Agent 框架的最新发展",
-    expected_output="详细的调研报告，包含5个主要框架的对比",
-    agent=researcher
-)
+<span class="n">research_task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;调研 2025 年 AI Agent 框架的最新发展&quot;</span><span class="p">,</span>
+    <span class="n">expected_output</span><span class="o">=</span><span class="s2">&quot;详细的调研报告，包含5个主要框架的对比&quot;</span><span class="p">,</span>
+    <span class="n">agent</span><span class="o">=</span><span class="n">researcher</span>
+<span class="p">)</span>
 
-write_task = Task(
-    description="基于调研结果撰写一篇 3000 字的技术报告",
-    expected_output="结构清晰的技术报告",
-    agent=writer,
-    context=[research_task]
-)
+<span class="n">write_task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;基于调研结果撰写一篇 3000 字的技术报告&quot;</span><span class="p">,</span>
+    <span class="n">expected_output</span><span class="o">=</span><span class="s2">&quot;结构清晰的技术报告&quot;</span><span class="p">,</span>
+    <span class="n">agent</span><span class="o">=</span><span class="n">writer</span><span class="p">,</span>
+    <span class="n">context</span><span class="o">=</span><span class="p">[</span><span class="n">research_task</span><span class="p">]</span>
+<span class="p">)</span>
 
-crew = Crew(
-    agents=[researcher, writer],
-    tasks=[research_task, write_task],
-    process=Process.sequential
-)
+<span class="n">crew</span> <span class="o">=</span> <span class="n">Crew</span><span class="p">(</span>
+    <span class="n">agents</span><span class="o">=</span><span class="p">[</span><span class="n">researcher</span><span class="p">,</span> <span class="n">writer</span><span class="p">],</span>
+    <span class="n">tasks</span><span class="o">=</span><span class="p">[</span><span class="n">research_task</span><span class="p">,</span> <span class="n">write_task</span><span class="p">],</span>
+    <span class="n">process</span><span class="o">=</span><span class="n">Process</span><span class="o">.</span><span class="n">sequential</span>
+<span class="p">)</span>
 
-result = crew.kickoff()
-</code></pre>
+<span class="n">result</span> <span class="o">=</span> <span class="n">crew</span><span class="o">.</span><span class="n">kickoff</span><span class="p">()</span>
+</code></pre></div>
 
 <h3 id="13-autogen">1.3 AutoGen</h3>
-
-<p><strong>项目地址</strong>：<a href="https://github.com/microsoft/autogen">github.com/microsoft/autogen</a></p>
-<p><strong>维护方</strong>：Microsoft</p>
-<p><strong>许可证</strong>：MIT（0.4 版本）</p>
-
+<p><strong>项目地址</strong>：<a href="https://github.com/microsoft/autogen">github.com/microsoft/autogen</a>
+<strong>维护方</strong>：Microsoft
+<strong>许可证</strong>：MIT（0.4 版本）</p>
 <p>AutoGen 是微软推出的多 Agent 对话框架，核心理念是通过 Agent 之间的对话来解决问题。</p>
-
-<p><strong>核心特性：</strong></p>
-<li>对话驱动：Agent 通过消息传递协作</li>
-<li>灵活的对话模式：两两对话、群聊、嵌套对话</li>
-<li>代码执行：内置安全的代码执行沙箱</li>
-<li>人类参与：灵活的人类输入模式</li>
-<li>0.4 版本重构：更模块化的架构</li>
-
+<p><strong>核心特性：</strong>
+- 对话驱动：Agent 通过消息传递协作
+- 灵活的对话模式：两两对话、群聊、嵌套对话
+- 代码执行：内置安全的代码执行沙箱
+- 人类参与：灵活的人类输入模式
+- 0.4 版本重构：更模块化的架构</p>
 <p><strong>编程模型：</strong></p>
-<pre><span class="lang-label">python</span><code>
-from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">autogen</span> <span class="kn">import</span> <span class="n">AssistantAgent</span><span class="p">,</span> <span class="n">UserProxyAgent</span><span class="p">,</span> <span class="n">GroupChat</span><span class="p">,</span> <span class="n">GroupChatManager</span>
 
-llm_config = {"model": "gpt-4o", "api_key": "..."}
+<span class="n">llm_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span> <span class="s2">&quot;api_key&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">}</span>
 
-researcher = AssistantAgent(
-    name="Researcher",
-    system_message="你是一个技术研究员，负责收集和分析信息。",
-    llm_config=llm_config
-)
+<span class="n">researcher</span> <span class="o">=</span> <span class="n">AssistantAgent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Researcher&quot;</span><span class="p">,</span>
+    <span class="n">system_message</span><span class="o">=</span><span class="s2">&quot;你是一个技术研究员，负责收集和分析信息。&quot;</span><span class="p">,</span>
+    <span class="n">llm_config</span><span class="o">=</span><span class="n">llm_config</span>
+<span class="p">)</span>
 
-writer = AssistantAgent(
-    name="Writer",
-    system_message="你是一个技术写作者，负责将研究发现转化为文档。",
-    llm_config=llm_config
-)
+<span class="n">writer</span> <span class="o">=</span> <span class="n">AssistantAgent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Writer&quot;</span><span class="p">,</span>
+    <span class="n">system_message</span><span class="o">=</span><span class="s2">&quot;你是一个技术写作者，负责将研究发现转化为文档。&quot;</span><span class="p">,</span>
+    <span class="n">llm_config</span><span class="o">=</span><span class="n">llm_config</span>
+<span class="p">)</span>
 
-reviewer = AssistantAgent(
-    name="Reviewer",
-    system_message="你是一个审稿人，负责审查文档质量并提供反馈。",
-    llm_config=llm_config
-)
+<span class="n">reviewer</span> <span class="o">=</span> <span class="n">AssistantAgent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Reviewer&quot;</span><span class="p">,</span>
+    <span class="n">system_message</span><span class="o">=</span><span class="s2">&quot;你是一个审稿人，负责审查文档质量并提供反馈。&quot;</span><span class="p">,</span>
+    <span class="n">llm_config</span><span class="o">=</span><span class="n">llm_config</span>
+<span class="p">)</span>
 
-user_proxy = UserProxyAgent(
-    name="User",
-    human_input_mode="TERMINATE",
-    code_execution_config=False
-)
+<span class="n">user_proxy</span> <span class="o">=</span> <span class="n">UserProxyAgent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;User&quot;</span><span class="p">,</span>
+    <span class="n">human_input_mode</span><span class="o">=</span><span class="s2">&quot;TERMINATE&quot;</span><span class="p">,</span>
+    <span class="n">code_execution_config</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
 
-group_chat = GroupChat(
-    agents=[user_proxy, researcher, writer, reviewer],
-    messages=[],
-    max_round=20
-)
+<span class="n">group_chat</span> <span class="o">=</span> <span class="n">GroupChat</span><span class="p">(</span>
+    <span class="n">agents</span><span class="o">=</span><span class="p">[</span><span class="n">user_proxy</span><span class="p">,</span> <span class="n">researcher</span><span class="p">,</span> <span class="n">writer</span><span class="p">,</span> <span class="n">reviewer</span><span class="p">],</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">max_round</span><span class="o">=</span><span class="mi">20</span>
+<span class="p">)</span>
 
-manager = GroupChatManager(groupchat=group_chat, llm_config=llm_config)
-user_proxy.initiate_chat(manager, message="请写一篇关于 AI Agent 的技术报告")
-</code></pre>
+<span class="n">manager</span> <span class="o">=</span> <span class="n">GroupChatManager</span><span class="p">(</span><span class="n">groupchat</span><span class="o">=</span><span class="n">group_chat</span><span class="p">,</span> <span class="n">llm_config</span><span class="o">=</span><span class="n">llm_config</span><span class="p">)</span>
+<span class="n">user_proxy</span><span class="o">.</span><span class="n">initiate_chat</span><span class="p">(</span><span class="n">manager</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;请写一篇关于 AI Agent 的技术报告&quot;</span><span class="p">)</span>
+</code></pre></div>
 
 <h3 id="14-metagpt">1.4 MetaGPT</h3>
-
-<p><strong>项目地址</strong>：<a href="https://github.com/geekan/MetaGPT">github.com/geekan/MetaGPT</a></p>
-<p><strong>维护方</strong>：DeepWisdom</p>
-<p><strong>许可证</strong>：MIT</p>
-
+<p><strong>项目地址</strong>：<a href="https://github.com/geekan/MetaGPT">github.com/geekan/MetaGPT</a>
+<strong>维护方</strong>：DeepWisdom
+<strong>许可证</strong>：MIT</p>
 <p>MetaGPT 独创「软件公司」范式，模拟产品经理、架构师、工程师等角色协作完成软件开发。</p>
-
-<p><strong>核心特性：</strong></p>
-<li>SOP 驱动：标准化操作流程</li>
-<li>角色专业化：产品经理、架构师、工程师、QA</li>
-<li>结构化输出：每个角色产生标准化文档</li>
-<li>代码生成：端到端的软件开发流程</li>
-<li>环境共享：Agent 共享黑板（消息池）</li>
-
+<p><strong>核心特性：</strong>
+- SOP 驱动：标准化操作流程
+- 角色专业化：产品经理、架构师、工程师、QA
+- 结构化输出：每个角色产生标准化文档
+- 代码生成：端到端的软件开发流程
+- 环境共享：Agent 共享黑板（消息池）</p>
 <p><strong>编程模型：</strong></p>
-<pre><span class="lang-label">python</span><code>
-from metagpt.software_company import SoftwareCompany
-from metagpt.roles import ProjectManager, Architect, Engineer
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">metagpt.software_company</span> <span class="kn">import</span> <span class="n">SoftwareCompany</span>
+<span class="kn">from</span> <span class="nn">metagpt.roles</span> <span class="kn">import</span> <span class="n">ProjectManager</span><span class="p">,</span> <span class="n">Architect</span><span class="p">,</span> <span class="n">Engineer</span>
 
-async def main():
-    company = SoftwareCompany()
-    company.hire([
-        ProjectManager(),
-        Architect(),
-        Engineer()
-    ])
-    company.invest(investment=3.0)
-    company.start_project("开发一个简单的 Todo App")
-    await company.run(n_round=5)
-</code></pre>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">company</span> <span class="o">=</span> <span class="n">SoftwareCompany</span><span class="p">()</span>
+    <span class="n">company</span><span class="o">.</span><span class="n">hire</span><span class="p">([</span>
+        <span class="n">ProjectManager</span><span class="p">(),</span>
+        <span class="n">Architect</span><span class="p">(),</span>
+        <span class="n">Engineer</span><span class="p">()</span>
+    <span class="p">])</span>
+    <span class="n">company</span><span class="o">.</span><span class="n">invest</span><span class="p">(</span><span class="n">investment</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+    <span class="n">company</span><span class="o">.</span><span class="n">start_project</span><span class="p">(</span><span class="s2">&quot;开发一个简单的 Todo App&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">company</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">n_round</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</code></pre></div>
 
 <h3 id="15-openclaw">1.5 OpenClaw</h3>
-
-<p><strong>项目地址</strong>：<a href="https://github.com/openclaw/openclaw">github.com/openclaw/openclaw</a></p>
-<p><strong>维护方</strong>：OpenClaw 社区</p>
-<p><strong>许可证</strong>：Apache 2.0</p>
-
+<p><strong>项目地址</strong>：<a href="https://github.com/openclaw/openclaw">github.com/openclaw/openclaw</a>
+<strong>维护方</strong>：OpenClaw 社区
+<strong>许可证</strong>：Apache 2.0</p>
 <p>OpenClaw 是一个以通信为中心的 Agent 框架，强调 Agent 与人类通过即时通讯平台（Telegram、Discord 等）的实时交互。</p>
+<p><strong>核心特性：</strong>
+- 通信原生：内置 Telegram/Discord/WhatsApp 适配
+- 技能系统：可组合的 Agent 技能（Skills）
+- 工具集成：MCP（Model Context Protocol）工具接入
+- 会话管理：多会话并行，上下文隔离
+- 自主编排：Agent 可创建和管理子 Agent</p>
+<p><strong>编程模型：</strong>
+OpenClaw 更多通过配置驱动：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># AGENTS.md 配置示例</span>
+<span class="nt">agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tech-researcher</span>
+<span class="w">  </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gpt-4o</span>
+<span class="w">  </span><span class="nt">channel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telegram</span>
 
-<p><strong>核心特性：</strong></p>
-<li>通信原生：内置 Telegram/Discord/WhatsApp 适配</li>
-<li>技能系统：可组合的 Agent 技能（Skills）</li>
-<li>工具集成：MCP（Model Context Protocol）工具接入</li>
-<li>会话管理：多会话并行，上下文隔离</li>
-<li>自主编排：Agent 可创建和管理子 Agent</li>
+<span class="nt">skills</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">github</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">web-search</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">report-generator</span>
 
-<p><strong>编程模型：</strong></p>
-<p>OpenClaw 更多通过配置驱动：</p>
+<span class="nt">tools</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exec</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span>
+</code></pre></div>
 
-<pre><span class="lang-label">yaml</span><code>
-# AGENTS.md 配置示例
-agent:
-  name: tech-researcher
-  model: gpt-4o
-  channel: telegram
-  
-skills:
-  - github
-  - web-search
-  - report-generator
-  
-tools:
-  - exec
-  - read
-  - write
-</code></pre>
-
-<hr>
-
-<h2 id="2-编程模型对比">2. 编程模型对比</h2>
-
-<h3 id="21-设计范式">2.1 设计范式</h3>
-
-<table><tr><th>框架</th><th>核心范式</th><th>抽象层级</th></tr>
-<tr><td>LangGraph</td><td>图（Graph）工作流</td><td>中等 — 需要定义节点和边</td></tr>
-<tr><td>CrewAI</td><td>团队协作（Crew）</td><td>高 — 角色和任务抽象</td></tr>
-<tr><td>AutoGen</td><td>对话（Conversation）</td><td>中等 — Agent 和消息</td></tr>
-<tr><td>MetaGPT</td><td>软件公司（SOP）</td><td>高 — 预定义角色流程</td></tr>
-<tr><td>OpenClaw</td><td>通信驱动（Messaging）</td><td>中等 — 配置 + 技能</td></tr>
+<hr />
+<h2 id="2">2. 编程模型对比</h2>
+<h3 id="21">2.1 设计范式</h3>
+<table>
+<thead>
+<tr>
+<th>框架</th>
+<th>核心范式</th>
+<th>抽象层级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LangGraph</td>
+<td>图（Graph）工作流</td>
+<td>中等 — 需要定义节点和边</td>
+</tr>
+<tr>
+<td>CrewAI</td>
+<td>团队协作（Crew）</td>
+<td>高 — 角色和任务抽象</td>
+</tr>
+<tr>
+<td>AutoGen</td>
+<td>对话（Conversation）</td>
+<td>中等 — Agent 和消息</td>
+</tr>
+<tr>
+<td>MetaGPT</td>
+<td>软件公司（SOP）</td>
+<td>高 — 预定义角色流程</td>
+</tr>
+<tr>
+<td>OpenClaw</td>
+<td>通信驱动（Messaging）</td>
+<td>中等 — 配置 + 技能</td>
+</tr>
+</tbody>
 </table>
+<h3 id="22-vs">2.2 灵活性 vs 易用性</h3>
+<div class="highlight"><pre><span></span><code>graph LR
+    LG[&quot;LangGraph&lt;br/&gt;高灵活性&quot;]
+    AG[&quot;AutoGen&quot;]
+    OC[&quot;OpenClaw&quot;]
+    CREW[&quot;CrewAI&quot;]
+    MG[&quot;MetaGPT&lt;br/&gt;高易用性&quot;]
+    LG --&gt; AG
+    AG --&gt; OC
+    OC --&gt; CREW
+    CREW --&gt; MG
+</code></pre></div>
 
-<h3 id="22-灵活性-vs-易用性">2.2 灵活性 vs 易用性</h3>
-
-<div class="mermaid">
-graph LR
-    LG["LangGraph<br/>高灵活性"]
-    AG["AutoGen"]
-    OC["OpenClaw"]
-    CREW["CrewAI"]
-    MG["MetaGPT<br/>高易用性"]
-    LG --> AG
-    AG --> OC
-    OC --> CREW
-    CREW --> MG
-</div>
-
-<h3 id="23-学习曲线">2.3 学习曲线</h3>
-
-<table><tr><th>框架</th><th>上手时间</th><th>精通时间</th><th>说明</th></tr>
-<tr><td>LangGraph</td><td>2-3 天</td><td>2-3 周</td><td>需要理解图结构概念</td></tr>
-<tr><td>CrewAI</td><td>数小时</td><td>1-2 周</td><td>最直观的 API</td></tr>
-<tr><td>AutoGen</td><td>1-2 天</td><td>2-3 周</td><td>对话模式灵活但需理解</td></tr>
-<tr><td>MetaGPT</td><td>数小时</td><td>1 周</td><td>预定义角色开箱即用</td></tr>
-<tr><td>OpenClaw</td><td>1 天</td><td>1-2 周</td><td>配置驱动，需理解架构</td></tr>
+<h3 id="23">2.3 学习曲线</h3>
+<table>
+<thead>
+<tr>
+<th>框架</th>
+<th>上手时间</th>
+<th>精通时间</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LangGraph</td>
+<td>2-3 天</td>
+<td>2-3 周</td>
+<td>需要理解图结构概念</td>
+</tr>
+<tr>
+<td>CrewAI</td>
+<td>数小时</td>
+<td>1-2 周</td>
+<td>最直观的 API</td>
+</tr>
+<tr>
+<td>AutoGen</td>
+<td>1-2 天</td>
+<td>2-3 周</td>
+<td>对话模式灵活但需理解</td>
+</tr>
+<tr>
+<td>MetaGPT</td>
+<td>数小时</td>
+<td>1 周</td>
+<td>预定义角色开箱即用</td>
+</tr>
+<tr>
+<td>OpenClaw</td>
+<td>1 天</td>
+<td>1-2 周</td>
+<td>配置驱动，需理解架构</td>
+</tr>
+</tbody>
 </table>
-
-<hr>
-
-<h2 id="3-状态管理与持久化">3. 状态管理与持久化</h2>
-
-<h3 id="31-状态管理对比">3.1 状态管理对比</h3>
-
-<table><tr><th>框架</th><th>状态模型</th><th>持久化</th><th>时间旅行</th></tr>
-<tr><td>LangGraph</td><td>TypedDict 全局状态</td><td>✅ Checkpointer</td><td>✅</td></tr>
-<tr><td>CrewAI</td><td>任务输出链</td><td>有限</td><td>❌</td></tr>
-<tr><td>AutoGen</td><td>消息历史</td><td>手动</td><td>❌</td></tr>
-<tr><td>MetaGPT</td><td>共享环境（黑板）</td><td>有限</td><td>❌</td></tr>
-<tr><td>OpenClaw</td><td>会话上下文</td><td>✅ 内置</td><td>❌</td></tr>
+<hr />
+<h2 id="3">3. 状态管理与持久化</h2>
+<h3 id="31">3.1 状态管理对比</h3>
+<table>
+<thead>
+<tr>
+<th>框架</th>
+<th>状态模型</th>
+<th>持久化</th>
+<th>时间旅行</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LangGraph</td>
+<td>TypedDict 全局状态</td>
+<td>✅ Checkpointer</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>CrewAI</td>
+<td>任务输出链</td>
+<td>有限</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>AutoGen</td>
+<td>消息历史</td>
+<td>手动</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>MetaGPT</td>
+<td>共享环境（黑板）</td>
+<td>有限</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>OpenClaw</td>
+<td>会话上下文</td>
+<td>✅ 内置</td>
+<td>❌</td>
+</tr>
+</tbody>
 </table>
-
-<h3 id="32-langgraph-的-checkpoint-机制">3.2 LangGraph 的 Checkpoint 机制</h3>
-
+<h3 id="32-langgraph-checkpoint">3.2 LangGraph 的 Checkpoint 机制</h3>
 <p>LangGraph 的持久化能力最为成熟：</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langgraph.checkpoint.sqlite</span> <span class="kn">import</span> <span class="n">SqliteSaver</span>
 
-<pre><span class="lang-label">python</span><code>
-from langgraph.checkpoint.sqlite import SqliteSaver
+<span class="n">checkpointer</span> <span class="o">=</span> <span class="n">SqliteSaver</span><span class="o">.</span><span class="n">from_conn_string</span><span class="p">(</span><span class="s2">&quot;:memory:&quot;</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">checkpointer</span><span class="o">=</span><span class="n">checkpointer</span><span class="p">)</span>
 
-checkpointer = SqliteSaver.from_conn_string(":memory:")
-app = graph.compile(checkpointer=checkpointer)
+<span class="c1"># 运行并自动保存 checkpoint</span>
+<span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;configurable&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;thread_id&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">}}</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">invoke</span><span class="p">({</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]},</span> <span class="n">config</span><span class="p">)</span>
 
-# 运行并自动保存 checkpoint
-config = {"configurable": {"thread_id": "1"}}
-result = app.invoke({"messages": [...]}, config)
+<span class="c1"># 恢复到特定 checkpoint</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>  <span class="c1"># 继续之前的执行</span>
+</code></pre></div>
 
-# 恢复到特定 checkpoint
-result = app.invoke(None, config)  # 继续之前的执行
-</code></pre>
-
-<hr>
-
-<h2 id="4-多-agent-协作能力">4. 多 Agent 协作能力</h2>
-
-<h3 id="41-协作模式对比">4.1 协作模式对比</h3>
-
-<table><tr><th>框架</th><th>顺序执行</th><th>层级管理</th><th>群聊对话</th><th>动态路由</th></tr>
-<tr><td>LangGraph</td><td>✅</td><td>✅</td><td>❌</td><td>✅</td></tr>
-<tr><td>CrewAI</td><td>✅</td><td>✅</td><td>❌</td><td>有限</td></tr>
-<tr><td>AutoGen</td><td>✅</td><td>❌</td><td>✅</td><td>✅</td></tr>
-<tr><td>MetaGPT</td><td>✅</td><td>✅</td><td>❌</td><td>❌</td></tr>
-<tr><td>OpenClaw</td><td>✅</td><td>✅</td><td>有限</td><td>✅</td></tr>
+<hr />
+<h2 id="4-agent">4. 多 Agent 协作能力</h2>
+<h3 id="41">4.1 协作模式对比</h3>
+<table>
+<thead>
+<tr>
+<th>框架</th>
+<th>顺序执行</th>
+<th>层级管理</th>
+<th>群聊对话</th>
+<th>动态路由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LangGraph</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>CrewAI</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>有限</td>
+</tr>
+<tr>
+<td>AutoGen</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>MetaGPT</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>OpenClaw</td>
+<td>✅</td>
+<td>✅</td>
+<td>有限</td>
+<td>✅</td>
+</tr>
+</tbody>
 </table>
-
-<h3 id="42-通信机制">4.2 通信机制</h3>
-
-<table><tr><th>框架</th><th>通信方式</th><th>消息格式</th><th>并行执行</th></tr>
-<tr><td>LangGraph</td><td>状态传递</td><td>TypedDict</td><td>✅</td></tr>
-<tr><td>CrewAI</td><td>任务委派</td><td>字符串/Pydantic</td><td>有限</td></tr>
-<tr><td>AutoGen</td><td>对话消息</td><td>文本 + 结构化</td><td>✅</td></tr>
-<tr><td>MetaGPT</td><td>环境消息池</td><td>结构化文档</td><td>有限</td></tr>
-<tr><td>OpenClaw</td><td>消息路由</td><td>多格式</td><td>✅</td></tr>
+<h3 id="42">4.2 通信机制</h3>
+<table>
+<thead>
+<tr>
+<th>框架</th>
+<th>通信方式</th>
+<th>消息格式</th>
+<th>并行执行</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LangGraph</td>
+<td>状态传递</td>
+<td>TypedDict</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>CrewAI</td>
+<td>任务委派</td>
+<td>字符串/Pydantic</td>
+<td>有限</td>
+</tr>
+<tr>
+<td>AutoGen</td>
+<td>对话消息</td>
+<td>文本 + 结构化</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>MetaGPT</td>
+<td>环境消息池</td>
+<td>结构化文档</td>
+<td>有限</td>
+</tr>
+<tr>
+<td>OpenClaw</td>
+<td>消息路由</td>
+<td>多格式</td>
+<td>✅</td>
+</tr>
+</tbody>
 </table>
-
-<hr>
-
-<h2 id="5-生产就绪度评估">5. 生产就绪度评估</h2>
-
-<h3 id="51-综合评分">5.1 综合评分</h3>
-
-<table><tr><th>维度</th><th>LangGraph</th><th>CrewAI</th><th>AutoGen</th><th>MetaGPT</th><th>OpenClaw</th></tr>
-<tr><td>文档质量</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐</td></tr>
-<tr><td>社区活跃度</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐</td></tr>
-<tr><td>错误处理</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐</td></tr>
-<tr><td>可观测性</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐</td><td>⭐⭐⭐</td></tr>
-<tr><td>可扩展性</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐</td></tr>
-<tr><td>部署便利性</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td></tr>
-<tr><td>生产案例</td><td>多</td><td>多</td><td>多</td><td>少</td><td>增长中</td></tr>
+<hr />
+<h2 id="5">5. 生产就绪度评估</h2>
+<h3 id="51">5.1 综合评分</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>LangGraph</th>
+<th>CrewAI</th>
+<th>AutoGen</th>
+<th>MetaGPT</th>
+<th>OpenClaw</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文档质量</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>社区活跃度</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td>错误处理</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>可观测性</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td>可扩展性</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>部署便利性</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>生产案例</td>
+<td>多</td>
+<td>多</td>
+<td>多</td>
+<td>少</td>
+<td>增长中</td>
+</tr>
+</tbody>
 </table>
-
-<h3 id="52-框架选型决策树">5.2 框架选型决策树</h3>
-
-<div class="mermaid">
-flowchart TD
-    START["🎯 选择 Agent 框架"] --> Q1{"主要用途?"}
-    Q1 -->|"复杂工作流编排"| LANGGRAPH["✅ LangGraph"]
-    Q1 -->|"快速原型/MVP"| Q2{"单Agent还是多Agent?"}
-    Q2 -->|"单 Agent"| OPENCLAW["✅ OpenClaw"]
-    Q2 -->|"多 Agent"| CREWAI["✅ CrewAI"]
-    Q1 -->|"学术研究/实验"| AUTOGEN["✅ AutoGen"]
-    Q1 -->|"软件开发自动化"| METAGPT["✅ MetaGPT"]
-    Q1 -->|"即时通讯集成"| OPENCLAW
-    Q1 -->|"生产级关键系统"| Q3{"需要状态持久化?"}
-    Q3 -->|"是"| LANGGRAPH2["✅ LangGraph"]
-    Q3 -->|"否"| CREWAI2["✅ CrewAI"]
+<h3 id="52">5.2 框架选型决策树</h3>
+<div class="highlight"><pre><span></span><code>flowchart TD
+    START[&quot;🎯 选择 Agent 框架&quot;] --&gt; Q1{&quot;主要用途?&quot;}
+    Q1 --&gt;|&quot;复杂工作流编排&quot;| LANGGRAPH[&quot;✅ LangGraph&quot;]
+    Q1 --&gt;|&quot;快速原型/MVP&quot;| Q2{&quot;单Agent还是多Agent?&quot;}
+    Q2 --&gt;|&quot;单 Agent&quot;| OPENCLAW[&quot;✅ OpenClaw&quot;]
+    Q2 --&gt;|&quot;多 Agent&quot;| CREWAI[&quot;✅ CrewAI&quot;]
+    Q1 --&gt;|&quot;学术研究/实验&quot;| AUTOGEN[&quot;✅ AutoGen&quot;]
+    Q1 --&gt;|&quot;软件开发自动化&quot;| METAGPT[&quot;✅ MetaGPT&quot;]
+    Q1 --&gt;|&quot;即时通讯集成&quot;| OPENCLAW
+    Q1 --&gt;|&quot;生产级关键系统&quot;| Q3{&quot;需要状态持久化?&quot;}
+    Q3 --&gt;|&quot;是&quot;| LANGGRAPH2[&quot;✅ LangGraph&quot;]
+    Q3 --&gt;|&quot;否&quot;| CREWAI2[&quot;✅ CrewAI&quot;]
 
     style START fill:#4f46e5,stroke:#818cf8,color:#fff
     style LANGGRAPH fill:#059669,stroke:#34d399,color:#fff
@@ -475,60 +634,70 @@ flowchart TD
     style AUTOGEN fill:#7c3aed,stroke:#a78bfa,color:#fff
     style METAGPT fill:#7c3aed,stroke:#a78bfa,color:#fff
     style OPENCLAW fill:#7c3aed,stroke:#a78bfa,color:#fff
-</div>
+</code></pre></div>
 
-<table><tr><th>场景</th><th>推荐框架</th><th>理由</th></tr>
-<tr><td>复杂工作流编排</td><td><strong>LangGraph</strong></td><td>图结构最灵活，状态管理最强</td></tr>
-<tr><td>快速构建多 Agent 原型</td><td><strong>CrewAI</strong></td><td>最简洁的 API，角色抽象直观</td></tr>
-<tr><td>研究/实验性多 Agent</td><td><strong>AutoGen</strong></td><td>对话模式灵活，学术研究友好</td></tr>
-<tr><td>软件开发自动化</td><td><strong>MetaGPT</strong></td><td>预定义软件开发 SOP</td></tr>
-<tr><td>即时通讯集成</td><td><strong>OpenClaw</strong></td><td>通信原生设计</td></tr>
-<tr><td>生产级关键系统</td><td><strong>LangGraph</strong></td><td>持久化、时间旅行、可观测性最好</td></tr>
+<p><strong>快速参考</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐框架</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>复杂工作流编排</td>
+<td><strong>LangGraph</strong></td>
+<td>图结构最灵活，状态管理最强</td>
+</tr>
+<tr>
+<td>快速构建多 Agent 原型</td>
+<td><strong>CrewAI</strong></td>
+<td>最简洁的 API，角色抽象直观</td>
+</tr>
+<tr>
+<td>研究/实验性多 Agent</td>
+<td><strong>AutoGen</strong></td>
+<td>对话模式灵活，学术研究友好</td>
+</tr>
+<tr>
+<td>软件开发自动化</td>
+<td><strong>MetaGPT</strong></td>
+<td>预定义软件开发 SOP</td>
+</tr>
+<tr>
+<td>即时通讯集成</td>
+<td><strong>OpenClaw</strong></td>
+<td>通信原生设计</td>
+</tr>
+<tr>
+<td>生产级关键系统</td>
+<td><strong>LangGraph</strong></td>
+<td>持久化、时间旅行、可观测性最好</td>
+</tr>
+</tbody>
 </table>
-
-<h3 id="53-风险提示">5.3 风险提示</h3>
-
-<p>1. <strong>Agent 框架变化快</strong>：各框架 API 迭代频繁，锁定效应需考虑</p>
-<p>2. <strong>成本不可预测</strong>：多 Agent 协作的 token 消耗可能指数级增长</p>
-<p>3. <strong>调试困难</strong>：多 Agent 交互的非确定性增加调试难度</p>
-<p>4. <strong>安全边界</strong>：Agent 自主行为的安全控制需要额外设计</p>
-
-<hr>
-
-<h2 id="参考来源">参考来源</h2>
-
-<p>1. LangGraph 文档 — <a href="https://langchain-ai.github.io/langgraph">langchain-ai.github.io/langgraph</a></p>
-<p>2. CrewAI 文档 — <a href="https://docs.crewai.com">docs.crewai.com</a></p>
-<p>3. AutoGen 文档 — <a href="https://microsoft.github.io/autogen">microsoft.github.io/autogen</a></p>
-<p>4. MetaGPT 论文 — Hong et al., "MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework", ICLR 2024</p>
-<p>5. OpenClaw 文档 — <a href="https://docs.openclaw.ai">docs.openclaw.ai</a></p>
-
-<hr>
-
+<h3 id="53">5.3 风险提示</h3>
+<ol>
+<li><strong>Agent 框架变化快</strong>：各框架 API 迭代频繁，锁定效应需考虑</li>
+<li><strong>成本不可预测</strong>：多 Agent 协作的 token 消耗可能指数级增长</li>
+<li><strong>调试困难</strong>：多 Agent 交互的非确定性增加调试难度</li>
+<li><strong>安全边界</strong>：Agent 自主行为的安全控制需要额外设计</li>
+</ol>
+<hr />
+<h2 id="_1">参考来源</h2>
+<ol>
+<li>LangGraph 文档 — <a href="https://langchain-ai.github.io/langgraph">langchain-ai.github.io/langgraph</a></li>
+<li>CrewAI 文档 — <a href="https://docs.crewai.com">docs.crewai.com</a></li>
+<li>AutoGen 文档 — <a href="https://microsoft.github.io/autogen">microsoft.github.io/autogen</a></li>
+<li>MetaGPT 论文 — Hong et al., &ldquo;MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework&rdquo;, ICLR 2024</li>
+<li>OpenClaw 文档 — <a href="https://docs.openclaw.ai">docs.openclaw.ai</a></li>
+<li>AgentBench 基准 — Liu et al., &ldquo;AgentBench: Evaluating LLMs as Agents&rdquo;, ICLR 2024 — <a href="https://arxiv.org/abs/2308.03688">arXiv:2308.03688</a></li>
+<li>SWE-bench 基准 — Jimenez et al., &ldquo;SWE-bench: Can Language Models Resolve Real-World GitHub Issues?&rdquo;, 2024 — <a href="https://arxiv.org/abs/2310.06770">arXiv:2310.06770</a></li>
+</ol>
 <p><em>本报告基于 2025 年初各框架版本撰写，Agent 框架领域发展极为迅速，建议关注各项目 GitHub 获取最新状态。</em></p>
-
-<div class="footer">
-<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
 </div>
-<script>
-function toggleTheme() {
-    const html = document.documentElement;
-    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('tr-theme', next);
-    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
-}
-(function() {
-    const saved = localStorage.getItem('tr-theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
-    const icon = document.getElementById('themeIcon');
-    if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
-})();
-</script>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
-  mermaid.initialize({startOnLoad:true, theme:theme});
-</script>
-</body></html>
+<div class="footer">探针 (Probe) · AI 技术研究分析师 · 2026</div>
+</body>
+</html>

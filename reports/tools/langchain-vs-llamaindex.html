@@ -4,385 +4,451 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LangChain vs LlamaIndex 深度对比</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-:root {
-    --bg:#0f172a;--bg2:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;
-    --border:#334155;--accent:#38bdf8;--accent2:#7dd3fc;--accent3:#93c5fd;
-    --code-bg:#1e293b;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#60a5fa;
-    --pink:#f472b6;
-}
-[data-theme="light"] {
-    --bg:#ffffff;--bg2:#f8fafc;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
-    --border:#e2e8f0;--accent:#2563eb;--accent2:#3b82f6;--accent3:#6366f1;
-    --code-bg:#f1f5f9;--tag-bg:#dbeafe;--tag-text:#1e40af;--link:#2563eb;
-    --pink:#db2777;
-}
-body {
-    background: var(--bg); color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
-    transition: background .3s, color .3s;
-}
-.top-nav {
-    background: var(--bg2); padding: .6rem 1rem; border-radius: 8px;
-    margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
-    border: 1px solid var(--border);
-}
-.top-nav a { color: var(--accent2); text-decoration: none; }
-.top-nav a:hover { text-decoration: underline; }
-.top-nav .sep { color: var(--text-dim); }
-.theme-btn {
-    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
-    padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
-    transition: border-color .2s;
-}
-.theme-btn:hover { border-color: var(--accent); }
-.meta {
-    background: var(--bg2); border-left: 4px solid var(--accent);
-    padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
-}
-.meta h1 { color: var(--accent); margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .info { color: var(--text-muted); font-size: .85rem; }
-.toc {
-    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
-    padding: 1rem 1.5rem; margin-bottom: 2rem;
-}
-.toc h2 { color: var(--accent2); font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: var(--accent3); text-decoration: none; }
-h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: .5rem; }
-h2 { color: var(--accent2); margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
-h3 { color: var(--accent3); margin-top: 1.8rem; }
-a { color: var(--link); }
-code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; color: var(--pink); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre {
-    background: var(--code-bg); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; border-left: 3px solid var(--accent); margin: 1.2rem 0; position: relative;
-}
-pre code { background: none; color: var(--text); }
-pre .lang-label {
-    position: absolute; top: 0; right: 0; background: var(--border);
-    color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
-}
-.mermaid { background: var(--bg2); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote {
-    border-left: 4px solid var(--accent); margin: 1.5rem 0; padding: .8rem 1.2rem;
-    background: var(--bg2); border-radius: 0 8px 8px 0;
-}
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid var(--border); padding: .7rem 1rem; text-align: left; }
-th { background: var(--bg2); color: var(--accent2); }
-tr:nth-child(even) { background: var(--bg2); }
-hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
-strong { color: var(--text); }
-.footer {
-    text-align: center; color: var(--text-dim); padding: 2rem 0 1rem;
-    border-top: 1px solid var(--border); margin-top: 3rem; font-size: .85rem;
-}
-.footer a { color: var(--link); }
-@media print {
-    body { background: #fff; color: #000; max-width: 100%; }
-    .top-nav, .toc { display: none; }
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.8; }
+  :root { --bg:#0a0e1a;--bg-card:#111827;--bg-code:#1a1f2e;--bg-callout:#1a1040;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;--border:#2d3748;--border-light:#1a202c;--accent:#818cf8;--accent-text:#c7d2fe;--accent-hover:#818cf8;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#6366f1;--code-text:#a5b4fc;--green:#34d399;--orange:#fb923c;--red:#f87171; }
+  [data-theme="light"] { --bg:#ffffff;--bg-card:#f8fafc;--bg-code:#f1f5f9;--bg-callout:#eef2ff;--text:#0f172a;--text-muted:#334155;--text-dim:#94a3b8;--border:#e2e8f0;--border-light:#f1f5f9;--accent:#4f46e5;--accent-text:#3730a3;--accent-hover:#6366f1;--tag-bg:#e0e7ff;--tag-text:#312e81;--link:#4f46e5;--code-text:#6d28d9;--green:#059669;--orange:#ea580c;--red:#dc2626; }
+  .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 2.5rem 2rem; text-align: center; position: relative; }
+  .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .header .meta { color: #64748b; font-size: 0.9rem; }
+  .tag { display: inline-block; padding: 0.2rem 0.6rem; margin: 0.2rem; background: var(--tag-bg); color: var(--tag-text); border-radius: 4px; font-size: 0.8rem; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .breadcrumb { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem; }
+  .breadcrumb a { color: var(--link); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  h2 { color: var(--accent-text); font-size: 1.4rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); }
+  h3 { color: var(--accent-hover); font-size: 1.15rem; margin: 1.8rem 0 0.8rem; }
+  p { margin-bottom: 1rem; color: var(--text); }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
+  li { margin-bottom: 0.4rem; }
+  code { background: var(--bg-code); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: var(--code-text); }
+  pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
+  pre code { background: none; padding: 0; }
+  .callout { background: var(--bg-callout); border-left: 3px solid var(--accent); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+  .callout strong { color: var(--accent-text); }
+  .callout.warn { border-left-color: var(--orange); }
+  .callout.warn strong { color: var(--orange); }
+  .callout.success { border-left-color: var(--green); }
+  .callout.success strong { color: var(--green); }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  th, td { text-align: left; padding: 0.6rem 0.8rem; border: 1px solid var(--border); }
+  th { background: var(--bg-code); color: var(--accent-text); }
+  td { color: var(--text); }
+  .ref { color: var(--text-dim); font-size: 0.85rem; }
+  .ref a { color: var(--link); text-decoration: none; }
+  .ref a:hover { text-decoration: underline; }
+  .ref-grade { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600; margin-right: 0.3rem; }
+  .grade-a { background: rgba(52,211,153,0.15); color: var(--green); }
+  .grade-b { background: rgba(129,140,248,0.15); color: var(--accent); }
+  .grade-c { background: rgba(251,146,60,0.15); color: var(--orange); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; text-align: center; }
+  .stat-card .num { font-size: 2rem; font-weight: 800; color: var(--accent); }
+  .stat-card .label { color: var(--text-dim); font-size: 0.85rem; margin-top: 0.3rem; }
+  .footer { text-align: center; color: var(--text-dim); padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-light); font-size: 0.85rem; }
+  .theme-toggle { position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code); border: 1px solid var(--border); border-radius: 24px; padding: 0.3rem 0.6rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s; }
+  .theme-toggle:hover { border-color: var(--accent); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+  blockquote { border-left: 3px solid var(--accent); padding: 0.5rem 1rem; margin: 1rem 0; color: var(--text-muted); background: var(--bg-callout); border-radius: 0 8px 8px 0; }
+  img { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
 </style>
-</head>
-<body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:var(--text-muted)">🛠️ 工具</span>
-<button class="theme-btn" onclick="toggleTheme()" title="切换日夜模式"><span id="themeIcon">☀️</span></button>
-</div>
-<div class="meta">
-<h1>LangChain vs LlamaIndex 深度对比</h1>
-<div class="info">2026-03-14 · 分类: 🛠️ 工具</div>
-</div>
-
-<p>> 最后更新: 2026-03-14 | 分类: AI 开发框架</p>
-
-<hr>
-
-<h2 id="executive-summary">Executive Summary</h2>
-
-<p>LangChain 和 LlamaIndex 是当前 LLM 应用开发领域最具影响力的两个开源框架。两者虽然都服务于"用 LLM 构建应用"这一目标，但设计哲学和侧重点有本质差异：</p>
-
-<li><strong>LangChain</strong> 定位为通用 LLM 应用编排框架，强调"链"和"Agent"的灵活组合，适合构建复杂的多步骤工作流。</li>
-<li><strong>LlamaIndex</strong>（原 GPT Index）聚焦于"数据连接与索引"，核心能力是将私有数据高效地接入 LLM，实现高质量的 RAG（Retrieval-Augmented Generation）。</li>
-
-<p>截至 2025 年底，LangChain 在 GitHub 上拥有超过 100k stars，LlamaIndex 超过 38k stars（GitHub 仓库数据，2025 年 Q4）。两者在 PyPI 上的月下载量均达到数百万级别，共同构成了 LLM 应用开发的事实标准工具链。</p>
-
-<p><strong>核心结论</strong>: 如果你的核心需求是 RAG 和数据索引，LlamaIndex 更专注、开箱即用；如果你需要构建复杂的 Agent 工作流或多步骤链条，LangChain 更灵活。两者可以互补使用。</p>
-
-<hr>
-
-<h2 id="1-架构设计哲学差异">1. 架构设计哲学差异</h2>
-
-<h3 id="langchain-万物皆可链">LangChain: "万物皆可链"</h3>
-
-<p>LangChain 的核心抽象是 <strong>Chain</strong>（链）——将多个步骤串联起来形成完整的工作流。其设计哲学是：</p>
-
-<p>1. <strong>模块化与组合</strong>: 每个组件（LLM 调用、Prompt 模板、输出解析器、工具调用）都是独立的，可以灵活组合。</p>
-<p>2. <strong>Agent 优先</strong>: 2024 年后，LangChain 大幅加强了 Agent 能力，LangGraph 框架让 Agent 可以有状态地循环执行。</p>
-<p>3. <strong>生态广度</strong>: 与 700+ 集成对接，覆盖向量数据库、LLM 提供商、工具、数据加载器等。</p>
-
-<p>关键组件层次：</p>
-<div class="mermaid">
-graph TD
-    CORE["LangChain Core<br/>基础抽象: LLM, Prompt, Output Parser"]
-    LC["LangChain<br/>Chain, Agent, Memory, Retrieval"]
-    LG["LangGraph<br/>有状态 Agent 工作流"]
-    LS["LangSmith<br/>可观测性与调试"]
-    LSV["LangServe<br/>部署与 API 服务"]
-    CORE --> LC
-    CORE --> LG
-    CORE --> LS
-    CORE --> LSV
-</div>
-
-<h3 id="llamaindex-数据是第一公民">LlamaIndex: "数据是第一公民"</h3>
-
-<p>LlamaIndex 的核心抽象是 <strong>Index</strong>（索引）——将非结构化数据构建为可高效检索的结构。其设计哲学是：</p>
-
-<p>1. <strong>数据管线优先</strong>: 从数据加载（LlamaHub）、解析、分块、嵌入到索引构建，全流程优化。</p>
-<p>2. <strong>检索即核心</strong>: 提供多种索引类型（向量索引、关键词索引、树索引、知识图谱索引），检索策略丰富。</p>
-<p>3. <strong>Agent 为辅</strong>: 2024 年推出的 Workflows 和 Agent 系统是对 RAG 能力的扩展，而非替代。</p>
-
-<p>关键组件层次：</p>
-<div class="mermaid">
-graph TD
-    CORE["LlamaIndex Core<br/>基础抽象: Node, Index, Query Engine"]
-    DC["Data Connectors<br/>LlamaHub: 100+ 数据源"]
-    IDX["Indexing<br/>Vector, Keyword, Tree, KG"]
-    QE["Query Engine<br/>Retrieval + Synthesis"]
-    WF["Workflows<br/>事件驱动工作流"]
-    DEPLOY["LlamaDeploy<br/>生产部署"]
-    CORE --> DC
-    CORE --> IDX
-    CORE --> QE
-    CORE --> WF
-    CORE --> DEPLOY
-</div>
-
-<h3 id="设计哲学对比">设计哲学对比</h3>
-
-<table><tr><th>维度</th><th>LangChain</th><th>LlamaIndex</th></tr>
-<tr><td>核心抽象</td><td>Chain / Graph</td><td>Index / Query Engine</td></tr>
-<tr><td>设计重心</td><td>编排与工作流</td><td>数据与检索</td></tr>
-<tr><td>学习曲线</td><td>较陡（概念多）</td><td>中等（RAG 为核心）</td></tr>
-<tr><td>灵活性</td><td>高（但复杂）</td><td>中等（场景聚焦）</td></tr>
-<tr><td>2025 演进方向</td><td>Agent 全面化 (LangGraph)</td><td>Workflows + 多模态 RAG</td></tr>
-</table>
-
-<hr>
-
-<h2 id="2-核心组件对比">2. 核心组件对比</h2>
-
-<h3 id="21-llm-抽象与模型支持">2.1 LLM 抽象与模型支持</h3>
-
-<p><strong>LangChain</strong> 通过 <code>BaseChatModel</code> 统一接口，支持 OpenAI、Anthropic、Google、Mistral、Cohere 等数十家提供商。通过 <code>langchain-openai</code>、<code>langchain-anthropic</code> 等独立包维护。</p>
-
-<p><strong>LlamaIndex</strong> 通过 <code>LLM</code> 基类统一接口，同样支持主流提供商。其嵌入模型抽象 (<code>BaseEmbedding</code>) 与索引系统深度集成，选择嵌入模型对检索质量影响更大。</p>
-
-<p>两者都支持：</p>
-<li>流式输出 (Streaming)</li>
-<li>函数调用 (Function Calling / Tool Use)</li>
-<li>结构化输出 (Structured Output)</li>
-<li>多模态输入（图像、PDF）</li>
-
-<h3 id="22-agent-系统">2.2 Agent 系统</h3>
-
-<p><strong>LangChain Agent 演进</strong>:</p>
-<li>早期: <code>AgentExecutor</code>（单轮工具选择循环）</li>
-<li>2024+: <strong>LangGraph</strong>（基于有向图的 Agent 工作流）</li>
-<p>  - 支持循环、分支、状态持久化</p>
-<p>  - Human-in-the-loop 支持</p>
-<p>  - 多 Agent 协作（Supervisor 模式）</p>
-<p>  - 时间旅行调试</p>
-
-<p><strong>LlamaIndex Agent 演进</strong>:</p>
-<li>早期: <code>ReActAgent</code>、<code>OpenAIAgent</code>（简单工具调用）</li>
-<li>2024+: <strong>Workflows</strong>（事件驱动的异步工作流）</li>
-<p>  - 步骤之间通过事件触发</p>
-<p>  - 支持并行执行、循环、条件分支</p>
-<p>  - 内置 RAG 专用 Agent 模式（如 <code>QueryPipeline</code>）</p>
-
-<p><strong>对比</strong>: LangGraph 更通用、功能更强；LlamaIndex Workflows 更简洁、对 RAG 场景更友好。</p>
-
-<h3 id="23-索引与检索">2.3 索引与检索</h3>
-
-<p>这是 <strong>LlamaIndex 的绝对优势领域</strong>：</p>
-
-<table><tr><th>索引类型</th><th>说明</th><th>适用场景</th></tr>
-<tr><td>VectorStoreIndex</td><td>向量相似度检索</td><td>语义搜索</td></tr>
-<tr><td>SummaryIndex</td><td>摘要式检索</td><td>全局概览</td></tr>
-<tr><td>TreeIndex</td><td>层次化树结构</td><td>概念到细节的导航</td></tr>
-<tr><td>KnowledgeGraphIndex</td><td>知识图谱</td><td>实体关系推理</td></tr>
-<tr><td>PropertyGraphIndex</td><td>属性图 (2024 新增)</td><td>复杂图谱 RAG</td></tr>
-<tr><td>SQL Index</td><td>SQL 数据库查询</td><td>结构化数据</td></tr>
-</table>
-
-<p>LangChain 的检索能力主要通过 <code>VectorStore</code> 和 <code>Retriever</code> 抽象实现，相对更基础，需要更多手动配置。</p>
-
-<h3 id="24-记忆-memory">2.4 记忆 (Memory)</h3>
-
-<p><strong>LangChain</strong> 提供丰富的记忆类型：</p>
-<li><code>ConversationBufferMemory</code>: 完整历史</li>
-<li><code>ConversationSummaryMemory</code>: 摘要压缩</li>
-<li><code>ConversationBufferWindowMemory</code>: 滑动窗口</li>
-<li><code>VectorStoreRetrieverMemory</code>: 基于检索的记忆</li>
-
-<p><strong>LlamaIndex</strong> 的记忆能力相对简单，主要通过 <code>ChatMemoryBuffer</code> 实现，或借助外部存储。对于需要复杂记忆管理的场景，LangChain 更成熟。</p>
-
-<hr>
-
-<h2 id="3-生态系统与集成">3. 生态系统与集成</h2>
-
-<h3 id="31-集成数量与质量">3.1 集成数量与质量</h3>
-
-<table><tr><th>类别</th><th>LangChain</th><th>LlamaIndex</th></tr>
-<tr><td>LLM 提供商</td><td>60+</td><td>40+</td></tr>
-<tr><td>向量数据库</td><td>40+</td><td>30+</td></tr>
-<tr><td>数据加载器</td><td>100+ (社区)</td><td>200+ (LlamaHub)</td></tr>
-<tr><td>工具/集成</td><td>700+</td><td>300+</td></tr>
-<tr><td>可观测性</td><td>LangSmith, LangFuse, etc.</td><td>LlamaTrace, LangFuse</td></tr>
-</table>
-
-<h3 id="32-社区活跃度-2025-q4-数据">3.2 社区活跃度 (2025 Q4 数据)</h3>
-
-<table><tr><th>指标</th><th>LangChain</th><th>LlamaIndex</th></tr>
-<tr><td>GitHub Stars</td><td>~108k</td><td>~38k</td></tr>
-<tr><td>Contributors</td><td>3,000+</td><td>1,200+</td></tr>
-<tr><td>PyPI 月下载</td><td>~15M</td><td>~5M</td></tr>
-<tr><td>Discord 成员</td><td>30,000+</td><td>15,000+</td></tr>
-<tr><td>贡献公司</td><td>500+</td><td>200+</td></tr>
-</table>
-
-<p>（数据来源: GitHub 仓库统计及 PyPI 下载趋势，2025 年第四季度）</p>
-
-<h3 id="33-商业化支持">3.3 商业化支持</h3>
-
-<p><strong>LangChain 生态</strong>:</p>
-<li><strong>LangSmith</strong>: 托管的可观测性、评估、Prompt 管理平台</li>
-<li><strong>LangGraph Cloud</strong>: 托管的 Agent 部署平台</li>
-<li><strong>LangServe</strong>: 免费的 API 部署工具</li>
-
-<p><strong>LlamaIndex 生态</strong>:</p>
-<li><strong>LlamaCloud</strong>: 托管的数据解析与索引服务（LlamaParse 为核心）</li>
-<li><strong>LlamaDeploy</strong>: 开源 Agent 部署框架</li>
-<li><strong>LlamaParse</strong>: 高质量文档解析（PDF 表格、复杂布局）</li>
-
-<hr>
-
-<h2 id="4-性能与扩展性">4. 性能与扩展性</h2>
-
-<h3 id="41-rag-管线性能">4.1 RAG 管线性能</h3>
-
-<p>在标准 RAG 基准测试（HotpotQA、SQuAD）中，两者表现差异不大，主要取决于：</p>
-<li>嵌入模型选择</li>
-<li>分块策略</li>
-<li>检索参数（top-k、相似度阈值）</li>
-<li>重排序模型</li>
-
-<p><strong>LlamaIndex 的优势</strong> 在于其内置的优化策略：</p>
-<li><code>SentenceWindowRetrieval</code>: 检索时扩展上下文窗口</li>
-<li><code>AutoMergingRetrieval</code>: 自动合并子节点以保持上下文完整性</li>
-<li><code>Metadata Filtering</code>: 结合元数据过滤提升精度</li>
-<li><code>Hybrid Search</code>: 关键词 + 向量混合检索</li>
-
-<h3 id="42-大规模生产部署">4.2 大规模生产部署</h3>
-
-<table><tr><th>维度</th><th>LangChain</th><th>LlamaIndex</th></tr>
-<tr><td>异步支持</td><td>全面 (async/await)</td><td>全面 (async/await)</td></tr>
-<tr><td>流式处理</td><td>✅ 原生支持</td><td>✅ 原生支持</td></tr>
-<tr><td>分布式执行</td><td>LangGraph 分布式节点</td><td>LlamaDeploy 多服务</td></tr>
-<tr><td>水平扩展</td><td>依赖部署框架</td><td>依赖部署框架</td></tr>
-<tr><td>缓存策略</td><td>内置 LLM 缓存</td><td>内置嵌入缓存</td></tr>
-</table>
-
-<h3 id="43-版本稳定性">4.3 版本稳定性</h3>
-
-<p>两个框架都经历了重大 API 变更：</p>
-<li><strong>LangChain</strong>: 0.1 → 0.2 版本进行了大幅重构，引发社区争议。稳定后 API 变更频率降低。</li>
-<li><strong>LlamaIndex</strong>: 从 0.9 到 0.10+，逐步引入 Workflows 替代旧的 Query Pipeline。</li>
-
-<p><strong>建议</strong>: 生产环境固定版本号，关注 changelog，避免自动升级。</p>
-
-<hr>
-
-<h2 id="5-选型建议">5. 选型建议</h2>
-
-<h3 id="场景决策树">场景决策树</h3>
-
-<div class="mermaid">
-graph TD
-    Q{"你的核心需求是什么？"}
-    RAG["RAG / 数据索引 → LlamaIndex"]
-    AGENT["Agent / 多步骤工作流 → LangChain + LangGraph"]
-    PROTO["快速原型 → 两者均可"]
-    ENTERPRISE["企业级全栈 → LangChain"]
-    RAG_AGENT{"需要复杂 Agent 能力？"}
-    RAG_MULTI{"多数据源接入？"}
-    AGENT_RAG{"需要 RAG 能力？"}
-    AGENT_MULTI{"多 Agent 协作？"}
-    Q --> RAG
-    Q --> AGENT
-    Q --> PROTO
-    Q --> ENTERPRISE
-    RAG --> RAG_AGENT
-    RAG --> RAG_MULTI
-    RAG_AGENT -->|"是"| "LlamaIndex Workflows 或 LangGraph"
-    RAG_AGENT -->|"否"| "纯 LlamaIndex"
-    AGENT --> AGENT_RAG
-    AGENT --> AGENT_MULTI
-    AGENT_RAG -->|"轻度"| "LangChain 内置 Retrieval"
-    AGENT_RAG -->|"深度"| "集成 LlamaIndex"
-    AGENT_MULTI --> "LangGraph Supervisor 模式"
-</div>
-
-<h3 id="具体建议">具体建议</h3>
-
-<p>1. <strong>纯 RAG 应用</strong>: 选 LlamaIndex。其索引类型丰富、检索优化开箱即用。</p>
-<p>2. <strong>复杂 Agent 系统</strong>: 选 LangChain + LangGraph。LangGraph 的有状态循环是当前最成熟的 Agent 编排方案。</p>
-<p>3. <strong>数据密集型应用</strong>: 选 LlamaIndex。LlamaParse 和 LlamaHub 能显著加速开发。</p>
-<p>4. <strong>需要广泛集成</strong>: 选 LangChain。700+ 集成覆盖几乎所有主流服务。</p>
-<p>5. <strong>两者结合</strong>: 许多团队使用 LlamaIndex 做检索，LangChain 做编排，优势互补。</p>
-<p>6. <strong>新项目起步</strong>: 如果不确定，从 LlamaIndex 开始更简单。复杂度增长后再引入 LangChain。</p>
-
-<hr>
-
-<h2 id="参考来源">参考来源</h2>
-
-<p>1. <strong>LangChain 官方文档</strong> — <a href="https://python.langchain.com">python.langchain.com</a> — 架构、API、集成列表</p>
-<p>2. <strong>LlamaIndex 官方文档</strong> — <a href="https://docs.llamaindex.ai">docs.llamaindex.ai</a> — 索引类型、Workflows、LlamaHub</p>
-<p>3. <strong>GitHub 仓库统计</strong> — <a href="https://github.com/langchain-ai/langchain">github.com/langchain-ai/langchain</a> & <a href="https://github.com/run-llama/llama_index">github.com/run-llama/llama_index</a> — Stars、贡献者、发布频率</p>
-<p>4. <strong>LangGraph 论文与文档</strong> — <a href="https://langchain-ai.github.io/langgraph/">langchain-ai.github.io/langgraph</a> — 有状态 Agent 工作流设计</p>
-<p>5. <strong>LlamaIndex Workflows 文档</strong> — <a href="https://docs.llamaindex.ai/en/stable/module_guides/workflow/">docs.llamaindex.ai/en/stable/module_guides/workflow/</a> — 事件驱动工作流</p>
-<p>6. <strong>Chatbot Arena LLM 排行</strong> — <a href="https://chat.lmsys.org">lmsys.org</a> — LLM 性能基准参考</p>
-
-<div class="footer">
-<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
-</div>
 <script>
-function toggleTheme() {
+  function toggleTheme() {
     const html = document.documentElement;
     const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
     html.setAttribute('data-theme', next);
-    localStorage.setItem('tr-theme', next);
-    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
-}
-(function() {
-    const saved = localStorage.getItem('tr-theme') || 'dark';
+    localStorage.setItem('probe-theme', next);
+    location.reload();
+  }
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
-    const icon = document.getElementById('themeIcon');
-    if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
-})();
+    document.getElementById('themeIcon').textContent = saved === 'light' ? '🌙' : '☀️';
+    document.getElementById('themeLabel').textContent = saved === 'light' ? '夜间' : '日间';
+  })();
 </script>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
-  mermaid.initialize({startOnLoad:true, theme:theme});
-</script>
-</body></html>
+</head>
+<body>
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式"><span class="icon" id="themeIcon">☀️</span><span class="label" id="themeLabel">日间</span></button>
+  <h1>LangChain vs LlamaIndex 深度对比</h1>
+  <div class="meta">2026-03-15 · 探针 (Probe)</div>
+  
+</div>
+<div class="container">
+  
+  <h1 id="langchain-vs-llamaindex">LangChain vs LlamaIndex 深度对比</h1>
+<blockquote>
+<p>最后更新: 2026-03-14 | 分类: AI 开发框架</p>
+</blockquote>
+<hr />
+<h2 id="executive-summary">Executive Summary</h2>
+<p>LangChain 和 LlamaIndex 是当前 LLM 应用开发领域最具影响力的两个开源框架。两者虽然都服务于&rdquo;用 LLM 构建应用&rdquo;这一目标，但设计哲学和侧重点有本质差异：</p>
+<ul>
+<li><strong>LangChain</strong> 定位为通用 LLM 应用编排框架，强调&rdquo;链&rdquo;和&rdquo;Agent&rdquo;的灵活组合，适合构建复杂的多步骤工作流。</li>
+<li><strong>LlamaIndex</strong>（原 GPT Index）聚焦于&rdquo;数据连接与索引&rdquo;，核心能力是将私有数据高效地接入 LLM，实现高质量的 RAG（Retrieval-Augmented Generation）。</li>
+</ul>
+<p>截至 2025 年底，LangChain 在 GitHub 上拥有超过 100k stars，LlamaIndex 超过 38k stars（GitHub 仓库数据，2025 年 Q4）。两者在 PyPI 上的月下载量均达到数百万级别，共同构成了 LLM 应用开发的事实标准工具链。</p>
+<p><strong>核心结论</strong>: 如果你的核心需求是 RAG 和数据索引，LlamaIndex 更专注、开箱即用；如果你需要构建复杂的 Agent 工作流或多步骤链条，LangChain 更灵活。两者可以互补使用。</p>
+<blockquote>
+<p><strong>竞品概览</strong>：除 LangChain 和 LlamaIndex 外，LLM 应用开发领域还有其他值得关注的框架：
+- <strong><a href="https://github.com/deepset-ai/haystack">Haystack</a></strong>（deepset）— 端到端 NLP/RAG 管线框架，深度集成 Elasticsearch，适合企业搜索场景
+- <strong><a href="https://github.com/microsoft/semantic-kernel">Semantic Kernel</a></strong>（Microsoft）— 微软推出的 AI 编排 SDK，原生集成 .NET/Python/Java，适合 Azure 生态用户
+- <strong><a href="https://github.com/stanfordnlp/dspy">DSPy</a></strong>（Stanford）— 编程式 Prompt 优化框架，侧重自动化提示工程</p>
+<p>本报告聚焦 LangChain 与 LlamaIndex 的深度对比，对上述竞品不做展开分析。</p>
+</blockquote>
+<hr />
+<h2 id="1">1. 架构设计哲学差异</h2>
+<h3 id="langchain">LangChain: &ldquo;万物皆可链&rdquo;</h3>
+<p>LangChain 的核心抽象是 <strong>Chain</strong>（链）——将多个步骤串联起来形成完整的工作流。其设计哲学是：</p>
+<ol>
+<li><strong>模块化与组合</strong>: 每个组件（LLM 调用、Prompt 模板、输出解析器、工具调用）都是独立的，可以灵活组合。</li>
+<li><strong>Agent 优先</strong>: 2024 年后，LangChain 大幅加强了 Agent 能力，LangGraph 框架让 Agent 可以有状态地循环执行。</li>
+<li><strong>生态广度</strong>: 与 700+ 集成对接，覆盖向量数据库、LLM 提供商、工具、数据加载器等。</li>
+</ol>
+<p>关键组件层次：</p>
+<div class="highlight"><pre><span></span><code>graph TD
+    CORE[&quot;LangChain Core&lt;br/&gt;基础抽象: LLM, Prompt, Output Parser&quot;]
+    LC[&quot;LangChain&lt;br/&gt;Chain, Agent, Memory, Retrieval&quot;]
+    LG[&quot;LangGraph&lt;br/&gt;有状态 Agent 工作流&quot;]
+    LS[&quot;LangSmith&lt;br/&gt;可观测性与调试&quot;]
+    LSV[&quot;LangServe&lt;br/&gt;部署与 API 服务&quot;]
+    CORE --&gt; LC
+    CORE --&gt; LG
+    CORE --&gt; LS
+    CORE --&gt; LSV
+</code></pre></div>
+
+<h3 id="llamaindex">LlamaIndex: &ldquo;数据是第一公民&rdquo;</h3>
+<p>LlamaIndex 的核心抽象是 <strong>Index</strong>（索引）——将非结构化数据构建为可高效检索的结构。其设计哲学是：</p>
+<ol>
+<li><strong>数据管线优先</strong>: 从数据加载（LlamaHub）、解析、分块、嵌入到索引构建，全流程优化。</li>
+<li><strong>检索即核心</strong>: 提供多种索引类型（向量索引、关键词索引、树索引、知识图谱索引），检索策略丰富。</li>
+<li><strong>Agent 为辅</strong>: 2024 年推出的 Workflows 和 Agent 系统是对 RAG 能力的扩展，而非替代。</li>
+</ol>
+<p>关键组件层次：</p>
+<div class="highlight"><pre><span></span><code>graph TD
+    CORE[&quot;LlamaIndex Core&lt;br/&gt;基础抽象: Node, Index, Query Engine&quot;]
+    DC[&quot;Data Connectors&lt;br/&gt;LlamaHub: 100+ 数据源&quot;]
+    IDX[&quot;Indexing&lt;br/&gt;Vector, Keyword, Tree, KG&quot;]
+    QE[&quot;Query Engine&lt;br/&gt;Retrieval + Synthesis&quot;]
+    WF[&quot;Workflows&lt;br/&gt;事件驱动工作流&quot;]
+    DEPLOY[&quot;LlamaDeploy&lt;br/&gt;生产部署&quot;]
+    CORE --&gt; DC
+    CORE --&gt; IDX
+    CORE --&gt; QE
+    CORE --&gt; WF
+    CORE --&gt; DEPLOY
+</code></pre></div>
+
+<h3 id="_1">设计哲学对比</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>LangChain</th>
+<th>LlamaIndex</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>核心抽象</td>
+<td>Chain / Graph</td>
+<td>Index / Query Engine</td>
+</tr>
+<tr>
+<td>设计重心</td>
+<td>编排与工作流</td>
+<td>数据与检索</td>
+</tr>
+<tr>
+<td>学习曲线</td>
+<td>较陡（概念多）</td>
+<td>中等（RAG 为核心）</td>
+</tr>
+<tr>
+<td>灵活性</td>
+<td>高（但复杂）</td>
+<td>中等（场景聚焦）</td>
+</tr>
+<tr>
+<td>2025 演进方向</td>
+<td>Agent 全面化 (LangGraph)</td>
+<td>Workflows + 多模态 RAG</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2">2. 核心组件对比</h2>
+<h3 id="21-llm">2.1 LLM 抽象与模型支持</h3>
+<p><strong>LangChain</strong> 通过 <code>BaseChatModel</code> 统一接口，支持 OpenAI、Anthropic、Google、Mistral、Cohere 等数十家提供商。通过 <code>langchain-openai</code>、<code>langchain-anthropic</code> 等独立包维护。</p>
+<p><strong>LlamaIndex</strong> 通过 <code>LLM</code> 基类统一接口，同样支持主流提供商。其嵌入模型抽象 (<code>BaseEmbedding</code>) 与索引系统深度集成，选择嵌入模型对检索质量影响更大。</p>
+<p>两者都支持：
+- 流式输出 (Streaming)
+- 函数调用 (Function Calling / Tool Use)
+- 结构化输出 (Structured Output)
+- 多模态输入（图像、PDF）</p>
+<h3 id="22-agent">2.2 Agent 系统</h3>
+<p><strong>LangChain Agent 演进</strong>:
+- 早期: <code>AgentExecutor</code>（单轮工具选择循环）
+- 2024+: <strong>LangGraph</strong>（基于有向图的 Agent 工作流）
+  - 支持循环、分支、状态持久化
+  - Human-in-the-loop 支持
+  - 多 Agent 协作（Supervisor 模式）
+  - 时间旅行调试</p>
+<p><strong>LlamaIndex Agent 演进</strong>:
+- 早期: <code>ReActAgent</code>、<code>OpenAIAgent</code>（简单工具调用）
+- 2024+: <strong>Workflows</strong>（事件驱动的异步工作流）
+  - 步骤之间通过事件触发
+  - 支持并行执行、循环、条件分支
+  - 内置 RAG 专用 Agent 模式（如 <code>QueryPipeline</code>）</p>
+<p><strong>对比</strong>: LangGraph 更通用、功能更强；LlamaIndex Workflows 更简洁、对 RAG 场景更友好。</p>
+<h3 id="23">2.3 索引与检索</h3>
+<p>这是 <strong>LlamaIndex 的绝对优势领域</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>索引类型</th>
+<th>说明</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VectorStoreIndex</td>
+<td>向量相似度检索</td>
+<td>语义搜索</td>
+</tr>
+<tr>
+<td>SummaryIndex</td>
+<td>摘要式检索</td>
+<td>全局概览</td>
+</tr>
+<tr>
+<td>TreeIndex</td>
+<td>层次化树结构</td>
+<td>概念到细节的导航</td>
+</tr>
+<tr>
+<td>KnowledgeGraphIndex</td>
+<td>知识图谱</td>
+<td>实体关系推理</td>
+</tr>
+<tr>
+<td>PropertyGraphIndex</td>
+<td>属性图 (2024 新增)</td>
+<td>复杂图谱 RAG</td>
+</tr>
+<tr>
+<td>SQL Index</td>
+<td>SQL 数据库查询</td>
+<td>结构化数据</td>
+</tr>
+</tbody>
+</table>
+<p>LangChain 的检索能力主要通过 <code>VectorStore</code> 和 <code>Retriever</code> 抽象实现，相对更基础，需要更多手动配置。</p>
+<h3 id="24-memory">2.4 记忆 (Memory)</h3>
+<p><strong>LangChain</strong> 提供丰富的记忆类型：
+- <code>ConversationBufferMemory</code>: 完整历史
+- <code>ConversationSummaryMemory</code>: 摘要压缩
+- <code>ConversationBufferWindowMemory</code>: 滑动窗口
+- <code>VectorStoreRetrieverMemory</code>: 基于检索的记忆</p>
+<p><strong>LlamaIndex</strong> 的记忆能力相对简单，主要通过 <code>ChatMemoryBuffer</code> 实现，或借助外部存储。对于需要复杂记忆管理的场景，LangChain 更成熟。</p>
+<hr />
+<h2 id="3">3. 生态系统与集成</h2>
+<h3 id="31">3.1 集成数量与质量</h3>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>LangChain</th>
+<th>LlamaIndex</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LLM 提供商</td>
+<td>60+</td>
+<td>40+</td>
+</tr>
+<tr>
+<td>向量数据库</td>
+<td>40+</td>
+<td>30+</td>
+</tr>
+<tr>
+<td>数据加载器</td>
+<td>100+ (社区)</td>
+<td>200+ (LlamaHub)</td>
+</tr>
+<tr>
+<td>工具/集成</td>
+<td>700+</td>
+<td>300+</td>
+</tr>
+<tr>
+<td>可观测性</td>
+<td>LangSmith, LangFuse, etc.</td>
+<td>LlamaTrace, LangFuse</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-2025-q4">3.2 社区活跃度 (2025 Q4 数据)</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>LangChain</th>
+<th>LlamaIndex</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GitHub Stars</td>
+<td>~108k</td>
+<td>~38k</td>
+</tr>
+<tr>
+<td>Contributors</td>
+<td>3,000+</td>
+<td>1,200+</td>
+</tr>
+<tr>
+<td>PyPI 月下载</td>
+<td>~15M</td>
+<td>~5M</td>
+</tr>
+<tr>
+<td>Discord 成员</td>
+<td>30,000+</td>
+<td>15,000+</td>
+</tr>
+<tr>
+<td>贡献公司</td>
+<td>500+</td>
+<td>200+</td>
+</tr>
+</tbody>
+</table>
+<p>（数据来源: GitHub 仓库统计及 PyPI 下载趋势，2025 年第四季度）</p>
+<h3 id="33">3.3 商业化支持</h3>
+<p><strong>LangChain 生态</strong>:
+- <strong>LangSmith</strong>: 托管的可观测性、评估、Prompt 管理平台
+- <strong>LangGraph Cloud</strong>: 托管的 Agent 部署平台
+- <strong>LangServe</strong>: 免费的 API 部署工具</p>
+<p><strong>LlamaIndex 生态</strong>:
+- <strong>LlamaCloud</strong>: 托管的数据解析与索引服务（LlamaParse 为核心）
+- <strong>LlamaDeploy</strong>: 开源 Agent 部署框架
+- <strong>LlamaParse</strong>: 高质量文档解析（PDF 表格、复杂布局）</p>
+<hr />
+<h2 id="4">4. 性能与扩展性</h2>
+<h3 id="41-rag">4.1 RAG 管线性能</h3>
+<p>在标准 RAG 基准测试（HotpotQA、SQuAD）中，两者表现差异不大，主要取决于：
+- 嵌入模型选择
+- 分块策略
+- 检索参数（top-k、相似度阈值）
+- 重排序模型</p>
+<p><strong>LlamaIndex 的优势</strong> 在于其内置的优化策略：
+- <code>SentenceWindowRetrieval</code>: 检索时扩展上下文窗口
+- <code>AutoMergingRetrieval</code>: 自动合并子节点以保持上下文完整性
+- <code>Metadata Filtering</code>: 结合元数据过滤提升精度
+- <code>Hybrid Search</code>: 关键词 + 向量混合检索</p>
+<h3 id="42">4.2 大规模生产部署</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>LangChain</th>
+<th>LlamaIndex</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>异步支持</td>
+<td>全面 (async/await)</td>
+<td>全面 (async/await)</td>
+</tr>
+<tr>
+<td>流式处理</td>
+<td>✅ 原生支持</td>
+<td>✅ 原生支持</td>
+</tr>
+<tr>
+<td>分布式执行</td>
+<td>LangGraph 分布式节点</td>
+<td>LlamaDeploy 多服务</td>
+</tr>
+<tr>
+<td>水平扩展</td>
+<td>依赖部署框架</td>
+<td>依赖部署框架</td>
+</tr>
+<tr>
+<td>缓存策略</td>
+<td>内置 LLM 缓存</td>
+<td>内置嵌入缓存</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43">4.3 版本稳定性</h3>
+<p>两个框架都经历了重大 API 变更：
+- <strong>LangChain</strong>: 0.1 → 0.2 版本进行了大幅重构，引发社区争议。稳定后 API 变更频率降低。
+- <strong>LlamaIndex</strong>: 从 0.9 到 0.10+，逐步引入 Workflows 替代旧的 Query Pipeline。</p>
+<p><strong>建议</strong>: 生产环境固定版本号，关注 changelog，避免自动升级。</p>
+<hr />
+<h2 id="5">5. 选型建议</h2>
+<h3 id="_2">场景决策树</h3>
+<div class="highlight"><pre><span></span><code>graph TD
+    Q{&quot;你的核心需求是什么？&quot;}
+    RAG[&quot;RAG / 数据索引 → LlamaIndex&quot;]
+    AGENT[&quot;Agent / 多步骤工作流 → LangChain + LangGraph&quot;]
+    PROTO[&quot;快速原型 → 两者均可&quot;]
+    ENTERPRISE[&quot;企业级全栈 → LangChain&quot;]
+    RAG_AGENT{&quot;需要复杂 Agent 能力？&quot;}
+    RAG_MULTI{&quot;多数据源接入？&quot;}
+    AGENT_RAG{&quot;需要 RAG 能力？&quot;}
+    AGENT_MULTI{&quot;多 Agent 协作？&quot;}
+    Q --&gt; RAG
+    Q --&gt; AGENT
+    Q --&gt; PROTO
+    Q --&gt; ENTERPRISE
+    RAG --&gt; RAG_AGENT
+    RAG --&gt; RAG_MULTI
+    RAG_AGENT --&gt;|&quot;是&quot;| &quot;LlamaIndex Workflows 或 LangGraph&quot;
+    RAG_AGENT --&gt;|&quot;否&quot;| &quot;纯 LlamaIndex&quot;
+    AGENT --&gt; AGENT_RAG
+    AGENT --&gt; AGENT_MULTI
+    AGENT_RAG --&gt;|&quot;轻度&quot;| &quot;LangChain 内置 Retrieval&quot;
+    AGENT_RAG --&gt;|&quot;深度&quot;| &quot;集成 LlamaIndex&quot;
+    AGENT_MULTI --&gt; &quot;LangGraph Supervisor 模式&quot;
+</code></pre></div>
+
+<h3 id="_3">具体建议</h3>
+<ol>
+<li><strong>纯 RAG 应用</strong>: 选 LlamaIndex。其索引类型丰富、检索优化开箱即用。</li>
+<li><strong>复杂 Agent 系统</strong>: 选 LangChain + LangGraph。LangGraph 的有状态循环是当前最成熟的 Agent 编排方案。</li>
+<li><strong>数据密集型应用</strong>: 选 LlamaIndex。LlamaParse 和 LlamaHub 能显著加速开发。</li>
+<li><strong>需要广泛集成</strong>: 选 LangChain。700+ 集成覆盖几乎所有主流服务。</li>
+<li><strong>两者结合</strong>: 许多团队使用 LlamaIndex 做检索，LangChain 做编排，优势互补。</li>
+<li><strong>新项目起步</strong>: 如果不确定，从 LlamaIndex 开始更简单。复杂度增长后再引入 LangChain。</li>
+</ol>
+<hr />
+<h2 id="_4">参考来源</h2>
+<ol>
+<li><strong>LangChain 官方文档</strong> — <a href="https://python.langchain.com">python.langchain.com</a> — 架构、API、集成列表</li>
+<li><strong>LlamaIndex 官方文档</strong> — <a href="https://docs.llamaindex.ai">docs.llamaindex.ai</a> — 索引类型、Workflows、LlamaHub</li>
+<li><strong>GitHub 仓库统计</strong> — <a href="https://github.com/langchain-ai/langchain">github.com/langchain-ai/langchain</a> &amp; <a href="https://github.com/run-llama/llama_index">github.com/run-llama/llama_index</a> — Stars、贡献者、发布频率</li>
+<li><strong>LangGraph 论文与文档</strong> — <a href="https://langchain-ai.github.io/langgraph/">langchain-ai.github.io/langgraph</a> — 有状态 Agent 工作流设计</li>
+<li><strong>LlamaIndex Workflows 文档</strong> — <a href="https://docs.llamaindex.ai/en/stable/module_guides/workflow/">docs.llamaindex.ai/en/stable/module_guides/workflow/</a> — 事件驱动工作流</li>
+<li><strong>Chatbot Arena LLM 排行</strong> — <a href="https://chat.lmsys.org">lmsys.org</a> — LLM 性能基准参考</li>
+<li><strong>Haystack 文档</strong> — <a href="https://haystack.deepset.ai">haystack.deepset.ai</a> — deepset 端到端 NLP 管线框架</li>
+<li><strong>Semantic Kernel 文档</strong> — <a href="https://learn.microsoft.com/en-us/semantic-kernel/">learn.microsoft.com/semantic-kernel</a> — 微软 AI 编排 SDK</li>
+<li><strong>PyPI 下载统计</strong> — <a href="https://pypistats.org">pypistats.org</a> — 各框架月度下载趋势数据</li>
+</ol>
+</div>
+<div class="footer">探针 (Probe) · AI 技术研究分析师 · 2026</div>
+</body>
+</html>

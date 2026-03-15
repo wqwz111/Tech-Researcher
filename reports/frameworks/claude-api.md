@@ -238,7 +238,185 @@ print(f"常规输入: {message.usage.input_tokens}")
 
 ---
 
-## 4. 系统提示词最佳实践
+## 4. 错误处理与重试策略
+
+### 4.1 HTTP 状态码
+
+Claude API 使用标准 HTTP 状态码，常见错误码如下：
+
+| 状态码 | 含义 | 常见原因 | 处理方式 |
+|--------|------|---------|---------|
+| `400` | Bad Request | 请求格式错误、参数无效 | 检查请求体和参数 |
+| `401` | Unauthorized | API Key 无效或缺失 | 验证 API Key |
+| `403` | Forbidden | 无权限访问该模型/功能 | 检查组织权限设置 |
+| `404` | Not Found | 模型名称错误或端点不存在 | 确认模型 ID 和 URL |
+| `429` | Rate Limited | 请求频率超过限制 | 指数退避重试 |
+| `500` | Internal Server Error | Anthropic 服务端错误 | 重试，持续失败则报告 |
+| `529` | Overloaded | 服务过载（Anthropic 特有） | 重试或降级到备选模型 |
+
+### 4.2 重试策略
+
+推荐使用**指数退避 + 抖动（Jitter）**策略：
+
+```python
+import anthropic
+import time
+import random
+
+client = anthropic.Anthropic()
+
+def create_message_with_retry(messages, max_retries=5, **kwargs):
+    """带指数退避重试的消息创建"""
+    for attempt in range(max_retries):
+        try:
+            return client.messages.create(
+                messages=messages,
+                **kwargs
+            )
+        except anthropic.RateLimitError as e:
+            if attempt == max_retries - 1:
+                raise
+            # 指数退避 + 随机抖动
+            wait_time = (2 ** attempt) + random.uniform(0, 1)
+            print(f"限流，等待 {wait_time:.1f}s 后重试 (第 {attempt+1} 次)")
+            time.sleep(wait_time)
+        except anthropic.APIStatusError as e:
+            if e.status_code >= 500 and attempt < max_retries - 1:
+                wait_time = (2 ** attempt) + random.uniform(0, 1)
+                print(f"服务端错误 {e.status_code}，等待 {wait_time:.1f}s 后重试")
+                time.sleep(wait_time)
+            else:
+                raise
+```
+
+**重试原则：**
+- **429（限流）**：始终重试，使用指数退避
+- **5xx（服务端错误）**：重试 3-5 次
+- **4xx（客户端错误）**：不重试，修复请求后重新发送
+- **529（过载）**：可考虑降级到备选模型
+
+### 4.3 限流处理
+
+Claude API 的限流基于两种维度：
+
+**1. 请求速率（RPM）**
+- 按组织和模型限制
+- 响应头 `x-ratelimit-limit` 和 `x-ratelimit-remaining` 提供实时额度
+
+**2. Token 速率（TPM）**
+- 输入和输出 token 分别计算
+- 高并发场景下更容易触发
+
+```python
+# 监控限流头信息
+response = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Hello"}]
+)
+
+# 注意：Anthropic SDK 不直接暴露响应头
+# 如需监控限流，可使用 httpx 直接调用 API
+```
+
+**限流优化建议：**
+- **批量请求**：使用 Batch API 处理非实时任务
+- **Prompt Caching**：减少重复 token 消耗
+- **并发控制**：使用信号量限制同时请求数
+- **预估 Token**：使用 `client.messages.count_tokens()` 预估消耗
+
+---
+
+## 5. Batch API（消息批处理）
+
+### 5.1 概述
+
+Anthropic Message Batches API 于 2024 年推出，允许异步批量处理 Messages API 请求，适用于不需要实时响应的大规模处理场景。
+
+**核心优势：**
+- **成本减半**：相比实时 API，Batch API 价格优惠 50%
+- **高吞吐**：支持单批最多 10,000 个请求
+- **异步处理**：提交后无需等待，24 小时内完成
+- **不消耗实时配额**：独立于 RPM/TPM 限流
+
+### 5.2 基本用法
+
+```python
+import anthropic
+
+client = anthropic.Anthropic()
+
+# 1. 创建批处理请求
+message_batch = client.messages.batches.create(
+    requests=[
+        {
+            "custom_id": "request-1",
+            "params": {
+                "model": "claude-sonnet-4-20250514",
+                "max_tokens": 1024,
+                "messages": [{"role": "user", "content": "总结这篇文章..."}]
+            }
+        },
+        {
+            "custom_id": "request-2",
+            "params": {
+                "model": "claude-sonnet-4-20250514",
+                "max_tokens": 1024,
+                "messages": [{"role": "user", "content": "翻译这段文字..."}]
+            }
+        }
+    ]
+)
+
+print(f"Batch ID: {message_batch.id}")
+print(f"状态: {message_batch.processing_status}")  # in_progress
+```
+
+### 5.3 查询结果
+
+```python
+# 2. 轮询批处理状态
+import time
+
+while True:
+    batch = client.messages.batches.retrieve(message_batch.id)
+    if batch.processing_status == "ended":
+        break
+    print(f"处理中... 已处理 {batch.request_counts.succeeded}/{batch.request_counts.processing}")
+    time.sleep(60)  # 每分钟检查一次
+
+# 3. 获取结果
+results = client.messages.batches.results(message_batch.id)
+
+for result in results:
+    if result.result.type == "succeeded":
+        print(f"[{result.custom_id}] 成功:")
+        print(result.result.message.content[0].text)
+    elif result.result.type == "errored":
+        print(f"[{result.custom_id}] 失败: {result.result.error}")
+    elif result.result.type == "expired":
+        print(f"[{result.custom_id}] 超时未完成")
+```
+
+### 5.4 最佳实践
+
+| 实践 | 说明 |
+|------|------|
+| **合理分批** | 每批 100-1000 个请求，避免单批过大 |
+| **唯一 ID** | `custom_id` 必须唯一，用于匹配结果 |
+| **监控超时** | 批处理 24 小时超时，超时请求标记为 `expired` |
+| **错误处理** | 检查每个结果的 `type` 字段处理成功/失败 |
+| **成本预估** | Batch API 价格为实时 API 的 50% |
+
+**适用场景：**
+- 大规模文档摘要/翻译
+- 批量数据标注
+- 离线内容审核
+- 训练数据生成
+
+---
+
+## 6. 系统提示词最佳实践
 
 ### 4.1 结构化系统提示
 
@@ -300,7 +478,7 @@ Claude 支持高达 200K tokens 的上下文窗口，优化策略：
 
 ---
 
-## 5. 与其他 API 对比
+## 7. 与其他 API 对比
 
 ### 5.1 Claude vs OpenAI
 
@@ -333,10 +511,13 @@ Claude 支持高达 200K tokens 的上下文窗口，优化策略：
 
 ## 参考来源
 
-1. Anthropic 官方文档 — [docs.anthropic.com](https://docs.anthropic.com)
+1. Anthropic Messages API 参考 — [docs.anthropic.com/en/api/messages](https://docs.anthropic.com/en/api/messages)
 2. Anthropic Prompt Engineering 指南 — [docs.anthropic.com/docs/prompt-engineering](https://docs.anthropic.com/docs/prompt-engineering)
-3. Claude API 参考 — [docs.anthropic.com/en/api](https://docs.anthropic.com/en/api)
-4. Anthropic Blog — [anthropic.com/news](https://www.anthropic.com/news)
+3. Anthropic Message Batches API — [docs.anthropic.com/en/api/creating-message-batches](https://docs.anthropic.com/en/api/creating-message-batches)
+4. Anthropic 错误处理文档 — [docs.anthropic.com/en/api/errors](https://docs.anthropic.com/en/api/errors)
+5. Anthropic 速率限制文档 — [docs.anthropic.com/en/api/rate-limits](https://docs.anthropic.com/en/api/rate-limits)
+6. Anthropic Prompt Caching 文档 — [docs.anthropic.com/docs/prompt-caching](https://docs.anthropic.com/docs/prompt-caching)
+7. Anthropic Tool Use 文档 — [docs.anthropic.com/docs/tool-use](https://docs.anthropic.com/docs/tool-use)
 
 ---
 
