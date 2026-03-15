@@ -186,24 +186,23 @@ strong { color: var(--text-primary); }
 <h3>系统架构</h3>
 <div class="mermaid">
     graph TD
-   
-    GW["[ ] OpenClaw Gateway"]
+    GW["🌐 OpenClaw Gateway"]
     AR["Agent Runtime"]
     CR["Channel Router"]
     SL["Skill Loader"]
     SM["Session Manager"]
     TG["Telegram Plugin"]
     DC["Discord Plugin"]
-    SG["Signal Plugin"] GW
-    --> AR GW
-    --> CR GW
-    --> SL AR
-    --> SM CR
-    --> SM SL
-    --> SM SM
-    --> TG SM
-    --> DC SM
-    --> SG
+    SG["Signal Plugin"]
+    GW --> AR
+    GW --> CR
+    GW --> SL
+    AR --> SM
+    CR --> SM
+    SL --> SM
+    SM --> TG
+    SM --> DC
+    SM --> SG
 </div>
 <h3>主要组件</h3>
 <div class="table-wrapper">
@@ -667,26 +666,25 @@ openclaw configure --section telegram
 <p>OpenClaw 的技能是可复用的能力模块，每个技能是一个目录：</p>
 <div class="mermaid">
     graph TD
-   
-    SK[" skills/"]
-    WR[" web-research/"]
-    CR[" code-review/"]
-    WEA[" weather/"]
+    SK["📁 skills/"]
+    WR["📁 web-research/"]
+    CR["📁 code-review/"]
+    WEA["📁 weather/"]
     SM1["SKILL.md"]
     REF["references/"]
     SCR["scripts/"]
     SM2["SKILL.md"]
     TMPL["templates/"]
-    SM3["SKILL.md"] SK
-    --> WR SK
-    --> CR SK
-    --> WEA WR
-    --> SM1 WR
-    --> REF WR
-    --> SCR CR
-    --> SM2 CR
-    --> TMPL WEA
-    --> SM3
+    SM3["SKILL.md"]
+    SK --> WR
+    SK --> CR
+    SK --> WEA
+    WR --> SM1
+    WR --> REF
+    WR --> SCR
+    CR --> SM2
+    CR --> TMPL
+    WEA --> SM3
 </div>
 <p><strong>SKILL.md 示例</strong>:</p>
 <pre><code class="language-markdown"># Weather Skill

@@ -436,11 +436,9 @@ user_proxy.initiate_chat(
     Q2 -->|弱依赖，可并行| Q3{"是否需要\n资源优化？"}
     Q3 -->|是| MARKET["💰 市场式\n竞标分配任务"]
     Q3 -->|否| HIER2["🏢 层级式\n分配即可"]
-
     FLAT --> C1["适用: 头脑风暴、民主决策\n示例: 团队讨论技术选型"]
     HIER --> C2["适用: 项目管理、复杂工作流\n示例: 研究团队完成文献综述"]
     MARKET --> C3["适用: 资源调度、动态分配\n示例: 多模型路由、算力调度"]
-
     style START fill:#4f46e5,color:#fff
     style FLAT fill:#059669,color:#fff
     style HIER fill:#0ea5e9,color:#fff

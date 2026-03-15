@@ -231,20 +231,21 @@ strong { color: var(--text-primary); }
 
 <h3 id="15-模型选择决策树">1.5 模型选择决策树</h3>
 
-<div class="mermaid">graph TD
+<div class="mermaid">
+    graph TD
     Q{"你的需求是什么？"}
     CN["中文任务为主 → Qwen 2.5 系列"]
     CODE["编程任务 → DeepSeek-Coder / Qwen 2.5-Coder"]
     EN["通用英文 → Llama 3.1 系列"]
     EFF["极致效率 → Mistral 7B / Qwen 2.5 7B"]
     MAX["最强能力 → Llama 3.1 405B / DeepSeek-V3"]
-    REASON["推理任务 → DeepSeek-R1"] Q
-    --> CN Q
-    --> CODE Q
-    --> EN Q
-    --> EFF Q
-    --> MAX Q
-    --> REASON
+    REASON["推理任务 → DeepSeek-R1"]
+    Q --> CN
+    Q --> CODE
+    Q --> EN
+    Q --> EFF
+    Q --> MAX
+    Q --> REASON
 </div>
 
 <hr>
@@ -373,7 +374,8 @@ python -m vllm.entrypoints.openai.api_server \
 
 <p>典型的私有化部署架构：</p>
 
-<div class="mermaid">graph TD
+<div class="mermaid">
+    graph TD
     CLIENT["客户端"]
     GW["API Gateway<br/>认证/限流/路由"]
     INF["推理集群 vLLM/TGI"]
@@ -382,15 +384,15 @@ python -m vllm.entrypoints.openai.api_server \
     GPUN["GPU 节点 N"]
     CACHE["缓存层 Redis<br/>相似问题缓存"]
     MON["监控 Prometheus + Grafana"]
-    LOG["日志 ELK Stack"] CLIENT
-    --> GW GW
-    --> INF INF
-    --> GPU1 INF
-    --> GPU2 INF
-    --> GPUN INF
-    --> CACHE CACHE
-    --> MON MON
-    --> LOG
+    LOG["日志 ELK Stack"]
+    CLIENT --> GW
+    GW --> INF
+    INF --> GPU1
+    INF --> GPU2
+    INF --> GPUN
+    INF --> CACHE
+    CACHE --> MON
+    MON --> LOG
 </div>
 
 <h3 id="42-关键设计决策">4.2 关键设计决策</h3>

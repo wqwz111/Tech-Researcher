@@ -339,7 +339,6 @@ strong { color: var(--text-primary); }
 
 <div class="mermaid">
     graph TD
-   
     S1{"第一步: 你的数据规模？"}
     S2{"第二步: 你的集成需求？"}
     S3{"第三步: 团队运维能力？"}
@@ -359,26 +358,26 @@ strong { color: var(--text-primary); }
     I3["GraphQL → Weaviate"]
     O1["无 DevOps → Pinecone"]
     O2["中等 → Qdrant Cloud / Weaviate Cloud"]
-    O3["强 → Milvus 或自建"] S1
-    --> SMALL S1
-    --> MED S1
-    --> LARGE SMALL
-    --> C1 SMALL
-    --> C2 SMALL
-    --> C3 MED
-    --> M1 MED
-    --> M2 MED
-    --> M3 LARGE
-    --> L1 LARGE
-    --> L2 S1
-    --> S2 S2
-    --> I1 S2
-    --> I2 S2
-    --> I3 S2
-    --> S3 S3
-    --> O1 S3
-    --> O2 S3
-    --> O3
+    O3["强 → Milvus 或自建"]
+    S1 --> SMALL
+    S1 --> MED
+    S1 --> LARGE
+    SMALL --> C1
+    SMALL --> C2
+    SMALL --> C3
+    MED --> M1
+    MED --> M2
+    MED --> M3
+    LARGE --> L1
+    LARGE --> L2
+    S1 --> S2
+    S2 --> I1
+    S2 --> I2
+    S2 --> I3
+    S2 --> S3
+    S3 --> O1
+    S3 --> O2
+    S3 --> O3
 </div>
 
 <hr>
