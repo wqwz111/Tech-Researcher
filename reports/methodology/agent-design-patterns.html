@@ -100,7 +100,7 @@ strong { color: var(--text); }
 <div class="info">2026-03-15 · 分类: 🔬 方法论</div>
 </div>
 
-<h1>AI Agent 设计模式</h1>
+
 <blockquote>
 <p><strong>发布日期</strong>: 2026-03-14 | <strong>更新</strong>: 2026-03-15（v1.1 补充 MCP/A2A 协议、Swarm/ADK 框架对比）<br><strong>分类</strong>: 方法论<br><strong>关键词</strong>: Agent, ReAct, Plan-and-Execute, Reflection, 工具使用, 错误处理, 多Agent通信</p>
 </blockquote>
@@ -328,7 +328,7 @@ print(f&quot;高分记录: {len(filtered)} 条&quot;)
 <p><strong>Token 管理</strong>: 工具返回的长文本需要截断或摘要。建议对超过 2000 字符的结果自动进行摘要，保留关键信息。</p>
 <hr>
 <h2>三、错误处理策略</h2>
-<p>Agent 系统的错误处理是生产化的关键瓶颈。据 LangSmith 统计，约 90% 的 Agent 失败源于工具调用和外部依赖环节。</p>
+<p>Agent 系统的错误处理是生产化的关键瓶颈。根据 LangSmith 可观测性数据和 Anthropic 的生产实践观察，工具调用和外部依赖环节是 Agent 失败的最常见来源（参考 <a href="https://docs.smith.langchain.com/observability/concepts">LangSmith Observability</a> 和 <a href="https://www.anthropic.com/engineering/building-effective-agents">Building Effective Agents</a>）。</p>
 <h3>3.1 错误分类</h3>
 <div class="mermaid">graph TD
     ERR[&quot;错误类型&quot;]
@@ -1060,6 +1060,22 @@ function toggleTheme() {
 </script>
 </body></html>
 
+<script>
+function toggleTheme() {
+    const html = document.documentElement;
+    const icon = document.getElementById('themeIcon');
+    if (html.getAttribute('data-theme') === 'light') {
+        html.removeAttribute('data-theme');
+        icon.textContent = '☀️';
+    } else {
+        html.setAttribute('data-theme', 'light');
+        icon.textContent = '🌙';
+    }
+}
+mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+</script>
+</body>
+</html>
 <script>
 function toggleTheme() {
     const html = document.documentElement;

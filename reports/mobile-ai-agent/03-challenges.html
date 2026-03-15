@@ -1,54 +1,255 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>---</title>
+<title>移动端 AI 智能体：挑战与应对措施</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({theme:'dark',themeVariables:{darkMode:true}});</script>
+<script>mermaid.initialize({theme:'base',themeVariables:{base:'dark',primaryColor:'#334155',primaryBorderColor:'#475569',lineColor:'#64748b',secondaryColor:'#1e293b',tertiaryColor:'#0f172a'}});</script>
 <style>
-body {
-    background: #0f172a; color: #e2e8f0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+  /* Theme System */
+  :root, [data-theme="dark"] {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --bg-card: #1e293b;
+    --bg-code: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --accent-primary: #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success: #34d399;
+    --accent-warning: #fb923c;
+    --accent-danger: #f87171;
+    --border-color: #334155;
+    --border-light: #1e293b;
+    --tag-bg: #3730a3;
+    --tag-text: #c7d2fe;
+    --link: #818cf8;
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+    --callout-bg: #1a1040;
+  }
+  [data-theme="light"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
+    --bg-card: #f8fafc;
+    --bg-code: #f1f5f9;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --accent-primary: #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success: #059669;
+    --accent-warning: #ea580c;
+    --accent-danger: #dc2626;
+    --border-color: #e2e8f0;
+    --border-light: #f1f5f9;
+    --tag-bg: #e0e7ff;
+    --tag-text: #312e81;
+    --link: #4f46e5;
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+    --callout-bg: #eef2ff;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-primary); color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
     line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
-}
-.top-nav { background: #1e293b; padding: .6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem; }
-.top-nav a { color: #7dd3fc; text-decoration: none; }
-.top-nav a:hover { text-decoration: underline; }
-.top-nav .sep { color: #475569; }
-.meta { background: #1e293b; border-left: 4px solid #38bdf8; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem; }
-.meta h1 { color: #38bdf8; margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
-.meta .tag { background: #3730a3; color: #c7d2fe; padding: .15rem .5rem; border-radius: 4px; font-size: .75rem; }
-.meta .info { color: #94a3b8; font-size: .85rem; }
-.toc { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
-.toc h2 { color: #7dd3fc; font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: #93c5fd; text-decoration: none; }
-.toc a:hover { color: #bfdbfe; }
-h1 { color: #38bdf8; border-bottom: 2px solid #1e3a5f; padding-bottom: .5rem; }
-h2 { color: #7dd3fc; margin-top: 2.5rem; border-bottom: 1px solid #1e3a5f; padding-bottom: .3rem; }
-h3 { color: #93c5fd; margin-top: 1.8rem; }
-a { color: #60a5fa; }
-code { background: #1e293b; padding: .15em .4em; border-radius: 4px; color: #f472b6; font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre { background: #1e293b; padding: 1.2rem; border-radius: 8px; overflow-x: auto; border-left: 3px solid #38bdf8; margin: 1.2rem 0; position: relative; }
-pre code { background: none; color: #e2e8f0; }
-pre .lang-label { position: absolute; top: 0; right: 0; background: #334155; color: #94a3b8; padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px; }
-blockquote { border-left: 4px solid #38bdf8; margin: 1.5rem 0; padding: .8rem 1.2rem; background: #1e293b; border-radius: 0 8px 8px 0; }
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid #334155; padding: .7rem 1rem; text-align: left; }
-th { background: #1e293b; color: #7dd3fc; }
-tr:nth-child(even) { background: #1e293b44; }
-hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
-.footer { text-align: center; color: #64748b; padding: 2rem 0 1rem; border-top: 1px solid #1e293b; margin-top: 3rem; font-size: .85rem; }
-.footer a { color: #60a5fa; }
-@media print {
-    body { background: #fff; color: #000; max-width: 100%; }
-    .top-nav, .toc { display: none; }
+    transition: background 0.3s, color 0.3s;
+  }
+  .top-nav {
+    background: var(--bg-secondary); padding: .6rem 1rem; border-radius: 8px;
+    margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
+    border: 1px solid var(--border-color);
+  }
+  .top-nav a { color: var(--accent-secondary); text-decoration: none; }
+  .top-nav a:hover { text-decoration: underline; }
+  .top-nav .sep { color: var(--text-muted); }
+  .theme-btn {
+    background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 20px;
+    padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
+    transition: border-color .2s;
+  }
+  .theme-btn:hover { border-color: var(--accent-primary); }
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+  }
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+  .header .meta { color: var(--text-muted); font-size: 0.9rem; }
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+  .breadcrumb a { color: var(--link); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+  .toc {
+    background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px;
+    padding: 1rem 1.5rem; margin-bottom: 2rem;
+  }
+  .toc h2 { color: var(--accent-secondary); font-size: 1rem; margin-bottom: .5rem; border: none; padding-bottom: 0; margin-top: 0; }
+  .toc ul { list-style: none; padding-left: 1rem; }
+  .toc li { margin: .2rem 0; font-size: .9rem; }
+  .toc a { color: var(--accent-primary); text-decoration: none; }
+  .toc a:hover { color: var(--link); text-decoration: underline; }
+  h1 { color: var(--accent-primary); border-bottom: 2px solid var(--border-color); padding-bottom: .5rem; }
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+  h4 { font-size: 1.05rem; font-weight: 600; margin: 1.4rem 0 0.6rem; color: var(--text-primary); }
+  p { margin-bottom: 1rem; color: var(--text-primary); }
+  strong { color: var(--text-primary); }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text-primary); }
+  li { margin-bottom: 0.4rem; }
+  code {
+    background: var(--bg-code); padding: .15em .4em; border-radius: 4px;
+    color: var(--accent-secondary); font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: .88em;
+  }
+  pre {
+    background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
+    overflow-x: auto; border: 1px solid var(--border-color); margin: 1.2rem 0; position: relative;
+  }
+  pre code { background: none; color: var(--text-primary); }
+  pre .lang-label {
+    position: absolute; top: 0; right: 0; background: var(--border-color);
+    color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
+  }
+  .mermaid {
+    background: var(--bg-secondary); border-radius: 8px; padding: 1.5rem;
+    margin: 1.5rem 0; text-align: center;
+  }
+  blockquote {
+    border-left: 4px solid var(--accent-primary); margin: 1.5rem 0; padding: .8rem 1.2rem;
+    background: var(--bg-secondary); border-radius: 0 8px 8px 0;
+  }
+  .callout {
+    background: var(--callout-bg);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+  .callout strong { color: var(--accent-primary); }
+  .callout.warn { border-left-color: var(--accent-warning); background: rgba(251, 146, 60, 0.06); }
+  .callout.warn strong { color: var(--accent-warning); }
+  .callout.success { border-left-color: var(--accent-success); background: rgba(52, 211, 153, 0.06); }
+  .callout.success strong { color: var(--accent-success); }
+  .callout.danger { border-left-color: var(--accent-danger); background: rgba(248, 113, 113, 0.06); }
+  .callout.danger strong { color: var(--accent-danger); }
+  table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+  th, td { border: 1px solid var(--border-color); padding: .7rem 1rem; text-align: left; }
+  th { background: var(--bg-code); color: var(--accent-primary); font-weight: 600; }
+  td { color: var(--text-primary); }
+  tr:hover td { background: rgba(129, 140, 248, 0.03); }
+  hr { border: none; border-top: 1px solid var(--border-color); margin: 2.5rem 0; }
+  .ref { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem; }
+  .ref a { color: var(--link); text-decoration: none; }
+  .ref a:hover { text-decoration: underline; }
+  .ref-grade {
+    display: inline-block; padding: 0.1rem 0.4rem; border-radius: 3px;
+    font-size: 0.75rem; font-weight: 600; margin-right: 0.3rem;
+  }
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+  .footer {
+    text-align: center; color: var(--text-muted); padding: 2rem;
+    margin-top: 3rem; border-top: 1px solid var(--border-light); font-size: 0.85rem;
+  }
+  .footer a { color: var(--link); }
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+  }
+  @media print {
+    body { background: white; color: #1a1a1a; max-width: 100%; }
+    .theme-toggle, .theme-btn, .top-nav, .toc { display: none; }
+    a { color: #2563eb; }
     pre { border-left: 3px solid #ccc; }
-}
+  }
 </style>
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    const btnIcon = document.getElementById('themeIconBtn');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+    if (btnIcon) btnIcon.textContent = theme === 'light' ? '🌙' : '☀️';
+  }
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
 </head>
 <body>
 <div class="top-nav">
@@ -56,12 +257,6 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 <a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
 <span style="color:#94a3b8">mobile-ai-agent</span>
 </div>
-<div class="meta">
-<h1>---</h1>
-<div class="info">2026-03-14 · 分类: mobile-ai-agent</div>
-<div class="tags"></div>
-</div>
-
 <div class="header" style="position:relative">
   <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式"><span class="icon" id="themeIcon">☀️</span><span class="label" id="themeLabel">日间</span></button>
   <h1>📱 移动端 AI 智能体：挑战与应对措施</h1>
@@ -69,8 +264,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
   <div style="margin-top:0.8rem"><span class="tag">Mobile AI</span><span class="tag">Agent</span><span class="tag">技术挑战</span><span class="tag">安全隐私</span></div>
 </div>
 <div class="container">
-  <div class="breadcrumb"><a href="#">总索引</a> / <a href="#">移动端AI智能体</a> / 挑战与应对</div>
-  <h1 id="ai">📱 移动端 AI 智能体：挑战与应对措施</h1>
+  <div class="breadcrumb"><a href="../index.html">报告索引</a> / <a href="./index.html">移动端AI智能体</a> / 挑战与应对</div>
 <h2 id="executive-summary">Executive Summary</h2>
 <p>移动端 AI 智能体面临六大核心挑战：算力约束、GUI 理解瓶颈、动作可靠性、隐私安全、电池续航和用户信任。本报告逐一分析每个挑战的技术本质，梳理当前应对方案的优劣，并提出可操作的解决路径。结论是：没有银弹，但分层架构 + 端云协同 + 渐进式信任可以系统性地解决这些问题。</p>
 <h2 id="_1">挑战一：算力约束</h2>
@@ -349,7 +543,7 @@ hr { border: none; border-top: 1px solid #334155; margin: 2.5rem 0; }
 
 
 <div class="footer">
-<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
 </body></html>
