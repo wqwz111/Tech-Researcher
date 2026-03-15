@@ -531,18 +531,7 @@
 <li><strong>生态广度</strong>: 与 700+ 集成对接，覆盖向量数据库、LLM 提供商、工具、数据加载器等。</li>
 </ol>
 <p>关键组件层次：</p>
-<div class="mermaid">
-graph TD
-    CORE["LangChain Core\n基础抽象: LLM, Prompt, Output Parser"]
-    LC["LangChain\nChain, Agent, Memory, Retrieval"]
-    LG["LangGraph\n有状态 Agent 工作流"]
-    LS["LangSmith\n可观测性与调试"]
-    LSV["LangServe\n部署与 API 服务"]
-    CORE --> LC
-    CORE --> LG
-    CORE --> LS
-    CORE --> LSV
-</div>
+<div class="mermaid"> graph TD CORE["LangChain Core\n基础抽象: LLM, Prompt, Output Parser"] LC["LangChain\nChain, Agent, Memory, Retrieval"] LG["LangGraph\n有状态 Agent 工作流"] LS["LangSmith\n可观测性与调试"] LSV["LangServe\n部署与 API 服务"] CORE --> LC CORE --> LG CORE --> LS CORE --> LSV </div>
 
 <h3 id="llamaindex">LlamaIndex: &ldquo;数据是第一公民&rdquo;</h3>
 <p>LlamaIndex 的核心抽象是 <strong>Index</strong>（索引）——将非结构化数据构建为可高效检索的结构。其设计哲学是：</p>
@@ -552,20 +541,7 @@ graph TD
 <li><strong>Agent 为辅</strong>: 2024 年推出的 Workflows 和 Agent 系统是对 RAG 能力的扩展，而非替代。</li>
 </ol>
 <p>关键组件层次：</p>
-<div class="mermaid">
-graph TD
-    CORE["LlamaIndex Core\n基础抽象: Node, Index, Query Engine"]
-    DC["Data Connectors\nLlamaHub: 100+ 数据源"]
-    IDX["Indexing\nVector, Keyword, Tree, KG"]
-    QE["Query Engine\nRetrieval + Synthesis"]
-    WF["Workflows\n事件驱动工作流"]
-    DEPLOY["LlamaDeploy\n生产部署"]
-    CORE --> DC
-    CORE --> IDX
-    CORE --> QE
-    CORE --> WF
-    CORE --> DEPLOY
-</div>
+<div class="mermaid"> graph TD CORE["LlamaIndex Core\n基础抽象: Node, Index, Query Engine"] DC["Data Connectors\nLlamaHub: 100+ 数据源"] IDX["Indexing\nVector, Keyword, Tree, KG"] QE["Query Engine\nRetrieval + Synthesis"] WF["Workflows\n事件驱动工作流"] DEPLOY["LlamaDeploy\n生产部署"] CORE --> DC CORE --> IDX CORE --> QE CORE --> WF CORE --> DEPLOY </div>
 
 <h3 id="_1">设计哲学对比</h3>
 <div class="table-wrapper">
@@ -834,31 +810,7 @@ graph TD
 <hr />
 <h2 id="5">5. 选型建议</h2>
 <h3 id="_2">场景决策树</h3>
-<div class="mermaid">
-graph TD
-    Q{"你的核心需求是什么？"}
-    RAG["RAG / 数据索引 → LlamaIndex"]
-    AGENT["Agent / 多步骤工作流 → LangChain + LangGraph"]
-    PROTO["快速原型 → 两者均可"]
-    ENTERPRISE["企业级全栈 → LangChain"]
-    RAG_AGENT{"需要复杂 Agent 能力？"}
-    RAG_MULTI{"多数据源接入？"}
-    AGENT_RAG{"需要 RAG 能力？"}
-    AGENT_MULTI{"多 Agent 协作？"}
-    Q --> RAG
-    Q --> AGENT
-    Q --> PROTO
-    Q --> ENTERPRISE
-    RAG --> RAG_AGENT
-    RAG --> RAG_MULTI
-    RAG_AGENT -->|"是"| "LlamaIndex Workflows 或 LangGraph"
-    RAG_AGENT -->|"否"| "纯 LlamaIndex"
-    AGENT --> AGENT_RAG
-    AGENT --> AGENT_MULTI
-    AGENT_RAG -->|"轻度"| "LangChain 内置 Retrieval"
-    AGENT_RAG -->|"深度"| "集成 LlamaIndex"
-    AGENT_MULTI --> "LangGraph Supervisor 模式"
-</div>
+<div class="mermaid"> graph TD Q{"你的核心需求是什么？"} RAG["RAG / 数据索引 → LlamaIndex"] AGENT["Agent / 多步骤工作流 → LangChain + LangGraph"] PROTO["快速原型 → 两者均可"] ENTERPRISE["企业级全栈 → LangChain"] RAG_AGENT{"需要复杂 Agent 能力？"} RAG_MULTI{"多数据源接入？"} AGENT_RAG{"需要 RAG 能力？"} AGENT_MULTI{"多 Agent 协作？"} Q --> RAG Q --> AGENT Q --> PROTO Q --> ENTERPRISE RAG --> RAG_AGENT RAG --> RAG_MULTI RAG_AGENT -->|"是"| "LlamaIndex Workflows 或 LangGraph" RAG_AGENT -->|"否"| "纯 LlamaIndex" AGENT --> AGENT_RAG AGENT --> AGENT_MULTI AGENT_RAG -->|"轻度"| "LangChain 内置 Retrieval" AGENT_RAG -->|"深度"| "集成 LlamaIndex" AGENT_MULTI --> "LangGraph Supervisor 模式" </div>
 
 <h3 id="_3">具体建议</h3>
 <ol>

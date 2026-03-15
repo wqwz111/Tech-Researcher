@@ -467,13 +467,7 @@ def transcribe_audio(video_path):
 
 <h3 id="42-早期融合以-gemini-为例">4.2 早期融合（以 Gemini 为例）</h3>
 
-<div class="mermaid">
-graph TD
-    T["文本 Token"] --> TRANS["统一 Transformer"]
-    I["图像 Token"] --> TRANS
-    A["音频 Token"] --> TRANS
-    TRANS --> OUT["输出"]
-</div>
+<div class="mermaid"> graph TD T["文本 Token"] --> TRANS["统一 Transformer"] I["图像 Token"] --> TRANS A["音频 Token"] --> TRANS TRANS --> OUT["输出"] </div>
 
 <li>模型从预训练阶段就处理多种模态</li>
 <li>模态间交互最充分</li>
@@ -481,14 +475,7 @@ graph TD
 
 <h3 id="43-晚期融合pipeline-方案">4.3 晚期融合（Pipeline 方案）</h3>
 
-<div class="mermaid">
-graph TD
-    IMG["图像"] --> VE["视觉编码器"] --> VF["视觉特征"]
-    TXT["文本"] --> TOK["Tokenizer"] --> TF["文本特征"]
-    VF --> LLM["LLM"]
-    TF --> LLM
-    LLM --> OUT["输出"]
-</div>
+<div class="mermaid"> graph TD IMG["图像"] --> VE["视觉编码器"] --> VF["视觉特征"] TXT["文本"] --> TOK["Tokenizer"] --> TF["文本特征"] VF --> LLM["LLM"] TF --> LLM LLM --> OUT["输出"] </div>
 
 <li>各模态可独立更换模型</li>
 <li>适合开源模型组合</li>
@@ -536,22 +523,7 @@ def multimodal_rag(query, image=None):
 
 <h3 id="52-技术架构建议">5.2 技术架构建议</h3>
 
-<div class="mermaid">
-graph TD
-    APP["[📱] 应用层<br/>Chatbot / 内容审核 / 文档处理 / 媒体分析"]
-    ORCH["[🔗] 编排层<br/>LangChain / LlamaIndex / 自定义 Pipeline"]
-    MODEL["[🤖] 模型层"]
-    VISION["Vision<br/>GPT-4o / Claude / Gemini"]
-    AUDIO["Audio<br/>Whisper / TTS"]
-    VIDEO["Video<br/>Gemini + FFmpeg"]
-    INFRA["[[🏗]] 基础设施<br/>对象存储 / CDN / GPU 集群 / 消息队列"]
-    APP --> ORCH
-    ORCH --> MODEL
-    MODEL --> VISION
-    MODEL --> AUDIO
-    MODEL --> VIDEO
-    MODEL --> INFRA
-</div>
+<div class="mermaid"> graph TD APP["[ ] 应用层<br/>Chatbot / 内容审核 / 文档处理 / 媒体分析"] ORCH["[ ] 编排层<br/>LangChain / LlamaIndex / 自定义 Pipeline"] MODEL["[ ] 模型层"] VISION["Vision<br/>GPT-4o / Claude / Gemini"] AUDIO["Audio<br/>Whisper / TTS"] VIDEO["Video<br/>Gemini + FFmpeg"] INFRA["[[ ]] 基础设施<br/>对象存储 / CDN / GPU 集群 / 消息队列"] APP --> ORCH ORCH --> MODEL MODEL --> VISION MODEL --> AUDIO MODEL --> VIDEO MODEL --> INFRA </div>
 
 <h3 id="53-实践建议">5.3 实践建议</h3>
 

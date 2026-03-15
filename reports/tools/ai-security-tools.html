@@ -393,16 +393,7 @@ for category in response.categories_analysis:
 
 <p>对于有特殊需求的企业，可以自建过滤管线：</p>
 
-<div class="mermaid">
-flowchart TD
-    UI[用户输入] --> L1["[第一层] 关键词黑名单<br/>快速过滤明显违规"]
-    L1 --> L2["[第二层] 正则模式匹配<br/>识别特定模式"]
-    L2 --> L3["[第三层] 分类器检测<br/>ML 模型判断"]
-    L3 --> L4["[第四层] LLM 审核<br/>复杂情况的深度判断"]
-    L4 --> SI[安全输入 → 模型处理]
-    SI --> L5["[第五层] 输出安全检测<br/>确保输出合规"]
-    L5 --> SO[安全输出 → 返回用户]
-</div>
+<div class="mermaid"> flowchart TD UI[用户输入] --> L1["[第一层] 关键词黑名单<br/>快速过滤明显违规"] L1 --> L2["[第二层] 正则模式匹配<br/>识别特定模式"] L2 --> L3["[第三层] 分类器检测<br/>ML 模型判断"] L3 --> L4["[第四层] LLM 审核<br/>复杂情况的深度判断"] L4 --> SI[安全输入 → 模型处理] SI --> L5["[第五层] 输出安全检测<br/>确保输出合规"] L5 --> SO[安全输出 → 返回用户] </div>
 
 <h3 id="26-内容安全工具对比">2.6 内容安全工具对比</h3>
 
@@ -744,16 +735,7 @@ model, optimizer, dataloader = privacy_engine.make_private(
 
 <h3 id="61-纵深防御模型">6.1 纵深防御模型</h3>
 
-<div class="mermaid">
-flowchart TD
-    UR[用户请求] --> NL["[🌐] 网络层<br/>TLS 加密 → DDoS 防护"]
-    NL --> AL["[🔐] 应用层<br/>身份认证 → 速率限制 → 输入验证"]
-    AL --> SG["[[🛡]] 安全网关<br/>Prompt Injection 检测 → 内容过滤 → PII 脱敏"]
-    SG --> ML["[🤖] 模型层<br/>系统 Prompt 保护 → 工具权限限制 → 输出约束"]
-    ML --> OL["[📤] 输出层<br/>内容安全检查 → PII 检测 → 合规检查"]
-    OL --> MON["[📊] 监控层<br/>日志记录 → 异常检测 → 告警通知"]
-    MON --> SR[安全响应]
-</div>
+<div class="mermaid"> flowchart TD UR[用户请求] --> NL["[ ] 网络层<br/>TLS 加密 → DDoS 防护"] NL --> AL["[ ] 应用层<br/>身份认证 → 速率限制 → 输入验证"] AL --> SG["[[ ]] 安全网关<br/>Prompt Injection 检测 → 内容过滤 → PII 脱敏"] SG --> ML["[ ] 模型层<br/>系统 Prompt 保护 → 工具权限限制 → 输出约束"] ML --> OL["[ ] 输出层<br/>内容安全检查 → PII 检测 → 合规检查"] OL --> MON["[ ] 监控层<br/>日志记录 → 异常检测 → 告警通知"] MON --> SR[安全响应] </div>
 
 <h3 id="62-安全工具栈推荐">6.2 安全工具栈推荐</h3>
 

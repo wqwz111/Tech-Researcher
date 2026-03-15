@@ -389,30 +389,7 @@ print(f&quot;高分记录: {len(filtered)} 条&quot;)
 <h2>三、错误处理策略</h2>
 <p>Agent 系统的错误处理是生产化的关键瓶颈。根据 LangSmith 可观测性数据和 Anthropic 的生产实践观察，工具调用和外部依赖环节是 Agent 失败的最常见来源（参考 <a href="https://docs.smith.langchain.com/observability/concepts">LangSmith Observability</a> 和 <a href="https://www.anthropic.com/engineering/building-effective-agents">Building Effective Agents</a>）。</p>
 <h3>3.1 错误分类</h3>
-<div class="mermaid">graph TD
-    ERR[&quot;错误类型&quot;]
-    PARSE[&quot;1. 解析错误&lt;br/&gt;模型输出不符合预期格式&quot;]
-    EXEC[&quot;2. 执行错误&lt;br/&gt;工具调用失败&quot;]
-    LOGIC[&quot;3. 逻辑错误&lt;br/&gt;工具返回正确但 Agent 误解&quot;]
-    SYS[&quot;4. 系统错误&lt;br/&gt;框架或基础设施问题&quot;]
-    ERR --&gt; PARSE
-    ERR --&gt; EXEC
-    ERR --&gt; LOGIC
-    ERR --&gt; SYS
-    PARSE --&gt; P1[&quot;JSON 解析失败&quot;]
-    PARSE --&gt; P2[&quot;工具名称不存在&quot;]
-    PARSE --&gt; P3[&quot;参数类型不匹配&quot;]
-    EXEC --&gt; E1[&quot;API 限流 429&quot;]
-    EXEC --&gt; E2[&quot;网络超时&quot;]
-    EXEC --&gt; E3[&quot;认证过期&quot;]
-    EXEC --&gt; E4[&quot;参数值越界&quot;]
-    LOGIC --&gt; L1[&quot;错误解读数据&quot;]
-    LOGIC --&gt; L2[&quot;忽略关键字段&quot;]
-    LOGIC --&gt; L3[&quot;循环调用同一工具&quot;]
-    SYS --&gt; S1[&quot;上下文窗口溢出&quot;]
-    SYS --&gt; S2[&quot;LLM API 不可用&quot;]
-    SYS --&gt; S3[&quot;内存/磁盘耗尽&quot;]
-</div>
+<div class="mermaid">graph TD ERR[&quot;错误类型&quot;] PARSE[&quot;1. 解析错误&lt;br/&gt;模型输出不符合预期格式&quot;] EXEC[&quot;2. 执行错误&lt;br/&gt;工具调用失败&quot;] LOGIC[&quot;3. 逻辑错误&lt;br/&gt;工具返回正确但 Agent 误解&quot;] SYS[&quot;4. 系统错误&lt;br/&gt;框架或基础设施问题&quot;] ERR --&gt; PARSE ERR --&gt; EXEC ERR --&gt; LOGIC ERR --&gt; SYS PARSE --&gt; P1[&quot;JSON 解析失败&quot;] PARSE --&gt; P2[&quot;工具名称不存在&quot;] PARSE --&gt; P3[&quot;参数类型不匹配&quot;] EXEC --&gt; E1[&quot;API 限流 429&quot;] EXEC --&gt; E2[&quot;网络超时&quot;] EXEC --&gt; E3[&quot;认证过期&quot;] EXEC --&gt; E4[&quot;参数值越界&quot;] LOGIC --&gt; L1[&quot;错误解读数据&quot;] LOGIC --&gt; L2[&quot;忽略关键字段&quot;] LOGIC --&gt; L3[&quot;循环调用同一工具&quot;] SYS --&gt; S1[&quot;上下文窗口溢出&quot;] SYS --&gt; S2[&quot;LLM API 不可用&quot;] SYS --&gt; S3[&quot;内存/磁盘耗尽&quot;] </div>
 <h3>3.2 分层错误处理</h3>
 <p><strong>层1 - 自动恢复 (Automatic Recovery)</strong></p>
 <pre><code class="language-python"># 重试机制: 指数退避
@@ -433,13 +410,7 @@ for attempt in range(max_retries):
 Agent 修正: 改用 search_web 并重试
 </code></pre>
 <p><strong>层3 - 降级策略 (Graceful Degradation)</strong></p>
-<div class="mermaid">flowchart TD
-    A[&quot;主路径：调用实时 API 获取数据&quot;] --&gt;|&quot;失败&quot;| B[&quot;降级1：使用本地缓存数据&quot;]
-    B --&gt;|&quot;无缓存&quot;| C[&quot;降级2：用模型知识回答&quot;]
-    style A fill:#e8f5e9
-    style B fill:#fff3e0
-    style C fill:#fce4ec
-</div>
+<div class="mermaid">flowchart TD A[&quot;主路径：调用实时 API 获取数据&quot;] --&gt;|&quot;失败&quot;| B[&quot;降级1：使用本地缓存数据&quot;] B --&gt;|&quot;无缓存&quot;| C[&quot;降级2：用模型知识回答&quot;] style A fill:#e8f5e9 style B fill:#fff3e0 style C fill:#fce4ec </div>
 <blockquote>
 <p><strong>图3.2 三级降级策略</strong>：正常情况下调用实时 API；API 失败时自动切换到本地缓存（标注缓存时间）；无可用缓存时，使用模型训练知识回答（标注&quot;基于训练数据&quot;），确保服务不中断。</p>
 </blockquote>
@@ -481,57 +452,28 @@ Agent 修正: 改用 search_web 并重试
 <h3>4.1 通信拓扑</h3>
 <p><strong>a) 星型拓扑 (Star)</strong>
 一个协调者（Orchestrator）负责分配任务和汇总结果。</p>
-<div class="mermaid">flowchart TD
-    O[&quot;Orchestrator&lt;br/&gt;协调者&quot;]
-    A[&quot;Agent A&quot;] --- O
-    B[&quot;Agent B&quot;] --- O
-    C[&quot;Agent C&quot;] --- O
-    D[&quot;Agent D&quot;] --- O
-    style O fill:#fff3e0
-</div>
+<div class="mermaid">flowchart TD O[&quot;Orchestrator&lt;br/&gt;协调者&quot;] A[&quot;Agent A&quot;] --- O B[&quot;Agent B&quot;] --- O C[&quot;Agent C&quot;] --- O D[&quot;Agent D&quot;] --- O style O fill:#fff3e0 </div>
 <blockquote>
 <p><strong>优点</strong>：控制集中，容易管理优先级和冲突
 <strong>缺点</strong>：协调者成为瓶颈和单点故障</p>
 </blockquote>
 <p><strong>b) 管道拓扑 (Pipeline)</strong>
 Agent 按顺序排列，前一个的输出是后一个的输入。</p>
-<div class="mermaid">flowchart LR
-    A[&quot;Agent A&quot;] --&gt; B[&quot;Agent B&quot;] --&gt; C[&quot;Agent C&quot;] --&gt; D[&quot;最终输出&quot;]
-    style D fill:#e8f5e9
-</div>
+<div class="mermaid">flowchart LR A[&quot;Agent A&quot;] --&gt; B[&quot;Agent B&quot;] --&gt; C[&quot;Agent C&quot;] --&gt; D[&quot;最终输出&quot;] style D fill:#e8f5e9 </div>
 <blockquote>
 <p><strong>优点</strong>：结构简单，适合流水线任务
 <strong>缺点</strong>：无法并行，前一步失败则全部阻塞</p>
 </blockquote>
 <p><strong>c) 网状拓扑 (Mesh)</strong>
 Agent 之间可以自由通信，形成动态协作网络。</p>
-<div class="mermaid">flowchart TD
-    A[&quot;Agent A&quot;] &lt;--&gt; B[&quot;Agent B&quot;]
-    A &lt;--&gt; C[&quot;Agent C&quot;]
-    B &lt;--&gt; D[&quot;Agent D&quot;]
-    C &lt;--&gt; D
-    style A fill:#e3f2fd
-    style D fill:#e3f2fd
-</div>
+<div class="mermaid">flowchart TD A[&quot;Agent A&quot;] &lt;--&gt; B[&quot;Agent B&quot;] A &lt;--&gt; C[&quot;Agent C&quot;] B &lt;--&gt; D[&quot;Agent D&quot;] C &lt;--&gt; D style A fill:#e3f2fd style D fill:#e3f2fd </div>
 <blockquote>
 <p><strong>优点</strong>：灵活性最高，容错性强
 <strong>缺点</strong>：通信复杂度 O(n²)，可能出现&quot;聊天噪音&quot;</p>
 </blockquote>
 <p><strong>d) 层次拓扑 (Hierarchical)</strong>
 Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
-<div class="mermaid">flowchart TD
-    M[&quot;Manager Agent&lt;br/&gt;管理者&quot;]
-    TA[&quot;Team A&quot;] --- M
-    TB[&quot;Team B&quot;] --- M
-    TC[&quot;Team C&quot;] --- M
-    A1[&quot;Agent A1&quot;] --- TA
-    A2[&quot;Agent A2&quot;] --- TA
-    B1[&quot;Agent B1&quot;] --- TB
-    B2[&quot;Agent B2&quot;] --- TB
-    C1[&quot;Agent C1&quot;] --- TC
-    C2[&quot;Agent C2&quot;] --- TC
-    style M fill:#fff3e0
-</div>
+<div class="mermaid">flowchart TD M[&quot;Manager Agent&lt;br/&gt;管理者&quot;] TA[&quot;Team A&quot;] --- M TB[&quot;Team B&quot;] --- M TC[&quot;Team C&quot;] --- M A1[&quot;Agent A1&quot;] --- TA A2[&quot;Agent A2&quot;] --- TA B1[&quot;Agent B1&quot;] --- TB B2[&quot;Agent B2&quot;] --- TB C1[&quot;Agent C1&quot;] --- TC C2[&quot;Agent C2&quot;] --- TC style M fill:#fff3e0 </div>
 <blockquote>
 <p><strong>优点</strong>：可扩展性强，职责清晰
 <strong>缺点</strong>：通信延迟，上层决策影响全局</p>
@@ -581,19 +523,7 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 <h3>4.5 MCP 协议：标准化工具接入</h3>
 <p><strong>MCP（Model Context Protocol）</strong> 是由 Anthropic 于 2024 年 11 月开源的协议标准，旨在解决 AI Agent 与外部工具/数据源之间的碎片化连接问题。MCP 采用客户端-服务器架构，类似于 &quot;AI 版的 USB-C 接口&quot;——一个协议连接所有工具。</p>
 <p><strong>核心架构</strong>:</p>
-<div class="mermaid">flowchart LR
-    HOST[&quot;Host 应用&lt;br/&gt;(如 Claude Desktop)&quot;]
-    CLI[&quot;MCP Client&quot;]
-    S1[&quot;MCP Server&lt;br/&gt;文件系统&quot;]
-    S2[&quot;MCP Server&lt;br/&gt;数据库&quot;]
-    S3[&quot;MCP Server&lt;br/&gt;GitHub API&quot;]
-    S4[&quot;MCP Server&lt;br/&gt;Slack&quot;]
-    HOST --&gt; CLI
-    CLI --&gt; S1
-    CLI --&gt; S2
-    CLI --&gt; S3
-    CLI --&gt; S4
-</div>
+<div class="mermaid">flowchart LR HOST[&quot;Host 应用&lt;br/&gt;(如 Claude Desktop)&quot;] CLI[&quot;MCP Client&quot;] S1[&quot;MCP Server&lt;br/&gt;文件系统&quot;] S2[&quot;MCP Server&lt;br/&gt;数据库&quot;] S3[&quot;MCP Server&lt;br/&gt;GitHub API&quot;] S4[&quot;MCP Server&lt;br/&gt;Slack&quot;] HOST --&gt; CLI CLI --&gt; S1 CLI --&gt; S2 CLI --&gt; S3 CLI --&gt; S4 </div>
 <p><strong>三大核心原语</strong>:</p>
 <div class="table-wrapper">
 <div class="table-wrapper">
@@ -657,19 +587,7 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 <li><strong>异步优先</strong>: 原生支持长时间运行任务和推送通知</li>
 </ul>
 <p><strong>核心概念</strong>:</p>
-<div class="mermaid">flowchart TD
-    C[&quot;Client Agent&lt;br/&gt;发起任务&quot;]
-    S[&quot;Server Agent&lt;br/&gt;执行任务&quot;]
-    AC[&quot;Agent Card&lt;br/&gt;(能力描述)&quot;]
-    T[&quot;Task&lt;br/&gt;(任务对象)&quot;]
-    MSG[&quot;Message&lt;br/&gt;(消息)&quot;]
-    ART[&quot;Artifact&lt;br/&gt;(产物)&quot;]
-    C --&gt;|&quot;1. 发现&quot;| AC
-    C --&gt;|&quot;2. 发送任务&quot;| T
-    T --&gt; MSG
-    T --&gt; ART
-    C &lt;--&gt;|&quot;3. 交互&quot;| S
-</div>
+<div class="mermaid">flowchart TD C[&quot;Client Agent&lt;br/&gt;发起任务&quot;] S[&quot;Server Agent&lt;br/&gt;执行任务&quot;] AC[&quot;Agent Card&lt;br/&gt;(能力描述)&quot;] T[&quot;Task&lt;br/&gt;(任务对象)&quot;] MSG[&quot;Message&lt;br/&gt;(消息)&quot;] ART[&quot;Artifact&lt;br/&gt;(产物)&quot;] C --&gt;|&quot;1. 发现&quot;| AC C --&gt;|&quot;2. 发送任务&quot;| T T --&gt; MSG T --&gt; ART C &lt;--&gt;|&quot;3. 交互&quot;| S </div>
 <p><strong>Agent Card</strong>: JSON 格式的能力描述文件，通常托管在 <code>/.well-known/agent.json</code>，包含：</p>
 <ul>
 <li>Agent 名称、描述、版本</li>
@@ -727,13 +645,7 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 </div>
 </div>
 <p><strong>互补关系</strong>: MCP 和 A2A 并非竞争关系，而是互补的。一个 Agent 可以通过 MCP 连接工具，同时通过 A2A 与其他 Agent 协作：</p>
-<div class="mermaid">flowchart TB
-    A1[&quot;Agent A&quot;] --&gt;|&quot;MCP&quot;| T1[&quot;工具: 数据库&quot;]
-    A1 --&gt;|&quot;MCP&quot;| T2[&quot;工具: 搜索&quot;]
-    A1 --&gt;|&quot;A2A&quot;| A2[&quot;Agent B&quot;]
-    A2 --&gt;|&quot;MCP&quot;| T3[&quot;工具: 邮件&quot;]
-    A2 --&gt;|&quot;A2A&quot;| A3[&quot;Agent C&quot;]
-</div>
+<div class="mermaid">flowchart TB A1[&quot;Agent A&quot;] --&gt;|&quot;MCP&quot;| T1[&quot;工具: 数据库&quot;] A1 --&gt;|&quot;MCP&quot;| T2[&quot;工具: 搜索&quot;] A1 --&gt;|&quot;A2A&quot;| A2[&quot;Agent B&quot;] A2 --&gt;|&quot;MCP&quot;| T3[&quot;工具: 邮件&quot;] A2 --&gt;|&quot;A2A&quot;| A3[&quot;Agent C&quot;] </div>
 <p><strong>实际应用（截至 2025 年 3 月）</strong>:</p>
 <ul>
 <li>Google 已在 Vertex AI Agent Builder 中集成 A2A</li>
@@ -971,28 +883,7 @@ response = client.run(agent=triage_agent, messages=[...])
 <hr>
 <h2>六、实践建议</h2>
 <h3>6.1 Agent 设计模式选型决策树</h3>
-<div class="mermaid">flowchart TD
-    START[&quot;[🎯] 选择 Agent 设计模式&quot;] --&gt; Q1{&quot;任务步骤数?&quot;}
-    Q1 --&gt;|&quot;1-2 步&quot;| REACT[&quot;[✓] ReAct&quot;]
-    Q1 --&gt;|&quot;3-10 步&quot;| PE[&quot;[✓] Plan-and-Execute&quot;]
-    Q1 --&gt;|&quot;10+ 步&quot;| Q2{&quot;需要质量保证?&quot;}
-    Q2 --&gt;|&quot;是&quot;| PER[&quot;[✓] Plan-and-Execute + Reflection&quot;]
-    Q2 --&gt;|&quot;否&quot;| PE
-    Q1 --&gt;|&quot;多角色协作&quot;| Q3{&quot;协作方式?&quot;}
-    Q3 --&gt;|&quot;分工明确&quot;| CREWAI[&quot;[✓] CrewAI&quot;]
-    Q3 --&gt;|&quot;讨论决策&quot;| AUTOGEN[&quot;[✓] AutoGen&quot;]
-    Q3 --&gt;|&quot;层级管理&quot;| METAGPT[&quot;[✓] MetaGPT&quot;]
-    Q1 --&gt;|&quot;操作 GUI/浏览器&quot;| COMPUTER[&quot;[✓] Computer Use&quot;]
-
-    style START fill:#4f46e5,stroke:#818cf8,color:#fff
-    style REACT fill:#059669,stroke:#34d399,color:#fff
-    style PE fill:#059669,stroke:#34d399,color:#fff
-    style PER fill:#059669,stroke:#34d399,color:#fff
-    style CREWAI fill:#7c3aed,stroke:#a78bfa,color:#fff
-    style AUTOGEN fill:#7c3aed,stroke:#a78bfa,color:#fff
-    style METAGPT fill:#7c3aed,stroke:#a78bfa,color:#fff
-    style COMPUTER fill:#b45309,stroke:#fbbf24,color:#fff
-</div>
+<div class="mermaid">flowchart TD START[&quot;[ ] 选择 Agent 设计模式&quot;] --&gt; Q1{&quot;任务步骤数?&quot;} Q1 --&gt;|&quot;1-2 步&quot;| REACT[&quot;[ ] ReAct&quot;] Q1 --&gt;|&quot;3-10 步&quot;| PE[&quot;[ ] Plan-and-Execute&quot;] Q1 --&gt;|&quot;10+ 步&quot;| Q2{&quot;需要质量保证?&quot;} Q2 --&gt;|&quot;是&quot;| PER[&quot;[ ] Plan-and-Execute + Reflection&quot;] Q2 --&gt;|&quot;否&quot;| PE Q1 --&gt;|&quot;多角色协作&quot;| Q3{&quot;协作方式?&quot;} Q3 --&gt;|&quot;分工明确&quot;| CREWAI[&quot;[ ] CrewAI&quot;] Q3 --&gt;|&quot;讨论决策&quot;| AUTOGEN[&quot;[ ] AutoGen&quot;] Q3 --&gt;|&quot;层级管理&quot;| METAGPT[&quot;[ ] MetaGPT&quot;] Q1 --&gt;|&quot;操作 GUI/浏览器&quot;| COMPUTER[&quot;[ ] Computer Use&quot;] style START fill:#4f46e5,stroke:#818cf8,color:#fff style REACT fill:#059669,stroke:#34d399,color:#fff style PE fill:#059669,stroke:#34d399,color:#fff style PER fill:#059669,stroke:#34d399,color:#fff style CREWAI fill:#7c3aed,stroke:#a78bfa,color:#fff style AUTOGEN fill:#7c3aed,stroke:#a78bfa,color:#fff style METAGPT fill:#7c3aed,stroke:#a78bfa,color:#fff style COMPUTER fill:#b45309,stroke:#fbbf24,color:#fff </div>
 <p><strong>快速参考</strong>：</p>
 <div class="table-wrapper">
 <div class="table-wrapper">

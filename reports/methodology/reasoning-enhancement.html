@@ -183,12 +183,7 @@ CoT:
 
 <p>提供带推理过程的示例：</p>
 
-<div class="mermaid">
-flowchart LR
-    E1["示例1: [问题] → [推理步骤] → [答案]"]
-    E2["示例2: [问题] → [推理步骤] → [答案]"]
-    NP["问题: [新问题] → ?"]
-</div>
+<div class="mermaid"> flowchart LR E1["示例1: [问题] → [推理步骤] → [答案]"] E2["示例2: [问题] → [推理步骤] → [答案]"] NP["问题: [新问题] → ?"] </div>
 
 <h3 id="14-auto-cot">1.4 Auto-CoT</h3>
 
@@ -206,27 +201,7 @@ flowchart LR
 
 <p>将推理从线性链扩展为树状搜索：</p>
 
-<div class="mermaid">
-flowchart TD
-    Q[问题] --> T1[思路1]
-    Q --> T2[思路2]
-    Q --> T3[思路3]
-    T1 --> D1a[细化]
-    T1 --> D1b[细化]
-    T2 --> D2[细化]
-    T3 --> D3a[细化]
-    T3 --> D3b[细化]
-    D1a --> E1[评估]
-    D1b --> E2[评估]
-    D2 --> E3[评估]
-    D3a --> E4[评估]
-    D3b --> E5[评估]
-    E1 --> OP[最优路径选择]
-    E2 --> OP
-    E3 --> OP
-    E4 --> OP
-    E5 --> OP
-</div>
+<div class="mermaid"> flowchart TD Q[问题] --> T1[思路1] Q --> T2[思路2] Q --> T3[思路3] T1 --> D1a[细化] T1 --> D1b[细化] T2 --> D2[细化] T3 --> D3a[细化] T3 --> D3b[细化] D1a --> E1[评估] D1b --> E2[评估] D2 --> E3[评估] D3a --> E4[评估] D3b --> E5[评估] E1 --> OP[最优路径选择] E2 --> OP E3 --> OP E4 --> OP E5 --> OP </div>
 
 <h3 id="22-与-cot-对比">2.2 与 CoT 对比</h3>
 
@@ -256,14 +231,7 @@ flowchart TD
 
 <p>进一步泛化为图结构，允许思路之间的<strong>合并、循环和交叉引用</strong>：</p>
 
-<div class="mermaid">
-flowchart TD
-    A[思路A] --> M[合并]
-    B[思路B] --> M
-    C[思路C] --> M
-    M --> F[最终答案]
-    A --> B
-</div>
+<div class="mermaid"> flowchart TD A[思路A] --> M[合并] B[思路B] --> M C[思路C] --> M M --> F[最终答案] A --> B </div>
 
 <h3 id="32-优势">3.2 优势</h3>
 
@@ -303,12 +271,7 @@ flowchart TD
 
 <p><strong>原理</strong>: 迭代改进，生成 → 反馈 → 优化循环：</p>
 
-<div class="mermaid">
-flowchart LR
-    G[1. 初始回答<br/>模型生成] --> F[2. 自我反馈<br/>模型批评自己]
-    F --> R[3. 精炼回答<br/>基于反馈改进]
-    R -->|重复 2-3 直到满意| F
-</div>
+<div class="mermaid"> flowchart LR G[1. 初始回答<br/>模型生成] --> F[2. 自我反馈<br/>模型批评自己] F --> R[3. 精炼回答<br/>基于反馈改进] R -->|重复 2-3 直到满意| F </div>
 
 <p><strong>优势</strong>: 无需外部监督，自我迭代提升</p>
 <p><strong>劣势</strong>: 可能陷入局部最优</p>
@@ -337,13 +300,7 @@ flowchart LR
 
 <h3 id="53-应用">5.3 应用</h3>
 
-<div class="mermaid">
-flowchart TD
-    M[MATH 问题] --> MP[多条推理路径]
-    MP --> PRM[PRM 评分每一步]
-    PRM --> BP[选最高分路径]
-    BP --> IMP[正确率显著提升]
-</div>
+<div class="mermaid"> flowchart TD M[MATH 问题] --> MP[多条推理路径] MP --> PRM[PRM 评分每一步] PRM --> BP[选最高分路径] BP --> IMP[正确率显著提升] </div>
 
 <hr>
 

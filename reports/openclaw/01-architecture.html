@@ -150,43 +150,7 @@
 
   <h2>🧩 四大核心组件</h2>
 
-  <div class="mermaid">
-graph TB
-  subgraph Channels["[📡] 通讯渠道 (Channels)"]
-    WA["WhatsApp"]
-    TG["Telegram"]
-    DS["Discord"]
-    SL["Slack"]
-    SG["Signal"]
-    IM["iMessage"]
-    OT["...其他 15+"]
-  end
-
-  GW["[🔀] Gateway<br/>(控制平面)"]
-
-  subgraph Agents["[🧠] Agent 层"]
-    A1["Agent: main<br/>Workspace + Auth + Sessions"]
-    A2["Agent: coding<br/>Workspace + Auth + Sessions"]
-    A3["Agent: family<br/>Workspace + Auth + Sessions"]
-  end
-
-  subgraph Workspaces["[💾] 工作区"]
-    W1["workspace/<br/>AGENTS.md<br/>SOUL.md<br/>USER.md"]
-    W2["workspace-coding/<br/>AGENTS.md<br/>SOUL.md"]
-    W3["workspace-family/<br/>AGENTS.md<br/>SOUL.md"]
-  end
-
-  WA & TG & DS & SL & SG & IM & OT --> GW
-  GW --> A1 & A2 & A3
-  A1 --> W1
-  A2 --> W2
-  A3 --> W3
-
-  style GW fill:#4f46e5,stroke:#818cf8,color:#fff
-  style A1 fill:#312e81,stroke:#6366f1,color:#e2e8f0
-  style A2 fill:#312e81,stroke:#6366f1,color:#e2e8f0
-  style A3 fill:#312e81,stroke:#6366f1,color:#e2e8f0
-  </div>
+  <div class="mermaid"> graph TB subgraph Channels["[ ] 通讯渠道 (Channels)"] WA["WhatsApp"] TG["Telegram"] DS["Discord"] SL["Slack"] SG["Signal"] IM["iMessage"] OT["...其他 15+"] end GW["[ ] Gateway<br/>(控制平面)"] subgraph Agents["[ ] Agent 层"] A1["Agent: main<br/>Workspace + Auth + Sessions"] A2["Agent: coding<br/>Workspace + Auth + Sessions"] A3["Agent: family<br/>Workspace + Auth + Sessions"] end subgraph Workspaces["[ ] 工作区"] W1["workspace/<br/>AGENTS.md<br/>SOUL.md<br/>USER.md"] W2["workspace-coding/<br/>AGENTS.md<br/>SOUL.md"] W3["workspace-family/<br/>AGENTS.md<br/>SOUL.md"] end WA & TG & DS & SL & SG & IM & OT --> GW GW --> A1 & A2 & A3 A1 --> W1 A2 --> W2 A3 --> W3 style GW fill:#4f46e5,stroke:#818cf8,color:#fff style A1 fill:#312e81,stroke:#6366f1,color:#e2e8f0 style A2 fill:#312e81,stroke:#6366f1,color:#e2e8f0 style A3 fill:#312e81,stroke:#6366f1,color:#e2e8f0 </div>
 
   <details open>
   <summary style="cursor:pointer;font-weight:600;color:var(--accent-text);font-size:1.15rem;margin:1.8rem 0 0.8rem;">1. Gateway — 控制平面 ▾</summary>
@@ -262,25 +226,7 @@ openclaw channels login --channel telegram --account default</code></pre>
     <li>回退到默认 Agent</li>
   </ol>
 
-  <div class="mermaid">
-flowchart TD
-  MSG["[📨] 收到消息"] --> P1{"peer 匹配?"}
-  P1 -->|"是"| R1["路由到对应 Agent"]
-  P1 -->|"否"| P2{"guildId 匹配?"}
-  P2 -->|"是"| R2["路由到对应 Agent"]
-  P2 -->|"否"| P3{"accountId 匹配?"}
-  P3 -->|"是"| R3["路由到对应 Agent"]
-  P3 -->|"否"| P4{"渠道级匹配?"}
-  P4 -->|"是"| R4["路由到对应 Agent"]
-  P4 -->|"否"| DEFAULT["回退到默认 Agent"]
-
-  style MSG fill:#4f46e5,stroke:#818cf8,color:#fff
-  style DEFAULT fill:#7c3aed,stroke:#a78bfa,color:#fff
-  style R1 fill:#059669,stroke:#34d399,color:#fff
-  style R2 fill:#059669,stroke:#34d399,color:#fff
-  style R3 fill:#059669,stroke:#34d399,color:#fff
-  style R4 fill:#059669,stroke:#34d399,color:#fff
-  </div>
+  <div class="mermaid"> flowchart TD MSG["[ ] 收到消息"] --> P1{"peer 匹配?"} P1 -->|"是"| R1["路由到对应 Agent"] P1 -->|"否"| P2{"guildId 匹配?"} P2 -->|"是"| R2["路由到对应 Agent"] P2 -->|"否"| P3{"accountId 匹配?"} P3 -->|"是"| R3["路由到对应 Agent"] P3 -->|"否"| P4{"渠道级匹配?"} P4 -->|"是"| R4["路由到对应 Agent"] P4 -->|"否"| DEFAULT["回退到默认 Agent"] style MSG fill:#4f46e5,stroke:#818cf8,color:#fff style DEFAULT fill:#7c3aed,stroke:#a78bfa,color:#fff style R1 fill:#059669,stroke:#34d399,color:#fff style R2 fill:#059669,stroke:#34d399,color:#fff style R3 fill:#059669,stroke:#34d399,color:#fff style R4 fill:#059669,stroke:#34d399,color:#fff </div>
 
   <h3>Binding 配置示例</h3>
   <pre><code>{
@@ -323,23 +269,7 @@ flowchart TD
 
   <h2>⚖️ 单 Agent vs 多 Agent</h2>
 
-  <div class="mermaid">
-graph LR
-  subgraph Single["单 Agent 模式"]
-    S1["所有渠道"] --> S_GW["Gateway"] --> S_A["Agent: main"]
-  end
-
-  subgraph Multi["多 Agent 模式"]
-    M1["WhatsApp"] --> M_GW["Gateway"] --> M_A1["Agent: chat<br/>(Sonnet)"]
-    M2["Telegram"] --> M_GW --> M_A2["Agent: deep<br/>(Opus)"]
-    M3["Discord #coding"] --> M_GW --> M_A3["Agent: coding<br/>(Codex)"]
-  end
-
-  style S_A fill:#4f46e5,stroke:#818cf8,color:#fff
-  style M_A1 fill:#312e81,stroke:#6366f1,color:#e2e8f0
-  style M_A2 fill:#312e81,stroke:#6366f1,color:#e2e8f0
-  style M_A3 fill:#312e81,stroke:#6366f1,color:#e2e8f0
-  </div>
+  <div class="mermaid"> graph LR subgraph Single["单 Agent 模式"] S1["所有渠道"] --> S_GW["Gateway"] --> S_A["Agent: main"] end subgraph Multi["多 Agent 模式"] M1["WhatsApp"] --> M_GW["Gateway"] --> M_A1["Agent: chat<br/>(Sonnet)"] M2["Telegram"] --> M_GW --> M_A2["Agent: deep<br/>(Opus)"] M3["Discord #coding"] --> M_GW --> M_A3["Agent: coding<br/>(Codex)"] end style S_A fill:#4f46e5,stroke:#818cf8,color:#fff style M_A1 fill:#312e81,stroke:#6366f1,color:#e2e8f0 style M_A2 fill:#312e81,stroke:#6366f1,color:#e2e8f0 style M_A3 fill:#312e81,stroke:#6366f1,color:#e2e8f0 </div>
 
   <div class="table-wrapper">
 <table>

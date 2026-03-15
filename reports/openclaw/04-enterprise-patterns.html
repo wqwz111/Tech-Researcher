@@ -103,42 +103,7 @@
 
   <h2>🛡️ 安全分层架构</h2>
 
-  <div class="mermaid">
-graph TB
-  subgraph Gateway_L["[🔀] Gateway 层"]
-    AUTH["认证 + 路由"]
-    TOOL_POL["工具策略"]
-  end
-
-  subgraph Agent_L["[🧠] Agent 层"]
-    A1["Agent: personal<br/>sandbox: off"]
-    A2["Agent: family<br/>sandbox: agent"]
-    A3["Agent: untrusted<br/>sandbox: all"]
-  end
-
-  subgraph Sandbox_L["[📦] Sandbox 层 (Docker)"]
-    SB1["Container: agent-scope<br/>内存限制: 512MB"]
-    SB2["Container: session-scope<br/>内存限制: 256MB"]
-  end
-
-  subgraph Host_L["[[🖥]] Host"]
-    FS["文件系统"]
-    NET["网络"]
-  end
-
-  AUTH --> TOOL_POL
-  TOOL_POL --> A1 & A2 & A3
-  A2 --> SB1
-  A3 --> SB2
-  A1 --> FS
-  SB1 & SB2 -->|"受限访问"| FS
-  SB1 & SB2 -->|"白名单"| NET
-
-  style AUTH fill:#4f46e5,stroke:#818cf8,color:#fff
-  style A1 fill:#059669,stroke:#34d399,color:#fff
-  style A2 fill:#d97706,stroke:#fbbf24,color:#fff
-  style A3 fill:#dc2626,stroke:#f87171,color:#fff
-  </div>
+  <div class="mermaid"> graph TB subgraph Gateway_L["[ ] Gateway 层"] AUTH["认证 + 路由"] TOOL_POL["工具策略"] end subgraph Agent_L["[ ] Agent 层"] A1["Agent: personal<br/>sandbox: off"] A2["Agent: family<br/>sandbox: agent"] A3["Agent: untrusted<br/>sandbox: all"] end subgraph Sandbox_L["[ ] Sandbox 层 (Docker)"] SB1["Container: agent-scope<br/>内存限制: 512MB"] SB2["Container: session-scope<br/>内存限制: 256MB"] end subgraph Host_L["[[ ]] Host"] FS["文件系统"] NET["网络"] end AUTH --> TOOL_POL TOOL_POL --> A1 & A2 & A3 A2 --> SB1 A3 --> SB2 A1 --> FS SB1 & SB2 -->|"受限访问"| FS SB1 & SB2 -->|"白名单"| NET style AUTH fill:#4f46e5,stroke:#818cf8,color:#fff style A1 fill:#059669,stroke:#34d399,color:#fff style A2 fill:#d97706,stroke:#fbbf24,color:#fff style A3 fill:#dc2626,stroke:#f87171,color:#fff </div>
 
   <h3>三层防御模型</h3>
   <div class="table-wrapper">
@@ -226,22 +191,7 @@ graph TB
 
   <h2>💰 成本优化策略</h2>
 
-  <div class="mermaid">
-graph TB
-  subgraph Models["模型分层策略"]
-    MAIN["[🧠] 主 Agent<br/>模型: Opus / GPT-5.2<br/>处理复杂决策"]
-    SUB["[🔧] Sub-agent<br/>模型: Sonnet / GPT-4.1<br/>执行子任务"]
-    ACP_AGENT["[💻] ACP Agent<br/>模型: Codex-mini<br/>编程任务"]
-  end
-
-  USER["用户"] --> MAIN
-  MAIN -->|"spawn (便宜模型)"| SUB
-  MAIN -->|"spawn (专用模型)"| ACP_AGENT
-
-  style MAIN fill:#4f46e5,stroke:#818cf8,color:#fff
-  style SUB fill:#059669,stroke:#34d399,color:#fff
-  style ACP_AGENT fill:#7c3aed,stroke:#a78bfa,color:#fff
-  </div>
+  <div class="mermaid"> graph TB subgraph Models["模型分层策略"] MAIN["[ ] 主 Agent<br/>模型: Opus / GPT-5.2<br/>处理复杂决策"] SUB["[ ] Sub-agent<br/>模型: Sonnet / GPT-4.1<br/>执行子任务"] ACP_AGENT["[ ] ACP Agent<br/>模型: Codex-mini<br/>编程任务"] end USER["用户"] --> MAIN MAIN -->|"spawn (便宜模型)"| SUB MAIN -->|"spawn (专用模型)"| ACP_AGENT style MAIN fill:#4f46e5,stroke:#818cf8,color:#fff style SUB fill:#059669,stroke:#34d399,color:#fff style ACP_AGENT fill:#7c3aed,stroke:#a78bfa,color:#fff </div>
 
   <pre><code>{
   agents: {
