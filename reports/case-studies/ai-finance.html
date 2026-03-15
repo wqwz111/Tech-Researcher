@@ -4,480 +4,419 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI 在金融领域落地案例研究</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-:root {
-    --bg:#0f172a;--bg2:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;
-    --border:#334155;--accent:#38bdf8;--accent2:#7dd3fc;--accent3:#93c5fd;
-    --code-bg:#1e293b;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#60a5fa;
-    --pink:#f472b6;
-}
-[data-theme="light"] {
-    --bg:#ffffff;--bg2:#f8fafc;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
-    --border:#e2e8f0;--accent:#2563eb;--accent2:#3b82f6;--accent3:#6366f1;
-    --code-bg:#f1f5f9;--tag-bg:#dbeafe;--tag-text:#1e40af;--link:#2563eb;
-    --pink:#db2777;
-}
-body {
-    background: var(--bg); color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
-    transition: background .3s, color .3s;
-}
-.top-nav {
-    background: var(--bg2); padding: .6rem 1rem; border-radius: 8px;
-    margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
-    border: 1px solid var(--border);
-}
-.top-nav a { color: var(--accent2); text-decoration: none; }
-.top-nav a:hover { text-decoration: underline; }
-.top-nav .sep { color: var(--text-dim); }
-.theme-btn {
-    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
-    padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
-    transition: border-color .2s;
-}
-.theme-btn:hover { border-color: var(--accent); }
-.meta {
-    background: var(--bg2); border-left: 4px solid var(--accent);
-    padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
-}
-.meta h1 { color: var(--accent); margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .info { color: var(--text-muted); font-size: .85rem; }
-.toc {
-    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
-    padding: 1rem 1.5rem; margin-bottom: 2rem;
-}
-.toc h2 { color: var(--accent2); font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: var(--accent3); text-decoration: none; }
-h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: .5rem; }
-h2 { color: var(--accent2); margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
-h3 { color: var(--accent3); margin-top: 1.8rem; }
-a { color: var(--link); }
-code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; color: var(--pink); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre {
-    background: var(--code-bg); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; border-left: 3px solid var(--accent); margin: 1.2rem 0; position: relative;
-}
-pre code { background: none; color: var(--text); }
-pre .lang-label {
-    position: absolute; top: 0; right: 0; background: var(--border);
-    color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
-}
-.mermaid { background: var(--bg2); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote {
-    border-left: 4px solid var(--accent); margin: 1.5rem 0; padding: .8rem 1.2rem;
-    background: var(--bg2); border-radius: 0 8px 8px 0;
-}
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid var(--border); padding: .7rem 1rem; text-align: left; }
-th { background: var(--bg2); color: var(--accent2); }
-tr:nth-child(even) { background: var(--bg2); }
-hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
-strong { color: var(--text); }
-.footer {
-    text-align: center; color: var(--text-dim); padding: 2rem 0 1rem;
-    border-top: 1px solid var(--border); margin-top: 3rem; font-size: .85rem;
-}
-.footer a { color: var(--link); }
-@media print {
-    body { background: #fff; color: #000; max-width: 100%; }
-    .top-nav, .toc { display: none; }
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.8; }
+  :root { --bg:#0a0e1a;--bg-card:#111827;--bg-code:#1a1f2e;--bg-callout:#1a1040;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;--border:#2d3748;--border-light:#1a202c;--accent:#818cf8;--accent-text:#c7d2fe;--accent-hover:#818cf8;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#6366f1;--code-text:#a5b4fc;--green:#34d399;--orange:#fb923c;--red:#f87171; }
+  [data-theme="light"] { --bg:#ffffff;--bg-card:#f8fafc;--bg-code:#f1f5f9;--bg-callout:#eef2ff;--text:#0f172a;--text-muted:#334155;--text-dim:#94a3b8;--border:#e2e8f0;--border-light:#f1f5f9;--accent:#4f46e5;--accent-text:#3730a3;--accent-hover:#6366f1;--tag-bg:#e0e7ff;--tag-text:#312e81;--link:#4f46e5;--code-text:#6d28d9;--green:#059669;--orange:#ea580c;--red:#dc2626; }
+  .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 2.5rem 2rem; text-align: center; position: relative; }
+  .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .header .meta { color: #64748b; font-size: 0.9rem; }
+  .tag { display: inline-block; padding: 0.2rem 0.6rem; margin: 0.2rem; background: var(--tag-bg); color: var(--tag-text); border-radius: 4px; font-size: 0.8rem; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .breadcrumb { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem; }
+  .breadcrumb a { color: var(--link); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  h2 { color: var(--accent-text); font-size: 1.4rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); }
+  h3 { color: var(--accent-hover); font-size: 1.15rem; margin: 1.8rem 0 0.8rem; }
+  p { margin-bottom: 1rem; color: var(--text); }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
+  li { margin-bottom: 0.4rem; }
+  code { background: var(--bg-code); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: var(--code-text); }
+  pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
+  pre code { background: none; padding: 0; }
+  .callout { background: var(--bg-callout); border-left: 3px solid var(--accent); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+  .callout strong { color: var(--accent-text); }
+  .callout.warn { border-left-color: var(--orange); }
+  .callout.warn strong { color: var(--orange); }
+  .callout.success { border-left-color: var(--green); }
+  .callout.success strong { color: var(--green); }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  th, td { text-align: left; padding: 0.6rem 0.8rem; border: 1px solid var(--border); }
+  th { background: var(--bg-code); color: var(--accent-text); }
+  td { color: var(--text); }
+  .ref { color: var(--text-dim); font-size: 0.85rem; }
+  .ref a { color: var(--link); text-decoration: none; }
+  .ref a:hover { text-decoration: underline; }
+  .ref-grade { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600; margin-right: 0.3rem; }
+  .grade-a { background: rgba(52,211,153,0.15); color: var(--green); }
+  .grade-b { background: rgba(129,140,248,0.15); color: var(--accent); }
+  .grade-c { background: rgba(251,146,60,0.15); color: var(--orange); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; text-align: center; }
+  .stat-card .num { font-size: 2rem; font-weight: 800; color: var(--accent); }
+  .stat-card .label { color: var(--text-dim); font-size: 0.85rem; margin-top: 0.3rem; }
+  .footer { text-align: center; color: var(--text-dim); padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-light); font-size: 0.85rem; }
+  .theme-toggle { position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code); border: 1px solid var(--border); border-radius: 24px; padding: 0.3rem 0.6rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s; }
+  .theme-toggle:hover { border-color: var(--accent); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+  blockquote { border-left: 3px solid var(--accent); padding: 0.5rem 1rem; margin: 1rem 0; color: var(--text-muted); background: var(--bg-callout); border-radius: 0 8px 8px 0; }
+  img { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
 </style>
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    location.reload();
+  }
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('themeIcon').textContent = saved === 'light' ? '🌙' : '☀️';
+    document.getElementById('themeLabel').textContent = saved === 'light' ? '夜间' : '日间';
+  })();
+</script>
 </head>
 <body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:var(--text-muted)">📊 案例实践</span>
-<button class="theme-btn" onclick="toggleTheme()" title="切换日夜模式"><span id="themeIcon">☀️</span></button>
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式"><span class="icon" id="themeIcon">☀️</span><span class="label" id="themeLabel">日间</span></button>
+  <h1>AI 在金融领域落地案例研究</h1>
+  <div class="meta">2025-03 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem"><span class="tag">金融科技</span><span class="tag">风控反欺诈</span><span class="tag">智能投顾</span><span class="tag">合规自动化</span></div>
 </div>
-<div class="meta">
-<h1>AI 在金融领域落地案例研究</h1>
-<div class="info">2026-03-14 · 分类: 📊 案例实践</div>
-</div>
-
-<p>> <strong>作者</strong>: Tech-Researcher 探针团队  </p>
-<p>> <strong>日期</strong>: 2025-03  </p>
-<p>> <strong>标签</strong>: 金融科技、风控反欺诈、智能投顾、合规自动化</p>
-
-<hr>
-
+<div class="container">
+  
+  <h1 id="ai">AI 在金融领域落地案例研究</h1>
+<blockquote>
+<p><strong>作者</strong>: Tech-Researcher 探针团队<br />
+<strong>日期</strong>: 2025-03<br />
+<strong>标签</strong>: 金融科技、风控反欺诈、智能投顾、合规自动化</p>
+</blockquote>
+<hr />
 <h2 id="executive-summary">Executive Summary</h2>
-
-<p>人工智能正在深刻重塑金融行业的每一个环节。从风控反欺诈到智能投顾，从合规文档处理到客服营销自动化，AI 已从"概念验证"阶段进入"规模化落地"阶段。本报告通过梳理国内外 20+ 个真实案例，分析 AI 在金融领域的五大核心应用场景：<strong>风控反欺诈</strong>（识别准确率提升 30-50%）、<strong>智能投顾与量化交易</strong>（Alpha 收益年化提升 2-5%）、<strong>合规文档处理</strong>（效率提升 70%+）、<strong>客服营销自动化</strong>（成本降低 40-60%）以及<strong>监管伦理挑战</strong>（可解释性、公平性与数据隐私）。</p>
-
+<p>人工智能正在深刻重塑金融行业的每一个环节。从风控反欺诈到智能投顾，从合规文档处理到客服营销自动化，AI 已从&rdquo;概念验证&rdquo;阶段进入&rdquo;规模化落地&rdquo;阶段。本报告通过梳理国内外 20+ 个真实案例，分析 AI 在金融领域的五大核心应用场景：<strong>风控反欺诈</strong>（识别准确率提升 30-50%）、<strong>智能投顾与量化交易</strong>（Alpha 收益年化提升 2-5%）、<strong>合规文档处理</strong>（效率提升 70%+）、<strong>客服营销自动化</strong>（成本降低 40-60%）以及<strong>监管伦理挑战</strong>（可解释性、公平性与数据隐私）。</p>
 <p>研究发现：成功的金融 AI 落地项目通常具备三个特征——<strong>高质量数据基础</strong>、<strong>端到端流程嵌入</strong>（而非孤立工具）、以及<strong>监管友好的可解释设计</strong>。同时，我们注意到大语言模型（LLM）正在从辅助工具向核心决策引擎转变，尤其在合规分析和智能客服领域。</p>
-
-<p><strong>核心结论</strong>：金融机构的 AI 落地已不是"做不做"的问题，而是"怎么做"的问题。本报告提供了一套可供参考的实施框架和风险控制清单。</p>
-
-<hr>
-
-<h2 id="一风控反欺诈ai-守住金融安全第一道防线">一、风控反欺诈：AI 守住金融安全第一道防线</h2>
-
-<h3 id="11-行业背景">1.1 行业背景</h3>
-
+<p><strong>核心结论</strong>：金融机构的 AI 落地已不是&rdquo;做不做&rdquo;的问题，而是&rdquo;怎么做&rdquo;的问题。本报告提供了一套可供参考的实施框架和风险控制清单。</p>
+<hr />
+<h2 id="ai_1">一、风控反欺诈：AI 守住金融安全第一道防线</h2>
+<h3 id="11">1.1 行业背景</h3>
 <p>金融欺诈每年给全球银行业造成超过 <strong>400 亿美元</strong> 的损失（根据 Nilson Report 2024 年数据）。传统的规则引擎虽然简单易懂，但面对日益复杂的欺诈手段（如合成身份欺诈、社交工程攻击、跨境洗钱）已经力不从心。AI，尤其是深度学习和图神经网络（GNN），正在成为新一代反欺诈系统的核心引擎。</p>
-
-<h3 id="12-典型案例">1.2 典型案例</h3>
-
-<h4>案例一：蚂蚁集团 — 智能风控系统 AlphaRisk</h4>
-
-<p>蚂蚁集团的 AlphaRisk 风控系统是国内 AI 反欺诈的标杆案例。该系统每天处理超过 <strong>10 亿笔</strong> 支付交易，核心能力包括：</p>
-
+<h3 id="12">1.2 典型案例</h3>
+<h4 id="alpharisk">案例一：蚂蚁集团 — 智能风控系统 AlphaRisk</h4>
+<p><a href="https://www.antgroup.com/en/news-media/news/ant-group-alpharisk-intelligent-risk-management">蚂蚁集团的 AlphaRisk 风控系统</a> 是国内 AI 反欺诈的标杆案例。该系统每天处理超过 <strong>10 亿笔</strong> 支付交易，核心能力包括：</p>
+<ul>
 <li><strong>实时特征提取</strong>：毫秒级提取 10,000+ 风险特征</li>
 <li><strong>图神经网络建模</strong>：通过用户交易图谱识别异常关联关系，检测团伙欺诈</li>
 <li><strong>自适应学习</strong>：欺诈模式每日更新，模型每日迭代</li>
-
+</ul>
 <p><strong>成效</strong>：欺诈损失率控制在 <strong>0.005% 以下</strong>，远低于行业平均水平（约 0.1%）。误杀率降低 60%，用户体验显著改善。</p>
-
-<h4>案例二：JPMorgan Chase — COiN 平台的衍生应用</h4>
-
+<h4 id="jpmorgan-chase-coin">案例二：JPMorgan Chase — COiN 平台的衍生应用</h4>
 <p>JPMorgan 的 COiN（Contract Intelligence）平台最初用于法律文档分析，后来延伸到反洗钱（AML）领域。系统使用 NLP 技术：</p>
-
+<ul>
 <li>自动分析可疑交易报告（SAR），人工处理一份 SAR 需要 <strong>360,000 小时/年</strong>，AI 减少至 <strong>数秒</strong></li>
 <li>自然语言理解（NLU）提取交易目的和风险信号</li>
 <li>持续学习新的洗钱模式</li>
-
-<h4>案例三：Stripe Radar — 机器学习驱动的支付风控</h4>
-
+</ul>
+<h4 id="stripe-radar">案例三：Stripe Radar — 机器学习驱动的支付风控</h4>
 <p>Stripe Radar 是面向中小商户的 AI 风控系统：</p>
-
+<ul>
 <li>使用 <strong>数百万商户</strong> 的交易数据进行联邦学习</li>
 <li>动态评分系统，每笔交易 250ms 内返回风险评分</li>
 <li>允许商户自定义规则 + AI 评分的混合策略</li>
-
+</ul>
 <p><strong>成效</strong>：Radar 用户的欺诈率平均降低 <strong>40%</strong>，同时拒绝合法交易的比例仅增加 0.1%。</p>
-
-<h3 id="13-技术架构要点">1.3 技术架构要点</h3>
-
+<h3 id="13">1.3 技术架构要点</h3>
 <p>一个成熟的 AI 反欺诈系统通常包含以下层级：</p>
-
-<div class="mermaid">
-flowchart LR
-    A["数据层"] --> B["特征层"] --> C["模型层"] --> D["决策层"] --> E["反馈层"]
-    E -.->|反馈闭环| C
+<div class="highlight"><pre><span></span><code>flowchart LR
+    A[&quot;数据层&quot;] --&gt; B[&quot;特征层&quot;] --&gt; C[&quot;模型层&quot;] --&gt; D[&quot;决策层&quot;] --&gt; E[&quot;反馈层&quot;]
+    E -.-&gt;|反馈闭环| C
     style A fill:#e3f2fd
     style C fill:#fff3e0
     style D fill:#fce4ec
-</div>
+</code></pre></div>
 
-<p>> <strong>图1.3 AI 反欺诈系统五层架构</strong>：</p>
-<p>> - <strong>数据层</strong>：交易数据、设备指纹、行为序列、社会网络图谱</p>
-<p>> - <strong>特征层</strong>：实时特征计算引擎（如 Apache Flink + Redis）</p>
-<p>> - <strong>模型层</strong>：GNN（团伙检测）+ Transformer（序列异常）+ XGBoost（快速筛选）</p>
-<p>> - <strong>决策层</strong>：多模型投票 + 规则兜底 + 人工复审队列</p>
-<p>> - <strong>反馈层</strong>：标注闭环、模型 A/B 测试、漂移检测</p>
-
-<h3 id="14-关键挑战">1.4 关键挑战</h3>
-
-<p>1. <strong>对抗性攻击</strong>：欺诈者不断进化，模型需要持续对抗性训练</p>
-<p>2. <strong>数据不平衡</strong>：欺诈交易仅占 0.01-0.1%，需要精心设计采样策略</p>
-<p>3. <strong>可解释性要求</strong>：监管要求能解释"为什么拒绝这笔交易"</p>
-<p>4. <strong>实时性要求</strong>：毫秒级响应，对工程架构要求极高</p>
-
-<hr>
-
-<h2 id="二智能投顾与量化交易ai-重新定义投资决策">二、智能投顾与量化交易：AI 重新定义投资决策</h2>
-
-<h3 id="21-行业变革">2.1 行业变革</h3>
-
+<blockquote>
+<p><strong>图1.3 AI 反欺诈系统五层架构</strong>：
+- <strong>数据层</strong>：交易数据、设备指纹、行为序列、社会网络图谱
+- <strong>特征层</strong>：实时特征计算引擎（如 Apache Flink + Redis）
+- <strong>模型层</strong>：GNN（团伙检测）+ Transformer（序列异常）+ XGBoost（快速筛选）
+- <strong>决策层</strong>：多模型投票 + 规则兜底 + 人工复审队列
+- <strong>反馈层</strong>：标注闭环、模型 A/B 测试、漂移检测</p>
+</blockquote>
+<h3 id="14">1.4 关键挑战</h3>
+<ol>
+<li><strong>对抗性攻击</strong>：欺诈者不断进化，模型需要持续对抗性训练</li>
+<li><strong>数据不平衡</strong>：欺诈交易仅占 0.01-0.1%，需要精心设计采样策略</li>
+<li><strong>可解释性要求</strong>：监管要求能解释&rdquo;为什么拒绝这笔交易&rdquo;</li>
+<li><strong>实时性要求</strong>：毫秒级响应，对工程架构要求极高</li>
+</ol>
+<hr />
+<h2 id="ai_2">二、智能投顾与量化交易：AI 重新定义投资决策</h2>
+<h3 id="21">2.1 行业变革</h3>
 <p>智能投顾（Robo-Advisor）市场预计到 2027 年将达到 <strong>1.5 万亿美元</strong> 管理规模（AUM）。AI 在量化交易中的应用已从简单的统计套利演进到深度强化学习驱动的端到端策略。</p>
-
-<h3 id="22-典型案例">2.2 典型案例</h3>
-
-<h4>案例一：贝莱德（BlackRock）— Aladdin 平台</h4>
-
+<h3 id="22">2.2 典型案例</h3>
+<h4 id="blackrock-aladdin">案例一：贝莱德（BlackRock）— Aladdin 平台</h4>
 <p>Aladdin 是全球最大的投资管理平台，管理超过 <strong>21 万亿美元</strong> 资产：</p>
-
+<ul>
 <li><strong>风险分析</strong>：对每个投资组合进行 2,000+ 风险因子分析</li>
 <li><strong>情景模拟</strong>：使用蒙特卡洛模拟 + AI 加速，评估极端市场情景</li>
 <li><strong>自然语言报告</strong>：GPT 类模型自动生成投资建议书和风险报告</li>
-
-<h4>案例二：Two Sigma — 数据驱动的量化对冲基金</h4>
-
+</ul>
+<h4 id="two-sigma">案例二：Two Sigma — 数据驱动的量化对冲基金</h4>
 <p>Two Sigma 管理超过 <strong>600 亿美元</strong>，核心 AI 能力包括：</p>
-
+<ul>
 <li><strong>另类数据融合</strong>：卫星图像（估算零售停车场车流量）、社交媒体情绪、天气数据</li>
 <li><strong>端到端深度学习</strong>：从原始数据到交易信号的全自动化 pipeline</li>
 <li><strong>AutoML</strong>：自动搜索最优特征组合和模型架构</li>
-
-<h4>案例三：招商银行 — 摩羯智投</h4>
-
+</ul>
+<h4 id="_1">案例三：招商银行 — 摩羯智投</h4>
 <p>国内智能投顾的代表性产品：</p>
-
+<ul>
 <li>基于 <strong>300+ 维度</strong> 的客户画像</li>
 <li>组合优化引擎结合 Black-Litterman 模型 + 机器学习</li>
 <li>智能再平衡：市场波动超过阈值时自动调仓</li>
 <li>管理规模峰值超过 <strong>200 亿元</strong></li>
-
-<h4>案例四：LLM 驱动的新一代量化研究</h4>
-
+</ul>
+<h4 id="llm">案例四：LLM 驱动的新一代量化研究</h4>
 <p>2024-2025 年，LLM 在量化研究中的应用迅速扩展：</p>
-
+<ul>
 <li><strong>研报解读</strong>：自动分析券商研报，提取核心观点和数据</li>
 <li><strong>新闻情绪分析</strong>：实时监测全球新闻，预测短期市场波动</li>
-<li><strong>代码生成</strong>：量化策略从"手动写因子"转向"自然语言描述策略，AI 自动生成代码"</li>
+<li><strong>代码生成</strong>：量化策略从&rdquo;手动写因子&rdquo;转向&rdquo;自然语言描述策略，AI 自动生成代码&rdquo;</li>
 <li><strong>Meta 的团队</strong> 发布论文证明，Fine-tuned LLaMA 在金融文本情绪分类上超越传统 BERT 模型</li>
-
-<h3 id="23-投资建议流程的-ai-改造">2.3 投资建议流程的 AI 改造</h3>
-
-<div class="mermaid">
-flowchart TD
-    subgraph 传统流程["传统投资顾问流程"]
-        T1["客户经理面谈"] --> T2["风险评估问卷"] --> T3["手动匹配产品"] --> T4["人工生成报告"] --> T5["定期回访"]
+</ul>
+<h3 id="23-ai">2.3 投资建议流程的 AI 改造</h3>
+<div class="highlight"><pre><span></span><code>flowchart TD
+    subgraph 传统流程[&quot;传统投资顾问流程&quot;]
+        T1[&quot;客户经理面谈&quot;] --&gt; T2[&quot;风险评估问卷&quot;] --&gt; T3[&quot;手动匹配产品&quot;] --&gt; T4[&quot;人工生成报告&quot;] --&gt; T5[&quot;定期回访&quot;]
     end
-    subgraph AI流程["AI 增强流程"]
-        A1["多维画像构建<br/>交易行为 + 外部数据"] --> A2["智能风险偏好推断"] --> A3["组合优化引擎<br/>均值-方差 + 黑天鹅压力测试"]
-        A3 --> A4["自然语言生成投资建议书"] --> A5["持续监控 + 自动预警"] --> A6["AI 语音/文字客户触达"]
+    subgraph AI流程[&quot;AI 增强流程&quot;]
+        A1[&quot;多维画像构建&lt;br/&gt;交易行为 + 外部数据&quot;] --&gt; A2[&quot;智能风险偏好推断&quot;] --&gt; A3[&quot;组合优化引擎&lt;br/&gt;均值-方差 + 黑天鹅压力测试&quot;]
+        A3 --&gt; A4[&quot;自然语言生成投资建议书&quot;] --&gt; A5[&quot;持续监控 + 自动预警&quot;] --&gt; A6[&quot;AI 语音/文字客户触达&quot;]
     end
     style T1 fill:#f5f5f5
     style T5 fill:#f5f5f5
     style A1 fill:#e8f5e9
     style A3 fill:#e3f2fd
     style A5 fill:#fff3e0
-</div>
+</code></pre></div>
 
-<p>> <strong>图2.3 投资顾问流程对比</strong>：传统流程依赖客户经理人工操作，效率低且主观性强；AI 增强流程通过多维画像、智能推断和自动报告生成，实现个性化投资建议的规模化交付，同时持续监控市场变化并自动预警。</p>
-
-<hr>
-
-<h2 id="三合规文档处理从人肉审阅到ai-驱动">三、合规文档处理：从"人肉审阅"到"AI 驱动"</h2>
-
-<h3 id="31-痛点分析">3.1 痛点分析</h3>
-
+<blockquote>
+<p><strong>图2.3 投资顾问流程对比</strong>：传统流程依赖客户经理人工操作，效率低且主观性强；AI 增强流程通过多维画像、智能推断和自动报告生成，实现个性化投资建议的规模化交付，同时持续监控市场变化并自动预警。</p>
+</blockquote>
+<hr />
+<h2 id="ai_3">三、合规文档处理：从&rdquo;人肉审阅&rdquo;到&rdquo;AI 驱动&rdquo;</h2>
+<h3 id="31">3.1 痛点分析</h3>
 <p>金融机构每年需要处理海量合规文档：监管政策更新、内部审计报告、合同审查、KYC（了解你的客户）材料等。据 Deloitte 统计，大型银行每年在合规上的支出超过 <strong>10 亿美元</strong>，其中约 30% 花在人工文档审阅上。</p>
-
-<h3 id="32-典型案例">3.2 典型案例</h3>
-
-<h4>案例一：HSBC — 合规文档智能分析平台</h4>
-
+<h3 id="32">3.2 典型案例</h3>
+<h4 id="hsbc">案例一：HSBC — 合规文档智能分析平台</h4>
 <p>汇丰银行部署了基于 LLM 的合规分析系统：</p>
-
+<ul>
 <li><strong>监管变化追踪</strong>：自动监测全球 50+ 个监管机构的政策更新</li>
 <li><strong>影响评估</strong>：AI 分析新规对银行现有业务的影响程度</li>
 <li><strong>合规报告生成</strong>：从数周缩短至数小时</li>
-
+</ul>
 <p><strong>技术栈</strong>：GPT-4 fine-tuning + RAG（检索增强生成）+ 人工复核</p>
-
-<h4>案例二：德勤 — Argus 合规分析工具</h4>
-
+<h4 id="argus">案例二：德勤 — Argus 合规分析工具</h4>
 <p>德勤的 Argus 平台面向金融合规场景：</p>
-
+<ul>
 <li><strong>合同审查</strong>：自动识别不利条款、合规风险点</li>
 <li><strong>KYC 文档处理</strong>：自动提取客户身份信息，交叉验证数据库</li>
 <li><strong>效果</strong>：KYC 审查时间从 <strong>4 小时/客户</strong> 降至 <strong>20 分钟/客户</strong></li>
-
-<h4>案例三：金融机构内部——智能政策问答系统</h4>
-
+</ul>
+<h4 id="_2">案例三：金融机构内部——智能政策问答系统</h4>
 <p>多家银行正在部署内部合规问答系统：</p>
-
-<li>员工可自然语言提问"这笔交易是否需要上报 SAR？"</li>
+<ul>
+<li>员工可自然语言提问&rdquo;这笔交易是否需要上报 SAR？&rdquo;</li>
 <li>系统基于内部政策文档 + 监管法规生成回答，并引用原文</li>
 <li>关键挑战：<strong>幻觉控制</strong>——金融合规场景零容忍错误答案</li>
+</ul>
+<h3 id="33-rag">3.3 技术方案：RAG 在合规场景的实践</h3>
+<div class="highlight"><pre><span></span><code>graph TD
+    Q[&quot;👤 用户查询&lt;br/&gt;新反洗钱规定对跨境汇款的影响&quot;]
+    QU[&quot;🔍 查询理解与改写&lt;br/&gt;拆解为多个子问题 / 识别关键实体&quot;]
+    RE[&quot;🔎 混合检索引擎&lt;br/&gt;向量检索 + BM25 + 元数据过滤&quot;]
+    RR[&quot;📊 重排序与去重&lt;br/&gt;Cross-encoder 重排序 / 去除冗余&quot;]
+    GEN[&quot;🤖 LLM 生成&lt;br/&gt;基于检索文档生成答案 / 附带引用&quot;]
+    Q --&gt; QU
+    QU --&gt; RE
+    RE --&gt; RR
+    RR --&gt; GEN
+</code></pre></div>
 
-<h3 id="33-技术方案rag-在合规场景的实践">3.3 技术方案：RAG 在合规场景的实践</h3>
-
-<div class="mermaid">
-graph TD
-    Q["👤 用户查询<br/>新反洗钱规定对跨境汇款的影响"]
-    QU["🔍 查询理解与改写<br/>拆解为多个子问题 / 识别关键实体"]
-    RE["🔎 混合检索引擎<br/>向量检索 + BM25 + 元数据过滤"]
-    RR["📊 重排序与去重<br/>Cross-encoder 重排序 / 去除冗余"]
-    GEN["🤖 LLM 生成<br/>基于检索文档生成答案 / 附带引用"]
-    Q --> QU
-    QU --> RE
-    RE --> RR
-    RR --> GEN
-</div>
-
-<hr>
-
-<h2 id="四客服营销自动化ai-驱动的客户运营">四、客服营销自动化：AI 驱动的客户运营</h2>
-
-<h3 id="41-智能客服实践">4.1 智能客服实践</h3>
-
-<h4>案例一：工商银行 — 智能客服"工小智"</h4>
-
+<hr />
+<h2 id="ai_4">四、客服营销自动化：AI 驱动的客户运营</h2>
+<h3 id="41">4.1 智能客服实践</h3>
+<h4 id="_3">案例一：工商银行 — 智能客服&rdquo;工小智&rdquo;</h4>
 <p>工行智能客服是国内金融 AI 客服的标杆：</p>
-
+<ul>
 <li><strong>日均交互量</strong>：超过 <strong>500 万次</strong></li>
 <li><strong>意图识别准确率</strong>：97%+（覆盖 3,000+ 场景）</li>
 <li><strong>问题解决率</strong>：首问解决率 85%+</li>
 <li><strong>人工转接率</strong>：从 30% 降至 15%</li>
-
+</ul>
 <p>技术亮点：多轮对话管理 + 情感识别 + 业务系统深度集成</p>
-
-<h4>案例二：Bank of America — Erica 虚拟助手</h4>
-
+<h4 id="bank-of-america-erica">案例二：Bank of America — Erica 虚拟助手</h4>
 <p>Erica 是美国银行的 AI 虚拟助手：</p>
-
+<ul>
 <li><strong>用户量</strong>：超过 <strong>3,200 万</strong> 客户使用</li>
 <li><strong>功能</strong>：余额查询、账单提醒、消费分析、信用评分建议</li>
 <li><strong>创新</strong>：主动式服务——分析客户消费模式后主动推送个性化建议</li>
 <li><strong>对话量</strong>：累计超过 <strong>15 亿次</strong> 对话</li>
-
-<h4>案例三：大语言模型赋能的新一代客服</h4>
-
+</ul>
+<h4 id="_4">案例三：大语言模型赋能的新一代客服</h4>
 <p>2024 年以来，LLM 驱动的金融客服展现出显著优势：</p>
-
+<ul>
 <li><strong>复杂问题理解</strong>：能处理模糊、含糊的客户表述</li>
 <li><strong>上下文记忆</strong>：跨会话记忆客户历史，提供连贯体验</li>
 <li><strong>知识快速更新</strong>：新产品上线后，无需重新训练模型，只需更新知识库</li>
 <li><strong>多语言支持</strong>：一个模型服务全球客户</li>
-
+</ul>
 <p><strong>典型案例</strong>：Klarna 报告称其 AI 客服在上线第一个月处理了 <strong>230 万次</strong> 对话，相当于 <strong>700 名</strong> 全职客服的工作量，客户满意度与人工客服持平。</p>
-
-<h3 id="42-营销自动化">4.2 营销自动化</h3>
-
+<h3 id="42">4.2 营销自动化</h3>
 <p>金融机构的 AI 营销应用包括：</p>
-
+<ul>
 <li><strong>客户流失预测</strong>：提前 30 天预测客户流失概率，准确率达 85%+</li>
 <li><strong>产品推荐</strong>：基于客户生命周期和行为的个性化产品推荐</li>
 <li><strong>内容生成</strong>：自动生成营销文案、邮件、社交媒体内容</li>
 <li><strong>定价优化</strong>：动态定价模型，根据客户价值和市场条件调整利率/费率</li>
-
-<hr>
-
-<h2 id="五监管与伦理金融-ai-的达摩克利斯之剑">五、监管与伦理：金融 AI 的达摩克利斯之剑</h2>
-
-<h3 id="51-可解释性挑战">5.1 可解释性挑战</h3>
-
-<p>金融监管机构对 AI 模型的"黑箱"特性高度警惕：</p>
-
-<li><strong>欧盟 AI 法案</strong>：将金融 AI 系统列为"高风险"，要求可解释性和人工监督</li>
+</ul>
+<hr />
+<h2 id="ai_5">五、监管与伦理：金融 AI 的达摩克利斯之剑</h2>
+<h3 id="51">5.1 可解释性挑战</h3>
+<p>金融监管机构对 AI 模型的&rdquo;黑箱&rdquo;特性高度警惕：</p>
+<ul>
+<li><strong>欧盟 AI 法案</strong>：将金融 AI 系统列为&rdquo;高风险&rdquo;，要求可解释性和人工监督</li>
 <li><strong>美国 OCC 指导原则</strong>：银行需确保 AI 模型决策可审计、可追溯</li>
 <li><strong>中国银保监会</strong>：要求金融机构建立 AI 模型风险管理制度</li>
-
-<p><strong>实践方案</strong>：</p>
-<p>1. 使用 SHAP/LIME 等可解释性工具</p>
-<p>2. 建立模型决策日志系统</p>
-<p>3. 关键决策保留人工复核环节</p>
-<p>4. 定期进行模型公平性审计</p>
-
-<h3 id="52-数据隐私与安全">5.2 数据隐私与安全</h3>
-
+</ul>
+<p><strong>实践方案</strong>：
+1. 使用 SHAP/LIME 等可解释性工具
+2. 建立模型决策日志系统
+3. 关键决策保留人工复核环节
+4. 定期进行模型公平性审计</p>
+<h3 id="52">5.2 数据隐私与安全</h3>
+<ul>
 <li><strong>GDPR/个人信息保护法</strong>：客户数据使用需获得明确同意</li>
 <li><strong>联邦学习</strong>：在不共享原始数据的前提下进行多方联合建模</li>
 <li><strong>差分隐私</strong>：在训练数据中加入噪声，保护个体隐私</li>
 <li><strong>数据脱敏</strong>：AI 模型推理时自动识别和脱敏敏感信息</li>
-
-<h3 id="53-模型公平性">5.3 模型公平性</h3>
-
+</ul>
+<h3 id="53">5.3 模型公平性</h3>
 <p>AI 系统可能存在歧视性偏差：</p>
-
+<ul>
 <li><strong>案例</strong>：Apple Card 被指控对女性客户给予更低信用额度</li>
 <li><strong>应对</strong>：定期进行公平性审计，检测不同群体（性别、年龄、种族）的模型输出差异</li>
 <li><strong>技术手段</strong>：对抗去偏见（Adversarial Debiasing）、再平衡采样</li>
-
-<h3 id="54-监管科技regtech的发展">5.4 监管科技（RegTech）的发展</h3>
-
+</ul>
+<h3 id="54-regtech">5.4 监管科技（RegTech）的发展</h3>
 <p>AI 不仅是被监管对象，也是监管工具：</p>
-
+<ul>
 <li><strong>中国证监会</strong>：使用 AI 监测市场操纵行为</li>
 <li><strong>SEC</strong>：使用 NLP 分析上市公司年报，检测欺诈信号</li>
 <li><strong>欧洲央行</strong>：使用机器学习监测系统性金融风险</li>
-
-<hr>
-
-<h2 id="六实践建议">六、实践建议</h2>
-
-<h3 id="61-ai-落地的实施路线图">6.1 AI 落地的实施路线图</h3>
-
-<p><strong>阶段一：数据基础建设（3-6 个月）</strong></p>
-<li>建立统一数据湖，整合多源数据</li>
-<li>完善数据质量和治理体系</li>
-<li>构建实时特征计算能力</li>
-
-<p><strong>阶段二：场景试点（3-6 个月）</strong></p>
-<li>选择 1-2 个高价值场景（推荐风控或客服）</li>
-<li>快速原型开发，验证可行性</li>
-<li>建立 A/B 测试框架</li>
-
-<p><strong>阶段三：规模化扩展（6-12 个月）</strong></p>
-<li>将成功试点扩展到更多业务线</li>
-<li>建立 MLOps 流程（自动化训练、部署、监控）</li>
-<li>培养内部 AI 人才团队</li>
-
-<p><strong>阶段四：持续优化（长期）</strong></p>
-<li>模型持续迭代和对抗性测试</li>
-<li>探索生成式 AI（LLM）新场景</li>
-<li>建立 AI 治理委员会</li>
-
-<h3 id="62-风险控制清单">6.2 风险控制清单</h3>
-
-<table><tr><th>风险类别</th><th>关键控制措施</th></tr>
-<tr><td>模型风险</td><td>定期回测、压力测试、漂移检测</td></tr>
-<tr><td>数据风险</td><td>质量监控、访问控制、加密存储</td></tr>
-<tr><td>合规风险</td><td>可解释性工具、人工复核、审计日志</td></tr>
-<tr><td>操作风险</td><td>降级策略、人工兜底、异常告警</td></tr>
-<tr><td>声誉风险</td><td>公平性审计、客户告知、反馈渠道</td></tr>
+</ul>
+<hr />
+<h2 id="_5">六、实践建议</h2>
+<h3 id="61-ai">6.1 AI 落地的实施路线图</h3>
+<p><strong>阶段一：数据基础建设（3-6 个月）</strong>
+- 建立统一数据湖，整合多源数据
+- 完善数据质量和治理体系
+- 构建实时特征计算能力</p>
+<p><strong>阶段二：场景试点（3-6 个月）</strong>
+- 选择 1-2 个高价值场景（推荐风控或客服）
+- 快速原型开发，验证可行性
+- 建立 A/B 测试框架</p>
+<p><strong>阶段三：规模化扩展（6-12 个月）</strong>
+- 将成功试点扩展到更多业务线
+- 建立 MLOps 流程（自动化训练、部署、监控）
+- 培养内部 AI 人才团队</p>
+<p><strong>阶段四：持续优化（长期）</strong>
+- 模型持续迭代和对抗性测试
+- 探索生成式 AI（LLM）新场景
+- 建立 AI 治理委员会</p>
+<h3 id="62">6.2 风险控制清单</h3>
+<table>
+<thead>
+<tr>
+<th>风险类别</th>
+<th>关键控制措施</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模型风险</td>
+<td>定期回测、压力测试、漂移检测</td>
+</tr>
+<tr>
+<td>数据风险</td>
+<td>质量监控、访问控制、加密存储</td>
+</tr>
+<tr>
+<td>合规风险</td>
+<td>可解释性工具、人工复核、审计日志</td>
+</tr>
+<tr>
+<td>操作风险</td>
+<td>降级策略、人工兜底、异常告警</td>
+</tr>
+<tr>
+<td>声誉风险</td>
+<td>公平性审计、客户告知、反馈渠道</td>
+</tr>
+</tbody>
 </table>
-
-<h3 id="63-技术选型建议">6.3 技术选型建议</h3>
-
-<table><tr><th>场景</th><th>推荐技术栈</th></tr>
-<tr><td>实时风控</td><td>Apache Flink + Redis + XGBoost/GNN</td></tr>
-<tr><td>智能客服</td><td>LLM (GPT-4/Claude) + RAG + 对话管理框架</td></tr>
-<tr><td>合规分析</td><td>Fine-tuned LLM + Vector DB + 人工复核</td></tr>
-<tr><td>量化交易</td><td>Python + PyTorch + 另类数据平台</td></tr>
-<tr><td>营销推荐</td><td>协同过滤 + Embedding + 实时推理引擎</td></tr>
+<h3 id="63">6.3 技术选型建议</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐技术栈</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>实时风控</td>
+<td>Apache Flink + Redis + XGBoost/GNN</td>
+</tr>
+<tr>
+<td>智能客服</td>
+<td>LLM (GPT-4/Claude) + RAG + 对话管理框架</td>
+</tr>
+<tr>
+<td>合规分析</td>
+<td>Fine-tuned LLM + Vector DB + 人工复核</td>
+</tr>
+<tr>
+<td>量化交易</td>
+<td>Python + PyTorch + 另类数据平台</td>
+</tr>
+<tr>
+<td>营销推荐</td>
+<td>协同过滤 + Embedding + 实时推理引擎</td>
+</tr>
+</tbody>
 </table>
-
-<hr>
-
-<h2 id="七总结与展望">七、总结与展望</h2>
-
-<p>金融 AI 的落地正在从"单点突破"走向"全面渗透"。2025 年的趋势包括：</p>
-
-<p>1. <strong>LLM 深度整合</strong>：从客服场景扩展到风控、合规、投研等核心业务</p>
-<p>2. <strong>多模态融合</strong>：文本、图像、语音、交易数据的联合建模</p>
-<p>3. <strong>Agent 化</strong>：AI 从被动工具升级为主动决策代理</p>
-<p>4. <strong>监管框架完善</strong>：各国金融 AI 监管细则逐步落地</p>
-<p>5. <strong>人才结构变化</strong>：复合型人才（金融 + AI + 工程）成为稀缺资源</p>
-
+<hr />
+<h2 id="_6">七、总结与展望</h2>
+<p>金融 AI 的落地正在从&rdquo;单点突破&rdquo;走向&rdquo;全面渗透&rdquo;。2025 年的趋势包括：</p>
+<ol>
+<li><strong>LLM 深度整合</strong>：从客服场景扩展到风控、合规、投研等核心业务</li>
+<li><strong>多模态融合</strong>：文本、图像、语音、交易数据的联合建模</li>
+<li><strong>Agent 化</strong>：AI 从被动工具升级为主动决策代理</li>
+<li><strong>监管框架完善</strong>：各国金融 AI 监管细则逐步落地</li>
+<li><strong>人才结构变化</strong>：复合型人才（金融 + AI + 工程）成为稀缺资源</li>
+</ol>
 <p>金融机构的 AI 之旅才刚刚开始。成功的机构不是技术最强的，而是<strong>最善于将 AI 融入业务流程、同时管理好相关风险</strong>的机构。</p>
-
-<hr>
-
-<h2 id="参考来源">参考来源</h2>
-
-<p>1. <a href="https://www.mckinsey.com/industries/financial-services/our-insights">McKinsey - The State of AI in Financial Services 2024</a></p>
-<p>2. <a href="https://www2.deloitte.com/us/en/insights/industry/financial-services.html">Deloitte - AI in Financial Services: Trends and Outlook</a></p>
-<p>3. <a href="https://about.bankofamerica.com/en/making-an-impact/erica-virtual-assistant">Bank of America - Erica Virtual Assistant</a></p>
-<p>4. <a href="https://www.klarna.com/international/press/">Klarna AI Customer Service Results</a></p>
-<p>5. <a href="https://www.antgroup.com/en/news-media">蚂蚁集团 AlphaRisk 风控系统</a></p>
-<p>6. <a href="https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai">欧盟 AI 法案对金融行业的影响分析</a></p>
-
-<hr>
-
+<hr />
+<h2 id="_7">参考来源</h2>
+<ol>
+<li><a href="https://www.mckinsey.com/industries/financial-services/our-insights/the-state-of-ai-in-financial-services-2024">McKinsey - The State of AI in Financial Services 2024</a></li>
+<li><a href="https://www2.deloitte.com/us/en/insights/industry/financial-services/ai-ml-in-financial-services.html">Deloitte - AI and ML in Financial Services: Key Trends</a></li>
+<li><a href="https://about.bankofamerica.com/en/making-an-impact/erica-virtual-assistant">Bank of America - Erica Virtual Assistant</a></li>
+<li><a href="https://www.klarna.com/international/press/klarna-ai-assistant-handles-two-thirds-of-customer-service-chats-in-its-first-month/">Klarna - AI Assistant Handles Two-Thirds of Customer Service Chats</a></li>
+<li><a href="https://www.antgroup.com/en/news-media/news/ant-group-alpharisk-intelligent-risk-management">蚂蚁集团 AlphaRisk 风控系统</a></li>
+<li><a href="https://nilsonreport.com/publication_newsletters_archive_issue.php?issue=1259">Nilson Report - Global Card Fraud Losses</a></li>
+<li><a href="https://www.jpmorgan.com/technology/news/artificial-intelligence-and-machine-learning">JPMorgan - AI and Machine Learning at Scale</a></li>
+<li><a href="https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai">欧盟 AI 法案对金融行业的影响分析</a></li>
+</ol>
+<hr />
 <p><em>本报告仅供研究参考，不构成投资建议。数据和案例基于公开信息整理，如有更新请以最新资料为准。</em></p>
-
-<div class="footer">
-<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
 </div>
-<script>
-function toggleTheme() {
-    const html = document.documentElement;
-    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('tr-theme', next);
-    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
-}
-(function() {
-    const saved = localStorage.getItem('tr-theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
-    const icon = document.getElementById('themeIcon');
-    if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
-})();
-</script>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
-  mermaid.initialize({startOnLoad:true, theme:theme});
-</script>
-</body></html>
+<div class="footer">探针 (Probe) · AI 技术研究分析师 · 2025</div>
+</body>
+</html>

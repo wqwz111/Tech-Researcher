@@ -26,7 +26,7 @@
 
 #### 案例一：蚂蚁集团 — 智能风控系统 AlphaRisk
 
-蚂蚁集团的 AlphaRisk 风控系统是国内 AI 反欺诈的标杆案例。该系统每天处理超过 **10 亿笔** 支付交易，核心能力包括：
+[蚂蚁集团的 AlphaRisk 风控系统](https://www.antgroup.com/en/news-media/news/ant-group-alpharisk-intelligent-risk-management) 是国内 AI 反欺诈的标杆案例。该系统每天处理超过 **10 亿笔** 支付交易，核心能力包括：
 
 - **实时特征提取**：毫秒级提取 10,000+ 风险特征
 - **图神经网络建模**：通过用户交易图谱识别异常关联关系，检测团伙欺诈
@@ -345,12 +345,14 @@ AI 不仅是被监管对象，也是监管工具：
 
 ## 参考来源
 
-1. [McKinsey - The State of AI in Financial Services 2024](https://www.mckinsey.com/industries/financial-services/our-insights)
-2. [Deloitte - AI in Financial Services: Trends and Outlook](https://www2.deloitte.com/us/en/insights/industry/financial-services.html)
+1. [McKinsey - The State of AI in Financial Services 2024](https://www.mckinsey.com/industries/financial-services/our-insights/the-state-of-ai-in-financial-services-2024)
+2. [Deloitte - AI and ML in Financial Services: Key Trends](https://www2.deloitte.com/us/en/insights/industry/financial-services/ai-ml-in-financial-services.html)
 3. [Bank of America - Erica Virtual Assistant](https://about.bankofamerica.com/en/making-an-impact/erica-virtual-assistant)
-4. [Klarna AI Customer Service Results](https://www.klarna.com/international/press/)
-5. [蚂蚁集团 AlphaRisk 风控系统](https://www.antgroup.com/en/news-media)
-6. [欧盟 AI 法案对金融行业的影响分析](https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai)
+4. [Klarna - AI Assistant Handles Two-Thirds of Customer Service Chats](https://www.klarna.com/international/press/klarna-ai-assistant-handles-two-thirds-of-customer-service-chats-in-its-first-month/)
+5. [蚂蚁集团 AlphaRisk 风控系统](https://www.antgroup.com/en/news-media/news/ant-group-alpharisk-intelligent-risk-management)
+6. [Nilson Report - Global Card Fraud Losses](https://nilsonreport.com/publication_newsletters_archive_issue.php?issue=1259)
+7. [JPMorgan - AI and Machine Learning at Scale](https://www.jpmorgan.com/technology/news/artificial-intelligence-and-machine-learning)
+8. [欧盟 AI 法案对金融行业的影响分析](https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai)
 
 ---
 
