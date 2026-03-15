@@ -180,7 +180,34 @@ strong { color: var(--text-primary); }
 
 <p><strong>PagedAttention 解决方案：</strong></p>
 
-<div class="mermaid"> graph TD POOL["[ ] GPU 显存池"] B0["B0"] --- B1["B1"] --- B2["B2"] --- B3["B3"] --- B4["B4"] B5["B5"] --- B6["B6"] --- B7["B7"] --- E1["(空)"] --- E2["(空)"] SA["Seq A [0,3,7]"] --> B0 SA --> B3 SA --> B7 SB["Seq B [1,5]"] --> B1 SB --> B5 SC["Seq C [2,4,6,8]"] --> B2 SC --> B4 SC --> B6 SC --> B8["B8"] POOL --- SA POOL --- SB POOL --- SC </div>
+<div class="mermaid">
+    graph TD
+   
+    POOL["[ ] GPU 显存池"]
+    B0["B0"] ---
+    B1["B1"] ---
+    B2["B2"] ---
+    B3["B3"] ---
+    B4["B4"]
+    B5["B5"] ---
+    B6["B6"] ---
+    B7["B7"] ---
+    E1["(空)"] ---
+    E2["(空)"]
+    SA["Seq A [0,3,7]"]
+    --> B0 SA
+    --> B3 SA
+    --> B7
+    SB["Seq B [1,5]"]
+    --> B1 SB
+    --> B5
+    SC["Seq C [2,4,6,8]"]
+    --> B2 SC
+    --> B4 SC
+    --> B6 SC
+    -->
+    B8["B8"] POOL --- SA POOL --- SB POOL --- SC
+</div>
 
 <p><strong>关键优势：</strong></p>
 <li><strong>按需分配</strong>：只分配实际需要的 block</li>
@@ -200,13 +227,39 @@ strong { color: var(--text-primary); }
 GPU 利用率: ████████░░░░░░░░ (低，等待最长请求)
 
 Continuous Batching:
-<div class="mermaid"> flowchart LR S1["Step 1: [Req1, Req2, Req3]"] --> S2["Step 2: [Req1, Req2, Req4]<br/>← Req3 完成，Req4 加入"] S2 --> S3["Step 3: [Req2, Req4, Req5]<br/>← Req1 完成，Req5 加入"] </div>
+<div class="mermaid">
+    flowchart LR
+   
+    S1["Step 1: [Req1, Req2, Req3]"]
+    -->
+    S2["Step 2: [Req1, Req2, Req4]<br/>← Req3 完成，Req4 加入"] S2
+    -->
+    S3["Step 3: [Req2, Req4, Req5]<br/>← Req1 完成，Req5 加入"]
+</div>
 <p>GPU 利用率: ████████████████ (高，始终满载)</p>
 <pre><code>
 
 ### 1.3 架构组件
 
-<div class="mermaid"> graph TD API["[ ] API Server<br/>OpenAI-compatible / Raw API"] AE["[ ] AsyncEngine"] SCHED["Scheduler<br/>Batching"] TOK["Tokenizer<br/>Encoding/Decoding"] MR["[[ ]] Model Runner"] WORK["Worker<br/>Model Exec"] KV["KV Cache Manager<br/>PagedAttention"] GPU["[ ] GPU Memory"] API --> AE AE --> SCHED AE --> TOK AE --> MR MR --> WORK MR --> KV MR --> GPU </div>
+<div class="mermaid">
+    graph TD
+   
+    API["[ ] API Server<br/>OpenAI-compatible / Raw API"]
+    AE["[ ] AsyncEngine"]
+    SCHED["Scheduler<br/>Batching"]
+    TOK["Tokenizer<br/>Encoding/Decoding"]
+    MR["[[ ]] Model Runner"]
+    WORK["Worker<br/>Model Exec"]
+    KV["KV Cache Manager<br/>PagedAttention"]
+    GPU["[ ] GPU Memory"] API
+    --> AE AE
+    --> SCHED AE
+    --> TOK AE
+    --> MR MR
+    --> WORK MR
+    --> KV MR
+    --> GPU
+</div>
 
 <hr>
 
@@ -299,7 +352,19 @@ vllm serve meta-llama/Llama-3.1-70B-Instruct \
 
 <p><strong>方案 A：多实例 + 负载均衡</strong></p>
 
-<div class="mermaid"> graph TD CLIENT["Client"] --> LB["Nginx / LB"] LB -->|Model A| V1["vLLM Instance 1"] LB -->|Model B| V2["vLLM Instance 2"] LB -->|Model C| V3["vLLM Instance 3"] </div>
+<div class="mermaid">
+    graph TD
+   
+    CLIENT["Client"]
+    -->
+    LB["Nginx / LB"] LB
+    -->|Model A|
+    V1["vLLM Instance 1"] LB
+    -->|Model B|
+    V2["vLLM Instance 2"] LB
+    -->|Model C|
+    V3["vLLM Instance 3"]
+</div>
 
 <pre><span class="lang-label">nginx</span><code>
 # Nginx 配置示例
@@ -447,7 +512,18 @@ spec:
 
 <p>推荐监控面板布局：</p>
 
-<div class="mermaid"> graph TD subgraph "监控面板" REQ["[ ] Requests<br/>Running/Waiting"] GPU_C["[ ] GPU Cache<br/>Usage %"] TPUT["[ ] Throughput<br/>tok/s"] LAT["[ ] Latency<br/>TTFT + TPOT"] TOKEN["[ ] Token Usage<br/>input/output"] ERR["[ ] Error Rate<br/>4xx/5xx"] end </div>
+<div class="mermaid">
+    graph TD
+   
+    subgraph "监控面板"
+    REQ["[ ] Requests<br/>Running/Waiting"]
+    GPU_C["[ ] GPU Cache<br/>Usage %"]
+    TPUT["[ ] Throughput<br/>tok/s"]
+    LAT["[ ] Latency<br/>TTFT + TPOT"]
+    TOKEN["[ ] Token Usage<br/>input/output"]
+    ERR["[ ] Error Rate<br/>4xx/5xx"]
+    end
+</div>
 
 <h3 id="43-日志配置">4.3 日志配置</h3>
 

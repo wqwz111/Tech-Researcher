@@ -161,7 +161,21 @@ strong { color: var(--text-primary); }
 
 <h3 id="11-层级式hierarchical">1.1 层级式（Hierarchical）</h3>
 
-<div class="mermaid"> graph TD M[" 管理者 Agent"] --> A["[ ] 专家A"] M --> B["[ ] 专家B"] M --> C["[ ] 专家C"] style M fill:#4f46e5,color:#fff style A fill:#0ea5e9,color:#fff style B fill:#0ea5e9,color:#fff style C fill:#0ea5e9,color:#fff </div>
+<div class="mermaid">
+    graph TD
+   
+    M[" 管理者 Agent"]
+    -->
+    A["[ ] 专家A"] M
+    -->
+    B["[ ] 专家B"] M
+    -->
+    C["[ ] 专家C"]
+    style M fill:#4f46e5,color:#fff
+    style A fill:#0ea5e9,color:#fff
+    style B fill:#0ea5e9,color:#fff
+    style C fill:#0ea5e9,color:#fff
+</div>
 
 <li><strong>特点</strong>: 上级分配任务，下级执行并汇报</li>
 <li><strong>优点</strong>: 职责清晰，易于协调</li>
@@ -170,7 +184,24 @@ strong { color: var(--text-primary); }
 
 <h3 id="12-扁平式flat--peer-to-peer">1.2 扁平式（Flat / Peer-to-Peer）</h3>
 
-<div class="mermaid"> graph LR A["[ ] Agent A"] <--> B["[ ] Agent B"] A <--> C["[ ] Agent C"] A <--> D["[ ] Agent D"] B <--> C B <--> D C <--> D style A fill:#059669,color:#fff style B fill:#059669,color:#fff style C fill:#059669,color:#fff style D fill:#059669,color:#fff </div>
+<div class="mermaid">
+    graph LR
+   
+    A["[ ] Agent A"]
+    <-->
+    B["[ ] Agent B"] A
+    <-->
+    C["[ ] Agent C"] A
+    <-->
+    D["[ ] Agent D"] B
+    <--> C B
+    <--> D C
+    <--> D
+    style A fill:#059669,color:#fff
+    style B fill:#059669,color:#fff
+    style C fill:#059669,color:#fff
+    style D fill:#059669,color:#fff
+</div>
 
 <li><strong>特点</strong>: 所有 Agent 平等，自主协商</li>
 <li><strong>优点</strong>: 无单点故障，灵活</li>
@@ -179,7 +210,17 @@ strong { color: var(--text-primary); }
 
 <h3 id="13-市场式market-based">1.3 市场式（Market-based）</h3>
 
-<div class="mermaid"> flowchart LR T[任务发布] --> A[拍卖机制] A --> B[Agent 竞标] B --> O[最优分配] </div>
+<div class="mermaid">
+    flowchart LR
+   
+    T[任务发布]
+    -->
+    A[拍卖机制] A
+    -->
+    B[Agent 竞标] B
+    -->
+    O[最优分配]
+</div>
 
 <li><strong>特点</strong>: 通过竞标机制分配任务</li>
 <li><strong>优点</strong>: 资源最优配置</li>
@@ -252,7 +293,15 @@ strong { color: var(--text-primary); }
 
 <h3 id="33-共识算法">3.3 共识算法</h3>
 
-<div class="mermaid"> sequenceDiagram participant A as Agent A (提案者) participant B as Agent B participant C as Agent C participant D as Agent D A->>B: 1. 提出方案 A->>C: 1. 提出方案 A->>D: 1. 提出方案 B->>A: 2. 发表意见 C->>A: 2. 发表意见 D->>A: 2. 发表意见 B->>A: 3. 投票 C->>A: 3. 投票 D->>A: 3. 投票 alt 方案通过 A->>B: 4. 执行方案 A->>C: 4. 执行方案 A->>D: 4. 执行方案 else 方案未通过 A->>A: 4. 修订方案，返回步骤 1 end </div>
+<div class="mermaid">
+    sequenceDiagram
+   
+    participant A as Agent A (提案者)
+    participant B as Agent B
+    participant C as Agent C
+    participant D as Agent D A->>B: 1. 提出方案 A->>C: 1. 提出方案 A->>D: 1. 提出方案 B->>A: 2. 发表意见 C->>A: 2. 发表意见 D->>A: 2. 发表意见 B->>A: 3. 投票 C->>A: 3. 投票 D->>A: 3. 投票 alt 方案通过 A->>B: 4. 执行方案 A->>C: 4. 执行方案 A->>D: 4. 执行方案 else 方案未通过 A->>A: 4. 修订方案，返回步骤 1
+    end
+</div>
 
 <hr>
 
@@ -310,7 +359,17 @@ user_proxy.initiate_chat(
 
 <p><strong>特点</strong>: 软件公司模拟，标准化 SOP</p>
 
-<div class="mermaid"> flowchart LR PM[产品经理] --> AR[架构师] AR --> EN[工程师] EN --> QA[QA] </div>
+<div class="mermaid">
+    flowchart LR
+   
+    PM[产品经理]
+    -->
+    AR[架构师] AR
+    -->
+    EN[工程师] EN
+    -->
+    QA[QA]
+</div>
 <li>每个角色遵循标准输出文档</li>
 <li>内置需求分析、系统设计、代码生成流程</li>
 
@@ -339,7 +398,25 @@ user_proxy.initiate_chat(
 
 <p><strong>场景</strong>: 一个 AI 研究团队完成文献综述</p>
 
-<div class="mermaid"> graph TD ED["[ ] 主编 分配任务"] R1["[ ] 研究员-1 检索论文"] R2["[ ] 研究员-2 分析方法论"] R3["[ ] 研究员-3 提取数据"] WR["[[ ]] 写手 撰写综述"] RV["[ ] 审稿人 审核反馈"] PUB["[ ] 主编 最终发布"] ED --> R1 ED --> R2 ED --> R3 R1 --> WR R2 --> WR R3 --> WR WR --> RV RV --> PUB </div>
+<div class="mermaid">
+    graph TD
+   
+    ED["[ ] 主编 分配任务"]
+    R1["[ ] 研究员-1 检索论文"]
+    R2["[ ] 研究员-2 分析方法论"]
+    R3["[ ] 研究员-3 提取数据"]
+    WR["[[ ]] 写手 撰写综述"]
+    RV["[ ] 审稿人 审核反馈"]
+    PUB["[ ] 主编 最终发布"] ED
+    --> R1 ED
+    --> R2 ED
+    --> R3 R1
+    --> WR R2
+    --> WR R3
+    --> WR WR
+    --> RV RV
+    --> PUB
+</div>
 
 <p><strong>效果</strong>: 10 篇论文综述，单人 2 天 → 多 Agent 2 小时</p>
 
@@ -358,7 +435,36 @@ user_proxy.initiate_chat(
 
 <p>选择合适的多智能体协作模式，取决于任务特性、团队规模和可靠性要求。以下决策流程图帮助快速定位最佳方案：</p>
 
-<div class="mermaid"> flowchart TD START["[ ] 确定协作需求"] --> Q1{"任务是否可分解为\n独立子任务？"} Q1 -->|是| Q2{"子任务之间\n依赖关系强吗？"} Q1 -->|否| FLAT["[ ] 扁平式\n所有 Agent 平等协商"] Q2 -->|强依赖，需严格顺序| HIER["[ ] 层级式\n管理者统筹编排"] Q2 -->|弱依赖，可并行| Q3{"是否需要\n资源优化？"} Q3 -->|是| MARKET["[ ] 市场式\n竞标分配任务"] Q3 -->|否| HIER2["[ ] 层级式\n分配即可"] FLAT --> C1["适用: 头脑风暴、民主决策\n示例: 团队讨论技术选型"] HIER --> C2["适用: 项目管理、复杂工作流\n示例: 研究团队完成文献综述"] MARKET --> C3["适用: 资源调度、动态分配\n示例: 多模型路由、算力调度"] style START fill:#4f46e5,color:#fff style FLAT fill:#059669,color:#fff style HIER fill:#0ea5e9,color:#fff style HIER2 fill:#0ea5e9,color:#fff style MARKET fill:#f59e0b,color:#000 </div>
+<div class="mermaid">
+    flowchart TD
+   
+    START["[ ] 确定协作需求"]
+    -->
+    Q1{"任务是否可分解为\n独立子任务？"} Q1
+    -->|是|
+    Q2{"子任务之间\n依赖关系强吗？"} Q1
+    -->|否|
+    FLAT["[ ] 扁平式\n所有 Agent 平等协商"] Q2
+    -->|强依赖，需严格顺序|
+    HIER["[ ] 层级式\n管理者统筹编排"] Q2
+    -->|弱依赖，可并行|
+    Q3{"是否需要\n资源优化？"} Q3
+    -->|是|
+    MARKET["[ ] 市场式\n竞标分配任务"] Q3
+    -->|否|
+    HIER2["[ ] 层级式\n分配即可"] FLAT
+    -->
+    C1["适用: 头脑风暴、民主决策\n示例: 团队讨论技术选型"] HIER
+    -->
+    C2["适用: 项目管理、复杂工作流\n示例: 研究团队完成文献综述"] MARKET
+    -->
+    C3["适用: 资源调度、动态分配\n示例: 多模型路由、算力调度"]
+    style START fill:#4f46e5,color:#fff
+    style FLAT fill:#059669,color:#fff
+    style HIER fill:#0ea5e9,color:#fff
+    style HIER2 fill:#0ea5e9,color:#fff
+    style MARKET fill:#f59e0b,color:#000
+</div>
 
 <h3>模式速查表</h3>
 

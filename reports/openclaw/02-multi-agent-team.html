@@ -112,7 +112,36 @@
 
   <h2>🧩 多 Agent 架构</h2>
 
-  <div class="mermaid"> graph TB subgraph Channels["通讯渠道"] WA["WhatsApp<br/>+个人号码"] TG["Telegram<br/>Bot"] DS["Discord<br/>Bot"] end subgraph Gateway["Gateway 路由层"] BIND["Binding 规则引擎"] end subgraph AgentTeam["AI Agent 团队"] direction LR A1["[ ] Agent: home<br/>模型: Sonnet<br/>Workspace: workspace-home"] A2["[ ] Agent: work<br/>模型: Opus<br/>Workspace: workspace-work"] A3["[ ] Agent: coding<br/>模型: Codex<br/>Workspace: workspace-coding"] end WA --> BIND TG --> BIND DS --> BIND BIND -->|"accountId: personal"| A1 BIND -->|"accountId: biz"| A2 BIND -->|"channel: discord #coding"| A3 style BIND fill:#4f46e5,stroke:#818cf8,color:#fff style A1 fill:#312e81,stroke:#6366f1,color:#e2e8f0 style A2 fill:#312e81,stroke:#6366f1,color:#e2e8f0 style A3 fill:#312e81,stroke:#6366f1,color:#e2e8f0 </div>
+  <div class="mermaid">
+    graph TB
+   
+    subgraph
+    Channels["通讯渠道"]
+    WA["WhatsApp<br/>+个人号码"]
+    TG["Telegram<br/>Bot"]
+    DS["Discord<br/>Bot"]
+    end
+    subgraph
+    Gateway["Gateway 路由层"]
+    BIND["Binding 规则引擎"]
+    end
+    subgraph
+    AgentTeam["AI Agent 团队"] direction LR
+    A1["[ ] Agent: home<br/>模型: Sonnet<br/>Workspace: workspace-home"]
+    A2["[ ] Agent: work<br/>模型: Opus<br/>Workspace: workspace-work"]
+    A3["[ ] Agent: coding<br/>模型: Codex<br/>Workspace: workspace-coding"]
+    end WA
+    --> BIND TG
+    --> BIND DS
+    --> BIND BIND
+    -->|"accountId: personal"| A1 BIND
+    -->|"accountId: biz"| A2 BIND
+    -->|"channel: discord #coding"| A3
+    style BIND fill:#4f46e5,stroke:#818cf8,color:#fff
+    style A1 fill:#312e81,stroke:#6366f1,color:#e2e8f0
+    style A2 fill:#312e81,stroke:#6366f1,color:#e2e8f0
+    style A3 fill:#312e81,stroke:#6366f1,color:#e2e8f0
+</div>
 
   <h3>Agent 配置详解</h3>
   <pre><code>{
@@ -232,7 +261,14 @@
   <h2>🔄 Sub-agent 系统</h2>
   <p>Sub-agent 是从主 Agent 派生的后台任务。它在隔离会话中运行，完成后<strong>自动 announce 结果</strong>回主 Agent。</p>
 
-  <div class="mermaid"> sequenceDiagram participant User participant Main as [ ] 主 Agent participant Sub1 as [ ] Sub-agent 1 participant Sub2 as [ ] Sub-agent 2 User->>Main: "分析这三个竞品" Main->>Sub1: sessions_spawn("分析竞品 A") Main->>Sub2: sessions_spawn("分析竞品 B") Note over Main: 主 Agent 继续其他工作 Sub1-->>Main: [ ] announce: 竞品 A 分析报告 Sub2-->>Main: [ ] announce: 竞品 B 分析报告 Main->>User: 汇总所有结果，输出完整报告 </div>
+  <div class="mermaid">
+    sequenceDiagram
+   
+    participant User
+    participant Main as [ ] 主 Agent
+    participant Sub1 as [ ] Sub-agent 1
+    participant Sub2 as [ ] Sub-agent 2 User->>Main: "分析这三个竞品" Main->>Sub1: sessions_spawn("分析竞品 A") Main->>Sub2: sessions_spawn("分析竞品 B") Note over Main: 主 Agent 继续其他工作 Sub1-->>Main: [ ] announce: 竞品 A 分析报告 Sub2-->>Main: [ ] announce: 竞品 B 分析报告 Main->>User: 汇总所有结果，输出完整报告
+</div>
 
   <h3>Sub-agent 配置</h3>
   <pre><code>{
@@ -252,7 +288,28 @@
   <h2>🎼 嵌套 Sub-agent 编排器模式</h2>
   <p>设置 <code>maxSpawnDepth: 2</code> 后，Sub-agent 可以再派生子任务，形成<strong>三层编排架构</strong>：</p>
 
-  <div class="mermaid"> graph TB MAIN["[ ] 主 Agent<br/>(用户交互)"] ORCH["[ ] 编排器 Sub-agent<br/>(任务分解 + 汇总)"] W1["[ ] Worker 1"] W2["[ ] Worker 2"] W3["[ ] Worker 3"] MAIN -->|"spawn"| ORCH ORCH -->|"spawn"| W1 ORCH -->|"spawn"| W2 ORCH -->|"spawn"| W3 W1 -->|"announce"| ORCH W2 -->|"announce"| ORCH W3 -->|"announce"| ORCH ORCH -->|"announce"| MAIN style MAIN fill:#4f46e5,stroke:#818cf8,color:#fff style ORCH fill:#7c3aed,stroke:#a78bfa,color:#fff style W1 fill:#312e81,stroke:#6366f1,color:#e2e8f0 style W2 fill:#312e81,stroke:#6366f1,color:#e2e8f0 style W3 fill:#312e81,stroke:#6366f1,color:#e2e8f0 </div>
+  <div class="mermaid">
+    graph TB
+   
+    MAIN["[ ] 主 Agent<br/>(用户交互)"]
+    ORCH["[ ] 编排器 Sub-agent<br/>(任务分解 + 汇总)"]
+    W1["[ ] Worker 1"]
+    W2["[ ] Worker 2"]
+    W3["[ ] Worker 3"] MAIN
+    -->|"spawn"| ORCH ORCH
+    -->|"spawn"| W1 ORCH
+    -->|"spawn"| W2 ORCH
+    -->|"spawn"| W3 W1
+    -->|"announce"| ORCH W2
+    -->|"announce"| ORCH W3
+    -->|"announce"| ORCH ORCH
+    -->|"announce"| MAIN
+    style MAIN fill:#4f46e5,stroke:#818cf8,color:#fff
+    style ORCH fill:#7c3aed,stroke:#a78bfa,color:#fff
+    style W1 fill:#312e81,stroke:#6366f1,color:#e2e8f0
+    style W2 fill:#312e81,stroke:#6366f1,color:#e2e8f0
+    style W3 fill:#312e81,stroke:#6366f1,color:#e2e8f0
+</div>
 
   <pre><code>{
   agents: {

@@ -522,7 +522,29 @@
 - <strong>Ultra</strong>：旗舰模型，对标 GPT-4，在 MMLU 基准上首次超过人类专家水平（90%）¹
 - <strong>Pro</strong>：均衡模型，适合大多数应用场景
 - <strong>Nano</strong>：端侧模型，可以在手机等设备上运行（1.8B 和 3.25B 参数）</p>
-<div class="mermaid"> graph TB subgraph Models["Gemini 模型层级"] ULTRA["Gemini Ultra<br/>旗舰 · 万亿参数<br/>MMLU 90%+"] PRO["Gemini Pro<br/>均衡 · 生产就绪<br/>长上下文"] NANO["Gemini Nano<br/>端侧 · 1.8B/3.25B<br/>设备部署"] end subgraph Scenes["部署场景"] CLOUD["Google Cloud<br/>Vertex AI · AI Studio"] DEVICE["端侧设备<br/>Android · Pixel · Samsung"] WORKSPACE["Workspace<br/>Gmail · Docs · Sheets"] end ULTRA --> CLOUD PRO --> CLOUD PRO --> WORKSPACE NANO --> DEVICE style ULTRA fill:#4285f4,color:#fff style PRO fill:#34a853,color:#fff style NANO fill:#fbbc04,color:#000 </div>
+<div class="mermaid">
+    graph TB
+   
+    subgraph
+    Models["Gemini 模型层级"]
+    ULTRA["Gemini Ultra<br/>旗舰 · 万亿参数<br/>MMLU 90%+"]
+    PRO["Gemini Pro<br/>均衡 · 生产就绪<br/>长上下文"]
+    NANO["Gemini Nano<br/>端侧 · 1.8B/3.25B<br/>设备部署"]
+    end
+    subgraph
+    Scenes["部署场景"]
+    CLOUD["Google Cloud<br/>Vertex AI · AI Studio"]
+    DEVICE["端侧设备<br/>Android · Pixel · Samsung"]
+    WORKSPACE["Workspace<br/>Gmail · Docs · Sheets"]
+    end ULTRA
+    --> CLOUD PRO
+    --> CLOUD PRO
+    --> WORKSPACE NANO
+    --> DEVICE
+    style ULTRA fill:#4285f4,color:#fff
+    style PRO fill:#34a853,color:#fff
+    style NANO fill:#fbbc04,color:#000
+</div>
 
 <blockquote>
 <p><strong>图1.1 Gemini 模型层级与部署架构</strong>：Ultra 面向云端旗舰场景，Pro 覆盖云端和 Workspace 集成，Nano 部署在 Android 设备端。三级架构覆盖从数据中心到边缘设备的全场景。</p>

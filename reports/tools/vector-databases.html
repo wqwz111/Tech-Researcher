@@ -338,7 +338,49 @@ strong { color: var(--text-primary); }
 
 <h2 id="5-选型决策树">5. 选型决策树</h2>
 
-<div class="mermaid"> graph TD S1{"第一步: 你的数据规模？"} S2{"第二步: 你的集成需求？"} S3{"第三步: 团队运维能力？"} SMALL["< 100 万向量"] MED["100 万 - 1 亿向量"] LARGE["1 亿+ 向量"] C1["需要快速原型？ → Chroma"] C2["已有 PostgreSQL？ → pgvector"] C3["需要生产级性能？ → Qdrant"] M1["需要托管？ → Pinecone / Qdrant Cloud"] M2["需要混合搜索？ → Weaviate / Qdrant"] M3["需要多模态？ → Weaviate"] L1["能接受托管？ → Pinecone / Zilliz Cloud"] L2["必须自建？ → Milvus"] I1["LangChain/LlamaIndex → 全部支持"] I2["SQL 生态 → pgvector"] I3["GraphQL → Weaviate"] O1["无 DevOps → Pinecone"] O2["中等 → Qdrant Cloud / Weaviate Cloud"] O3["强 → Milvus 或自建"] S1 --> SMALL S1 --> MED S1 --> LARGE SMALL --> C1 SMALL --> C2 SMALL --> C3 MED --> M1 MED --> M2 MED --> M3 LARGE --> L1 LARGE --> L2 S1 --> S2 S2 --> I1 S2 --> I2 S2 --> I3 S2 --> S3 S3 --> O1 S3 --> O2 S3 --> O3 </div>
+<div class="mermaid">
+    graph TD
+   
+    S1{"第一步: 你的数据规模？"}
+    S2{"第二步: 你的集成需求？"}
+    S3{"第三步: 团队运维能力？"}
+    SMALL["< 100 万向量"]
+    MED["100 万 - 1 亿向量"]
+    LARGE["1 亿+ 向量"]
+    C1["需要快速原型？ → Chroma"]
+    C2["已有 PostgreSQL？ → pgvector"]
+    C3["需要生产级性能？ → Qdrant"]
+    M1["需要托管？ → Pinecone / Qdrant Cloud"]
+    M2["需要混合搜索？ → Weaviate / Qdrant"]
+    M3["需要多模态？ → Weaviate"]
+    L1["能接受托管？ → Pinecone / Zilliz Cloud"]
+    L2["必须自建？ → Milvus"]
+    I1["LangChain/LlamaIndex → 全部支持"]
+    I2["SQL 生态 → pgvector"]
+    I3["GraphQL → Weaviate"]
+    O1["无 DevOps → Pinecone"]
+    O2["中等 → Qdrant Cloud / Weaviate Cloud"]
+    O3["强 → Milvus 或自建"] S1
+    --> SMALL S1
+    --> MED S1
+    --> LARGE SMALL
+    --> C1 SMALL
+    --> C2 SMALL
+    --> C3 MED
+    --> M1 MED
+    --> M2 MED
+    --> M3 LARGE
+    --> L1 LARGE
+    --> L2 S1
+    --> S2 S2
+    --> I1 S2
+    --> I2 S2
+    --> I3 S2
+    --> S3 S3
+    --> O1 S3
+    --> O2 S3
+    --> O3
+</div>
 
 <hr>
 

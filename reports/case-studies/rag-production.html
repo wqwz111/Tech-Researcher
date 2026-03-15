@@ -221,7 +221,31 @@ strong { color: var(--text-primary); }
 
 <p><strong>清洗管线示例</strong>：</p>
 
-<div class="mermaid"> flowchart TD A["原始文档"] --> B["格式检测"] --> C["文本提取"] --> D["清洗"] --> E["分块"] --> F["嵌入"] --> G["向量存储"] C --> C1["OCR<br/>如果是扫描件"] C --> C2["表格/图表提取"] style A fill:#f5f5f5 style D fill:#fff3e0 style F fill:#e8f5e9 style G fill:#e3f2fd </div>
+<div class="mermaid">
+    flowchart TD
+   
+    A["原始文档"]
+    -->
+    B["格式检测"]
+    -->
+    C["文本提取"]
+    -->
+    D["清洗"]
+    -->
+    E["分块"]
+    -->
+    F["嵌入"]
+    -->
+    G["向量存储"] C
+    -->
+    C1["OCR<br/>如果是扫描件"] C
+    -->
+    C2["表格/图表提取"]
+    style A fill:#f5f5f5
+    style D fill:#fff3e0
+    style F fill:#e8f5e9
+    style G fill:#e3f2fd
+</div>
 
 <p>> <strong>图2.1 文档处理管线</strong>：原始文档经过格式检测后进入文本提取阶段，扫描件需额外 OCR 处理，含表格/图表的文档需专项提取。提取后的文本经清洗、分块、嵌入，最终存入向量数据库供检索使用。</p>
 
@@ -287,7 +311,22 @@ strong { color: var(--text-primary); }
 <li>缺点：无法理解语义</li>
 
 <p><strong>混合检索</strong></p>
-<div class="mermaid"> graph TD Q["用户查询"] VS["向量检索<br/>语义相似度"] BM["BM25 检索<br/>关键词匹配"] RRF["RRF Reciprocal Rank Fusion"] RE["重排序 Reranker"] TOP["Top-K 文档"] Q --> VS Q --> BM VS --> RRF BM --> RRF RRF --> RE RE --> TOP </div>
+<div class="mermaid">
+    graph TD
+   
+    Q["用户查询"]
+    VS["向量检索<br/>语义相似度"]
+    BM["BM25 检索<br/>关键词匹配"]
+    RRF["RRF Reciprocal Rank Fusion"]
+    RE["重排序 Reranker"]
+    TOP["Top-K 文档"] Q
+    --> VS Q
+    --> BM VS
+    --> RRF BM
+    --> RRF RRF
+    --> RE RE
+    --> TOP
+</div>
 
 <p><strong>重排序（Reranking）</strong></p>
 <p>使用专门的 Reranker 模型（如 Cohere Rerank、BGE-Reranker）对初始检索结果进行精排，通常能将检索准确率提升 10-20%。</p>
@@ -422,7 +461,26 @@ strong { color: var(--text-primary); }
 
 <p><strong>反馈驱动优化</strong></p>
 
-<div class="mermaid"> flowchart TD A["收集反馈"] --> B["分析模式"] --> C["定位问题"] --> D["优化"] --> E["部署"] --> F["验证"] -->|持续循环| A style A fill:#e3f2fd style C fill:#fff3e0 style D fill:#e8f5e9 style F fill:#fce4ec </div>
+<div class="mermaid">
+    flowchart TD
+   
+    A["收集反馈"]
+    -->
+    B["分析模式"]
+    -->
+    C["定位问题"]
+    -->
+    D["优化"]
+    -->
+    E["部署"]
+    -->
+    F["验证"]
+    -->|持续循环| A
+    style A fill:#e3f2fd
+    style C fill:#fff3e0
+    style D fill:#e8f5e9
+    style F fill:#fce4ec
+</div>
 
 <p>> <strong>图5.1 RAG 优化循环</strong>：以用户反馈为驱动的持续优化闭环——收集反馈后分析使用模式、定位检索或生成问题，针对性优化后部署上线并验证效果，形成持续迭代的质量提升飞轮。</p>
 

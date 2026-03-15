@@ -477,7 +477,28 @@ strong { color: var(--text-primary); }
 
 <p><strong>模式一：模型路由层（Model Router）</strong></p>
 
-<div class="mermaid"> flowchart TD A["应用层"] --> B["路由层<br/>LiteLLM / Portkey / 自建"] B --> C1["AWS Bedrock"] B --> C2["Azure OpenAI"] B --> C3["Together AI"] B --> C4["OpenRouter"] B --> C5["..."] style A fill:#e3f2fd style B fill:#fff3e0 style C1 fill:#e8f5e9 style C2 fill:#e8f5e9 style C3 fill:#e8f5e9 </div>
+<div class="mermaid">
+    flowchart TD
+   
+    A["应用层"]
+    -->
+    B["路由层<br/>LiteLLM / Portkey / 自建"] B
+    -->
+    C1["AWS Bedrock"] B
+    -->
+    C2["Azure OpenAI"] B
+    -->
+    C3["Together AI"] B
+    -->
+    C4["OpenRouter"] B
+    -->
+    C5["..."]
+    style A fill:#e3f2fd
+    style B fill:#fff3e0
+    style C1 fill:#e8f5e9
+    style C2 fill:#e8f5e9
+    style C3 fill:#e8f5e9
+</div>
 
 <p>> <strong>图5.2 多云模型路由架构</strong>：路由层统一 API 格式，按成本/延迟/可用性智能路由请求到不同云厂商的 LLM 服务，支持失败自动降级和 Token 用量聚合计费，有效规避供应商锁定风险。</p>
 
@@ -564,7 +585,33 @@ else → 主要云平台 (统一管理)
 
 <h3 id="64-决策流程图">6.4 决策流程图</h3>
 
-<div class="mermaid"> graph TD Q{"你的应用需要什么模型？"} GPT["GPT-4o / o1 / o3 → Azure OpenAI"] GEM["Gemini 1.5/2.0 → Vertex AI"] CLAUDE["Claude 3.5"] OPEN["Llama / Mistral / Qwen 开源"] UNKNOWN["不确定 → 使用路由层"] C1["企业合规 → AWS Bedrock"] C2["已在 GCP → Vertex AI"] C3["最低延迟 → Fireworks AI"] O1["企业合规 → AWS Bedrock / Vertex AI"] O2["成本敏感 → Fireworks AI"] O3["需要微调 → Together AI"] Q --> GPT Q --> GEM Q --> CLAUDE Q --> OPEN Q --> UNKNOWN CLAUDE --> C1 CLAUDE --> C2 CLAUDE --> C3 OPEN --> O1 OPEN --> O2 OPEN --> O3 </div>
+<div class="mermaid">
+    graph TD
+   
+    Q{"你的应用需要什么模型？"}
+    GPT["GPT-4o / o1 / o3 → Azure OpenAI"]
+    GEM["Gemini 1.5/2.0 → Vertex AI"]
+    CLAUDE["Claude 3.5"]
+    OPEN["Llama / Mistral / Qwen 开源"]
+    UNKNOWN["不确定 → 使用路由层"]
+    C1["企业合规 → AWS Bedrock"]
+    C2["已在 GCP → Vertex AI"]
+    C3["最低延迟 → Fireworks AI"]
+    O1["企业合规 → AWS Bedrock / Vertex AI"]
+    O2["成本敏感 → Fireworks AI"]
+    O3["需要微调 → Together AI"] Q
+    --> GPT Q
+    --> GEM Q
+    --> CLAUDE Q
+    --> OPEN Q
+    --> UNKNOWN CLAUDE
+    --> C1 CLAUDE
+    --> C2 CLAUDE
+    --> C3 OPEN
+    --> O1 OPEN
+    --> O2 OPEN
+    --> O3
+</div>
 
 <hr>
 

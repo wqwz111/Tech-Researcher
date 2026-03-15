@@ -163,7 +163,30 @@ strong { color: var(--text-primary); }
 
 <p>最基础的"检索-阅读"范式：</p>
 
-<div class="mermaid"> flowchart LR subgraph IndexStage["[ ] 索引阶段"] D[文档] --> S[切块 Chunking] S --> E[生成 Embedding] E --> V[存入向量数据库] end subgraph QueryStage["[ ] 查询阶段"] Q[用户问题] --> R[向量检索 Top-K] R --> P[拼接 Prompt] P --> L[LLM 生成回答] end </div>
+<div class="mermaid">
+    flowchart LR
+   
+    subgraph
+    IndexStage["[ ] 索引阶段"]
+    D[文档]
+    -->
+    S[切块 Chunking] S
+    -->
+    E[生成 Embedding] E
+    -->
+    V[存入向量数据库]
+    end
+    subgraph
+    QueryStage["[ ] 查询阶段"]
+    Q[用户问题]
+    -->
+    R[向量检索 Top-K] R
+    -->
+    P[拼接 Prompt] P
+    -->
+    L[LLM 生成回答]
+    end
+</div>
 
 <p>1. <strong>索引阶段</strong>: 将文档切块 → 生成 Embedding → 存入向量数据库</p>
 <p>2. <strong>查询阶段</strong>: 用户问题 → 向量检索 Top-K → 拼接 Prompt → LLM 生成回答</p>
@@ -343,7 +366,25 @@ result = evaluate(
 
 <h3 id="52-架构建议">5.2 架构建议</h3>
 
-<div class="mermaid"> flowchart TD Q[用户查询] --> QA[查询分析] QA --> R[路由选择] R --> HR[混合检索] HR --> RR[Rerank] RR --> CC[上下文压缩] CC --> LLM[LLM 生成] LLM --> CIT[引用标注] </div>
+<div class="mermaid">
+    flowchart TD
+   
+    Q[用户查询]
+    -->
+    QA[查询分析] QA
+    -->
+    R[路由选择] R
+    -->
+    HR[混合检索] HR
+    -->
+    RR[Rerank] RR
+    -->
+    CC[上下文压缩] CC
+    -->
+    LLM[LLM 生成] LLM
+    -->
+    CIT[引用标注]
+</div>
 
 <hr>
 

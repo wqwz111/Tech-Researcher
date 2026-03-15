@@ -185,7 +185,27 @@ strong { color: var(--text-primary); }
 <li><strong>Session</strong>: 会话上下文，管理 Agent 与用户的交互状态</li>
 </ol>
 <h3>系统架构</h3>
-<div class="mermaid">graph TD GW[&quot;[ ] OpenClaw Gateway&quot;] AR[&quot;Agent Runtime&quot;] CR[&quot;Channel Router&quot;] SL[&quot;Skill Loader&quot;] SM[&quot;Session Manager&quot;] TG[&quot;Telegram Plugin&quot;] DC[&quot;Discord Plugin&quot;] SG[&quot;Signal Plugin&quot;] GW --&gt; AR GW --&gt; CR GW --&gt; SL AR --&gt; SM CR --&gt; SM SL --&gt; SM SM --&gt; TG SM --&gt; DC SM --&gt; SG </div>
+<div class="mermaid">
+    graph TD
+   
+    GW["[ ] OpenClaw Gateway"]
+    AR["Agent Runtime"]
+    CR["Channel Router"]
+    SL["Skill Loader"]
+    SM["Session Manager"]
+    TG["Telegram Plugin"]
+    DC["Discord Plugin"]
+    SG["Signal Plugin"] GW
+    --> AR GW
+    --> CR GW
+    --> SL AR
+    --> SM CR
+    --> SM SL
+    --> SM SM
+    --> TG SM
+    --> DC SM
+    --> SG
+</div>
 <h3>主要组件</h3>
 <div class="table-wrapper">
 <table>
@@ -646,7 +666,29 @@ openclaw configure --section telegram
 <h2>6. 技能系统与 MCP 集成</h2>
 <h3>技能系统 (Skills)</h3>
 <p>OpenClaw 的技能是可复用的能力模块，每个技能是一个目录：</p>
-<div class="mermaid">graph TD SK[&quot; skills/&quot;] WR[&quot; web-research/&quot;] CR[&quot; code-review/&quot;] WEA[&quot; weather/&quot;] SM1[&quot;SKILL.md&quot;] REF[&quot;references/&quot;] SCR[&quot;scripts/&quot;] SM2[&quot;SKILL.md&quot;] TMPL[&quot;templates/&quot;] SM3[&quot;SKILL.md&quot;] SK --&gt; WR SK --&gt; CR SK --&gt; WEA WR --&gt; SM1 WR --&gt; REF WR --&gt; SCR CR --&gt; SM2 CR --&gt; TMPL WEA --&gt; SM3 </div>
+<div class="mermaid">
+    graph TD
+   
+    SK[" skills/"]
+    WR[" web-research/"]
+    CR[" code-review/"]
+    WEA[" weather/"]
+    SM1["SKILL.md"]
+    REF["references/"]
+    SCR["scripts/"]
+    SM2["SKILL.md"]
+    TMPL["templates/"]
+    SM3["SKILL.md"] SK
+    --> WR SK
+    --> CR SK
+    --> WEA WR
+    --> SM1 WR
+    --> REF WR
+    --> SCR CR
+    --> SM2 CR
+    --> TMPL WEA
+    --> SM3
+</div>
 <p><strong>SKILL.md 示例</strong>:</p>
 <pre><code class="language-markdown"># Weather Skill
 

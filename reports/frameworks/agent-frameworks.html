@@ -753,7 +753,19 @@ OpenClaw 更多通过配置驱动：</p>
 </table>
 </div>
 <h3 id="22-vs">2.2 灵活性 vs 易用性</h3>
-<div class="mermaid"> graph LR LG["LangGraph\n高灵活性"] AG["AutoGen"] OC["OpenClaw"] CREW["CrewAI"] MG["MetaGPT\n高易用性"] LG --> AG AG --> OC OC --> CREW CREW --> MG </div>
+<div class="mermaid">
+    graph LR
+   
+    LG["LangGraph\n高灵活性"]
+    AG["AutoGen"]
+    OC["OpenClaw"]
+    CREW["CrewAI"]
+    MG["MetaGPT\n高易用性"] LG
+    --> AG AG
+    --> OC OC
+    --> CREW CREW
+    --> MG
+</div>
 
 <h3 id="23">2.3 学习曲线</h3>
 <div class="table-wrapper">
@@ -1036,7 +1048,40 @@ OpenClaw 更多通过配置驱动：</p>
 </table>
 </div>
 <h3 id="52">5.2 框架选型决策树</h3>
-<div class="mermaid"> flowchart TD START["[ ] 选择 Agent 框架"] --> Q1{"主要用途?"} Q1 -->|"复杂工作流编排"| LANGGRAPH["[ ] LangGraph"] Q1 -->|"快速原型/MVP"| Q2{"单Agent还是多Agent?"} Q2 -->|"单 Agent"| OPENCLAW["[ ] OpenClaw"] Q2 -->|"多 Agent"| CREWAI["[ ] CrewAI"] Q1 -->|"学术研究/实验"| AUTOGEN["[ ] AutoGen"] Q1 -->|"软件开发自动化"| METAGPT["[ ] MetaGPT"] Q1 -->|"即时通讯集成"| OPENCLAW Q1 -->|"生产级关键系统"| Q3{"需要状态持久化?"} Q3 -->|"是"| LANGGRAPH2["[ ] LangGraph"] Q3 -->|"否"| CREWAI2["[ ] CrewAI"] style START fill:#4f46e5,stroke:#818cf8,color:#fff style LANGGRAPH fill:#059669,stroke:#34d399,color:#fff style LANGGRAPH2 fill:#059669,stroke:#34d399,color:#fff style CREWAI fill:#7c3aed,stroke:#a78bfa,color:#fff style CREWAI2 fill:#7c3aed,stroke:#a78bfa,color:#fff style AUTOGEN fill:#7c3aed,stroke:#a78bfa,color:#fff style METAGPT fill:#7c3aed,stroke:#a78bfa,color:#fff style OPENCLAW fill:#7c3aed,stroke:#a78bfa,color:#fff </div>
+<div class="mermaid">
+    flowchart TD
+   
+    START["[ ] 选择 Agent 框架"]
+    -->
+    Q1{"主要用途?"} Q1
+    -->|"复杂工作流编排"|
+    LANGGRAPH["[ ] LangGraph"] Q1
+    -->|"快速原型/MVP"|
+    Q2{"单Agent还是多Agent?"} Q2
+    -->|"单 Agent"|
+    OPENCLAW["[ ] OpenClaw"] Q2
+    -->|"多 Agent"|
+    CREWAI["[ ] CrewAI"] Q1
+    -->|"学术研究/实验"|
+    AUTOGEN["[ ] AutoGen"] Q1
+    -->|"软件开发自动化"|
+    METAGPT["[ ] MetaGPT"] Q1
+    -->|"即时通讯集成"| OPENCLAW Q1
+    -->|"生产级关键系统"|
+    Q3{"需要状态持久化?"} Q3
+    -->|"是"|
+    LANGGRAPH2["[ ] LangGraph"] Q3
+    -->|"否"|
+    CREWAI2["[ ] CrewAI"]
+    style START fill:#4f46e5,stroke:#818cf8,color:#fff
+    style LANGGRAPH fill:#059669,stroke:#34d399,color:#fff
+    style LANGGRAPH2 fill:#059669,stroke:#34d399,color:#fff
+    style CREWAI fill:#7c3aed,stroke:#a78bfa,color:#fff
+    style CREWAI2 fill:#7c3aed,stroke:#a78bfa,color:#fff
+    style AUTOGEN fill:#7c3aed,stroke:#a78bfa,color:#fff
+    style METAGPT fill:#7c3aed,stroke:#a78bfa,color:#fff
+    style OPENCLAW fill:#7c3aed,stroke:#a78bfa,color:#fff
+</div>
 
 <p><strong>快速参考</strong>：</p>
 <div class="table-wrapper">

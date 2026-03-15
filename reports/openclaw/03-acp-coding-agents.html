@@ -103,7 +103,40 @@
 
   <h2>🔌 ACP 架构</h2>
 
-  <div class="mermaid"> graph TB subgraph Chat["[ ] 聊天渠道"] DS["Discord Thread"] TG["Telegram Topic"] WC["WebChat"] end subgraph OC["[ ] OpenClaw Gateway"] BIND["Binding 路由"] ACP_RT["ACP Runtime"] BACKEND["acpx Backend"] end subgraph Agents["[ ] 编程智能体"] CODEX["Codex<br/>(OpenAI)"] CLAUDE["Claude Code<br/>(Anthropic)"] GEMINI["Gemini CLI<br/>(Google)"] KIMI["Kimi<br/>(Moonshot)"] PI["Pi"] OC_AGENT["OpenCode"] end DS & TG & WC --> BIND BIND -->|"runtime: acp"| ACP_RT ACP_RT --> BACKEND BACKEND --> CODEX & CLAUDE & GEMINI & KIMI & PI & OC_AGENT style ACP_RT fill:#4f46e5,stroke:#818cf8,color:#fff style BACKEND fill:#7c3aed,stroke:#a78bfa,color:#fff style CODEX fill:#312e81,stroke:#6366f1,color:#e2e8f0 style CLAUDE fill:#312e81,stroke:#6366f1,color:#e2e8f0 style GEMINI fill:#312e81,stroke:#6366f1,color:#e2e8f0 </div>
+  <div class="mermaid">
+    graph TB
+   
+    subgraph
+    Chat["[ ] 聊天渠道"]
+    DS["Discord Thread"]
+    TG["Telegram Topic"]
+    WC["WebChat"]
+    end
+    subgraph
+    OC["[ ] OpenClaw Gateway"]
+    BIND["Binding 路由"]
+    ACP_RT["ACP Runtime"]
+    BACKEND["acpx Backend"]
+    end
+    subgraph
+    Agents["[ ] 编程智能体"]
+    CODEX["Codex<br/>(OpenAI)"]
+    CLAUDE["Claude Code<br/>(Anthropic)"]
+    GEMINI["Gemini CLI<br/>(Google)"]
+    KIMI["Kimi<br/>(Moonshot)"]
+    PI["Pi"]
+    OC_AGENT["OpenCode"]
+    end DS & TG & WC
+    --> BIND BIND
+    -->|"runtime: acp"| ACP_RT ACP_RT
+    --> BACKEND BACKEND
+    --> CODEX & CLAUDE & GEMINI & KIMI & PI & OC_AGENT
+    style ACP_RT fill:#4f46e5,stroke:#818cf8,color:#fff
+    style BACKEND fill:#7c3aed,stroke:#a78bfa,color:#fff
+    style CODEX fill:#312e81,stroke:#6366f1,color:#e2e8f0
+    style CLAUDE fill:#312e81,stroke:#6366f1,color:#e2e8f0
+    style GEMINI fill:#312e81,stroke:#6366f1,color:#e2e8f0
+</div>
 
   <h3>支持的编程智能体</h3>
   <div class="table-wrapper">
@@ -120,7 +153,41 @@
 
   <h2>⚡ 两种运行模式</h2>
 
-  <div class="mermaid"> graph LR subgraph Run["run 模式（一次性）"] R1["用户请求"] --> R2["spawn ACP"] --> R3["执行任务"] --> R4["返回结果"] --> R5["会话结束"] end subgraph Session["session 模式（持久化）"] S1["用户请求"] --> S2["spawn ACP"] --> S3["执行任务"] --> S4["返回结果"] S4 --> S5["保持会话"] --> S6["后续消息"] --> S7["继续同一上下文"] --> S5 end style R5 fill:#ef4444,stroke:#f87171,color:#fff style S5 fill:#059669,stroke:#34d399,color:#fff </div>
+  <div class="mermaid">
+    graph LR
+   
+    subgraph
+    Run["run 模式（一次性）"]
+    R1["用户请求"]
+    -->
+    R2["spawn ACP"]
+    -->
+    R3["执行任务"]
+    -->
+    R4["返回结果"]
+    -->
+    R5["会话结束"]
+    end
+    subgraph
+    Session["session 模式（持久化）"]
+    S1["用户请求"]
+    -->
+    S2["spawn ACP"]
+    -->
+    S3["执行任务"]
+    -->
+    S4["返回结果"] S4
+    -->
+    S5["保持会话"]
+    -->
+    S6["后续消息"]
+    -->
+    S7["继续同一上下文"]
+    --> S5
+    end
+    style R5 fill:#ef4444,stroke:#f87171,color:#fff
+    style S5 fill:#059669,stroke:#34d399,color:#fff
+</div>
 
   <div class="table-wrapper">
 <table>
@@ -134,7 +201,14 @@
 
   <h2>🧵 线程绑定机制</h2>
 
-  <div class="mermaid"> sequenceDiagram participant User participant Discord as [ ] Discord Thread participant OC as [ ] OpenClaw participant Codex as [ ] Codex User->>Discord: "Fix the failing tests" Discord->>OC: 路由到 ACP session OC->>Codex: 执行修复 Codex-->>OC: 修复完成 OC-->>Discord: 结果 + 文件变更 User->>Discord: "Run tests again" Discord->>OC: 同一 ACP session OC->>Codex: 继续上下文，跑测试 Codex-->>OC: 测试结果 OC-->>Discord: [ ] 所有测试通过 </div>
+  <div class="mermaid">
+    sequenceDiagram
+   
+    participant User
+    participant Discord as [ ] Discord Thread
+    participant OC as [ ] OpenClaw
+    participant Codex as [ ] Codex User->>Discord: "Fix the failing tests" Discord->>OC: 路由到 ACP session OC->>Codex: 执行修复 Codex-->>OC: 修复完成 OC-->>Discord: 结果 + 文件变更 User->>Discord: "Run tests again" Discord->>OC: 同一 ACP session OC->>Codex: 继续上下文，跑测试 Codex-->>OC: 测试结果 OC-->>Discord: [ ] 所有测试通过
+</div>
 
   <h3>配置线程绑定</h3>
   <pre><code>{
@@ -206,7 +280,26 @@ openclaw gateway restart</code></pre>
 
   <h2>⚖️ ACP vs Sub-agent</h2>
 
-  <div class="mermaid"> graph TB subgraph ACP["ACP 方式"] A1["OpenClaw Agent"] -->|"外部协议"| A2["ACP Backend"] --> A3["Codex/Claude Code<br/>独立进程"] end subgraph Sub["Sub-agent 方式"] S1["OpenClaw Agent"] -->|"内部调用"| S2["Sub-agent Runtime<br/>同一进程，隔离会话"] end style A3 fill:#059669,stroke:#34d399,color:#fff style S2 fill:#4f46e5,stroke:#818cf8,color:#fff </div>
+  <div class="mermaid">
+    graph TB
+   
+    subgraph
+    ACP["ACP 方式"]
+    A1["OpenClaw Agent"]
+    -->|"外部协议"|
+    A2["ACP Backend"]
+    -->
+    A3["Codex/Claude Code<br/>独立进程"]
+    end
+    subgraph
+    Sub["Sub-agent 方式"]
+    S1["OpenClaw Agent"]
+    -->|"内部调用"|
+    S2["Sub-agent Runtime<br/>同一进程，隔离会话"]
+    end
+    style A3 fill:#059669,stroke:#34d399,color:#fff
+    style S2 fill:#4f46e5,stroke:#818cf8,color:#fff
+</div>
 
   <div class="table-wrapper">
 <table>
