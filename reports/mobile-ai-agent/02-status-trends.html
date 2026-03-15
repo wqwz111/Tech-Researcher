@@ -169,8 +169,9 @@
   pre {
     background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
     overflow-x: auto; border: 1px solid var(--border-color); margin: 1.2rem 0; position: relative;
+    max-width: 100%;
   }
-  pre code { background: none; color: var(--text-primary); }
+  pre code { background: none; color: var(--text-primary); font-size: 0.85rem; max-width: 100%; }
   pre .lang-label {
     position: absolute; top: 0; right: 0; background: var(--border-color);
     color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
@@ -353,13 +354,12 @@
 - 融合准确率比纯视觉高 <strong>15-20%</strong></p>
 <h3 id="13-agent-loop">1.3 推理框架：从单步到多步 Agent Loop</h3>
 <p>典型的移动 Agent 推理循环：</p>
-<div class="highlight"><pre><span></span><code>1. 感知：截图 + Accessibility → 屏幕状态 S_t
+<pre><code>1. 感知：截图 + Accessibility → 屏幕状态 S_t
 2. 规划：LLM(S_t, 用户目标 G, 历史 H) → 动作 a_t
 3. 执行：a_t → UI 操作（点击/滑动/输入）
 4. 验证：截图对比 → 确认操作效果
 5. 记忆：更新历史 H = H + (S_t, a_t, S_{t+1})
-6. 循环：直到目标完成或超时
-</code></pre></div>
+6. 循环：直到目标完成或超时</code></pre>
 
 <p><strong>效率优化方向</strong>：
 - <strong>减少 LLM 调用</strong>：GraphPilot 用知识图谱规划路径，近似单次 LLM 完成任务

@@ -1,12 +1,18 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>移动端 AI 智能体应用 — 深度研究报告</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  function initMermaid(theme) {
+    mermaid.initialize({theme: theme === 'light' ? 'default' : 'dark', themeVariables: theme === 'light' ? {} : {primaryColor:'#312e81',primaryTextColor:'#e2e8f0',primaryBorderColor:'#4f46e5',lineColor:'#6366f1',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'}});
+  }
+</script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.8; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.8; }
   :root, [data-theme="dark"] {
     --bg-primary:    #0f172a;
     --bg-secondary:  #1e293b;
@@ -35,6 +41,14 @@
 
     --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     --header-border: #334155;
+
+    --accent-text: #c7d2fe;
+    --accent-hover: #a5b4fc;
+    --code-text: #a78bfa;
+    --orange: #fb923c;
+    --green: #34d399;
+    --blue: #818cf8;
+    --pink: #f472b6;
   }
     [data-theme="light"] {
     --bg-primary:    #ffffff;
@@ -65,9 +79,9 @@
     --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
     --header-border: #e2e8f0;
   }
-  .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 2.5rem 2rem; text-align: center; position: relative; }
+  .header { background: var(--header-bg); border-bottom: 1px solid var(--header-border); padding: 2.5rem 2rem; text-align: center; position: relative; }
   .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
-  .header .meta { color: #64748b; font-size: 0.9rem; }
+  .header .meta { color: var(--text-muted); font-size: 0.9rem; }
   .tag { display: inline-block; padding: 0.2rem 0.6rem; margin: 0.2rem; background: var(--tag-bg); color: var(--tag-text); border-radius: 4px; font-size: 0.8rem; }
   .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
   .breadcrumb { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
@@ -79,8 +93,8 @@
   ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text-primary); }
   li { margin-bottom: 0.4rem; }
   code { background: var(--bg-code); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: var(--code-text); }
-  pre { background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
-  pre code { background: none; padding: 0; }
+  pre { background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; max-width: 100%; }
+  pre code { background: none; padding: 0; font-size: 0.85rem; max-width: 100%; }
   .callout { background: var(--bg-callout); border-left: 3px solid var(--accent-primary); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
   .callout strong { color: var(--accent-text); }
   .callout.warn { border-left-color: var(--orange); }
@@ -114,13 +128,22 @@
     const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
     html.setAttribute('data-theme', next);
     localStorage.setItem('probe-theme', next);
-    location.reload();
+    updateToggleUI(next);
+    if (typeof initMermaid === 'function') { initMermaid(next); }
+  }
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
   }
   (function() {
     const saved = localStorage.getItem('probe-theme') || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
-    document.getElementById('themeIcon').textContent = saved === 'light' ? '🌙' : '☀️';
-    document.getElementById('themeLabel').textContent = saved === 'light' ? '夜间' : '日间';
+    document.addEventListener('DOMContentLoaded', function() {
+      updateToggleUI(saved);
+      if (typeof initMermaid === 'function') { initMermaid(saved); }
+    });
   })();
 </script>
 </head>
