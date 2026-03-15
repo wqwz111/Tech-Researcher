@@ -169,7 +169,6 @@ strong { color: var(--text-primary); }
 
 <div class="mermaid">
     graph TD
-   
     FT["微调方法"]
     FF["全参数微调 Full Fine-tuning"]
     FP["全精度 FP32/BF16"]
@@ -182,19 +181,19 @@ strong { color: var(--text-primary); }
     RL["强化学习微调"]
     RLHF["RLHF PPO"]
     DPO["DPO"]
-    GRPO["GRPO"] FT
-    --> FF FT
-    --> PEFT FT
-    --> RL FF
-    --> FP FF
-    --> DIST PEFT
-    --> LORA PEFT
-    --> ADP PEFT
-    --> PRE PEFT
-    --> PROMPT RL
-    --> RLHF RL
-    --> DPO RL
-    --> GRPO
+    GRPO["GRPO"]
+    FT --> FF
+    FT --> PEFT
+    FT --> RL
+    FF --> FP
+    FF --> DIST
+    PEFT --> LORA
+    PEFT --> ADP
+    PEFT --> PRE
+    PEFT --> PROMPT
+    RL --> RLHF
+    RL --> DPO
+    RL --> GRPO
 </div>
 
 <h3 id="12-核心对比">1.2 核心对比</h3>
@@ -319,15 +318,11 @@ W' = W + ΔW = W + BA
 
 <div class="mermaid">
     flowchart TD
-   
-    P1["Phase 1: 小规模实验<br/>1% 数据, 1 epoch"]
-    -->
-    P2["Phase 2: 超参数搜索<br/>LR: [1e-5 ~ 5e-4]<br/>rank: [8, 16, 32, 64]"] P2
-    -->
-    P3["Phase 3: 全量训练<br/>最优超参数 + 全数据"] P1
-    -.->|确保流程通畅<br/>观察 loss 趋势| P1 P2
-    -.->|小数据集快速对比| P2 P3
-    -.->|监控 eval loss<br/>防过拟合| P3
+    P1["Phase 1: 小规模实验<br/>1% 数据, 1 epoch"] --> P2["Phase 2: 超参数搜索<br/>LR: [1e-5 ~ 5e-4]<br/>rank: [8, 16, 32, 64]"]
+    P2 --> P3["Phase 3: 全量训练<br/>最优超参数 + 全数据"]
+    P1 -.->|确保流程通畅<br/>观察 loss 趋势| P1
+    P2 -.->|小数据集快速对比| P2
+    P3 -.->|监控 eval loss<br/>防过拟合| P3
 </div>
 
 <hr>
@@ -338,14 +333,9 @@ W' = W + ΔW = W + BA
 
 <div class="mermaid">
     flowchart LR
-   
-    Base[通用基座]
-    -->
-    CPT[领域继续预训练<br/>CPT] CPT
-    -->
-    SFT[指令微调<br/>SFT] SFT
-    -->
-    DPO[偏好对齐<br/>DPO]
+    Base[通用基座] --> CPT[领域继续预训练<br/>CPT]
+    CPT --> SFT[指令微调<br/>SFT]
+    SFT --> DPO[偏好对齐<br/>DPO]
 </div>
 
 <p><strong>阶段 1 - 继续预训练</strong>:</p>
@@ -515,16 +505,15 @@ DPO: 直接用偏好数据优化策略 (一步)
 
 <div class="mermaid">
     graph TD
-   
     Q1{"是否需要私有部署？"}
     Q2{"数据量 > 100K？"}
     A1["Full FT 多卡"]
     A2["LoRA / QLoRA"]
-    A3["API 微调 OpenAI / Claude"] Q1
-    -->|是| Q2 Q1
-    -->|否| A3 Q2
-    -->|是| A1 Q2
-    -->|否| A2
+    A3["API 微调 OpenAI / Claude"]
+    Q1 -->|"是"| Q2
+    Q1 -->|"否"| A3
+    Q2 -->|"是"| A1
+    Q2 -->|"否"| A2
 </div>
 
 <hr>

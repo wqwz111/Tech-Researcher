@@ -478,20 +478,12 @@ strong { color: var(--text-primary); }
 
 <div class="mermaid">
     flowchart TD
-   
-    A["应用层"]
-    -->
-    B["路由层<br/>LiteLLM / Portkey / 自建"] B
-    -->
-    C1["AWS Bedrock"] B
-    -->
-    C2["Azure OpenAI"] B
-    -->
-    C3["Together AI"] B
-    -->
-    C4["OpenRouter"] B
-    -->
-    C5["..."]
+    A["应用层"] --> B["路由层<br/>LiteLLM / Portkey / 自建"]
+    B --> C1["AWS Bedrock"]
+    B --> C2["Azure OpenAI"]
+    B --> C3["Together AI"]
+    B --> C4["OpenRouter"]
+    B --> C5["..."]
     style A fill:#e3f2fd
     style B fill:#fff3e0
     style C1 fill:#e8f5e9
@@ -586,7 +578,6 @@ else → 主要云平台 (统一管理)
 
 <div class="mermaid">
     graph TD
-   
     Q{"你的应用需要什么模型？"}
     GPT["GPT-4o / o1 / o3 → Azure OpenAI"]
     GEM["Gemini 1.5/2.0 → Vertex AI"]
@@ -598,18 +589,18 @@ else → 主要云平台 (统一管理)
     C3["最低延迟 → Fireworks AI"]
     O1["企业合规 → AWS Bedrock / Vertex AI"]
     O2["成本敏感 → Fireworks AI"]
-    O3["需要微调 → Together AI"] Q
-    --> GPT Q
-    --> GEM Q
-    --> CLAUDE Q
-    --> OPEN Q
-    --> UNKNOWN CLAUDE
-    --> C1 CLAUDE
-    --> C2 CLAUDE
-    --> C3 OPEN
-    --> O1 OPEN
-    --> O2 OPEN
-    --> O3
+    O3["需要微调 → Together AI"]
+    Q --> GPT
+    Q --> GEM
+    Q --> CLAUDE
+    Q --> OPEN
+    Q --> UNKNOWN
+    CLAUDE --> C1
+    CLAUDE --> C2
+    CLAUDE --> C3
+    OPEN --> O1
+    OPEN --> O2
+    OPEN --> O3
 </div>
 
 <hr>

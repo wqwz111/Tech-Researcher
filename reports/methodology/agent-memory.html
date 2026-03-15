@@ -178,22 +178,21 @@ strong { color: var(--text-primary); }
 
 <div class="mermaid">
     graph TD
-   
-    HM["[ ] 人类记忆模型"]
+    HM["🧠 人类记忆模型"]
     SM["感觉记忆 Sensory Memory<br/>视觉: 图像暂存 ~0.5s<br/>听觉: 声音暂存 ~3s"]
     STM["短期记忆 / 工作记忆<br/>容量: 7±2 个项目<br/>持续: 数秒到数分钟"]
     LTM["长期记忆 Long-term Memory"]
     DECL["陈述性记忆 Declarative"]
     SEM["语义记忆: 事实和概念知识"]
     EPIS["情景记忆: 个人经历和事件"]
-    PROC["程序性记忆 Procedural<br/>技能和操作模式"] HM
-    --> SM HM
-    --> STM HM
-    --> LTM LTM
-    --> DECL LTM
-    --> PROC DECL
-    --> SEM DECL
-    --> EPIS
+    PROC["程序性记忆 Procedural<br/>技能和操作模式"]
+    HM --> SM
+    HM --> STM
+    HM --> LTM
+    LTM --> DECL
+    LTM --> PROC
+    DECL --> SEM
+    DECL --> EPIS
 </div>
 
 <h3 id="12-agent-记忆分类映射">1.2 Agent 记忆分类映射</h3>
@@ -247,26 +246,15 @@ strong { color: var(--text-primary); }
 
 <div class="mermaid">
     flowchart TD
-   
-    subgraph
-    IndexFlow["[ ] 索引流程"]
-    T[文本]
-    -->
-    EM[Embedding Model] EM
-    -->
-    HV[高维向量 e.g. 1536-dim] HV
-    -->
-    VDB[(向量数据库存储)]
+    subgraph 索引["📥 索引流程"]
+    T[文本] --> EM[Embedding Model]
+    EM --> HV[高维向量 e.g. 1536-dim]
+    HV --> VDB[(向量数据库存储)]
     end
-    subgraph
-    RetrievalFlow["[ ] 检索流程"]
-    Q[查询]
-    -->
-    QE[Embedding] QE
-    -->
-    SS[相似度搜索] SS
-    -->
-    TK[Top-K 相关文档]
+    subgraph 检索["🔍 检索流程"]
+    Q[查询] --> QE[Embedding]
+    QE --> SS[相似度搜索]
+    SS --> TK[Top-K 相关文档]
     end
 </div>
 
@@ -423,14 +411,9 @@ final_results = reranker(query, candidates, top_k=5)  # 再精排
 
 <div class="mermaid">
     flowchart TD
-   
-    L0["Level 0: 原始记忆<br/>完整细节"]
-    -->|超过 7 天|
-    L1["Level 1: 详细摘要<br/>保留关键细节"] L1
-    -->|超过 30 天|
-    L2["Level 2: 概要摘要<br/>只保留结论"] L2
-    -->|超过 90 天|
-    L3["Level 3: 归档 / 删除"]
+    L0["Level 0: 原始记忆<br/>完整细节"] -->|超过 7 天| L1["Level 1: 详细摘要<br/>保留关键细节"]
+    L1 -->|超过 30 天| L2["Level 2: 概要摘要<br/>只保留结论"]
+    L2 -->|超过 90 天| L3["Level 3: 归档 / 删除"]
 </div>
 
 <p><strong>（3）重要性加权压缩：</strong></p>
@@ -521,14 +504,9 @@ existing: "用户住在上海"
 
 <div class="mermaid">
     graph TD
-   
-    A["Agent A"]
-    -->
-    S["Shared Memory Store<br/>Vector DB + Metadata"]
-    B["Agent B"]
-    --> S
-    C["Agent C"]
-    --> S
+    A["Agent A"] --> S["Shared Memory Store<br/>Vector DB + Metadata"]
+    B["Agent B"] --> S
+    C["Agent C"] --> S
 </div>
 
 <p><strong>优势</strong>：实现简单，数据一致性好</p>
@@ -538,14 +516,13 @@ existing: "用户住在上海"
 
 <div class="mermaid">
     graph TD
-   
-    G["[ ] Global Memory Pool<br/>所有 Agent 共享的公共知识"]
-    T["[ ] Team Memory Pool (Agent A + B)<br/>特定团队共享的上下文"]
-    P1["[ ] Agent A Private<br/>Agent 私有记忆"]
-    P2["[ ] Agent B Private<br/>Agent 私有记忆"] G
-    --> T T
-    --> P1 T
-    --> P2
+    G["🌐 Global Memory Pool<br/>所有 Agent 共享的公共知识"]
+    T["👥 Team Memory Pool (Agent A + B)<br/>特定团队共享的上下文"]
+    P1["🔒 Agent A Private<br/>Agent 私有记忆"]
+    P2["🔒 Agent B Private<br/>Agent 私有记忆"]
+    G --> T
+    T --> P1
+    T --> P2
 </div>
 
 <p><strong>优势</strong>：权限分层，减少信息过载</p>
@@ -554,11 +531,9 @@ existing: "用户住在上海"
 <p><strong>模式 3：联邦记忆</strong></p>
 
 <div class="mermaid">
-    graph LR
-   
-    A["Agent A<br/>Local Memory"]
-    <-->|Sync|
-    B["Agent B<br/>Local Memory"]
+graph LR
+    A["Agent A<br/>Local Memory"] <-->|"Sync"| B["Agent B<br/>Local Memory"]
+
 </div>
 
 <p>每个 Agent 维护本地记忆，通过同步协议共享必要信息。</p>
@@ -570,12 +545,8 @@ existing: "用户住在上海"
 
 <div class="mermaid">
     graph LR
-   
-    A["Agent A"]
-    -->|Publish|
-    EB["Event Bus /<br/>Message Queue"] EB
-    -->|Subscribe|
-    B["Agent B"]
+    A["Agent A"] -->|"Publish"| EB["Event Bus /<br/>Message Queue"]
+    EB -->|"Subscribe"| B["Agent B"]
 </div>
 
 <p>Agent 通过发布-订阅机制共享记忆事件。</p>
@@ -653,20 +624,12 @@ existing: "用户住在上海"
 <p><strong>记忆生命周期：</strong></p>
 <div class="mermaid">
     flowchart LR
-   
-    DI[对话输入]
-    -->
-    IE[信息提取] IE
-    -->
-    RJ[相关性判断] RJ
-    -->
-    CD[冲突检测] CD
-    -->
-    SU[存储/更新] SU
-    -->
-    RT[检索] RT
-    -->
-    IC[注入上下文]
+    DI[对话输入] --> IE[信息提取]
+    IE --> RJ[相关性判断]
+    RJ --> CD[冲突检测]
+    CD --> SU[存储/更新]
+    SU --> RT[检索]
+    RT --> IC[注入上下文]
 </div>
 
 <p><strong>优势</strong>：开箱即用的智能记忆管理，自动处理压缩和冲突</p>
@@ -706,8 +669,7 @@ core_memory = {  # 始终在上下文中
 
 <div class="mermaid">
     graph TD
-   
-    AR["[[ ]] Agent Runtime"]
+    AR["🏗️ Agent Runtime"]
     MM["Memory Manager"]
     EX["Memory Extractor<br/>从对话中提取记忆"]
     CO["Memory Compressor<br/>定期压缩摘要"]
@@ -718,18 +680,18 @@ core_memory = {  # 始终在上下文中
     ST["Short-term<br/>Conversation Buffer"]
     LS["Long-term Semantic<br/>Vector Store Qdrant"]
     LST["Long-term Structured<br/>PostgreSQL"]
-    GM["Graph Memory<br/>Neo4j / FalkorDB"] AR
-    --> MM MM
-    --> EX MM
-    --> CO MM
-    --> RE MM
-    --> FO AR
-    --> SL SL
-    --> WM SL
-    --> ST SL
-    --> LS SL
-    --> LST SL
-    --> GM
+    GM["Graph Memory<br/>Neo4j / FalkorDB"]
+    AR --> MM
+    MM --> EX
+    MM --> CO
+    MM --> RE
+    MM --> FO
+    AR --> SL
+    SL --> WM
+    SL --> ST
+    SL --> LS
+    SL --> LST
+    SL --> GM
 </div>
 
 <p><strong>关键设计决策：</strong></p>

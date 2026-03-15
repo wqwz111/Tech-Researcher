@@ -157,31 +157,11 @@
    
     subgraph
     Run["run 模式（一次性）"]
-    R1["用户请求"]
-    -->
-    R2["spawn ACP"]
-    -->
-    R3["执行任务"]
-    -->
-    R4["返回结果"]
-    -->
-    R5["会话结束"]
+    R1["用户请求"] --> R2["spawn ACP"] --> R3["执行任务"] --> R4["返回结果"] --> R5["会话结束"]
     end
     subgraph
     Session["session 模式（持久化）"]
-    S1["用户请求"]
-    -->
-    S2["spawn ACP"]
-    -->
-    S3["执行任务"]
-    -->
-    S4["返回结果"] S4
-    -->
-    S5["保持会话"]
-    -->
-    S6["后续消息"]
-    -->
-    S7["继续同一上下文"]
+    S1["用户请求"] --> S2["spawn ACP"] --> S3["执行任务"] --> S4["返回结果"] S4 --> S5["保持会话"] --> S6["后续消息"] --> S7["继续同一上下文"]
     --> S5
     end
     style R5 fill:#ef4444,stroke:#f87171,color:#fff
@@ -286,9 +266,7 @@ openclaw gateway restart</code></pre>
     ACP["ACP 方式"]
     A1["OpenClaw Agent"]
     -->|"外部协议"|
-    A2["ACP Backend"]
-    -->
-    A3["Codex/Claude Code<br/>独立进程"]
+    A2["ACP Backend"] --> A3["Codex/Claude Code<br/>独立进程"]
     end
     subgraph
     Sub["Sub-agent 方式"]

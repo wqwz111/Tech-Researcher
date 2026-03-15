@@ -515,36 +515,19 @@
 <p>在 MCP 出现之前，每个 AI 应用都需要为每个工具编写定制集成代码：</p>
 <div class="mermaid">
     flowchart LR
-   
-    subgraph
-    Before["[ ] MCP 之前"]
-    AA1[App A]
-    <-->
-    T1[Tool 1 custom] AA1
-    <-->
-    T2[Tool 2 custom]
-    AB1[App B]
-    <-->
-    T1r[Tool 1 rewrite] AB1
-    <-->
-    T2r[Tool 2 rewrite]
+    subgraph Before["❌ MCP 之前"]
+    AA1[App A] <--> T1[Tool 1 custom]
+    AA1 <--> T2[Tool 2 custom]
+    AB1[App B] <--> T1r[Tool 1 rewrite]
+    AB1 <--> T2r[Tool 2 rewrite]
     end
-    subgraph
-    After["[ ] MCP 之后"]
-    AA2[App A]
-    <-->
-    MC1[MCP Client] MC1
-    <-->
-    MS1[MCP Server 1] MS1
-    <-->
-    TT1[Tool 1]
-    AB2[App B]
-    <-->
-    MC2[MCP Client] MC2
-    <-->
-    MS2[MCP Server 2] MS2
-    <-->
-    TT2[Tool 2]
+    subgraph After["✅ MCP 之后"]
+    AA2[App A] <--> MC1[MCP Client]
+    MC1 <--> MS1[MCP Server 1]
+    MS1 <--> TT1[Tool 1]
+    AB2[App B] <--> MC2[MCP Client]
+    MC2 <--> MS2[MCP Server 2]
+    MS2 <--> TT2[Tool 2]
     end
 </div>
 
@@ -608,9 +591,15 @@
 </blockquote>
 <div class="mermaid">
     sequenceDiagram
-   
     participant C as MCP Client
-    participant S as MCP Server (Streamable HTTP) C->>S: POST /mcp (JSON-RPC 2.0) alt 标准响应 S-->>C: 200 OK {result: {...}} else 流式响应 S-->>C: 200 OK (SSE stream) S-->>C: data: {partial result} S-->>C: data: {final result}
+    participant S as MCP Server (Streamable HTTP)
+    C->>S: POST /mcp (JSON-RPC 2.0)
+    alt 标准响应
+    S-->>C: 200 OK {result: {...}}
+    else 流式响应
+    S-->>C: 200 OK (SSE stream)
+    S-->>C: data: {partial result}
+    S-->>C: data: {final result}
     end
 </div>
 
@@ -660,17 +649,11 @@
 </ol>
 <div class="mermaid">
     flowchart TD
-   
-    U[User]
-    -->
-    APP[AI App] APP
-    -->
-    MC[MCP Client] MC
-    -->
-    LLM[LLM] LLM
-    -->|调用 search| MC MC
-    <-->
-    MS[MCP Server(s)]
+    U[User] --> APP[AI App]
+    APP --> MC[MCP Client]
+    MC --> LLM[LLM]
+    LLM -->|调用 search| MC
+    MC <--> MS[MCP Server(s)]
 </div>
 
 <h3 id="client">主流 Client 实现</h3>

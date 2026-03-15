@@ -172,20 +172,12 @@ strong { color: var(--text-primary); }
 <p><strong>GPT-4 系列完整演进路线：</strong></p>
 <div class="mermaid">
     flowchart LR
-   
-    A["GPT-4<br/>2023.03<br/>8K→32K"]
-    -->
-    B["GPT-4 Turbo<br/>2023.11<br/>128K<br/>$10/1M"] B
-    -->
-    C["GPT-4o<br/>2024.05<br/>多模态<br/>$5/1M"] C
-    -->
-    D["GPT-4o mini<br/>2024.07<br/>$0.15/1M"] D
-    -->
-    E["GPT-4.5<br/>2025.02<br/>知识增强"] E
-    -->
-    F["GPT-4.1<br/>2025.04<br/>编码优化"] F
-    -->
-    G["GPT-5<br/>2025.08<br/>统一架构"]
+    A["GPT-4<br/>2023.03<br/>8K→32K"] --> B["GPT-4 Turbo<br/>2023.11<br/>128K<br/>$10/1M"]
+    B --> C["GPT-4o<br/>2024.05<br/>多模态<br/>$5/1M"]
+    C --> D["GPT-4o mini<br/>2024.07<br/>$0.15/1M"]
+    D --> E["GPT-4.5<br/>2025.02<br/>知识增强"]
+    E --> F["GPT-4.1<br/>2025.04<br/>编码优化"]
+    F --> G["GPT-5<br/>2025.08<br/>统一架构"]
     style A fill:#e3f2fd
     style B fill:#e8f5e9
     style C fill:#fff3e0
@@ -223,16 +215,10 @@ strong { color: var(--text-primary); }
 <p><strong>o3-mini / o3 / o3-pro 演进</strong></p>
 <div class="mermaid">
     flowchart LR
-   
-    A["o1<br/>2024.09<br/>首个推理模型"]
-    -->
-    B["o3-mini<br/>2025.01<br/>高效推理"] B
-    -->
-    C["o3<br/>2025.04<br/>全面升级"] C
-    -->
-    D["o3-pro<br/>2025.06<br/>最强推理"] D
-    -->
-    E["o4-mini<br/>2025<br/>推理+效率"]
+    A["o1<br/>2024.09<br/>首个推理模型"] --> B["o3-mini<br/>2025.01<br/>高效推理"]
+    B --> C["o3<br/>2025.04<br/>全面升级"]
+    C --> D["o3-pro<br/>2025.06<br/>最强推理"]
+    D --> E["o4-mini<br/>2025<br/>推理+效率"]
     style A fill:#e3f2fd
     style B fill:#e8f5e9
     style C fill:#fff3e0

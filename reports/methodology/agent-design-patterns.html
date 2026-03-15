@@ -390,42 +390,28 @@ print(f&quot;高分记录: {len(filtered)} 条&quot;)
 <h3>3.1 错误分类</h3>
 <div class="mermaid">
     graph TD
-   
     ERR["错误类型"]
     PARSE["1. 解析错误<br/>模型输出不符合预期格式"]
     EXEC["2. 执行错误<br/>工具调用失败"]
     LOGIC["3. 逻辑错误<br/>工具返回正确但 Agent 误解"]
-    SYS["4. 系统错误<br/>框架或基础设施问题"] ERR
-    --> PARSE ERR
-    --> EXEC ERR
-    --> LOGIC ERR
-    --> SYS PARSE
-    -->
-    P1["JSON 解析失败"] PARSE
-    -->
-    P2["工具名称不存在"] PARSE
-    -->
-    P3["参数类型不匹配"] EXEC
-    -->
-    E1["API 限流 429"] EXEC
-    -->
-    E2["网络超时"] EXEC
-    -->
-    E3["认证过期"] EXEC
-    -->
-    E4["参数值越界"] LOGIC
-    -->
-    L1["错误解读数据"] LOGIC
-    -->
-    L2["忽略关键字段"] LOGIC
-    -->
-    L3["循环调用同一工具"] SYS
-    -->
-    S1["上下文窗口溢出"] SYS
-    -->
-    S2["LLM API 不可用"] SYS
-    -->
-    S3["内存/磁盘耗尽"]
+    SYS["4. 系统错误<br/>框架或基础设施问题"]
+    ERR --> PARSE
+    ERR --> EXEC
+    ERR --> LOGIC
+    ERR --> SYS
+    PARSE --> P1["JSON 解析失败"]
+    PARSE --> P2["工具名称不存在"]
+    PARSE --> P3["参数类型不匹配"]
+    EXEC --> E1["API 限流 429"]
+    EXEC --> E2["网络超时"]
+    EXEC --> E3["认证过期"]
+    EXEC --> E4["参数值越界"]
+    LOGIC --> L1["错误解读数据"]
+    LOGIC --> L2["忽略关键字段"]
+    LOGIC --> L3["循环调用同一工具"]
+    SYS --> S1["上下文窗口溢出"]
+    SYS --> S2["LLM API 不可用"]
+    SYS --> S3["内存/磁盘耗尽"]
 </div>
 <h3>3.2 分层错误处理</h3>
 <p><strong>层1 - 自动恢复 (Automatic Recovery)</strong></p>
@@ -449,12 +435,8 @@ Agent 修正: 改用 search_web 并重试
 <p><strong>层3 - 降级策略 (Graceful Degradation)</strong></p>
 <div class="mermaid">
     flowchart TD
-   
-    A["主路径：调用实时 API 获取数据"]
-    -->|"失败"|
-    B["降级1：使用本地缓存数据"] B
-    -->|"无缓存"|
-    C["降级2：用模型知识回答"]
+    A["主路径：调用实时 API 获取数据"] -->|"失败"| B["降级1：使用本地缓存数据"]
+    B -->|"无缓存"| C["降级2：用模型知识回答"]
     style A fill:#e8f5e9
     style B fill:#fff3e0
     style C fill:#fce4ec
@@ -502,7 +484,6 @@ Agent 修正: 改用 search_web 并重试
 一个协调者（Orchestrator）负责分配任务和汇总结果。</p>
 <div class="mermaid">
     flowchart TD
-   
     O["Orchestrator<br/>协调者"]
     A["Agent A"] --- O
     B["Agent B"] --- O
@@ -518,14 +499,7 @@ Agent 修正: 改用 search_web 并重试
 Agent 按顺序排列，前一个的输出是后一个的输入。</p>
 <div class="mermaid">
     flowchart LR
-   
-    A["Agent A"]
-    -->
-    B["Agent B"]
-    -->
-    C["Agent C"]
-    -->
-    D["最终输出"]
+    A["Agent A"] --> B["Agent B"] --> C["Agent C"] --> D["最终输出"]
     style D fill:#e8f5e9
 </div>
 <blockquote>
@@ -536,15 +510,10 @@ Agent 按顺序排列，前一个的输出是后一个的输入。</p>
 Agent 之间可以自由通信，形成动态协作网络。</p>
 <div class="mermaid">
     flowchart TD
-   
-    A["Agent A"]
-    <-->
-    B["Agent B"] A
-    <-->
-    C["Agent C"] B
-    <-->
-    D["Agent D"] C
-    <--> D
+    A["Agent A"] <--> B["Agent B"]
+    A <--> C["Agent C"]
+    B <--> D["Agent D"]
+    C <--> D
     style A fill:#e3f2fd
     style D fill:#e3f2fd
 </div>
@@ -556,7 +525,6 @@ Agent 之间可以自由通信，形成动态协作网络。</p>
 Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 <div class="mermaid">
     flowchart TD
-   
     M["Manager Agent<br/>管理者"]
     TA["Team A"] --- M
     TB["Team B"] --- M
@@ -620,18 +588,17 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 <p><strong>核心架构</strong>:</p>
 <div class="mermaid">
     flowchart LR
-   
     HOST["Host 应用<br/>(如 Claude Desktop)"]
     CLI["MCP Client"]
     S1["MCP Server<br/>文件系统"]
     S2["MCP Server<br/>数据库"]
     S3["MCP Server<br/>GitHub API"]
-    S4["MCP Server<br/>Slack"] HOST
-    --> CLI CLI
-    --> S1 CLI
-    --> S2 CLI
-    --> S3 CLI
-    --> S4
+    S4["MCP Server<br/>Slack"]
+    HOST --> CLI
+    CLI --> S1
+    CLI --> S2
+    CLI --> S3
+    CLI --> S4
 </div>
 <p><strong>三大核心原语</strong>:</p>
 <div class="table-wrapper">
@@ -698,18 +665,17 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 <p><strong>核心概念</strong>:</p>
 <div class="mermaid">
     flowchart TD
-   
     C["Client Agent<br/>发起任务"]
     S["Server Agent<br/>执行任务"]
     AC["Agent Card<br/>(能力描述)"]
     T["Task<br/>(任务对象)"]
     MSG["Message<br/>(消息)"]
-    ART["Artifact<br/>(产物)"] C
-    -->|"1. 发现"| AC C
-    -->|"2. 发送任务"| T T
-    --> MSG T
-    --> ART C
-    <-->|"3. 交互"| S
+    ART["Artifact<br/>(产物)"]
+    C -->|"1. 发现"| AC
+    C -->|"2. 发送任务"| T
+    T --> MSG
+    T --> ART
+    C <-->|"3. 交互"| S
 </div>
 <p><strong>Agent Card</strong>: JSON 格式的能力描述文件，通常托管在 <code>/.well-known/agent.json</code>，包含：</p>
 <ul>
@@ -770,18 +736,11 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 <p><strong>互补关系</strong>: MCP 和 A2A 并非竞争关系，而是互补的。一个 Agent 可以通过 MCP 连接工具，同时通过 A2A 与其他 Agent 协作：</p>
 <div class="mermaid">
     flowchart TB
-   
-    A1["Agent A"]
-    -->|"MCP"|
-    T1["工具: 数据库"] A1
-    -->|"MCP"|
-    T2["工具: 搜索"] A1
-    -->|"A2A"|
-    A2["Agent B"] A2
-    -->|"MCP"|
-    T3["工具: 邮件"] A2
-    -->|"A2A"|
-    A3["Agent C"]
+    A1["Agent A"] -->|"MCP"| T1["工具: 数据库"]
+    A1 -->|"MCP"| T2["工具: 搜索"]
+    A1 -->|"A2A"| A2["Agent B"]
+    A2 -->|"MCP"| T3["工具: 邮件"]
+    A2 -->|"A2A"| A3["Agent C"]
 </div>
 <p><strong>实际应用（截至 2025 年 3 月）</strong>:</p>
 <ul>
@@ -1022,29 +981,18 @@ response = client.run(agent=triage_agent, messages=[...])
 <h3>6.1 Agent 设计模式选型决策树</h3>
 <div class="mermaid">
     flowchart TD
-   
-    START["[ ] 选择 Agent 设计模式"]
-    -->
-    Q1{"任务步骤数?"} Q1
-    -->|"1-2 步"|
-    REACT["[ ] ReAct"] Q1
-    -->|"3-10 步"|
-    PE["[ ] Plan-and-Execute"] Q1
-    -->|"10+ 步"|
-    Q2{"需要质量保证?"} Q2
-    -->|"是"|
-    PER["[ ] Plan-and-Execute + Reflection"] Q2
-    -->|"否"| PE Q1
-    -->|"多角色协作"|
-    Q3{"协作方式?"} Q3
-    -->|"分工明确"|
-    CREWAI["[ ] CrewAI"] Q3
-    -->|"讨论决策"|
-    AUTOGEN["[ ] AutoGen"] Q3
-    -->|"层级管理"|
-    METAGPT["[ ] MetaGPT"] Q1
-    -->|"操作 GUI/浏览器"|
-    COMPUTER["[ ] Computer Use"]
+    START["🎯 选择 Agent 设计模式"] --> Q1{"任务步骤数?"}
+    Q1 -->|"1-2 步"| REACT["✅ ReAct"]
+    Q1 -->|"3-10 步"| PE["✅ Plan-and-Execute"]
+    Q1 -->|"10+ 步"| Q2{"需要质量保证?"}
+    Q2 -->|"是"| PER["✅ Plan-and-Execute + Reflection"]
+    Q2 -->|"否"| PE
+    Q1 -->|"多角色协作"| Q3{"协作方式?"}
+    Q3 -->|"分工明确"| CREWAI["✅ CrewAI"]
+    Q3 -->|"讨论决策"| AUTOGEN["✅ AutoGen"]
+    Q3 -->|"层级管理"| METAGPT["✅ MetaGPT"]
+    Q1 -->|"操作 GUI/浏览器"| COMPUTER["✅ Computer Use"]
+
     style START fill:#4f46e5,stroke:#818cf8,color:#fff
     style REACT fill:#059669,stroke:#34d399,color:#fff
     style PE fill:#059669,stroke:#34d399,color:#fff

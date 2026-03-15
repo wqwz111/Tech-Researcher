@@ -222,24 +222,9 @@ strong { color: var(--text-primary); }
 
 <div class="mermaid">
     flowchart TD
-   
-    A["原始文档"]
-    -->
-    B["格式检测"]
-    -->
-    C["文本提取"]
-    -->
-    D["清洗"]
-    -->
-    E["分块"]
-    -->
-    F["嵌入"]
-    -->
-    G["向量存储"] C
-    -->
-    C1["OCR<br/>如果是扫描件"] C
-    -->
-    C2["表格/图表提取"]
+    A["原始文档"] --> B["格式检测"] --> C["文本提取"] --> D["清洗"] --> E["分块"] --> F["嵌入"] --> G["向量存储"]
+    C --> C1["OCR<br/>如果是扫描件"]
+    C --> C2["表格/图表提取"]
     style A fill:#f5f5f5
     style D fill:#fff3e0
     style F fill:#e8f5e9
@@ -312,19 +297,18 @@ strong { color: var(--text-primary); }
 <p><strong>混合检索</strong></p>
 <div class="mermaid">
     graph TD
-   
     Q["用户查询"]
     VS["向量检索<br/>语义相似度"]
     BM["BM25 检索<br/>关键词匹配"]
     RRF["RRF Reciprocal Rank Fusion"]
     RE["重排序 Reranker"]
-    TOP["Top-K 文档"] Q
-    --> VS Q
-    --> BM VS
-    --> RRF BM
-    --> RRF RRF
-    --> RE RE
-    --> TOP
+    TOP["Top-K 文档"]
+    Q --> VS
+    Q --> BM
+    VS --> RRF
+    BM --> RRF
+    RRF --> RE
+    RE --> TOP
 </div>
 
 <p><strong>重排序（Reranking）</strong></p>
@@ -462,19 +446,7 @@ strong { color: var(--text-primary); }
 
 <div class="mermaid">
     flowchart TD
-   
-    A["收集反馈"]
-    -->
-    B["分析模式"]
-    -->
-    C["定位问题"]
-    -->
-    D["优化"]
-    -->
-    E["部署"]
-    -->
-    F["验证"]
-    -->|持续循环| A
+    A["收集反馈"] --> B["分析模式"] --> C["定位问题"] --> D["优化"] --> E["部署"] --> F["验证"] -->|"持续循环"| A
     style A fill:#e3f2fd
     style C fill:#fff3e0
     style D fill:#e8f5e9

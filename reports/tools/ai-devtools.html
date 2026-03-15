@@ -417,7 +417,6 @@ response = litellm.completion(
 
 <div class="mermaid">
     graph TD
-   
     Q{"选择推理方案"}
     DEV["开发/原型阶段<br/>Ollama 或 Replicate"]
     SMALL["生产部署 - 小规模"]
@@ -427,16 +426,16 @@ response = litellm.completion(
     GPU_N["无 GPU → Together AI / Fireworks"]
     PERF["追求性能 → TensorRT-LLM"]
     FLEX["追求灵活性 → vLLM + K8s"]
-    EASY["追求简便 → Bedrock / Vertex AI"] Q
-    --> DEV Q
-    --> SMALL Q
-    --> LARGE Q
-    --> EDGE SMALL
-    --> GPU_Y SMALL
-    --> GPU_N LARGE
-    --> PERF LARGE
-    --> FLEX LARGE
-    --> EASY
+    EASY["追求简便 → Bedrock / Vertex AI"]
+    Q --> DEV
+    Q --> SMALL
+    Q --> LARGE
+    Q --> EDGE
+    SMALL --> GPU_Y
+    SMALL --> GPU_N
+    LARGE --> PERF
+    LARGE --> FLEX
+    LARGE --> EASY
 </div>
 
 <hr>
@@ -610,22 +609,14 @@ response = litellm.completion(
 
 <div class="mermaid">
     graph LR
-   
-    APP["LLM 应用"]
-    -->
-    OTEL["OpenTelemetry SDK"] OTEL
-    -->
-    COLLECTOR["OTel Collector"] COLLECTOR
-    -->
-    PROM["Prometheus"] COLLECTOR
-    -->
-    TEMPO["Tempo (Traces)"] COLLECTOR
-    -->
-    LOKI["Loki (Logs)"] PROM
-    -->
-    GRAFANA["Grafana 仪表盘"] TEMPO
-    --> GRAFANA LOKI
-    --> GRAFANA
+    APP["LLM 应用"] --> OTEL["OpenTelemetry SDK"]
+    OTEL --> COLLECTOR["OTel Collector"]
+    COLLECTOR --> PROM["Prometheus"]
+    COLLECTOR --> TEMPO["Tempo (Traces)"]
+    COLLECTOR --> LOKI["Loki (Logs)"]
+    PROM --> GRAFANA["Grafana 仪表盘"]
+    TEMPO --> GRAFANA
+    LOKI --> GRAFANA
     style APP fill:#4f46e5,color:#fff
     style GRAFANA fill:#f59e0b,color:#000
 </div>

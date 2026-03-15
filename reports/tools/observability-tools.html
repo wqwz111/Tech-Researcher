@@ -340,26 +340,25 @@ client = openai.OpenAI(
 
 <div class="mermaid">
     graph TD
-   
-    P[" prompts/"]
-    V1[" v1/"]
-    V2[" v2/"]
+    P["📁 prompts/"]
+    V1["📁 v1/"]
+    V2["📁 v2/"]
     ACTIVE["active → v2"]
     SP1["system_prompt.md"]
     FE1["few_shot_examples.json"]
     CL1["changelog.md"]
     SP2["system_prompt.md"]
     FE2["few_shot_examples.json"]
-    CL2["changelog.md"] P
-    --> V1 P
-    --> V2 P
-    --> ACTIVE V1
-    --> SP1 V1
-    --> FE1 V1
-    --> CL1 V2
-    --> SP2 V2
-    --> FE2 V2
-    --> CL2
+    CL2["changelog.md"]
+    P --> V1
+    P --> V2
+    P --> ACTIVE
+    V1 --> SP1
+    V1 --> FE1
+    V1 --> CL1
+    V2 --> SP2
+    V2 --> FE2
+    V2 --> CL2
 </div>
 
 <h4>使用专业工具</h4>
@@ -383,15 +382,14 @@ client = openai.OpenAI(
 
 <div class="mermaid">
     graph TD
-   
     REQ["用户请求"]
     V1["50% → Prompt v1 → 输出 A"]
     V2["50% → Prompt v2 → 输出 B"]
-    FB["收集反馈<br/>用户评分 / 业务指标 / 自动评估"] REQ
-    --> V1 REQ
-    --> V2 V1
-    --> FB V2
-    --> FB
+    FB["收集反馈<br/>用户评分 / 业务指标 / 自动评估"]
+    REQ --> V1
+    REQ --> V2
+    V1 --> FB
+    V2 --> FB
 </div>
 
 <p><strong>工具支持</strong>：</p>
@@ -454,16 +452,10 @@ litellm.success_callback = ["lunary"]  # 推送到成本追踪工具
 <p><strong>模型路由示例</strong>：</p>
 <div class="mermaid">
     graph TD
-   
-    Q["用户查询"]
-    -->
-    CL{"分类器"} CL
-    -->|简单问答|
-    MINI["GPT-4o-mini 便宜"] CL
-    -->|复杂推理|
-    GPT4["GPT-4 贵但准确"] CL
-    -->|代码生成|
-    CLAUDE["Claude Sonnet 代码能力强"]
+    Q["用户查询"] --> CL{"分类器"}
+    CL -->|"简单问答"| MINI["GPT-4o-mini 便宜"]
+    CL -->|"复杂推理"| GPT4["GPT-4 贵但准确"]
+    CL -->|"代码生成"| CLAUDE["Claude Sonnet 代码能力强"]
 </div>
 
 <h3 id="34-预算管理">3.4 预算管理</h3>
@@ -676,14 +668,9 @@ P3 - 低（每周报告）
 
 <div class="mermaid">
     flowchart TD
-   
-    APP[应用代码]
-    -->
-    H[Helicone<br/>代理追踪] H
-    --> |成本 + 延迟 + 错误率|
-    PF[PromptFoo<br/>本地测试] PF
-    --> |回归测试|
-    Done[[ ]]
+    APP[应用代码] --> H[Helicone<br/>代理追踪]
+    H --> |成本 + 延迟 + 错误率| PF[PromptFoo<br/>本地测试]
+    PF --> |回归测试| Done[✅]
 </div>
 
 <h3 id="62-标准可观测性栈">6.2 标准可观测性栈</h3>
@@ -692,18 +679,11 @@ P3 - 低（每周报告）
 
 <div class="mermaid">
     flowchart TD
-   
-    APP[应用代码]
-    -->
-    LF[LangFuse<br/>自部署] LF
-    --> |追踪 + 成本 + Prompt管理|
-    DE[DeepEval<br/>评估] DE
-    --> |质量监控|
-    GP[Grafana + Prometheus] GP
-    --> |系统指标|
-    Slack[Slack 通知] Slack
-    --> |告警|
-    Done[[ ]]
+    APP[应用代码] --> LF[LangFuse<br/>自部署]
+    LF --> |追踪 + 成本 + Prompt管理| DE[DeepEval<br/>评估]
+    DE --> |质量监控| GP[Grafana + Prometheus]
+    GP --> |系统指标| Slack[Slack 通知]
+    Slack --> |告警| Done[✅]
 </div>
 
 <h3 id="63-企业级可观测性栈">6.3 企业级可观测性栈</h3>
@@ -712,23 +692,15 @@ P3 - 低（每周报告）
 
 <div class="mermaid">
     graph TD
-   
-    APP["应用代码"]
-    -->
-    OTEL["OpenTelemetry SDK<br/>标准化追踪"] OTEL
-    -->
-    LS["LangSmith<br/>LLM 追踪和评估"] OTEL
-    -->
-    DD["Datadog<br/>系统 APM"] OTEL
-    -->
-    HEL["Helicone<br/>成本网关"] OTEL
-    -->
-    BT["Braintrust<br/>回归测试"] LS
-    -->
-    PD["PagerDuty<br/>告警分发"] DD
-    --> PD HEL
-    --> PD BT
-    --> PD
+    APP["应用代码"] --> OTEL["OpenTelemetry SDK<br/>标准化追踪"]
+    OTEL --> LS["LangSmith<br/>LLM 追踪和评估"]
+    OTEL --> DD["Datadog<br/>系统 APM"]
+    OTEL --> HEL["Helicone<br/>成本网关"]
+    OTEL --> BT["Braintrust<br/>回归测试"]
+    LS --> PD["PagerDuty<br/>告警分发"]
+    DD --> PD
+    HEL --> PD
+    BT --> PD
 </div>
 
 <hr>
