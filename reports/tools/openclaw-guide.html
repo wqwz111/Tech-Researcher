@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -105,7 +105,7 @@ a { color: var(--link); }
 code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
 pre {
     background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
+    overflow-x: auto; max-width: 100%; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
 }
 pre code { background: none; color: var(--text-primary); }
 pre .lang-label {
@@ -132,6 +132,19 @@ strong { color: var(--text-primary); }
     body { background: #fff; color: #000; max-width: 100%; }
     .top-nav, .toc { display: none; }
 }
+
+/* Breadcrumb */
+.breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+}
+.breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+}
+.breadcrumb a:hover { text-decoration: underline; }
+
 </style>
 </head>
 <body>
@@ -1030,20 +1043,3 @@ function toggleTheme() {
   mermaid.initialize({startOnLoad:true, theme:theme});
 </script>
 </body></html>
-
-<script>
-function toggleTheme() {
-    const html = document.documentElement;
-    const icon = document.getElementById('themeIcon');
-    if (html.getAttribute('data-theme') === 'light') {
-        html.removeAttribute('data-theme');
-        icon.textContent = '☀️';
-    } else {
-        html.setAttribute('data-theme', 'light');
-        icon.textContent = '🌙';
-    }
-}
-mermaid.initialize({ startOnLoad: true, theme: 'dark' });
-</script>
-</body>
-</html>

@@ -238,6 +238,7 @@
     border-radius: 8px;
     padding: 1rem;
     overflow-x: auto;
+    max-width: 100%;
     margin: 1rem 0;
   }
 
@@ -285,6 +286,7 @@
      ═══════════════════════════════════════════ */
   .table-wrapper {
     overflow-x: auto;
+    max-width: 100%;
     margin: 1rem 0;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -751,17 +753,18 @@ OpenClaw 更多通过配置驱动：</p>
 </table>
 </div>
 <h3 id="22-vs">2.2 灵活性 vs 易用性</h3>
-<div class="highlight"><pre><span></span><code>graph LR
-    LG[&quot;LangGraph&lt;br/&gt;高灵活性&quot;]
-    AG[&quot;AutoGen&quot;]
-    OC[&quot;OpenClaw&quot;]
-    CREW[&quot;CrewAI&quot;]
-    MG[&quot;MetaGPT&lt;br/&gt;高易用性&quot;]
-    LG --&gt; AG
-    AG --&gt; OC
-    OC --&gt; CREW
-    CREW --&gt; MG
-</code></pre></div>
+<div class="mermaid">
+graph LR
+    LG["LangGraph\n高灵活性"]
+    AG["AutoGen"]
+    OC["OpenClaw"]
+    CREW["CrewAI"]
+    MG["MetaGPT\n高易用性"]
+    LG --> AG
+    AG --> OC
+    OC --> CREW
+    CREW --> MG
+</div>
 
 <h3 id="23">2.3 学习曲线</h3>
 <div class="table-wrapper">
@@ -1044,18 +1047,19 @@ OpenClaw 更多通过配置驱动：</p>
 </table>
 </div>
 <h3 id="52">5.2 框架选型决策树</h3>
-<div class="highlight"><pre><span></span><code>flowchart TD
-    START[&quot;🎯 选择 Agent 框架&quot;] --&gt; Q1{&quot;主要用途?&quot;}
-    Q1 --&gt;|&quot;复杂工作流编排&quot;| LANGGRAPH[&quot;✅ LangGraph&quot;]
-    Q1 --&gt;|&quot;快速原型/MVP&quot;| Q2{&quot;单Agent还是多Agent?&quot;}
-    Q2 --&gt;|&quot;单 Agent&quot;| OPENCLAW[&quot;✅ OpenClaw&quot;]
-    Q2 --&gt;|&quot;多 Agent&quot;| CREWAI[&quot;✅ CrewAI&quot;]
-    Q1 --&gt;|&quot;学术研究/实验&quot;| AUTOGEN[&quot;✅ AutoGen&quot;]
-    Q1 --&gt;|&quot;软件开发自动化&quot;| METAGPT[&quot;✅ MetaGPT&quot;]
-    Q1 --&gt;|&quot;即时通讯集成&quot;| OPENCLAW
-    Q1 --&gt;|&quot;生产级关键系统&quot;| Q3{&quot;需要状态持久化?&quot;}
-    Q3 --&gt;|&quot;是&quot;| LANGGRAPH2[&quot;✅ LangGraph&quot;]
-    Q3 --&gt;|&quot;否&quot;| CREWAI2[&quot;✅ CrewAI&quot;]
+<div class="mermaid">
+flowchart TD
+    START["🎯 选择 Agent 框架"] --> Q1{"主要用途?"}
+    Q1 -->|"复杂工作流编排"| LANGGRAPH["✅ LangGraph"]
+    Q1 -->|"快速原型/MVP"| Q2{"单Agent还是多Agent?"}
+    Q2 -->|"单 Agent"| OPENCLAW["✅ OpenClaw"]
+    Q2 -->|"多 Agent"| CREWAI["✅ CrewAI"]
+    Q1 -->|"学术研究/实验"| AUTOGEN["✅ AutoGen"]
+    Q1 -->|"软件开发自动化"| METAGPT["✅ MetaGPT"]
+    Q1 -->|"即时通讯集成"| OPENCLAW
+    Q1 -->|"生产级关键系统"| Q3{"需要状态持久化?"}
+    Q3 -->|"是"| LANGGRAPH2["✅ LangGraph"]
+    Q3 -->|"否"| CREWAI2["✅ CrewAI"]
 
     style START fill:#4f46e5,stroke:#818cf8,color:#fff
     style LANGGRAPH fill:#059669,stroke:#34d399,color:#fff
@@ -1065,7 +1069,7 @@ OpenClaw 更多通过配置驱动：</p>
     style AUTOGEN fill:#7c3aed,stroke:#a78bfa,color:#fff
     style METAGPT fill:#7c3aed,stroke:#a78bfa,color:#fff
     style OPENCLAW fill:#7c3aed,stroke:#a78bfa,color:#fff
-</code></pre></div>
+</div>
 
 <p><strong>快速参考</strong>：</p>
 <div class="table-wrapper">

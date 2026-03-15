@@ -233,11 +233,11 @@
   }
 
   pre {
-    background: var(--bg-code);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 1rem;
     overflow-x: auto;
+    max-width: 100%;
     margin: 1rem 0;
   }
 
@@ -285,6 +285,7 @@
      ═══════════════════════════════════════════ */
   .table-wrapper {
     overflow-x: auto;
+    max-width: 100%;
     margin: 1rem 0;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -512,22 +513,23 @@
 <h2 id="1-mcp">1. MCP 设计原理</h2>
 <h3 id="_1">设计动机</h3>
 <p>在 MCP 出现之前，每个 AI 应用都需要为每个工具编写定制集成代码：</p>
-<div class="highlight"><pre><span></span><code>flowchart LR
-    subgraph Before[&quot;❌ MCP 之前&quot;]
-        AA1[App A] &lt;--&gt; T1[Tool 1 custom]
-        AA1 &lt;--&gt; T2[Tool 2 custom]
-        AB1[App B] &lt;--&gt; T1r[Tool 1 rewrite]
-        AB1 &lt;--&gt; T2r[Tool 2 rewrite]
+<div class="mermaid">
+flowchart LR
+    subgraph Before["❌ MCP 之前"]
+        AA1[App A] <--> T1[Tool 1 custom]
+        AA1 <--> T2[Tool 2 custom]
+        AB1[App B] <--> T1r[Tool 1 rewrite]
+        AB1 <--> T2r[Tool 2 rewrite]
     end
-    subgraph After[&quot;✅ MCP 之后&quot;]
-        AA2[App A] &lt;--&gt; MC1[MCP Client]
-        MC1 &lt;--&gt; MS1[MCP Server 1]
-        MS1 &lt;--&gt; TT1[Tool 1]
-        AB2[App B] &lt;--&gt; MC2[MCP Client]
-        MC2 &lt;--&gt; MS2[MCP Server 2]
-        MS2 &lt;--&gt; TT2[Tool 2]
+    subgraph After["✅ MCP 之后"]
+        AA2[App A] <--> MC1[MCP Client]
+        MC1 <--> MS1[MCP Server 1]
+        MS1 <--> TT1[Tool 1]
+        AB2[App B] <--> MC2[MCP Client]
+        MC2 <--> MS2[MCP Server 2]
+        MS2 <--> TT2[Tool 2]
     end
-</code></pre></div>
+</div>
 
 <p>MCP 的核心价值是<strong>解耦</strong>: 工具提供方只需实现一次 MCP Server，任何 MCP Client 都可以使用。</p>
 <h3 id="_2">协议层次</h3>
@@ -587,18 +589,19 @@
 <blockquote>
 <p><strong>注意</strong>：MCP 规范（2025 年 3 月更新）已将 Streamable HTTP 列为推荐的远程传输方式。相比旧版 HTTP+SSE，Streamable HTTP 简化了连接管理——单个 HTTP 端点即可处理请求和流式响应，不再需要独立的 SSE 端点。旧版 HTTP+SSE 仍可用于向后兼容，但新项目应优先选择 Streamable HTTP。</p>
 </blockquote>
-<div class="highlight"><pre><span></span><code>sequenceDiagram
+<div class="mermaid">
+sequenceDiagram
     participant C as MCP Client
     participant S as MCP Server (Streamable HTTP)
-    C-&gt;&gt;S: POST /mcp (JSON-RPC 2.0)
+    C->>S: POST /mcp (JSON-RPC 2.0)
     alt 标准响应
-        S--&gt;&gt;C: 200 OK {result: {...}}
+        S-->>C: 200 OK {result: {...}}
     else 流式响应
-        S--&gt;&gt;C: 200 OK (SSE stream)
-        S--&gt;&gt;C: data: {partial result}
-        S--&gt;&gt;C: data: {final result}
+        S-->>C: 200 OK (SSE stream)
+        S-->>C: data: {partial result}
+        S-->>C: data: {final result}
     end
-</code></pre></div>
+</div>
 
 <p><strong>Streamable HTTP 优势</strong>：
 - <strong>统一端点</strong>：单个 HTTP URL 处理请求和响应，简化部署
@@ -644,13 +647,14 @@
 <li><strong>执行</strong>: 收到 LLM 的工具调用请求后，转发给对应 Server</li>
 <li><strong>返回</strong>: 将结果返回给 LLM</li>
 </ol>
-<div class="highlight"><pre><span></span><code>flowchart TD
-    U[User] --&gt; APP[AI App]
-    APP --&gt; MC[MCP Client]
-    MC --&gt; LLM[LLM]
-    LLM --&gt;|调用 search| MC
-    MC &lt;--&gt; MS[MCP Server(s)]
-</code></pre></div>
+<div class="mermaid">
+flowchart TD
+    U[User] --> APP[AI App]
+    APP --> MC[MCP Client]
+    MC --> LLM[LLM]
+    LLM -->|调用 search| MC
+    MC <--> MS[MCP Server(s)]
+</div>
 
 <h3 id="client">主流 Client 实现</h3>
 <div class="table-wrapper">
