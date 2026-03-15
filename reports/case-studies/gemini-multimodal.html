@@ -838,7 +838,8 @@
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
   const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
-  mermaid.initialize({startOnLoad:true, theme:theme});
+  mermaid.initialize({startOnLoad: false, theme: theme});
+  mermaid.run();
 </script>
 </body>
 </html>

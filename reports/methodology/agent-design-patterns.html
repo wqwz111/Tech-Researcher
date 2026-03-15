@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Agent 设计模式</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
 :root, [data-theme="dark"] {
     --bg-primary:    #0f172a;
@@ -1193,7 +1192,8 @@ function toggleTheme() {
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
   const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
-  mermaid.initialize({startOnLoad:true, theme:theme});
+  mermaid.initialize({startOnLoad: false, theme: theme});
+  mermaid.run();
 </script>
 </body></html>
 
