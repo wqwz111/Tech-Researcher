@@ -165,12 +165,12 @@ strong { color: var(--text-primary); }
 
 <div class="mermaid">
 flowchart LR
-    subgraph 索引阶段["📥 索引阶段"]
+    subgraph IndexStage["📥 索引阶段"]
         D[文档] --> S[切块 Chunking]
         S --> E[生成 Embedding]
         E --> V[存入向量数据库]
     end
-    subgraph 查询阶段["🔍 查询阶段"]
+    subgraph QueryStage["🔍 查询阶段"]
         Q[用户问题] --> R[向量检索 Top-K]
         R --> P[拼接 Prompt]
         P --> L[LLM 生成回答]

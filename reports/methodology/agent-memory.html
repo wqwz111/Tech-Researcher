@@ -247,12 +247,12 @@ graph TD
 
 <div class="mermaid">
 flowchart TD
-    subgraph 索引["📥 索引流程"]
+    subgraph IndexFlow["📥 索引流程"]
         T[文本] --> EM[Embedding Model]
         EM --> HV[高维向量 e.g. 1536-dim]
         HV --> VDB[(向量数据库存储)]
     end
-    subgraph 检索["🔍 检索流程"]
+    subgraph RetrievalFlow["🔍 检索流程"]
         Q[查询] --> QE[Embedding]
         QE --> SS[相似度搜索]
         SS --> TK[Top-K 相关文档]
