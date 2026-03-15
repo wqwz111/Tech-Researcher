@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -105,7 +105,7 @@ a { color: var(--link); }
 code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
 pre {
     background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
+    overflow-x: auto; max-width: 100%; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
 }
 pre code { background: none; color: var(--text-primary); }
 pre .lang-label {
@@ -580,6 +580,7 @@ flowchart LR
 <h3 id="62-技术选型建议">6.2 技术选型建议</h3>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>场景</th><th>推荐方案</th><th>注意事项</th></tr>
 <tr><td>医学影像</td><td>商用 AI 平台（推想、联影、GE）</td><td>验证在本院数据上的性能</td></tr>
 <tr><td>电子病历 NLP</td><td>Fine-tuned LLM + 规则引擎</td><td>严格幻觉控制</td></tr>
@@ -587,6 +588,7 @@ flowchart LR
 <tr><td>药物研发</td><td>AlphaFold + 生成式 AI</td><td>需要 wet lab 验证</td></tr>
 <tr><td>患者管理</td><td>预测模型 + 自动化工作流</td><td>关注数据隐私</td></tr>
 </table>
+</div>
 </div>
 
 <h3 id="63-关键成功因素">6.3 关键成功因素</h3>

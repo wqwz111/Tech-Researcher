@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -105,7 +105,7 @@ a { color: var(--link); }
 code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
 pre {
     background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
+    overflow-x: auto; max-width: 100%; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
 }
 pre code { background: none; color: var(--text-primary); }
 pre .lang-label {
@@ -254,6 +254,7 @@ Revised Plan:
 </code></pre>
 <p><strong>三种 Reflection 变体</strong>:</p>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -278,6 +279,7 @@ Revised Plan:
 <td>开放性问题、创意任务</td>
 </tr>
 </tbody></table>
+</div>
 </div>
 <p><strong>优势</strong>:</p>
 <ul>
@@ -351,6 +353,7 @@ print(f&quot;高分记录: {len(filtered)} 条&quot;)
 <h3>2.3 工具结果处理</h3>
 <p>工具返回的结果需要妥善处理：</p>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -379,6 +382,7 @@ print(f&quot;高分记录: {len(filtered)} 条&quot;)
 <td>返回错误描述，让 Agent 选择替代方案</td>
 </tr>
 </tbody></table>
+</div>
 </div>
 <p><strong>Token 管理</strong>: 工具返回的长文本需要截断或摘要。建议对超过 2000 字符的结果自动进行摘要，保留关键信息。</p>
 <hr>
@@ -592,6 +596,7 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 </div>
 <p><strong>三大核心原语</strong>:</p>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -616,6 +621,7 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 <td>预定义的提示模板，由用户控制</td>
 </tr>
 </tbody></table>
+</div>
 </div>
 <p><strong>传输层</strong>: MCP 支持两种传输方式：</p>
 <ul>
@@ -673,6 +679,7 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 </ul>
 <p><strong>A2A vs MCP 对比</strong>:</p>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -717,6 +724,7 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 <td>Google、Microsoft、Salesforce、SAP 等 50+ 家</td>
 </tr>
 </tbody></table>
+</div>
 </div>
 <p><strong>互补关系</strong>: MCP 和 A2A 并非竞争关系，而是互补的。一个 Agent 可以通过 MCP 连接工具，同时通过 A2A 与其他 Agent 协作：</p>
 <div class="mermaid">flowchart TB
@@ -863,6 +871,7 @@ response = client.run(agent=triage_agent, messages=[...])
 <p><strong>适用场景</strong>: 无法通过 API 访问的遗留系统操作、测试自动化、RPA 替代。</p>
 <h3>案例对比</h3>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -958,6 +967,7 @@ response = client.run(agent=triage_agent, messages=[...])
 </tr>
 </tbody></table>
 </div>
+</div>
 <hr>
 <h2>六、实践建议</h2>
 <h3>6.1 Agent 设计模式选型决策树</h3>
@@ -984,6 +994,7 @@ response = client.run(agent=triage_agent, messages=[...])
     style COMPUTER fill:#b45309,stroke:#fbbf24,color:#fff
 </div>
 <p><strong>快速参考</strong>：</p>
+<div class="table-wrapper">
 <div class="table-wrapper">
 <table>
 <thead>
@@ -1019,6 +1030,7 @@ response = client.run(agent=triage_agent, messages=[...])
 <td>视觉理解 + 操作</td>
 </tr>
 </tbody></table>
+</div>
 </div>
 <h3>6.2 设计检查清单</h3>
 <p>在构建 Agent 系统前，确认以下问题：</p>

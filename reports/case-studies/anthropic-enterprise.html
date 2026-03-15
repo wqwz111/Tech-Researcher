@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -105,7 +105,7 @@ a { color: var(--link); }
 code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
 pre {
     background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
+    overflow-x: auto; max-width: 100%; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
 }
 pre code { background: none; color: var(--text-primary); }
 pre .lang-label {
@@ -171,6 +171,7 @@ strong { color: var(--text-primary); }
 <h3 id="11">1.1 完整模型列表</h3>
 <p>Anthropic 的 Claude 模型命名体系包含三个层级（截至 2026 年 3 月最新）：</p>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -220,6 +221,7 @@ strong { color: var(--text-primary); }
 </tbody>
 </table>
 </div>
+</div>
 <blockquote>
 <p><strong>注意</strong>：Claude 4 系列于 2025 年 5 月发布，是 Anthropic 首次使用独立版本号（而非 3.x 子版本）。Claude 3.5 Sonnet 仍为高性价比选择，被广泛用于生产环境。</p>
 </blockquote>
@@ -230,6 +232,7 @@ strong { color: var(--text-primary); }
 <p><strong>多模态</strong>：原生支持视觉输入，图表理解和文档分析能力进一步提升。</p>
 <p><strong>Extended Thinking</strong>：Claude 4 引入了"深度思考"模式，允许模型在复杂任务上进行更长时间的内部推理，显著提升复杂编程和数学任务表现。</p>
 <p><strong>价格</strong>（截至 2025 年 5 月发布时）：</p>
+<div class="table-wrapper">
 <div class="table-wrapper">
 <table>
 <thead>
@@ -263,6 +266,7 @@ strong { color: var(--text-primary); }
 </tbody>
 </table>
 </div>
+</div>
 <h3 id="13-claude-35">1.3 Claude 3.5 全系列回顾</h3>
 <p><strong>Claude 3.5 Sonnet（2024.06）</strong>：开创性的性价比升级，以 Sonnet 价格提供超越 Opus 3 的能力，至今仍是许多企业的首选。</p>
 <p><strong>Claude 3.5 Haiku（2024.10）</strong>：以 Haiku 价格提供接近 Sonnet 3.5 的能力，适合大规模低延迟场景。</p>
@@ -283,6 +287,7 @@ strong { color: var(--text-primary); }
 <li><strong>搜索代码库</strong>（理解项目结构和依赖关系）</li>
 </ul>
 <h3 id="22">2.2 与传统编程助手的区别</h3>
+<div class="table-wrapper">
 <div class="table-wrapper">
 <table>
 <thead>
@@ -326,6 +331,7 @@ strong { color: var(--text-primary); }
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <h3 id="23">2.3 实践模式</h3>
 <p>Claude Code 在实际使用中适合以下场景：</p>
@@ -465,6 +471,7 @@ strong { color: var(--text-primary); }
 </ol>
 <h3 id="2026-03">模型选择建议（截至 2026-03）</h3>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -496,6 +503,7 @@ strong { color: var(--text-primary); }
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <h3 id="claude_1">不建议选择 Claude 的场景</h3>
 <ol>

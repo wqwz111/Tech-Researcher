@@ -237,7 +237,7 @@
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 1rem;
-    overflow-x: auto;
+    overflow-x: auto; max-width: 100%;
     margin: 1rem 0;
   }
 
@@ -284,7 +284,7 @@
      TABLE
      ═══════════════════════════════════════════ */
   .table-wrapper {
-    overflow-x: auto;
+    overflow-x: auto; max-width: 100%;
     margin: 1rem 0;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -539,6 +539,7 @@
 
 <h4 id="_2">常见误区</h4>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -570,6 +571,7 @@
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <h4 id="system-prompt-user-prompt">System Prompt 与 User Prompt 的分工</h4>
 <ul>
@@ -680,6 +682,7 @@
 <p>ToT 将 CoT 的线性推理扩展为<strong>树状搜索</strong>，允许模型探索多条推理路径并选择最优解。</p>
 <h4 id="cot_2">与 CoT 的区别</h4>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -716,6 +719,7 @@
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <h4 id="tot">ToT 适用场景</h4>
 <ul>
@@ -830,6 +834,7 @@ Answer: [最终答案]
 <p>随着 Anthropic Claude 4 和 OpenAI o3/o1 等推理模型（Reasoning Models）的出现，提示工程面临新的适配挑战。这些模型内置了深度推理能力，与传统模型的提示策略有显著差异。</p>
 <h4 id="vs">推理模型 vs 传统模型的核心区别</h4>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -866,6 +871,7 @@ Answer: [最终答案]
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <h4 id="openai-o3o1">OpenAI o3/o1 提示策略</h4>
 <p><strong>o3/o1 的特殊性：</strong></p>
@@ -919,6 +925,7 @@ Answer: [最终答案]
 
 <h4 id="_7">推理模型选型建议</h4>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -950,6 +957,7 @@ Answer: [最终答案]
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <h3 id="36">3.6 跨模型提示适配策略</h3>
 <p>在企业实践中，建议采用<strong>模型无关的提示抽象层</strong>：</p>
@@ -1017,6 +1025,7 @@ Answer: [最终答案]
 缺点：缺乏运行时管理能力</p>
 <h4 id="prompt">方式二：专用 Prompt 管理平台</h4>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -1053,6 +1062,7 @@ Answer: [最终答案]
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <h4 id="prompt-as-code">方式三：Prompt as Code（提示即代码）</h4>
 <p>将 Prompt 定义为代码中的类型安全对象：</p>
@@ -1114,6 +1124,7 @@ Answer: [最终答案]
 
 <p><strong>每个阶段的关键活动：</strong></p>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -1155,6 +1166,7 @@ Answer: [最终答案]
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <h3 id="52">5.2 团队协作流程</h3>
 <h4 id="_8">推荐角色分工</h4>
@@ -1252,6 +1264,7 @@ Answer: [最终答案]
 <h3 id="55">5.5 成本优化</h3>
 <h4 id="token">Token 消耗优化</h4>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -1288,6 +1301,7 @@ Answer: [最终答案]
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <h4 id="_12">模型路由策略</h4>
 <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">route_model</span><span class="p">(</span><span class="n">task_complexity</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>

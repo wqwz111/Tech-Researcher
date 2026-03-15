@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -105,7 +105,7 @@ a { color: var(--link); }
 code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
 pre {
     background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
+    overflow-x: auto; max-width: 100%; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
 }
 pre code { background: none; color: var(--text-primary); }
 pre .lang-label {
@@ -287,6 +287,7 @@ strong { color: var(--text-primary); }
 <h3>3.1 语言支持排名（2026 年更新）</h3>
 <p>根据各工具的文档和用户反馈，主流语言的支持质量排序：</p>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -356,6 +357,7 @@ strong { color: var(--text-primary); }
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <blockquote>
 <p>注：GPT-4.1 发布后，各工具在编码基准测试上的表现整体提升，尤其是 Python 和 JavaScript/TypeScript 场景。</p>

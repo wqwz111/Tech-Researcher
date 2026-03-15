@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -105,7 +105,7 @@ a { color: var(--link); }
 code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
 pre {
     background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
+    overflow-x: auto; max-width: 100%; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
 }
 pre code { background: none; color: var(--text-primary); }
 pre .lang-label {
@@ -231,6 +231,7 @@ flowchart TD
 <h3 id="22-与-cot-对比">2.2 与 CoT 对比</h3>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>维度</th><th>CoT</th><th>ToT</th></tr>
 <tr><td>搜索方式</td><td>贪心（单链）</td><td>树搜索（多分支）</td></tr>
 <tr><td>回退能力</td><td>❌ 不能回退</td><td>✅ 可回溯</td></tr>
@@ -238,6 +239,7 @@ flowchart TD
 <tr><td>适用问题</td><td>简单推理</td><td>复杂规划、创意</td></tr>
 <tr><td>实现复杂度</td><td>低</td><td>高</td></tr>
 </table>
+</div>
 </div>
 
 <h3 id="23-关键组件">2.3 关键组件</h3>
@@ -318,10 +320,12 @@ flowchart LR
 <h3 id="51-vs-outcome-reward-models-orm">5.1 vs Outcome Reward Models (ORM)</h3>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>类型</th><th>评估时机</th><th>信号粒度</th><th>训练数据</th></tr>
 <tr><td>ORM</td><td>最终答案</td><td>粗（对/错）</td><td>容易获取</td></tr>
 <tr><td>PRM</td><td>每个推理步骤</td><td>细（步骤对错）</td><td>需要标注</td></tr>
 </table>
+</div>
 </div>
 
 <h3 id="52-prm-训练">5.2 PRM 训练</h3>
@@ -375,6 +379,7 @@ o1: 适中训练成本 → 推理时深度思考
 <h3 id="64-对比">6.4 对比</h3>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>模型</th><th>训练成本</th><th>推理成本</th><th>MATH 准确率</th></tr>
 <tr><td>GPT-4</td><td>极高</td><td>低</td><td>~50%</td></tr>
 <tr><td>o1-mini</td><td>中</td><td>中</td><td>~70%</td></tr>
@@ -382,11 +387,13 @@ o1: 适中训练成本 → 推理时深度思考
 <tr><td>o3</td><td>高</td><td>极高</td><td>~88%</td></tr>
 </table>
 </div>
+</div>
 
 <hr>
 
 <h2 id="7-技术选型建议">7. 技术选型建议</h2>
 
+<div class="table-wrapper">
 <div class="table-wrapper">
 <table><tr><th>场景</th><th>推荐方法</th><th>理由</th></tr>
 <tr><td>简单推理</td><td>CoT (Zero-shot)</td><td>简单高效</td></tr>
@@ -396,6 +403,7 @@ o1: 适中训练成本 → 推理时深度思考
 <tr><td>成本敏感</td><td>o1-mini</td><td>性价比最优</td></tr>
 <tr><td>极限性能</td><td>o3 + PRM</td><td>不计成本</td></tr>
 </table>
+</div>
 </div>
 
 <hr>

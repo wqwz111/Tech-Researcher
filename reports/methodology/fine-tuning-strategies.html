@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -105,7 +105,7 @@ a { color: var(--link); }
 code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
 pre {
     background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
+    overflow-x: auto; max-width: 100%; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
 }
 pre code { background: none; color: var(--text-primary); }
 pre .lang-label {
@@ -200,6 +200,7 @@ graph TD
 <h3 id="12-核心对比">1.2 核心对比</h3>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>方法</th><th>可训练参数</th><th>显存需求</th><th>训练速度</th><th>效果</th><th>适用场景</th></tr>
 <tr><td>Full FT</td><td>100%</td><td>极高</td><td>慢</td><td>最佳</td><td>数据充足、算力充足</td></tr>
 <tr><td>LoRA</td><td>0.1-1%</td><td>低</td><td>快</td><td>接近全量</td><td>通用场景首选</td></tr>
@@ -207,6 +208,7 @@ graph TD
 <tr><td>Adapter</td><td>1-5%</td><td>中</td><td>中</td><td>接近全量</td><td>多任务切换</td></tr>
 <tr><td>DPO</td><td>0.1-1%</td><td>中</td><td>快</td><td>对齐专用</td><td>偏好对齐</td></tr>
 </table>
+</div>
 </div>
 
 <hr>
@@ -269,6 +271,7 @@ W' = W + ΔW = W + BA
 <h3 id="32-数据质量控制">3.2 数据质量控制</h3>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>检查项</th><th>方法</th><th>工具</th></tr>
 <tr><td>去重</td><td>模糊去重 + 精确去重</td><td>datasketch, nearpy</td></tr>
 <tr><td>格式校验</td><td>Schema 验证</td><td>Pydantic, jsonschema</td></tr>
@@ -277,9 +280,11 @@ W' = W + ΔW = W + BA
 <tr><td>数据配比</td><td>领域混合比例</td><td>人工设计</td></tr>
 </table>
 </div>
+</div>
 
 <h3 id="33-数据量参考">3.3 数据量参考</h3>
 
+<div class="table-wrapper">
 <div class="table-wrapper">
 <table><tr><th>场景</th><th>建议数据量</th></tr>
 <tr><td>简单格式转换</td><td>1K-5K</td></tr>
@@ -288,6 +293,7 @@ W' = W + ΔW = W + BA
 <tr><td>全面能力提升</td><td>500K+</td></tr>
 </table>
 </div>
+</div>
 
 <hr>
 
@@ -295,6 +301,7 @@ W' = W + ΔW = W + BA
 
 <h3 id="41-核心超参数">4.1 核心超参数</h3>
 
+<div class="table-wrapper">
 <div class="table-wrapper">
 <table><tr><th>参数</th><th>推荐范围</th><th>说明</th></tr>
 <tr><td>Learning Rate</td><td>1e-5 ~ 5e-4</td><td>LoRA 可用较高 LR</td></tr>
@@ -305,6 +312,7 @@ W' = W + ΔW = W + BA
 <tr><td>LoRA Alpha</td><td>rank × 2</td><td>缩放因子</td></tr>
 <tr><td>Max Length</td><td>512-4096</td><td>根据任务调整</td></tr>
 </table>
+</div>
 </div>
 
 <h3 id="42-训练策略">4.2 训练策略</h3>
@@ -384,12 +392,14 @@ DPO: 直接用偏好数据优化策略 (一步)
 <p><strong>DPO vs RLHF 对比数据</strong> (AlpacaEval 2.0):</p>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>模型</th><th>方法</th><th>Win Rate</th><th>训练成本</th></tr>
 <tr><td>Llama-2-7B</td><td>SFT</td><td>38.2%</td><td>1x</td></tr>
 <tr><td>Llama-2-7B</td><td>SFT + DPO</td><td>52.7%</td><td>1.5x</td></tr>
 <tr><td>Llama-2-7B</td><td>SFT + RLHF</td><td>54.1%</td><td>4x</td></tr>
 <tr><td>Mistral-7B</td><td>SFT + DPO</td><td>61.3%</td><td>1.5x</td></tr>
 </table>
+</div>
 </div>
 
 <h3 id="63-grpo-group-relative-policy-optimization">6.3 GRPO (Group Relative Policy Optimization)</h3>
@@ -404,11 +414,13 @@ DPO: 直接用偏好数据优化策略 (一步)
 <p><strong>适用场景</strong>: 数学/代码等有明确正确性判断的领域</p>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>方法</th><th>需要 Reward Model</th><th>需要 Critic</th><th>训练稳定性</th><th>效果</th></tr>
 <tr><td>RLHF/PPO</td><td>✅</td><td>✅</td><td>中</td><td>⭐⭐⭐⭐⭐</td></tr>
 <tr><td>DPO</td><td>❌</td><td>❌</td><td>高</td><td>⭐⭐⭐⭐</td></tr>
 <tr><td>GRPO</td><td>❌ (或可选)</td><td>❌</td><td>高</td><td>⭐⭐⭐⭐</td></tr>
 </table>
+</div>
 </div>
 
 <h3 id="64-选型建议">6.4 选型建议</h3>
@@ -427,6 +439,7 @@ DPO: 直接用偏好数据优化策略 (一步)
 <p>以下数据综合自公开论文和社区实验（基座模型: Llama-2-7B / Mistral-7B）:</p>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>任务类型</th><th>方法</th><th>Benchmark</th><th>Base</th><th>+SFT</th><th>+LoRA</th><th>+Full FT</th></tr>
 <tr><td>中文问答</td><td>C-Eval</td><td>准确率</td><td>28.9%</td><td>45.2%</td><td>52.1%</td><td>54.3%</td></tr>
 <tr><td>代码生成</td><td>HumanEval</td><td>Pass@1</td><td>14.6%</td><td>28.7%</td><td>33.5%</td><td>35.8%</td></tr>
@@ -434,6 +447,7 @@ DPO: 直接用偏好数据优化策略 (一步)
 <tr><td>指令遵循</td><td>AlpacaEval</td><td>Win Rate</td><td>32.1%</td><td>55.4%</td><td>62.8%</td><td>65.2%</td></tr>
 <tr><td>医学问答</td><td>MedQA</td><td>准确率</td><td>30.5%</td><td>48.7%</td><td>56.2%</td><td>58.1%</td></tr>
 </table>
+</div>
 </div>
 
 <p><strong>关键发现</strong>:</p>
@@ -444,6 +458,7 @@ DPO: 直接用偏好数据优化策略 (一步)
 <h3 id="72-lora-rank-选择实验">7.2 LoRA Rank 选择实验</h3>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>Rank</th><th>可训练参数</th><th>C-Eval</th><th>GSM8K</th><th>训练时间</th></tr>
 <tr><td>8</td><td>0.05%</td><td>48.3%</td><td>38.1%</td><td>1.2h</td></tr>
 <tr><td>16</td><td>0.10%</td><td>50.7%</td><td>40.5%</td><td>1.4h</td></tr>
@@ -452,11 +467,13 @@ DPO: 直接用偏好数据优化策略 (一步)
 <tr><td>128</td><td>0.80%</td><td>53.0%</td><td>43.2%</td><td>4.1h</td></tr>
 </table>
 </div>
+</div>
 
 <p><strong>结论</strong>: rank 32 是性价比甜点，继续增加收益递减</p>
 
 <h3 id="73-数据量-vs-效果">7.3 数据量 vs 效果</h3>
 
+<div class="table-wrapper">
 <div class="table-wrapper">
 <table><tr><th>数据量</th><th>C-Eval (LoRA)</th><th>C-Eval (Full FT)</th><th>建议</th></tr>
 <tr><td>1K</td><td>38.2%</td><td>35.1%</td><td>仅适合简单任务</td></tr>
@@ -466,6 +483,7 @@ DPO: 直接用偏好数据优化策略 (一步)
 <tr><td>100K</td><td>52.5%</td><td>54.3%</td><td>Full FT 优势明显</td></tr>
 </table>
 </div>
+</div>
 
 <hr>
 
@@ -474,12 +492,14 @@ DPO: 直接用偏好数据优化策略 (一步)
 <h3 id="81-成本对比-7b-模型">8.1 成本对比 (7B 模型)</h3>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>方案</th><th>GPU</th><th>时间</th><th>成本估算</th></tr>
 <tr><td>Full FT (多卡)</td><td>4×A100 80G</td><td>8h</td><td>~$80</td></tr>
 <tr><td>LoRA (单卡)</td><td>1×A100 40G</td><td>2h</td><td>~$10</td></tr>
 <tr><td>QLoRA (单卡)</td><td>1×RTX 4090</td><td>4h</td><td>~$4</td></tr>
 <tr><td>API 微调 (OpenAI)</td><td>无需GPU</td><td>1h</td><td>~$25</td></tr>
 </table>
+</div>
 </div>
 
 <h3 id="62-决策树">6.2 决策树</h3>

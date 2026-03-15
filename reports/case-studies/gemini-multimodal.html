@@ -237,7 +237,7 @@
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 1rem;
-    overflow-x: auto;
+    overflow-x: auto; max-width: 100%;
     margin: 1rem 0;
   }
 
@@ -284,7 +284,7 @@
      TABLE
      ═══════════════════════════════════════════ */
   .table-wrapper {
-    overflow-x: auto;
+    overflow-x: auto; max-width: 100%;
     margin: 1rem 0;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -572,6 +572,7 @@
 <h3 id="61">6.1 综合基准评测</h3>
 <p>Gemini 模型已接受多个独立第三方机构的评测：</p>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -620,6 +621,7 @@
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <h3 id="62">6.2 视频理解能力评测</h3>
 <p>Gemini 的视频理解能力在多个学术基准上获得验证：</p>
@@ -676,6 +678,7 @@
 <p><strong>Grounding with Google Search</strong>：这是 Vertex AI 独有的特性——模型在回答时可以引用 Google Search 的实时结果，既提高准确性又提供来源链接。</p>
 <h3 id="33-api">3.3 API 定价对比</h3>
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -730,6 +733,7 @@
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 <blockquote>
 <p><strong>定价说明（截至 2025 年 3 月）</strong>：Gemini 1.5 系列价格随输入长度变化（超过 128K tokens 后价格翻倍）。Gemini 2.0 Flash 在性价比上具有显著优势，尤其适合高频调用场景。Google 提供 AI Studio 免费层级供开发者测试。</p>

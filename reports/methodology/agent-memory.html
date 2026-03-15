@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -105,7 +105,7 @@ a { color: var(--link); }
 code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
 pre {
     background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
+    overflow-x: auto; max-width: 100%; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
 }
 pre code { background: none; color: var(--text-primary); }
 pre .lang-label {
@@ -226,6 +226,7 @@ graph TD
 <p>实际系统中，长期记忆常被进一步细分：</p>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>记忆类型</th><th>用途</th><th>存储方式</th><th>检索方式</th></tr>
 <tr><td>**情景记忆**</td><td>记录具体交互事件</td><td>向量存储 + 时间戳</td><td>语义相似度 + 时间过滤</td></tr>
 <tr><td>**语义记忆**</td><td>抽象知识和事实</td><td>图数据库 / 知识图谱</td><td>结构化查询</td></tr>
@@ -233,6 +234,7 @@ graph TD
 <tr><td>**实体记忆**</td><td>用户/实体画像</td><td>结构化数据库</td><td>ID 查询</td></tr>
 <tr><td>**关系记忆**</td><td>实体间的关系</td><td>图数据库</td><td>图遍历</td></tr>
 </table>
+</div>
 </div>
 
 <hr>
@@ -260,6 +262,7 @@ flowchart TD
 <p><strong>主流 Embedding 模型：</strong></p>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>模型</th><th>维度</th><th>特点</th></tr>
 <tr><td>OpenAI text-embedding-3-small</td><td>1536</td><td>性价比高，支持 Matryoshka 降维</td></tr>
 <tr><td>OpenAI text-embedding-3-large</td><td>3072</td><td>高质量，适合精细检索</td></tr>
@@ -268,9 +271,11 @@ flowchart TD
 <tr><td>GTE-Qwen2 (Alibaba)</td><td>可变</td><td>开源，中文表现优秀</td></tr>
 </table>
 </div>
+</div>
 
 <h3 id="22-向量数据库选型">2.2 向量数据库选型</h3>
 
+<div class="table-wrapper">
 <div class="table-wrapper">
 <table><tr><th>数据库</th><th>类型</th><th>适用场景</th><th>优势</th></tr>
 <tr><td>**ChromaDB**</td><td>嵌入式</td><td>原型开发、小型 Agent</td><td>零配置、内存模式</td></tr>
@@ -282,6 +287,7 @@ flowchart TD
 <tr><td>**FAISS**</td><td>库（非数据库）</td><td>离线/研究场景</td><td>Meta 开发、极致性能</td></tr>
 <tr><td>**LanceDB**</td><td>嵌入式</td><td>边缘部署</td><td>基于 Lance 格式、零拷贝</td></tr>
 </table>
+</div>
 </div>
 
 <h3 id="23-检索策略">2.3 检索策略</h3>
@@ -346,12 +352,14 @@ results = vector_store.search(
 <p>文档分块方式直接影响检索质量。</p>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>策略</th><th>描述</th><th>优缺点</th></tr>
 <tr><td>固定大小分块</td><td>按 token/字符数切分</td><td>简单但可能切断语义</td></tr>
 <tr><td>递归分块</td><td>按段落→句子递归切分</td><td>保持语义完整性</td></tr>
 <tr><td>语义分块</td><td>按语义边界动态切分</td><td>质量高但计算成本大</td></tr>
 <tr><td>滑动窗口</td><td>相邻块有重叠</td><td>保证边界信息不丢失</td></tr>
 </table>
+</div>
 </div>
 
 <p>推荐：递归分块 + 20% 滑动窗口重叠，chunk 大小 512-1024 tokens。</p>
@@ -590,6 +598,7 @@ graph LR
 <h3 id="51-主流框架对比">5.1 主流框架对比</h3>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>框架</th><th>记忆模型</th><th>存储后端</th><th>特点</th><th>适用场景</th></tr>
 <tr><td>**LangChain Memory**</td><td>对话缓冲/摘要/向量</td><td>多种</td><td>灵活、生态丰富</td><td>通用 Agent 开发</td></tr>
 <tr><td>**Mem0**</td><td>多层记忆</td><td>向量 + 图</td><td>自动提取和管理记忆</td><td>个性化 Agent</td></tr>
@@ -599,6 +608,7 @@ graph LR
 <tr><td>**Cognee**</td><td>认知图谱</td><td>图 + 向量</td><td>知识图谱构建</td><td>知识密集型 Agent</td></tr>
 <tr><td>**Zep**</td><td>会话记忆服务</td><td>专用存储</td><td>生产级、自动摘要</td><td>SaaS 集成</td></tr>
 </table>
+</div>
 </div>
 
 <h3 id="52-深度分析mem0">5.2 深度分析：Mem0</h3>

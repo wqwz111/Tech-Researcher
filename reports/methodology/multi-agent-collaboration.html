@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -105,7 +105,7 @@ a { color: var(--link); }
 code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
 pre {
     background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
+    overflow-x: auto; max-width: 100%; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
 }
 pre code { background: none; color: var(--text-primary); }
 pre .lang-label {
@@ -219,12 +219,14 @@ flowchart LR
 <h3 id="21-通信模式">2.1 通信模式</h3>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>模式</th><th>描述</th><th>适用场景</th></tr>
 <tr><td>直接消息</td><td>Agent A → Agent B</td><td>点对点协作</td></tr>
 <tr><td>广播</td><td>Agent → All</td><td>公告、状态同步</td></tr>
 <tr><td>发布/订阅</td><td>Topic-based</td><td>事件驱动系统</td></tr>
 <tr><td>黑板系统</td><td>共享内存空间</td><td>异步协作</td></tr>
 </table>
+</div>
 </div>
 
 <h3 id="22-消息格式">2.2 消息格式</h3>
@@ -263,6 +265,7 @@ flowchart LR
 <h3 id="32-解决策略">3.2 解决策略</h3>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>策略</th><th>机制</th><th>适用场景</th></tr>
 <tr><td>投票</td><td>多数决 / 加权投票</td><td>知识冲突</td></tr>
 <tr><td>仲裁</td><td>上级 Agent 裁决</td><td>目标冲突</td></tr>
@@ -270,6 +273,7 @@ flowchart LR
 <tr><td>竞标</td><td>价高者得</td><td>资源冲突</td></tr>
 <tr><td>回退</td><td>随机退避重试</td><td>简单资源冲突</td></tr>
 </table>
+</div>
 </div>
 
 <h3 id="33-共识算法">3.3 共识算法</h3>
@@ -369,6 +373,7 @@ flowchart LR
 <h3 id="44-对比总结">4.4 对比总结</h3>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>维度</th><th>CrewAI</th><th>AutoGen</th><th>MetaGPT</th></tr>
 <tr><td>上手难度</td><td>⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐</td></tr>
 <tr><td>灵活性</td><td>⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐</td></tr>
@@ -376,6 +381,7 @@ flowchart LR
 <tr><td>社区活跃</td><td>⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐</td></tr>
 <tr><td>最佳场景</td><td>通用工作流</td><td>研究/分析</td><td>软件开发</td></tr>
 </table>
+</div>
 </div>
 
 <hr>
@@ -444,6 +450,7 @@ flowchart TD
 <h3>模式速查表</h3>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>场景</th><th>推荐模式</th><th>推荐框架</th><th>理由</th></tr>
 <tr><td>软件开发全流程</td><td>层级式</td><td>MetaGPT</td><td>SOP 明确，角色分工固定</td></tr>
 <tr><td>研究/分析任务</td><td>层级式</td><td>CrewAI</td><td>任务可分解，需协调交付</td></tr>
@@ -452,6 +459,7 @@ flowchart TD
 <tr><td>代码审查协作</td><td>扁平式</td><td>AutoGen</td><td>平等对话，迭代改进</td></tr>
 <tr><td>客服工单分发</td><td>层级式</td><td>CrewAI</td><td>按专长分配，统一出口</td></tr>
 </table>
+</div>
 </div>
 
 <h3>混合模式建议</h3>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -105,7 +105,7 @@ a { color: var(--link); }
 code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
 pre {
     background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
+    overflow-x: auto; max-width: 100%; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
 }
 pre code { background: none; color: var(--text-primary); }
 pre .lang-label {
@@ -239,6 +239,7 @@ strong { color: var(--text-primary); }
 <h3 id="14-其他重要-benchmark">1.4 其他重要 Benchmark</h3>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>Benchmark</th><th>领域</th><th>特点</th></tr>
 <tr><td>**GSM8K**</td><td>数学推理</td><td>8,500 道小学数学应用题，测试链式推理能力</td></tr>
 <tr><td>**MATH**</td><td>高等数学</td><td>12,500 道竞赛级数学题，分 7 个子领域</td></tr>
@@ -251,6 +252,7 @@ strong { color: var(--text-primary); }
 <tr><td>**BigCodeBench**</td><td>代码生成</td><td>2024 年发布，更贴近真实开发场景</td></tr>
 <tr><td>**SWE-bench**</td><td>软件工程</td><td>测试模型修复真实 GitHub Issue 的能力</td></tr>
 </table>
+</div>
 </div>
 
 <h3 id="15-benchmark-发展趋势">1.5 Benchmark 发展趋势</h3>
@@ -523,12 +525,14 @@ eval_cases = [
 <p><strong>推荐策略：</strong></p>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>阶段</th><th>评估类型</th><th>时间</th><th>覆盖面</th></tr>
 <tr><td>开发中</td><td>快速冒烟测试</td><td>分钟级</td><td>核心功能</td></tr>
 <tr><td>提交前</td><td>自动化回归测试</td><td>小时级</td><td>主要场景</td></tr>
 <tr><td>发布前</td><td>综合评估</td><td>天级</td><td>全面覆盖</td></tr>
 <tr><td>发布后</td><td>持续监控</td><td>持续</td><td>生产数据</td></tr>
 </table>
+</div>
 </div>
 
 <h3 id="55-领域偏差">5.5 领域偏差</h3>
@@ -569,6 +573,7 @@ eval_cases = [
 <h3 id="62-推荐工具栈">6.2 推荐工具栈</h3>
 
 <div class="table-wrapper">
+<div class="table-wrapper">
 <table><tr><th>用途</th><th>工具</th><th>说明</th></tr>
 <tr><td>通用评估框架</td><td>HELM, lm-evaluation-harness</td><td>标准化 Benchmark 评估</td></tr>
 <tr><td>RAG 评估</td><td>RAGAS, DeepEval</td><td>RAG 系统专项评估</td></tr>
@@ -577,6 +582,7 @@ eval_cases = [
 <tr><td>安全评估</td><td>DecodingTrust, SafetyBench</td><td>安全性和对齐评估</td></tr>
 <tr><td>评估流水线</td><td>LangSmith, Braintrust</td><td>端到端评估管理</td></tr>
 </table>
+</div>
 </div>
 
 <h3 id="63-模型选型决策框架">6.3 模型选型决策框架</h3>
