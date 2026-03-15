@@ -522,25 +522,27 @@
 - <strong>Ultra</strong>：旗舰模型，对标 GPT-4，在 MMLU 基准上首次超过人类专家水平（90%）¹
 - <strong>Pro</strong>：均衡模型，适合大多数应用场景
 - <strong>Nano</strong>：端侧模型，可以在手机等设备上运行（1.8B 和 3.25B 参数）</p>
-<div class="highlight"><pre><span></span><code>graph TB
-    subgraph 模型层级[&quot;Gemini 模型层级&quot;]
-        ULTRA[&quot;Gemini Ultra&lt;br/&gt;旗舰 · 万亿参数&lt;br/&gt;MMLU 90%+&quot;]
-        PRO[&quot;Gemini Pro&lt;br/&gt;均衡 · 生产就绪&lt;br/&gt;长上下文&quot;]
-        NANO[&quot;Gemini Nano&lt;br/&gt;端侧 · 1.8B/3.25B&lt;br/&gt;设备部署&quot;]
+<div class="mermaid">
+graph TB
+    subgraph 模型层级["Gemini 模型层级"]
+        ULTRA["Gemini Ultra<br/>旗舰 · 万亿参数<br/>MMLU 90%+"]
+        PRO["Gemini Pro<br/>均衡 · 生产就绪<br/>长上下文"]
+        NANO["Gemini Nano<br/>端侧 · 1.8B/3.25B<br/>设备部署"]
     end
-    subgraph 应用场景[&quot;部署场景&quot;]
-        CLOUD[&quot;☁️ Google Cloud&lt;br/&gt;Vertex AI · AI Studio&quot;]
-        DEVICE[&quot;📱 端侧设备&lt;br/&gt;Android · Pixel · Samsung&quot;]
-        WORKSPACE[&quot;💼 Workspace&lt;br/&gt;Gmail · Docs · Sheets&quot;]
+    subgraph 应用场景["部署场景"]
+        CLOUD["☁️ Google Cloud<br/>Vertex AI · AI Studio"]
+        DEVICE["📱 端侧设备<br/>Android · Pixel · Samsung"]
+        WORKSPACE["💼 Workspace<br/>Gmail · Docs · Sheets"]
     end
-    ULTRA --&gt; CLOUD
-    PRO --&gt; CLOUD
-    PRO --&gt; WORKSPACE
-    NANO --&gt; DEVICE
+    ULTRA --> CLOUD
+    PRO --> CLOUD
+    PRO --> WORKSPACE
+    NANO --> DEVICE
     style ULTRA fill:#4285f4,color:#fff
     style PRO fill:#34a853,color:#fff
     style NANO fill:#fbbc04,color:#000
-</code></pre></div>
+
+</div>
 
 <blockquote>
 <p><strong>图1.1 Gemini 模型层级与部署架构</strong>：Ultra 面向云端旗舰场景，Pro 覆盖云端和 Workspace 集成，Nano 部署在 Android 设备端。三级架构覆盖从数据中心到边缘设备的全场景。</p>
@@ -831,5 +833,10 @@
   🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
   <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+  mermaid.initialize({startOnLoad:true, theme:theme});
+</script>
 </body>
 </html>
