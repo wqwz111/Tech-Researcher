@@ -3,3 +3,6 @@ contact_links:
   - name: 📖 Issue 标签体系说明
     url: https://github.com/wqwz111/Tech-Researcher/blob/master/.github/ISSUE_GUIDE.md
     about: 了解我们的 Issue 分类、标签含义和提交规范
+  - name: 📖 读者评审 — 评审指南
+    url: https://github.com/wqwz111/Tech-Researcher/blob/master/.github/ISSUE_GUIDE.md
+    about: 读者评审流程和评分标准
