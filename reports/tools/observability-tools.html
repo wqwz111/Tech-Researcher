@@ -671,7 +671,7 @@ P3 - 低（每周报告）
 flowchart TD
     APP[应用代码] --> H[Helicone<br/>代理追踪]
     H --> |成本 + 延迟 + 错误率| PF[PromptFoo<br/>本地测试]
-    PF --> |回归测试| Done[✅]
+    PF --> |回归测试| Done[[✓]]
 </div>
 
 <h3 id="62-标准可观测性栈">6.2 标准可观测性栈</h3>
@@ -684,7 +684,7 @@ flowchart TD
     LF --> |追踪 + 成本 + Prompt管理| DE[DeepEval<br/>评估]
     DE --> |质量监控| GP[Grafana + Prometheus]
     GP --> |系统指标| Slack[Slack 通知]
-    Slack --> |告警| Done[✅]
+    Slack --> |告警| Done[[✓]]
 </div>
 
 <h3 id="63-企业级可观测性栈">6.3 企业级可观测性栈</h3>

@@ -325,9 +325,9 @@ Level 4: 安全性测试 — 是否存在风险？（对抗测试）
 
 <div class="mermaid">
 graph LR
-    DS["📊 评估数据集<br/>JSONL"] --> IN["🔍 模型推理<br/>Batch API"]
-    IN --> SC["✅ 自动评分<br/>规则/LLM"]
-    SC --> RP["📈 报告生成<br/>Dashboard"]
+    DS["[📊] 评估数据集<br/>JSONL"] --> IN["[🔍] 模型推理<br/>Batch API"]
+    IN --> SC["[✓] 自动评分<br/>规则/LLM"]
+    SC --> RP["[📈] 报告生成<br/>Dashboard"]
 </div>
 
 <p><strong>关键组件：</strong></p>
@@ -594,7 +594,7 @@ flowchart TD
     S1["Step 1: 必须条件过滤<br/>延迟 / 成本 / 安全"] --> S2["Step 2: 能力基准测试<br/>领域评估集表现"]
     S2 --> S3["Step 3: 质量深度评估<br/>人工评估 + 失败模式分析"]
     S3 --> S4["Step 4: 生产环境验证<br/>A/B 测试 → 灰度发布 → 持续监控"]
-    S1 -.->|不通过| Reject["❌ 淘汰"]
+    S1 -.->|不通过| Reject["[✗] 淘汰"]
     S2 -.->|不达标| Reject
 </div>
 

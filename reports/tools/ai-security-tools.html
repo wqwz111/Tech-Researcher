@@ -746,12 +746,12 @@ model, optimizer, dataloader = privacy_engine.make_private(
 
 <div class="mermaid">
 flowchart TD
-    UR[用户请求] --> NL["🌐 网络层<br/>TLS 加密 → DDoS 防护"]
-    NL --> AL["🔐 应用层<br/>身份认证 → 速率限制 → 输入验证"]
-    AL --> SG["🛡️ 安全网关<br/>Prompt Injection 检测 → 内容过滤 → PII 脱敏"]
-    SG --> ML["🤖 模型层<br/>系统 Prompt 保护 → 工具权限限制 → 输出约束"]
-    ML --> OL["📤 输出层<br/>内容安全检查 → PII 检测 → 合规检查"]
-    OL --> MON["📊 监控层<br/>日志记录 → 异常检测 → 告警通知"]
+    UR[用户请求] --> NL["[🌐] 网络层<br/>TLS 加密 → DDoS 防护"]
+    NL --> AL["[🔐] 应用层<br/>身份认证 → 速率限制 → 输入验证"]
+    AL --> SG["[[🛡]] 安全网关<br/>Prompt Injection 检测 → 内容过滤 → PII 脱敏"]
+    SG --> ML["[🤖] 模型层<br/>系统 Prompt 保护 → 工具权限限制 → 输出约束"]
+    ML --> OL["[📤] 输出层<br/>内容安全检查 → PII 检测 → 合规检查"]
+    OL --> MON["[📊] 监控层<br/>日志记录 → 异常检测 → 告警通知"]
     MON --> SR[安全响应]
 </div>
 

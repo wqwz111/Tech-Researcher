@@ -179,7 +179,7 @@ strong { color: var(--text-primary); }
 
 <div class="mermaid">
 graph TD
-    HM["🧠 人类记忆模型"]
+    HM["[🧠] 人类记忆模型"]
     SM["感觉记忆 Sensory Memory<br/>视觉: 图像暂存 ~0.5s<br/>听觉: 声音暂存 ~3s"]
     STM["短期记忆 / 工作记忆<br/>容量: 7±2 个项目<br/>持续: 数秒到数分钟"]
     LTM["长期记忆 Long-term Memory"]
@@ -247,12 +247,12 @@ graph TD
 
 <div class="mermaid">
 flowchart TD
-    subgraph IndexFlow["📥 索引流程"]
+    subgraph IndexFlow["[📥] 索引流程"]
         T[文本] --> EM[Embedding Model]
         EM --> HV[高维向量 e.g. 1536-dim]
         HV --> VDB[(向量数据库存储)]
     end
-    subgraph RetrievalFlow["🔍 检索流程"]
+    subgraph RetrievalFlow["[🔍] 检索流程"]
         Q[查询] --> QE[Embedding]
         QE --> SS[相似度搜索]
         SS --> TK[Top-K 相关文档]
@@ -517,10 +517,10 @@ graph TD
 
 <div class="mermaid">
 graph TD
-    G["🌐 Global Memory Pool<br/>所有 Agent 共享的公共知识"]
-    T["👥 Team Memory Pool (Agent A + B)<br/>特定团队共享的上下文"]
-    P1["🔒 Agent A Private<br/>Agent 私有记忆"]
-    P2["🔒 Agent B Private<br/>Agent 私有记忆"]
+    G["[🌐] Global Memory Pool<br/>所有 Agent 共享的公共知识"]
+    T["[👥] Team Memory Pool (Agent A + B)<br/>特定团队共享的上下文"]
+    P1["[🔒] Agent A Private<br/>Agent 私有记忆"]
+    P2["[🔒] Agent B Private<br/>Agent 私有记忆"]
     G --> T
     T --> P1
     T --> P2
@@ -669,7 +669,7 @@ core_memory = {  # 始终在上下文中
 
 <div class="mermaid">
 graph TD
-    AR["🏗️ Agent Runtime"]
+    AR["[[🏗]] Agent Runtime"]
     MM["Memory Manager"]
     EX["Memory Extractor<br/>从对话中提取记忆"]
     CO["Memory Compressor<br/>定期压缩摘要"]

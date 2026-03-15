@@ -105,23 +105,23 @@
 
   <div class="mermaid">
 graph TB
-  subgraph Gateway_L["🔀 Gateway 层"]
+  subgraph Gateway_L["[🔀] Gateway 层"]
     AUTH["认证 + 路由"]
     TOOL_POL["工具策略"]
   end
 
-  subgraph Agent_L["🧠 Agent 层"]
+  subgraph Agent_L["[🧠] Agent 层"]
     A1["Agent: personal<br/>sandbox: off"]
     A2["Agent: family<br/>sandbox: agent"]
     A3["Agent: untrusted<br/>sandbox: all"]
   end
 
-  subgraph Sandbox_L["📦 Sandbox 层 (Docker)"]
+  subgraph Sandbox_L["[📦] Sandbox 层 (Docker)"]
     SB1["Container: agent-scope<br/>内存限制: 512MB"]
     SB2["Container: session-scope<br/>内存限制: 256MB"]
   end
 
-  subgraph Host_L["🖥️ Host"]
+  subgraph Host_L["[[🖥]] Host"]
     FS["文件系统"]
     NET["网络"]
   end
@@ -229,9 +229,9 @@ graph TB
   <div class="mermaid">
 graph TB
   subgraph Models["模型分层策略"]
-    MAIN["🧠 主 Agent<br/>模型: Opus / GPT-5.2<br/>处理复杂决策"]
-    SUB["🔧 Sub-agent<br/>模型: Sonnet / GPT-4.1<br/>执行子任务"]
-    ACP_AGENT["💻 ACP Agent<br/>模型: Codex-mini<br/>编程任务"]
+    MAIN["[🧠] 主 Agent<br/>模型: Opus / GPT-5.2<br/>处理复杂决策"]
+    SUB["[🔧] Sub-agent<br/>模型: Sonnet / GPT-4.1<br/>执行子任务"]
+    ACP_AGENT["[💻] ACP Agent<br/>模型: Codex-mini<br/>编程任务"]
   end
 
   USER["用户"] --> MAIN

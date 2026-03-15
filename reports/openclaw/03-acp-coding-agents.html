@@ -105,19 +105,19 @@
 
   <div class="mermaid">
 graph TB
-  subgraph Chat["💬 聊天渠道"]
+  subgraph Chat["[💬] 聊天渠道"]
     DS["Discord Thread"]
     TG["Telegram Topic"]
     WC["WebChat"]
   end
 
-  subgraph OC["🔀 OpenClaw Gateway"]
+  subgraph OC["[🔀] OpenClaw Gateway"]
     BIND["Binding 路由"]
     ACP_RT["ACP Runtime"]
     BACKEND["acpx Backend"]
   end
 
-  subgraph Agents["🤖 编程智能体"]
+  subgraph Agents["[🤖] 编程智能体"]
     CODEX["Codex<br/>(OpenAI)"]
     CLAUDE["Claude Code<br/>(Anthropic)"]
     GEMINI["Gemini CLI<br/>(Google)"]
@@ -183,9 +183,9 @@ graph LR
   <div class="mermaid">
 sequenceDiagram
   participant User
-  participant Discord as 💬 Discord Thread
-  participant OC as 🔀 OpenClaw
-  participant Codex as 🤖 Codex
+  participant Discord as [💬] Discord Thread
+  participant OC as [🔀] OpenClaw
+  participant Codex as [🤖] Codex
 
   User->>Discord: "Fix the failing tests"
   Discord->>OC: 路由到 ACP session
@@ -196,7 +196,7 @@ sequenceDiagram
   Discord->>OC: 同一 ACP session
   OC->>Codex: 继续上下文，跑测试
   Codex-->>OC: 测试结果
-  OC-->>Discord: ✅ 所有测试通过
+  OC-->>Discord: [✓] 所有测试通过
   </div>
 
   <h3>配置线程绑定</h3>

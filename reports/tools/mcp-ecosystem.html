@@ -515,13 +515,13 @@
 <p>在 MCP 出现之前，每个 AI 应用都需要为每个工具编写定制集成代码：</p>
 <div class="mermaid">
 flowchart LR
-    subgraph Before["❌ MCP 之前"]
+    subgraph Before["[✗] MCP 之前"]
         AA1[App A] <--> T1[Tool 1 custom]
         AA1 <--> T2[Tool 2 custom]
         AB1[App B] <--> T1r[Tool 1 rewrite]
         AB1 <--> T2r[Tool 2 rewrite]
     end
-    subgraph After["✅ MCP 之后"]
+    subgraph After["[✓] MCP 之后"]
         AA2[App A] <--> MC1[MCP Client]
         MC1 <--> MS1[MCP Server 1]
         MS1 <--> TT1[Tool 1]

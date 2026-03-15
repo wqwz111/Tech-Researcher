@@ -163,9 +163,9 @@ strong { color: var(--text-primary); }
 
 <div class="mermaid">
 graph TD
-    M["👔 管理者 Agent"] --> A["🔬 专家A"]
-    M --> B["📊 专家B"]
-    M --> C["💻 专家C"]
+    M["👔 管理者 Agent"] --> A["[🔬] 专家A"]
+    M --> B["[📊] 专家B"]
+    M --> C["[💻] 专家C"]
     style M fill:#4f46e5,color:#fff
     style A fill:#0ea5e9,color:#fff
     style B fill:#0ea5e9,color:#fff
@@ -181,9 +181,9 @@ graph TD
 
 <div class="mermaid">
 graph LR
-    A["🤖 Agent A"] <--> B["🤖 Agent B"]
-    A <--> C["🤖 Agent C"]
-    A <--> D["🤖 Agent D"]
+    A["[🤖] Agent A"] <--> B["[🤖] Agent B"]
+    A <--> C["[🤖] Agent C"]
+    A <--> D["[🤖] Agent D"]
     B <--> C
     B <--> D
     C <--> D
@@ -394,13 +394,13 @@ flowchart LR
 
 <div class="mermaid">
 graph TD
-    ED["📋 主编 分配任务"]
-    R1["🔬 研究员-1 检索论文"]
-    R2["🔬 研究员-2 分析方法论"]
-    R3["🔬 研究员-3 提取数据"]
-    WR["✍️ 写手 撰写综述"]
-    RV["📝 审稿人 审核反馈"]
-    PUB["📤 主编 最终发布"]
+    ED["[📋] 主编 分配任务"]
+    R1["[🔬] 研究员-1 检索论文"]
+    R2["[🔬] 研究员-2 分析方法论"]
+    R3["[🔬] 研究员-3 提取数据"]
+    WR["[[✍]] 写手 撰写综述"]
+    RV["[📝] 审稿人 审核反馈"]
+    PUB["[📤] 主编 最终发布"]
     ED --> R1
     ED --> R2
     ED --> R3
@@ -430,13 +430,13 @@ graph TD
 
 <div class="mermaid">
 flowchart TD
-    START["🎯 确定协作需求"] --> Q1{"任务是否可分解为\n独立子任务？"}
+    START["[🎯] 确定协作需求"] --> Q1{"任务是否可分解为\n独立子任务？"}
     Q1 -->|是| Q2{"子任务之间\n依赖关系强吗？"}
-    Q1 -->|否| FLAT["🤝 扁平式\n所有 Agent 平等协商"]
-    Q2 -->|强依赖，需严格顺序| HIER["🏢 层级式\n管理者统筹编排"]
+    Q1 -->|否| FLAT["[🤝] 扁平式\n所有 Agent 平等协商"]
+    Q2 -->|强依赖，需严格顺序| HIER["[🏢] 层级式\n管理者统筹编排"]
     Q2 -->|弱依赖，可并行| Q3{"是否需要\n资源优化？"}
-    Q3 -->|是| MARKET["💰 市场式\n竞标分配任务"]
-    Q3 -->|否| HIER2["🏢 层级式\n分配即可"]
+    Q3 -->|是| MARKET["[💰] 市场式\n竞标分配任务"]
+    Q3 -->|否| HIER2["[🏢] 层级式\n分配即可"]
     FLAT --> C1["适用: 头脑风暴、民主决策\n示例: 团队讨论技术选型"]
     HIER --> C2["适用: 项目管理、复杂工作流\n示例: 研究团队完成文献综述"]
     MARKET --> C3["适用: 资源调度、动态分配\n示例: 多模型路由、算力调度"]

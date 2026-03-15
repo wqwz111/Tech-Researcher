@@ -538,13 +538,13 @@ def multimodal_rag(query, image=None):
 
 <div class="mermaid">
 graph TD
-    APP["📱 应用层<br/>Chatbot / 内容审核 / 文档处理 / 媒体分析"]
-    ORCH["🔗 编排层<br/>LangChain / LlamaIndex / 自定义 Pipeline"]
-    MODEL["🤖 模型层"]
+    APP["[📱] 应用层<br/>Chatbot / 内容审核 / 文档处理 / 媒体分析"]
+    ORCH["[🔗] 编排层<br/>LangChain / LlamaIndex / 自定义 Pipeline"]
+    MODEL["[🤖] 模型层"]
     VISION["Vision<br/>GPT-4o / Claude / Gemini"]
     AUDIO["Audio<br/>Whisper / TTS"]
     VIDEO["Video<br/>Gemini + FFmpeg"]
-    INFRA["🏗️ 基础设施<br/>对象存储 / CDN / GPU 集群 / 消息队列"]
+    INFRA["[[🏗]] 基础设施<br/>对象存储 / CDN / GPU 集群 / 消息队列"]
     APP --> ORCH
     ORCH --> MODEL
     MODEL --> VISION

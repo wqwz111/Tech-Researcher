@@ -972,17 +972,17 @@ response = client.run(agent=triage_agent, messages=[...])
 <h2>六、实践建议</h2>
 <h3>6.1 Agent 设计模式选型决策树</h3>
 <div class="mermaid">flowchart TD
-    START[&quot;🎯 选择 Agent 设计模式&quot;] --&gt; Q1{&quot;任务步骤数?&quot;}
-    Q1 --&gt;|&quot;1-2 步&quot;| REACT[&quot;✅ ReAct&quot;]
-    Q1 --&gt;|&quot;3-10 步&quot;| PE[&quot;✅ Plan-and-Execute&quot;]
+    START[&quot;[🎯] 选择 Agent 设计模式&quot;] --&gt; Q1{&quot;任务步骤数?&quot;}
+    Q1 --&gt;|&quot;1-2 步&quot;| REACT[&quot;[✓] ReAct&quot;]
+    Q1 --&gt;|&quot;3-10 步&quot;| PE[&quot;[✓] Plan-and-Execute&quot;]
     Q1 --&gt;|&quot;10+ 步&quot;| Q2{&quot;需要质量保证?&quot;}
-    Q2 --&gt;|&quot;是&quot;| PER[&quot;✅ Plan-and-Execute + Reflection&quot;]
+    Q2 --&gt;|&quot;是&quot;| PER[&quot;[✓] Plan-and-Execute + Reflection&quot;]
     Q2 --&gt;|&quot;否&quot;| PE
     Q1 --&gt;|&quot;多角色协作&quot;| Q3{&quot;协作方式?&quot;}
-    Q3 --&gt;|&quot;分工明确&quot;| CREWAI[&quot;✅ CrewAI&quot;]
-    Q3 --&gt;|&quot;讨论决策&quot;| AUTOGEN[&quot;✅ AutoGen&quot;]
-    Q3 --&gt;|&quot;层级管理&quot;| METAGPT[&quot;✅ MetaGPT&quot;]
-    Q1 --&gt;|&quot;操作 GUI/浏览器&quot;| COMPUTER[&quot;✅ Computer Use&quot;]
+    Q3 --&gt;|&quot;分工明确&quot;| CREWAI[&quot;[✓] CrewAI&quot;]
+    Q3 --&gt;|&quot;讨论决策&quot;| AUTOGEN[&quot;[✓] AutoGen&quot;]
+    Q3 --&gt;|&quot;层级管理&quot;| METAGPT[&quot;[✓] MetaGPT&quot;]
+    Q1 --&gt;|&quot;操作 GUI/浏览器&quot;| COMPUTER[&quot;[✓] Computer Use&quot;]
 
     style START fill:#4f46e5,stroke:#818cf8,color:#fff
     style REACT fill:#059669,stroke:#34d399,color:#fff

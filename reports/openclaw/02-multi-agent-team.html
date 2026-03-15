@@ -126,9 +126,9 @@ graph TB
 
   subgraph AgentTeam["AI Agent 团队"]
     direction LR
-    A1["🏠 Agent: home<br/>模型: Sonnet<br/>Workspace: workspace-home"]
-    A2["💼 Agent: work<br/>模型: Opus<br/>Workspace: workspace-work"]
-    A3["💻 Agent: coding<br/>模型: Codex<br/>Workspace: workspace-coding"]
+    A1["[🏠] Agent: home<br/>模型: Sonnet<br/>Workspace: workspace-home"]
+    A2["[💼] Agent: work<br/>模型: Opus<br/>Workspace: workspace-work"]
+    A3["[💻] Agent: coding<br/>模型: Codex<br/>Workspace: workspace-coding"]
   end
 
   WA --> BIND
@@ -265,16 +265,16 @@ graph TB
   <div class="mermaid">
 sequenceDiagram
   participant User
-  participant Main as 🧠 主 Agent
-  participant Sub1 as 🔧 Sub-agent 1
-  participant Sub2 as 🔧 Sub-agent 2
+  participant Main as [🧠] 主 Agent
+  participant Sub1 as [🔧] Sub-agent 1
+  participant Sub2 as [🔧] Sub-agent 2
 
   User->>Main: "分析这三个竞品"
   Main->>Sub1: sessions_spawn("分析竞品 A")
   Main->>Sub2: sessions_spawn("分析竞品 B")
   Note over Main: 主 Agent 继续其他工作
-  Sub1-->>Main: ✅ announce: 竞品 A 分析报告
-  Sub2-->>Main: ✅ announce: 竞品 B 分析报告
+  Sub1-->>Main: [✓] announce: 竞品 A 分析报告
+  Sub2-->>Main: [✓] announce: 竞品 B 分析报告
   Main->>User: 汇总所有结果，输出完整报告
   </div>
 
@@ -298,11 +298,11 @@ sequenceDiagram
 
   <div class="mermaid">
 graph TB
-  MAIN["🧠 主 Agent<br/>(用户交互)"]
-  ORCH["🎯 编排器 Sub-agent<br/>(任务分解 + 汇总)"]
-  W1["🔧 Worker 1"]
-  W2["🔧 Worker 2"]
-  W3["🔧 Worker 3"]
+  MAIN["[🧠] 主 Agent<br/>(用户交互)"]
+  ORCH["[🎯] 编排器 Sub-agent<br/>(任务分解 + 汇总)"]
+  W1["[🔧] Worker 1"]
+  W2["[🔧] Worker 2"]
+  W3["[🔧] Worker 3"]
 
   MAIN -->|"spawn"| ORCH
   ORCH -->|"spawn"| W1
