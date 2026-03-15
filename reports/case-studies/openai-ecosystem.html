@@ -171,21 +171,9 @@ strong { color: var(--text-primary); }
 <h3>1.1 GPT-4 系列：从旗舰到普惠</h3>
 <p>GPT-4 于 2023 年 3 月发布，标志着大语言模型从"能用"到"好用"的跨越。其后续演进经历了多次重大迭代：</p>
 <p><strong>GPT-4 系列完整演进路线：</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">flowchart</span><span class="w"> </span><span class="n">LR</span>
-<span class="w">    </span><span class="n">A</span><span class="p">[</span><span class="s">&quot;GPT-4&lt;br/&gt;2023.03&lt;br/&gt;8K→32K&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="s">&quot;GPT-4 Turbo&lt;br/&gt;2023.11&lt;br/&gt;128K&lt;br/&gt;$10/1M&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">C</span><span class="p">[</span><span class="s">&quot;GPT-4o&lt;br/&gt;2024.05&lt;br/&gt;多模态&lt;br/&gt;$5/1M&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">C</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">D</span><span class="p">[</span><span class="s">&quot;GPT-4o mini&lt;br/&gt;2024.07&lt;br/&gt;$0.15/1M&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">E</span><span class="p">[</span><span class="s">&quot;GPT-4.5&lt;br/&gt;2025.02&lt;br/&gt;知识增强&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">F</span><span class="p">[</span><span class="s">&quot;GPT-4.1&lt;br/&gt;2025.04&lt;br/&gt;编码优化&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">F</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G</span><span class="p">[</span><span class="s">&quot;GPT-5&lt;br/&gt;2025.08&lt;br/&gt;统一架构&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e3f2fd</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e8f5e9</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">fff3e0</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">fce4ec</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">f3e5f5</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">F</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e0f7fa</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">fff9c4</span>
-</div></div>
+<div class="mermaid">
+flowchart LR    A["GPT-4<br/>2023.03<br/>8K→32K"] --> B["GPT-4 Turbo<br/>2023.11<br/>128K<br/>$10/1M"]    B --> C["GPT-4o<br/>2024.05<br/>多模态<br/>$5/1M"]    C --> D["GPT-4o mini<br/>2024.07<br/>$0.15/1M"]    D --> E["GPT-4.5<br/>2025.02<br/>知识增强"]    E --> F["GPT-4.1<br/>2025.04<br/>编码优化"]    F --> G["GPT-5<br/>2025.08<br/>统一架构"]    style A fill:#e3f2fd    style B fill:#e8f5e9    style C fill:#fff3e0    style D fill:#fce4ec    style E fill:#f3e5f5    style F fill:#e0f7fa    style G fill:#fff9c4
+</div>
 
 <blockquote>
 <p><strong>图1.1 GPT-4/GPT-5 系列完整演进</strong>：从 2023 年 3 月的 GPT-4 到 2025 年 8 月的 GPT-5，经历七次主要迭代——context 从 8K 扩展到 128K+，支持原生多模态（文本+图像+音频），价格从 $30/1M 降至 $0.15/1M（经济模型），性能和可及性实现了质的飞跃。</p>
@@ -213,17 +201,9 @@ strong { color: var(--text-primary); }
 - <strong>GPQA Diamond</strong>：o1 达到 78%，接近人类博士水平（81%）
 - <strong>Codeforces 编程竞赛</strong>：o1 达到 89 百分位⁵</p>
 <p><strong>o3-mini / o3 / o3-pro 演进</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">flowchart</span><span class="w"> </span><span class="n">LR</span>
-<span class="w">    </span><span class="n">A</span><span class="p">[</span><span class="s">&quot;o1&lt;br/&gt;2024.09&lt;br/&gt;首个推理模型&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="s">&quot;o3-mini&lt;br/&gt;2025.01&lt;br/&gt;高效推理&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">C</span><span class="p">[</span><span class="s">&quot;o3&lt;br/&gt;2025.04&lt;br/&gt;全面升级&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">C</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">D</span><span class="p">[</span><span class="s">&quot;o3-pro&lt;br/&gt;2025.06&lt;br/&gt;最强推理&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">E</span><span class="p">[</span><span class="s">&quot;o4-mini&lt;br/&gt;2025&lt;br/&gt;推理+效率&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e3f2fd</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e8f5e9</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">fff3e0</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">fce4ec</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">f3e5f5</span>
-</div></div>
+<div class="mermaid">
+flowchart LR    A["o1<br/>2024.09<br/>首个推理模型"] --> B["o3-mini<br/>2025.01<br/>高效推理"]    B --> C["o3<br/>2025.04<br/>全面升级"]    C --> D["o3-pro<br/>2025.06<br/>最强推理"]    D --> E["o4-mini<br/>2025<br/>推理+效率"]    style A fill:#e3f2fd    style B fill:#e8f5e9    style C fill:#fff3e0    style D fill:#fce4ec    style E fill:#f3e5f5
+</div>
 
 <ul>
 <li><strong>o3-mini</strong>（2025 年 1 月 31 日）：高效推理模型，通过调整"推理力度"可在性能和成本间灵活权衡⁶</li>
