@@ -7,48 +7,104 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.8; }
-  :root { --bg:#0a0e1a;--bg-card:#111827;--bg-code:#1a1f2e;--bg-callout:#1a1040;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;--border:#2d3748;--border-light:#1a202c;--accent:#818cf8;--accent-text:#c7d2fe;--accent-hover:#818cf8;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#6366f1;--code-text:#a5b4fc;--green:#34d399;--orange:#fb923c;--red:#f87171; }
-  [data-theme="light"] { --bg:#ffffff;--bg-card:#f8fafc;--bg-code:#f1f5f9;--bg-callout:#eef2ff;--text:#0f172a;--text-muted:#334155;--text-dim:#94a3b8;--border:#e2e8f0;--border-light:#f1f5f9;--accent:#4f46e5;--accent-text:#3730a3;--accent-hover:#6366f1;--tag-bg:#e0e7ff;--tag-text:#312e81;--link:#4f46e5;--code-text:#6d28d9;--green:#059669;--orange:#ea580c;--red:#dc2626; }
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+    [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
   .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 2.5rem 2rem; text-align: center; position: relative; }
   .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
   .header .meta { color: #64748b; font-size: 0.9rem; }
   .tag { display: inline-block; padding: 0.2rem 0.6rem; margin: 0.2rem; background: var(--tag-bg); color: var(--tag-text); border-radius: 4px; font-size: 0.8rem; }
   .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
-  .breadcrumb { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem; }
+  .breadcrumb { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
   .breadcrumb a { color: var(--link); text-decoration: none; }
   .breadcrumb a:hover { text-decoration: underline; }
   h2 { color: var(--accent-text); font-size: 1.4rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); }
   h3 { color: var(--accent-hover); font-size: 1.15rem; margin: 1.8rem 0 0.8rem; }
-  p { margin-bottom: 1rem; color: var(--text); }
-  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
+  p { margin-bottom: 1rem; color: var(--text-primary); }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text-primary); }
   li { margin-bottom: 0.4rem; }
   code { background: var(--bg-code); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: var(--code-text); }
-  pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
+  pre { background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
   pre code { background: none; padding: 0; }
-  .callout { background: var(--bg-callout); border-left: 3px solid var(--accent); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+  .callout { background: var(--bg-callout); border-left: 3px solid var(--accent-primary); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
   .callout strong { color: var(--accent-text); }
   .callout.warn { border-left-color: var(--orange); }
   .callout.warn strong { color: var(--orange); }
   .callout.success { border-left-color: var(--green); }
   .callout.success strong { color: var(--green); }
   table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-  th, td { text-align: left; padding: 0.6rem 0.8rem; border: 1px solid var(--border); }
+  th, td { text-align: left; padding: 0.6rem 0.8rem; border: 1px solid var(--border-color); }
   th { background: var(--bg-code); color: var(--accent-text); }
-  td { color: var(--text); }
-  .ref { color: var(--text-dim); font-size: 0.85rem; }
+  td { color: var(--text-primary); }
+  .ref { color: var(--text-muted); font-size: 0.85rem; }
   .ref a { color: var(--link); text-decoration: none; }
   .ref a:hover { text-decoration: underline; }
   .ref-grade { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600; margin-right: 0.3rem; }
   .grade-a { background: rgba(52,211,153,0.15); color: var(--green); }
-  .grade-b { background: rgba(129,140,248,0.15); color: var(--accent); }
+  .grade-b { background: rgba(129,140,248,0.15); color: var(--accent-primary); }
   .grade-c { background: rgba(251,146,60,0.15); color: var(--orange); }
   .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1rem 0; }
-  .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; text-align: center; }
-  .stat-card .num { font-size: 2rem; font-weight: 800; color: var(--accent); }
-  .stat-card .label { color: var(--text-dim); font-size: 0.85rem; margin-top: 0.3rem; }
-  .footer { text-align: center; color: var(--text-dim); padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-light); font-size: 0.85rem; }
-  .theme-toggle { position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code); border: 1px solid var(--border); border-radius: 24px; padding: 0.3rem 0.6rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s; }
-  .theme-toggle:hover { border-color: var(--accent); }
+  .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.2rem; text-align: center; }
+  .stat-card .num { font-size: 2rem; font-weight: 800; color: var(--accent-primary); }
+  .stat-card .label { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.3rem; }
+  .footer { text-align: center; color: var(--text-muted); padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-light); font-size: 0.85rem; }
+  .theme-toggle { position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 24px; padding: 0.3rem 0.6rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s; }
+  .theme-toggle:hover { border-color: var(--accent-primary); }
   .theme-toggle .icon { font-size: 1.1rem; }
   .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
 </style>
@@ -117,6 +173,7 @@
   </div>
 
   <h2>⚔️ 三大平台格局</h2>
+  <div class="table-wrapper">
   <table>
     <tr>
       <th>维度</th>
@@ -161,6 +218,7 @@
       <td>⭐⭐⭐ 功能丰富但生态较封闭</td>
     </tr>
   </table>
+  </div>
 
   <div class="callout">
     <strong>🔍 关键差异：</strong>Apple 走「隐私第一 + 深度集成」路线，Private Cloud Compute 是行业首创安全飞地云推理方案；Google 拥有最完整的端到端 Agent 基础设施；Samsung 采取务实路线，自研 + Google 双轨并行。
@@ -238,6 +296,7 @@
   </ul>
 
   <h2>⚡ 关键技术挑战</h2>
+  <div class="table-wrapper">
   <table>
     <tr>
       <th>挑战</th>
@@ -275,6 +334,7 @@
       <td>渐进式授权 + 操作预览 + 可解释性</td>
     </tr>
   </table>
+  </div>
 
   <h2>🔮 趋势判断</h2>
   <h3>2026 是移动 Agent 的「iPhone 时刻」</h3>
@@ -305,6 +365,9 @@
     <p>[9] <span class="ref-grade grade-c">C</span> <a href="https://techcrunch.com/2024/12/30/ai-apps-saw-over-1-billion-in-consumer-spending-in-2024/">TechCrunch: AI apps saw over $1B in consumer spending in 2024</a></p>
   </div>
 </div>
-<div class="footer">探针 (Probe) · AI 技术研究分析师 · 2026-03-14</div>
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
 </body>
 </html>

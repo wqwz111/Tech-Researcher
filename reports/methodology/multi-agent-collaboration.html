@@ -6,80 +6,126 @@
 <title>多智能体协作模式研究</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-:root {
-    --bg:#0f172a;--bg2:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;
-    --border:#334155;--accent:#38bdf8;--accent2:#7dd3fc;--accent3:#93c5fd;
-    --code-bg:#1e293b;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#60a5fa;
-    --pink:#f472b6;
-}
-[data-theme="light"] {
-    --bg:#ffffff;--bg2:#f8fafc;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
-    --border:#e2e8f0;--accent:#2563eb;--accent2:#3b82f6;--accent3:#6366f1;
-    --code-bg:#f1f5f9;--tag-bg:#dbeafe;--tag-text:#1e40af;--link:#2563eb;
-    --pink:#db2777;
-}
+:root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
 body {
-    background: var(--bg); color: var(--text);
+    background: var(--bg-primary); color: var(--text-primary);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
     line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
     transition: background .3s, color .3s;
 }
 .top-nav {
-    background: var(--bg2); padding: .6rem 1rem; border-radius: 8px;
+    background: var(--bg-secondary); padding: .6rem 1rem; border-radius: 8px;
     margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
 }
-.top-nav a { color: var(--accent2); text-decoration: none; }
+.top-nav a { color: var(--accent-secondary); text-decoration: none; }
 .top-nav a:hover { text-decoration: underline; }
-.top-nav .sep { color: var(--text-dim); }
+.top-nav .sep { color: var(--text-muted); }
 .theme-btn {
-    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
+    background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 20px;
     padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
     transition: border-color .2s;
 }
-.theme-btn:hover { border-color: var(--accent); }
+.theme-btn:hover { border-color: var(--accent-primary); }
 .meta {
-    background: var(--bg2); border-left: 4px solid var(--accent);
+    background: var(--bg-secondary); border-left: 4px solid var(--accent-primary);
     padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
 }
-.meta h1 { color: var(--accent); margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta h1 { color: var(--accent-primary); margin: 0 0 .5rem; font-size: 1.6rem; }
 .meta .info { color: var(--text-muted); font-size: .85rem; }
 .toc {
-    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px;
     padding: 1rem 1.5rem; margin-bottom: 2rem;
 }
-.toc h2 { color: var(--accent2); font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc h2 { color: var(--accent-secondary); font-size: 1rem; margin-bottom: .5rem; border: none; }
 .toc ul { list-style: none; padding-left: 1rem; }
 .toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: var(--accent3); text-decoration: none; }
-h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: .5rem; }
-h2 { color: var(--accent2); margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
-h3 { color: var(--accent3); margin-top: 1.8rem; }
+.toc a { color: var(--accent-secondary); text-decoration: none; }
+h1 { color: var(--accent-primary); border-bottom: 2px solid var(--border-color); padding-bottom: .5rem; }
+h2 { color: var(--accent-secondary); margin-top: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: .3rem; }
+h3 { color: var(--accent-secondary); margin-top: 1.8rem; }
 a { color: var(--link); }
-code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; color: var(--pink); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
 pre {
-    background: var(--code-bg); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; border-left: 3px solid var(--accent); margin: 1.2rem 0; position: relative;
+    background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
+    overflow-x: auto; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
 }
-pre code { background: none; color: var(--text); }
+pre code { background: none; color: var(--text-primary); }
 pre .lang-label {
-    position: absolute; top: 0; right: 0; background: var(--border);
+    position: absolute; top: 0; right: 0; background: var(--border-color);
     color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
 }
-.mermaid { background: var(--bg2); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+.mermaid { background: var(--bg-secondary); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
 blockquote {
-    border-left: 4px solid var(--accent); margin: 1.5rem 0; padding: .8rem 1.2rem;
-    background: var(--bg2); border-radius: 0 8px 8px 0;
+    border-left: 4px solid var(--accent-primary); margin: 1.5rem 0; padding: .8rem 1.2rem;
+    background: var(--bg-secondary); border-radius: 0 8px 8px 0;
 }
 table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid var(--border); padding: .7rem 1rem; text-align: left; }
-th { background: var(--bg2); color: var(--accent2); }
-tr:nth-child(even) { background: var(--bg2); }
-hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
-strong { color: var(--text); }
+th, td { border: 1px solid var(--border-color); padding: .7rem 1rem; text-align: left; }
+th { background: var(--bg-secondary); color: var(--accent-secondary); }
+tr:nth-child(even) { background: var(--bg-secondary); }
+hr { border: none; border-top: 1px solid var(--border-color); margin: 2.5rem 0; }
+strong { color: var(--text-primary); }
 .footer {
-    text-align: center; color: var(--text-dim); padding: 2rem 0 1rem;
-    border-top: 1px solid var(--border); margin-top: 3rem; font-size: .85rem;
+    text-align: center; color: var(--text-muted); padding: 2rem 0 1rem;
+    border-top: 1px solid var(--border-color); margin-top: 3rem; font-size: .85rem;
 }
 .footer a { color: var(--link); }
 @media print {
@@ -99,6 +145,11 @@ strong { color: var(--text); }
 <h1>多智能体协作模式研究</h1>
 <div class="info">2026-03-14 · 分类: 🔬 方法论</div>
 </div>
+
+<div class="breadcrumb">
+  <a href="../index.html">← 返回报告索引</a>
+</div>
+
 
 <h2 id="executive-summary">Executive Summary</h2>
 
@@ -167,12 +218,14 @@ flowchart LR
 
 <h3 id="21-通信模式">2.1 通信模式</h3>
 
+<div class="table-wrapper">
 <table><tr><th>模式</th><th>描述</th><th>适用场景</th></tr>
 <tr><td>直接消息</td><td>Agent A → Agent B</td><td>点对点协作</td></tr>
 <tr><td>广播</td><td>Agent → All</td><td>公告、状态同步</td></tr>
 <tr><td>发布/订阅</td><td>Topic-based</td><td>事件驱动系统</td></tr>
 <tr><td>黑板系统</td><td>共享内存空间</td><td>异步协作</td></tr>
 </table>
+</div>
 
 <h3 id="22-消息格式">2.2 消息格式</h3>
 
@@ -209,6 +262,7 @@ flowchart LR
 
 <h3 id="32-解决策略">3.2 解决策略</h3>
 
+<div class="table-wrapper">
 <table><tr><th>策略</th><th>机制</th><th>适用场景</th></tr>
 <tr><td>投票</td><td>多数决 / 加权投票</td><td>知识冲突</td></tr>
 <tr><td>仲裁</td><td>上级 Agent 裁决</td><td>目标冲突</td></tr>
@@ -216,6 +270,7 @@ flowchart LR
 <tr><td>竞标</td><td>价高者得</td><td>资源冲突</td></tr>
 <tr><td>回退</td><td>随机退避重试</td><td>简单资源冲突</td></tr>
 </table>
+</div>
 
 <h3 id="33-共识算法">3.3 共识算法</h3>
 
@@ -313,6 +368,7 @@ flowchart LR
 
 <h3 id="44-对比总结">4.4 对比总结</h3>
 
+<div class="table-wrapper">
 <table><tr><th>维度</th><th>CrewAI</th><th>AutoGen</th><th>MetaGPT</th></tr>
 <tr><td>上手难度</td><td>⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐⭐</td></tr>
 <tr><td>灵活性</td><td>⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐</td></tr>
@@ -320,6 +376,7 @@ flowchart LR
 <tr><td>社区活跃</td><td>⭐⭐⭐</td><td>⭐⭐⭐</td><td>⭐⭐</td></tr>
 <tr><td>最佳场景</td><td>通用工作流</td><td>研究/分析</td><td>软件开发</td></tr>
 </table>
+</div>
 
 <hr>
 
@@ -386,6 +443,7 @@ flowchart TD
 
 <h3>模式速查表</h3>
 
+<div class="table-wrapper">
 <table><tr><th>场景</th><th>推荐模式</th><th>推荐框架</th><th>理由</th></tr>
 <tr><td>软件开发全流程</td><td>层级式</td><td>MetaGPT</td><td>SOP 明确，角色分工固定</td></tr>
 <tr><td>研究/分析任务</td><td>层级式</td><td>CrewAI</td><td>任务可分解，需协调交付</td></tr>
@@ -394,6 +452,7 @@ flowchart TD
 <tr><td>代码审查协作</td><td>扁平式</td><td>AutoGen</td><td>平等对话，迭代改进</td></tr>
 <tr><td>客服工单分发</td><td>层级式</td><td>CrewAI</td><td>按专长分配，统一出口</td></tr>
 </table>
+</div>
 
 <h3>混合模式建议</h3>
 
@@ -426,8 +485,8 @@ flowchart TD
 <p>   - https://www.anthropic.com/engineering/multi-agent-research-system</p>
 
 <div class="footer">
-<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
 <script>
 function toggleTheme() {

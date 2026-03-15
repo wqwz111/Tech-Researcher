@@ -46,7 +46,7 @@
   }
 
   /* ── Light Theme ── */
-  [data-theme="light"] {
+    [data-theme="light"] {
     --bg-primary:    #ffffff;
     --bg-secondary:  #f8fafc;
     --bg-tertiary:   #f1f5f9;
@@ -496,6 +496,10 @@
 <div class="container">
   
   
+  <div class="breadcrumb">
+    <a href="./index.html">← 返回报告索引</a>
+  </div>
+
 <blockquote>
 <p><strong>发布日期</strong>: 2025年3月<br />
 <strong>分类</strong>: 案例实践<br />
@@ -567,6 +571,7 @@
 <h2 id="6">6. 第三方独立评测与对比</h2>
 <h3 id="61">6.1 综合基准评测</h3>
 <p>Gemini 模型已接受多个独立第三方机构的评测：</p>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -615,6 +620,7 @@
 </tr>
 </tbody>
 </table>
+</div>
 <h3 id="62">6.2 视频理解能力评测</h3>
 <p>Gemini 的视频理解能力在多个学术基准上获得验证：</p>
 <ul>
@@ -669,6 +675,7 @@
 - <strong>Agent Builder</strong>：低代码构建 RAG 和 Agent 应用</p>
 <p><strong>Grounding with Google Search</strong>：这是 Vertex AI 独有的特性——模型在回答时可以引用 Google Search 的实时结果，既提高准确性又提供来源链接。</p>
 <h3 id="33-api">3.3 API 定价对比</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -723,6 +730,7 @@
 </tr>
 </tbody>
 </table>
+</div>
 <blockquote>
 <p><strong>定价说明（截至 2025 年 3 月）</strong>：Gemini 1.5 系列价格随输入长度变化（超过 128K tokens 后价格翻倍）。Gemini 2.0 Flash 在性价比上具有显著优势，尤其适合高频调用场景。Google 提供 AI Studio 免费层级供开发者测试。</p>
 </blockquote>
@@ -815,6 +823,9 @@
 <hr />
 <p><em>本报告基于截至 2025 年 2 月的公开信息编写。Google AI 产品更新频繁，部分定价和功能可能已有变化。</em></p>
 </div>
-<div class="footer">探针 (Probe) · AI 技术研究分析师 · 2025</div>
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
 </body>
 </html>

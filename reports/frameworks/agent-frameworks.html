@@ -46,7 +46,7 @@
   }
 
   /* ── Light Theme ── */
-  [data-theme="light"] {
+    [data-theme="light"] {
     --bg-primary:    #ffffff;
     --bg-secondary:  #f8fafc;
     --bg-tertiary:   #f1f5f9;
@@ -496,6 +496,10 @@
 <div class="container">
   
   
+  <div class="breadcrumb">
+    <a href="./index.html">← 返回报告索引</a>
+  </div>
+
 <blockquote>
 <p>发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
 </blockquote>
@@ -708,6 +712,7 @@ OpenClaw 更多通过配置驱动：</p>
 <hr />
 <h2 id="2">2. 编程模型对比</h2>
 <h3 id="21">2.1 设计范式</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -744,6 +749,7 @@ OpenClaw 更多通过配置驱动：</p>
 </tr>
 </tbody>
 </table>
+</div>
 <h3 id="22-vs">2.2 灵活性 vs 易用性</h3>
 <div class="highlight"><pre><span></span><code>graph LR
     LG[&quot;LangGraph&lt;br/&gt;高灵活性&quot;]
@@ -758,6 +764,7 @@ OpenClaw 更多通过配置驱动：</p>
 </code></pre></div>
 
 <h3 id="23">2.3 学习曲线</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -800,9 +807,11 @@ OpenClaw 更多通过配置驱动：</p>
 </tr>
 </tbody>
 </table>
+</div>
 <hr />
 <h2 id="3">3. 状态管理与持久化</h2>
 <h3 id="31">3.1 状态管理对比</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -845,6 +854,7 @@ OpenClaw 更多通过配置驱动：</p>
 </tr>
 </tbody>
 </table>
+</div>
 <h3 id="32-langgraph-checkpoint">3.2 LangGraph 的 Checkpoint 机制</h3>
 <p>LangGraph 的持久化能力最为成熟：</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langgraph.checkpoint.sqlite</span> <span class="kn">import</span> <span class="n">SqliteSaver</span>
@@ -863,6 +873,7 @@ OpenClaw 更多通过配置驱动：</p>
 <hr />
 <h2 id="4-agent">4. 多 Agent 协作能力</h2>
 <h3 id="41">4.1 协作模式对比</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -911,7 +922,9 @@ OpenClaw 更多通过配置驱动：</p>
 </tr>
 </tbody>
 </table>
+</div>
 <h3 id="42">4.2 通信机制</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -954,9 +967,11 @@ OpenClaw 更多通过配置驱动：</p>
 </tr>
 </tbody>
 </table>
+</div>
 <hr />
 <h2 id="5">5. 生产就绪度评估</h2>
 <h3 id="51">5.1 综合评分</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -1027,6 +1042,7 @@ OpenClaw 更多通过配置驱动：</p>
 </tr>
 </tbody>
 </table>
+</div>
 <h3 id="52">5.2 框架选型决策树</h3>
 <div class="highlight"><pre><span></span><code>flowchart TD
     START[&quot;🎯 选择 Agent 框架&quot;] --&gt; Q1{&quot;主要用途?&quot;}
@@ -1052,6 +1068,7 @@ OpenClaw 更多通过配置驱动：</p>
 </code></pre></div>
 
 <p><strong>快速参考</strong>：</p>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -1093,6 +1110,7 @@ OpenClaw 更多通过配置驱动：</p>
 </tr>
 </tbody>
 </table>
+</div>
 <h3 id="53">5.3 风险提示</h3>
 <ol>
 <li><strong>Agent 框架变化快</strong>：各框架 API 迭代频繁，锁定效应需考虑</li>
@@ -1113,6 +1131,9 @@ OpenClaw 更多通过配置驱动：</p>
 </ol>
 <p><em>本报告基于 2025 年初各框架版本撰写，Agent 框架领域发展极为迅速，建议关注各项目 GitHub 获取最新状态。</em></p>
 </div>
-<div class="footer">探针 (Probe) · AI 技术研究分析师 · 2026</div>
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
 </body>
 </html>

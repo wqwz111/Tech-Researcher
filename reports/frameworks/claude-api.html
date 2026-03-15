@@ -6,80 +6,126 @@
 <title>Anthropic Claude API 深度指南</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-:root {
-    --bg:#0f172a;--bg2:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;
-    --border:#334155;--accent:#38bdf8;--accent2:#7dd3fc;--accent3:#93c5fd;
-    --code-bg:#1e293b;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#60a5fa;
-    --pink:#f472b6;
-}
-[data-theme="light"] {
-    --bg:#ffffff;--bg2:#f8fafc;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
-    --border:#e2e8f0;--accent:#2563eb;--accent2:#3b82f6;--accent3:#6366f1;
-    --code-bg:#f1f5f9;--tag-bg:#dbeafe;--tag-text:#1e40af;--link:#2563eb;
-    --pink:#db2777;
-}
+:root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
 body {
-    background: var(--bg); color: var(--text);
+    background: var(--bg-primary); color: var(--text-primary);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
     line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
     transition: background .3s, color .3s;
 }
 .top-nav {
-    background: var(--bg2); padding: .6rem 1rem; border-radius: 8px;
+    background: var(--bg-secondary); padding: .6rem 1rem; border-radius: 8px;
     margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
 }
-.top-nav a { color: var(--accent2); text-decoration: none; }
+.top-nav a { color: var(--accent-secondary); text-decoration: none; }
 .top-nav a:hover { text-decoration: underline; }
-.top-nav .sep { color: var(--text-dim); }
+.top-nav .sep { color: var(--text-muted); }
 .theme-btn {
-    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
+    background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 20px;
     padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
     transition: border-color .2s;
 }
-.theme-btn:hover { border-color: var(--accent); }
+.theme-btn:hover { border-color: var(--accent-primary); }
 .meta {
-    background: var(--bg2); border-left: 4px solid var(--accent);
+    background: var(--bg-secondary); border-left: 4px solid var(--accent-primary);
     padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
 }
-.meta h1 { color: var(--accent); margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta h1 { color: var(--accent-primary); margin: 0 0 .5rem; font-size: 1.6rem; }
 .meta .info { color: var(--text-muted); font-size: .85rem; }
 .toc {
-    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px;
     padding: 1rem 1.5rem; margin-bottom: 2rem;
 }
-.toc h2 { color: var(--accent2); font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc h2 { color: var(--accent-secondary); font-size: 1rem; margin-bottom: .5rem; border: none; }
 .toc ul { list-style: none; padding-left: 1rem; }
 .toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: var(--accent3); text-decoration: none; }
-h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: .5rem; }
-h2 { color: var(--accent2); margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
-h3 { color: var(--accent3); margin-top: 1.8rem; }
+.toc a { color: var(--accent-secondary); text-decoration: none; }
+h1 { color: var(--accent-primary); border-bottom: 2px solid var(--border-color); padding-bottom: .5rem; }
+h2 { color: var(--accent-secondary); margin-top: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: .3rem; }
+h3 { color: var(--accent-secondary); margin-top: 1.8rem; }
 a { color: var(--link); }
-code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; color: var(--pink); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
 pre {
-    background: var(--code-bg); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; border-left: 3px solid var(--accent); margin: 1.2rem 0; position: relative;
+    background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
+    overflow-x: auto; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
 }
-pre code { background: none; color: var(--text); }
+pre code { background: none; color: var(--text-primary); }
 pre .lang-label {
-    position: absolute; top: 0; right: 0; background: var(--border);
+    position: absolute; top: 0; right: 0; background: var(--border-color);
     color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
 }
-.mermaid { background: var(--bg2); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+.mermaid { background: var(--bg-secondary); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
 blockquote {
-    border-left: 4px solid var(--accent); margin: 1.5rem 0; padding: .8rem 1.2rem;
-    background: var(--bg2); border-radius: 0 8px 8px 0;
+    border-left: 4px solid var(--accent-primary); margin: 1.5rem 0; padding: .8rem 1.2rem;
+    background: var(--bg-secondary); border-radius: 0 8px 8px 0;
 }
 table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid var(--border); padding: .7rem 1rem; text-align: left; }
-th { background: var(--bg2); color: var(--accent2); }
-tr:nth-child(even) { background: var(--bg2); }
-hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
-strong { color: var(--text); }
+th, td { border: 1px solid var(--border-color); padding: .7rem 1rem; text-align: left; }
+th { background: var(--bg-secondary); color: var(--accent-secondary); }
+tr:nth-child(even) { background: var(--bg-secondary); }
+hr { border: none; border-top: 1px solid var(--border-color); margin: 2.5rem 0; }
+strong { color: var(--text-primary); }
 .footer {
-    text-align: center; color: var(--text-dim); padding: 2rem 0 1rem;
-    border-top: 1px solid var(--border); margin-top: 3rem; font-size: .85rem;
+    text-align: center; color: var(--text-muted); padding: 2rem 0 1rem;
+    border-top: 1px solid var(--border-color); margin-top: 3rem; font-size: .85rem;
 }
 .footer a { color: var(--link); }
 @media print {
@@ -99,6 +145,11 @@ strong { color: var(--text); }
 <h1>Anthropic Claude API 深度指南</h1>
 <div class="info">2026-03-14 · 分类: 🏗️ 框架</div>
 </div>
+
+<div class="breadcrumb">
+  <a href="../index.html">← 返回报告索引</a>
+</div>
+
 
 <p>> 发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
 
@@ -404,6 +455,7 @@ print(f"常规输入: {message.usage.input_tokens}")
 
 <h3 id="51-claude-vs-openai">5.1 Claude vs OpenAI</h3>
 
+<div class="table-wrapper">
 <table><tr><th>维度</th><th>Claude API</th><th>OpenAI API</th></tr>
 <tr><td>上下文窗口</td><td>200K tokens</td><td>128K tokens</td></tr>
 <tr><td>System Prompt</td><td>独立字段</td><td>messages[0]</td></tr>
@@ -414,6 +466,7 @@ print(f"常规输入: {message.usage.input_tokens}")
 <tr><td>视觉理解</td><td>Claude Vision ✅</td><td>GPT-4V ✅</td></tr>
 <tr><td>语音处理</td><td>不原生支持</td><td>Whisper + TTS</td></tr>
 </table>
+</div>
 
 <h3 id="52-选型建议">5.2 选型建议</h3>
 
@@ -443,8 +496,8 @@ print(f"常规输入: {message.usage.input_tokens}")
 <p><em>本报告基于 2025 年初的 Claude API 状态撰写，Claude 模型和 API 持续快速迭代，请以官方文档为准。</em></p>
 
 <div class="footer">
-<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
 <script>
 function toggleTheme() {

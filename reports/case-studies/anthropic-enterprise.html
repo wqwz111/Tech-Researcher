@@ -6,80 +6,126 @@
 <title>Anthropic Claude 企业级实践</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-:root {
-    --bg:#0f172a;--bg2:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;
-    --border:#334155;--accent:#38bdf8;--accent2:#7dd3fc;--accent3:#93c5fd;
-    --code-bg:#1e293b;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#60a5fa;
-    --pink:#f472b6;
-}
-[data-theme="light"] {
-    --bg:#ffffff;--bg2:#f8fafc;--text:#0f172a;--text-muted:#475569;--text-dim:#94a3b8;
-    --border:#e2e8f0;--accent:#2563eb;--accent2:#3b82f6;--accent3:#6366f1;
-    --code-bg:#f1f5f9;--tag-bg:#dbeafe;--tag-text:#1e40af;--link:#2563eb;
-    --pink:#db2777;
-}
+:root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
 body {
-    background: var(--bg); color: var(--text);
+    background: var(--bg-primary); color: var(--text-primary);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
     line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
     transition: background .3s, color .3s;
 }
 .top-nav {
-    background: var(--bg2); padding: .6rem 1rem; border-radius: 8px;
+    background: var(--bg-secondary); padding: .6rem 1rem; border-radius: 8px;
     margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
 }
-.top-nav a { color: var(--accent2); text-decoration: none; }
+.top-nav a { color: var(--accent-secondary); text-decoration: none; }
 .top-nav a:hover { text-decoration: underline; }
-.top-nav .sep { color: var(--text-dim); }
+.top-nav .sep { color: var(--text-muted); }
 .theme-btn {
-    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
+    background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 20px;
     padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
     transition: border-color .2s;
 }
-.theme-btn:hover { border-color: var(--accent); }
+.theme-btn:hover { border-color: var(--accent-primary); }
 .meta {
-    background: var(--bg2); border-left: 4px solid var(--accent);
+    background: var(--bg-secondary); border-left: 4px solid var(--accent-primary);
     padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
 }
-.meta h1 { color: var(--accent); margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta h1 { color: var(--accent-primary); margin: 0 0 .5rem; font-size: 1.6rem; }
 .meta .info { color: var(--text-muted); font-size: .85rem; }
 .toc {
-    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px;
     padding: 1rem 1.5rem; margin-bottom: 2rem;
 }
-.toc h2 { color: var(--accent2); font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc h2 { color: var(--accent-secondary); font-size: 1rem; margin-bottom: .5rem; border: none; }
 .toc ul { list-style: none; padding-left: 1rem; }
 .toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: var(--accent3); text-decoration: none; }
-h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: .5rem; }
-h2 { color: var(--accent2); margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
-h3 { color: var(--accent3); margin-top: 1.8rem; }
+.toc a { color: var(--accent-secondary); text-decoration: none; }
+h1 { color: var(--accent-primary); border-bottom: 2px solid var(--border-color); padding-bottom: .5rem; }
+h2 { color: var(--accent-secondary); margin-top: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: .3rem; }
+h3 { color: var(--accent-secondary); margin-top: 1.8rem; }
 a { color: var(--link); }
-code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; color: var(--pink); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
 pre {
-    background: var(--code-bg); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; border-left: 3px solid var(--accent); margin: 1.2rem 0; position: relative;
+    background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
+    overflow-x: auto; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
 }
-pre code { background: none; color: var(--text); }
+pre code { background: none; color: var(--text-primary); }
 pre .lang-label {
-    position: absolute; top: 0; right: 0; background: var(--border);
+    position: absolute; top: 0; right: 0; background: var(--border-color);
     color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
 }
-.mermaid { background: var(--bg2); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+.mermaid { background: var(--bg-secondary); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
 blockquote {
-    border-left: 4px solid var(--accent); margin: 1.5rem 0; padding: .8rem 1.2rem;
-    background: var(--bg2); border-radius: 0 8px 8px 0;
+    border-left: 4px solid var(--accent-primary); margin: 1.5rem 0; padding: .8rem 1.2rem;
+    background: var(--bg-secondary); border-radius: 0 8px 8px 0;
 }
 table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid var(--border); padding: .7rem 1rem; text-align: left; }
-th { background: var(--bg2); color: var(--accent2); }
-tr:nth-child(even) { background: var(--bg2); }
-hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
-strong { color: var(--text); }
+th, td { border: 1px solid var(--border-color); padding: .7rem 1rem; text-align: left; }
+th { background: var(--bg-secondary); color: var(--accent-secondary); }
+tr:nth-child(even) { background: var(--bg-secondary); }
+hr { border: none; border-top: 1px solid var(--border-color); margin: 2.5rem 0; }
+strong { color: var(--text-primary); }
 .footer {
-    text-align: center; color: var(--text-dim); padding: 2rem 0 1rem;
-    border-top: 1px solid var(--border); margin-top: 3rem; font-size: .85rem;
+    text-align: center; color: var(--text-muted); padding: 2rem 0 1rem;
+    border-top: 1px solid var(--border-color); margin-top: 3rem; font-size: .85rem;
 }
 .footer a { color: var(--link); }
 @media print {
@@ -100,6 +146,11 @@ strong { color: var(--text); }
 <div class="info">2026-03-15 · 分类: 📊 案例实践</div>
 </div>
 
+<div class="breadcrumb">
+  <a href="../index.html">← 返回报告索引</a>
+</div>
+
+
 
 <blockquote>
 <p><strong>发布日期</strong>: 2026年3月 | 更新版（原版 2025-03）<br />
@@ -119,6 +170,7 @@ strong { color: var(--text); }
 <h2 id="1-claude-2026-03">1. Claude 模型家族概览（截至 2026-03）</h2>
 <h3 id="11">1.1 完整模型列表</h3>
 <p>Anthropic 的 Claude 模型命名体系包含三个层级（截至 2026 年 3 月最新）：</p>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -167,6 +219,7 @@ strong { color: var(--text); }
 </tr>
 </tbody>
 </table>
+</div>
 <blockquote>
 <p><strong>注意</strong>：Claude 4 系列于 2025 年 5 月发布，是 Anthropic 首次使用独立版本号（而非 3.x 子版本）。Claude 3.5 Sonnet 仍为高性价比选择，被广泛用于生产环境。</p>
 </blockquote>
@@ -177,6 +230,7 @@ strong { color: var(--text); }
 <p><strong>多模态</strong>：原生支持视觉输入，图表理解和文档分析能力进一步提升。</p>
 <p><strong>Extended Thinking</strong>：Claude 4 引入了"深度思考"模式，允许模型在复杂任务上进行更长时间的内部推理，显著提升复杂编程和数学任务表现。</p>
 <p><strong>价格</strong>（截至 2025 年 5 月发布时）：</p>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -208,6 +262,7 @@ strong { color: var(--text); }
 </tr>
 </tbody>
 </table>
+</div>
 <h3 id="13-claude-35">1.3 Claude 3.5 全系列回顾</h3>
 <p><strong>Claude 3.5 Sonnet（2024.06）</strong>：开创性的性价比升级，以 Sonnet 价格提供超越 Opus 3 的能力，至今仍是许多企业的首选。</p>
 <p><strong>Claude 3.5 Haiku（2024.10）</strong>：以 Haiku 价格提供接近 Sonnet 3.5 的能力，适合大规模低延迟场景。</p>
@@ -228,6 +283,7 @@ strong { color: var(--text); }
 <li><strong>搜索代码库</strong>（理解项目结构和依赖关系）</li>
 </ul>
 <h3 id="22">2.2 与传统编程助手的区别</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -270,6 +326,7 @@ strong { color: var(--text); }
 </tr>
 </tbody>
 </table>
+</div>
 <h3 id="23">2.3 实践模式</h3>
 <p>Claude Code 在实际使用中适合以下场景：</p>
 <p><strong>代码库探索</strong>：新加入项目时，让 Claude Code 分析项目结构、依赖关系、关键模块，快速建立理解。</p>
@@ -407,6 +464,7 @@ strong { color: var(--text); }
 <li><strong>对安全有高要求的应用</strong>：面向公众的客服、教育、医疗辅助</li>
 </ol>
 <h3 id="2026-03">模型选择建议（截至 2026-03）</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -438,6 +496,7 @@ strong { color: var(--text); }
 </tr>
 </tbody>
 </table>
+</div>
 <h3 id="claude_1">不建议选择 Claude 的场景</h3>
 <ol>
 <li><strong>需要最新实时信息的场景</strong>：Claude 的知识截止日期通常落后于 ChatGPT</li>
@@ -467,8 +526,8 @@ strong { color: var(--text); }
 <p><em>本报告基于截至 2026 年 3 月的公开信息编写。Anthropic 产品更新频繁，部分细节可能已有变化。</em></p>
 
 <div class="footer">
-<p>🔬 Tech Researcher · 探针 (Probe) · 2026</p>
-<p><a href="../index.html">返回报告首页</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">反馈建议</a></p>
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
 <script>
 function toggleTheme() {

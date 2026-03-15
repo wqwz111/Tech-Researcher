@@ -46,7 +46,7 @@
   }
 
   /* ── Light Theme ── */
-  [data-theme="light"] {
+    [data-theme="light"] {
     --bg-primary:    #ffffff;
     --bg-secondary:  #f8fafc;
     --bg-tertiary:   #f1f5f9;
@@ -496,6 +496,10 @@
 <div class="container">
   
   
+  <div class="breadcrumb">
+    <a href="./index.html">← 返回报告索引</a>
+  </div>
+
 <blockquote>
 <p>最后更新: 2026-03-14 | 分类: AI 开发框架</p>
 </blockquote>
@@ -560,6 +564,7 @@
 </code></pre></div>
 
 <h3 id="_1">设计哲学对比</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -596,6 +601,7 @@
 </tr>
 </tbody>
 </table>
+</div>
 <hr />
 <h2 id="2">2. 核心组件对比</h2>
 <h3 id="21-llm">2.1 LLM 抽象与模型支持</h3>
@@ -623,6 +629,7 @@
 <p><strong>对比</strong>: LangGraph 更通用、功能更强；LlamaIndex Workflows 更简洁、对 RAG 场景更友好。</p>
 <h3 id="23">2.3 索引与检索</h3>
 <p>这是 <strong>LlamaIndex 的绝对优势领域</strong>：</p>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -664,6 +671,7 @@
 </tr>
 </tbody>
 </table>
+</div>
 <p>LangChain 的检索能力主要通过 <code>VectorStore</code> 和 <code>Retriever</code> 抽象实现，相对更基础，需要更多手动配置。</p>
 <h3 id="24-memory">2.4 记忆 (Memory)</h3>
 <p><strong>LangChain</strong> 提供丰富的记忆类型：
@@ -675,6 +683,7 @@
 <hr />
 <h2 id="3">3. 生态系统与集成</h2>
 <h3 id="31">3.1 集成数量与质量</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -711,7 +720,9 @@
 </tr>
 </tbody>
 </table>
+</div>
 <h3 id="32-2025-q4">3.2 社区活跃度 (2025 Q4 数据)</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -748,6 +759,7 @@
 </tr>
 </tbody>
 </table>
+</div>
 <p>（数据来源: GitHub 仓库统计及 PyPI 下载趋势，2025 年第四季度）</p>
 <h3 id="33">3.3 商业化支持</h3>
 <p><strong>LangChain 生态</strong>:
@@ -772,6 +784,7 @@
 - <code>Metadata Filtering</code>: 结合元数据过滤提升精度
 - <code>Hybrid Search</code>: 关键词 + 向量混合检索</p>
 <h3 id="42">4.2 大规模生产部署</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -808,6 +821,7 @@
 </tr>
 </tbody>
 </table>
+</div>
 <h3 id="43">4.3 版本稳定性</h3>
 <p>两个框架都经历了重大 API 变更：
 - <strong>LangChain</strong>: 0.1 → 0.2 版本进行了大幅重构，引发社区争议。稳定后 API 变更频率降低。
@@ -864,6 +878,9 @@
 <li><strong>PyPI 下载统计</strong> — <a href="https://pypistats.org">pypistats.org</a> — 各框架月度下载趋势数据</li>
 </ol>
 </div>
-<div class="footer">探针 (Probe) · AI 技术研究分析师 · 2026</div>
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
 </body>
 </html>
