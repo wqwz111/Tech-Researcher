@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,35 +11,79 @@
   }
 </script>
 <style>
-  :root { --bg:#0a0e1a;--bg-card:#111827;--bg-code:#1a1f2e;--bg-callout:#1a1040;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;--border:#2d3748;--border-light:#1a202c;--accent:#818cf8;--accent-text:#c7d2fe;--accent-hover:#818cf8;--tag-bg:#3730a3;--tag-text:#c7d2fe;--link:#6366f1;--code-text:#a5b4fc; }
-  [data-theme="light"] { --bg:#ffffff;--bg-card:#f8fafc;--bg-code:#f1f5f9;--bg-callout:#eef2ff;--text:#0f172a;--text-muted:#334155;--text-dim:#94a3b8;--border:#e2e8f0;--border-light:#f1f5f9;--accent:#4f46e5;--accent-text:#3730a3;--accent-hover:#6366f1;--tag-bg:#e0e7ff;--tag-text:#312e81;--link:#4f46e5;--code-text:#6d28d9; }
+    :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+    --link: #818cf8;
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+    [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+    --link: #4f46e5;
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
   * { margin:0;padding:0;box-sizing:border-box; }
-  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.8;transition:background .3s,color .3s; }
-  .header { background:var(--bg-card);border-bottom:1px solid var(--border);padding:2.5rem 2rem;text-align:center;position:relative; }
-  .header h1 { font-size:1.8rem;margin-bottom:.5rem;color:var(--text); }
-  .header .meta { color:var(--text-dim);font-size:.9rem; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.8;transition:background .3s,color .3s; }
+  .header { background:var(--bg-card);border-bottom:1px solid var(--border-color);padding:2.5rem 2rem;text-align:center;position:relative; }
+  .header h1 { font-size:1.8rem;margin-bottom:.5rem;color:var(--text-primary); }
+  .header .meta { color:var(--text-muted);font-size:.9rem; }
   .tag { display:inline-block;padding:.2rem .6rem;margin:.2rem;background:var(--tag-bg);color:var(--tag-text);border-radius:4px;font-size:.8rem; }
   .container { max-width:860px;margin:0 auto;padding:2rem 1.5rem; }
-  .breadcrumb { color:var(--text-dim);font-size:.85rem;margin-bottom:1.5rem; }
+  .breadcrumb { color:var(--text-muted);font-size:.85rem;margin-bottom:1.5rem; }
   .breadcrumb a { color:var(--link);text-decoration:none; }
-  h2 { color:var(--accent-text);font-size:1.4rem;margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border-light); }
-  h3 { color:var(--accent-hover);font-size:1.15rem;margin:1.8rem 0 .8rem; }
-  p { margin-bottom:1rem;color:var(--text); }
-  ul,ol { margin:.5rem 0 1rem 1.5rem;color:var(--text); }
+  h2 { color:var(--accent-secondary);font-size:1.4rem;margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border-light); }
+  h3 { color:var(--accent-primary);font-size:1.15rem;margin:1.8rem 0 .8rem; }
+  p { margin-bottom:1rem;color:var(--text-primary); }
+  ul,ol { margin:.5rem 0 1rem 1.5rem;color:var(--text-primary); }
   li { margin-bottom:.4rem; }
-  code { background:var(--bg-code);padding:.15rem .4rem;border-radius:4px;font-size:.9em;color:var(--code-text); }
-  pre { background:var(--bg-code);border:1px solid var(--border);border-radius:8px;padding:1rem;overflow-x:auto;margin:1rem 0; }
+  code { background:var(--bg-code);padding:.15rem .4rem;border-radius:4px;font-size:.9em;color:var(--accent-secondary); }
+  pre { background:var(--bg-code);border:1px solid var(--border-color);border-radius:8px;padding:1rem;overflow-x:auto;margin:1rem 0; }
   pre code { background:none;padding:0; }
-  .callout { background:var(--bg-callout);border-left:3px solid var(--accent);padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin:1rem 0; }
-  .callout strong { color:var(--accent-text); }
+  .callout { background:var(--bg-callout);border-left:3px solid var(--accent-primary);padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin:1rem 0; }
+  .callout strong { color:var(--accent-secondary); }
   table { width:100%;border-collapse:collapse;margin:1rem 0; }
-  th,td { text-align:left;padding:.6rem .8rem;border:1px solid var(--border); }
-  th { background:var(--bg-code);color:var(--accent-text); }
+  th,td { text-align:left;padding:.6rem .8rem;border:1px solid var(--border-color); }
+  th { background:var(--bg-code);color:var(--accent-secondary); }
   .mermaid { background:var(--bg-code);border-radius:12px;padding:1.5rem;margin:1.5rem 0;text-align:center;overflow-x:auto; }
-  .ref { color:var(--text-dim);font-size:.85rem; } .ref a { color:var(--link);text-decoration:none; }
-  .footer { text-align:center;color:var(--text-dim);padding:2rem;margin-top:3rem;border-top:1px solid var(--border-light);font-size:.85rem; }
-  .theme-toggle { position:absolute;top:1rem;right:1.5rem;background:var(--bg-code);border:1px solid var(--border);border-radius:24px;padding:.3rem .6rem;cursor:pointer;display:flex;align-items:center;gap:.4rem;transition:all .3s; }
-  .theme-toggle:hover { border-color:var(--accent); }
+  .ref { color:var(--text-muted);font-size:.85rem; } .ref a { color:var(--link);text-decoration:none; }
+  .footer { text-align:center;color:var(--text-muted);padding:2rem;margin-top:3rem;border-top:1px solid var(--border-light);font-size:.85rem; }
+  .theme-toggle { position:absolute;top:1rem;right:1.5rem;background:var(--bg-code);border:1px solid var(--border-color);border-radius:24px;padding:.3rem .6rem;cursor:pointer;display:flex;align-items:center;gap:.4rem;transition:all .3s; }
+  .theme-toggle:hover { border-color:var(--accent-primary); }
   .theme-toggle .icon { font-size:1.1rem; }
   .theme-toggle .label { font-size:.75rem;color:var(--text-muted); }
 </style>
@@ -95,7 +139,8 @@ graph TB
   </div>
 
   <h3>支持的编程智能体</h3>
-  <table>
+  <div class="table-wrapper">
+<table>
     <tr><th>Agent ID</th><th>来源</th><th>擅长</th><th>配置方式</th></tr>
     <tr><td><code>codex</code></td><td>OpenAI</td><td>代码生成、重构</td><td>OpenAI OAuth / API Key</td></tr>
     <tr><td><code>claude</code></td><td>Anthropic</td><td>复杂推理、代码审查</td><td>Anthropic API Key</td></tr>
@@ -104,6 +149,7 @@ graph TB
     <tr><td><code>pi</code></td><td>ACP</td><td>通用编程</td><td>ACP 内置</td></tr>
     <tr><td><code>opencode</code></td><td>社区</td><td>开源替代</td><td>本地安装</td></tr>
   </table>
+</div>
 
   <h2>⚡ 两种运行模式</h2>
 
@@ -122,13 +168,15 @@ graph LR
   style S5 fill:#059669,stroke:#34d399,color:#fff
   </div>
 
-  <table>
+  <div class="table-wrapper">
+<table>
     <tr><th>维度</th><th>run（一次性）</th><th>session（持久化）</th></tr>
     <tr><td>生命周期</td><td>任务完成即销毁</td><td>持续运行直到手动关闭</td></tr>
     <tr><td>上下文</td><td>独立上下文</td><td>跨消息保持上下文</td></tr>
     <tr><td>适用场景</td><td>一次性的代码分析、脚本生成</td><td>持续开发、迭代调试</td></tr>
     <tr><td>Thread 绑定</td><td>不需要</td><td>推荐（<code>thread: true</code>）</td></tr>
   </table>
+</div>
 
   <h2>🧵 线程绑定机制</h2>
 
@@ -173,7 +221,8 @@ sequenceDiagram
 }</code></pre>
 
   <h2>🎮 操作命令</h2>
-  <table>
+  <div class="table-wrapper">
+<table>
     <tr><th>命令</th><th>功能</th><th>示例</th></tr>
     <tr><td><code>/acp spawn</code></td><td>创建 ACP 会话</td><td><code>/acp spawn codex --mode persistent --thread auto</code></td></tr>
     <tr><td><code>/acp cancel</code></td><td>取消当前执行</td><td><code>/acp cancel</code></td></tr>
@@ -184,6 +233,7 @@ sequenceDiagram
     <tr><td><code>/acp permissions</code></td><td>设置权限策略</td><td><code>/acp permissions approve-all</code></td></tr>
     <tr><td><code>/acp doctor</code></td><td>健康检查</td><td><code>/acp doctor</code></td></tr>
   </table>
+</div>
 
   <h2>🔄 会话恢复（resumeSessionId）</h2>
   <p>ACP 支持跨设备恢复会话。比如你在电脑上开始一个 Codex 编程会话，然后可以在手机上继续：</p>
@@ -205,12 +255,14 @@ sequenceDiagram
 
   <h2>🔐 权限管理</h2>
   <p>ACP 会话非交互式运行（没有 TTY），所以权限提示无法弹出确认。通过 <code>permissionMode</code> 配置：</p>
-  <table>
+  <div class="table-wrapper">
+<table>
     <tr><th>模式</th><th>行为</th><th>适用场景</th></tr>
     <tr><td><code>approve-all</code></td><td>自动批准所有操作</td><td>完全信任的 Agent</td></tr>
     <tr><td><code>approve-reads</code></td><td>只批准读操作，写/执行需提示</td><td>默认，平衡安全</td></tr>
     <tr><td><code>deny-all</code></td><td>拒绝所有权限提示</td><td>只做分析不修改</td></tr>
   </table>
+</div>
   <pre><code>openclaw config set plugins.entries.acpx.config.permissionMode approve-all
 openclaw config set plugins.entries.acpx.config.nonInteractivePermissions deny
 openclaw gateway restart</code></pre>
@@ -231,7 +283,8 @@ graph TB
   style S2 fill:#4f46e5,stroke:#818cf8,color:#fff
   </div>
 
-  <table>
+  <div class="table-wrapper">
+<table>
     <tr><th>维度</th><th>ACP</th><th>Sub-agent</th></tr>
     <tr><td>运行位置</td><td>外部进程（独立）</td><td>OpenClaw 内部（隔离会话）</td></tr>
     <tr><td>适用场景</td><td>专业编程任务</td><td>通用并行子任务</td></tr>
@@ -240,6 +293,7 @@ graph TB
     <tr><td>沙箱</td><td>不支持（运行在 Host）</td><td>支持 Docker 沙箱</td></tr>
     <tr><td>线程绑定</td><td>✅ 支持</td><td>✅ 支持</td></tr>
   </table>
+</div>
 
   <h2>📖 参考资料</h2>
   <div class="ref">
@@ -248,21 +302,36 @@ graph TB
     <p>[3] <a href="https://docs.openclaw.ai/tools/subagents">Sub-Agents 对比</a></p>
   </div>
 </div>
-<div class="footer">探针 (Probe) · AI 技术研究分析师 · 2026-03-14</div>
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
 <script>
+  // Theme toggle — uses localStorage for persistence
   function toggleTheme() {
     const html = document.documentElement;
     const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
     html.setAttribute('data-theme', next);
     localStorage.setItem('probe-theme', next);
-    location.reload();
+    updateToggleUI(next);
+    if (typeof initMermaid === 'function') { initMermaid(next); }
   }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
   (function() {
     const saved = localStorage.getItem('probe-theme') || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
-    document.getElementById('themeIcon').textContent = saved === 'light' ? '🌙' : '☀️';
-    document.getElementById('themeLabel').textContent = saved === 'light' ? '夜间' : '日间';
-    initMermaid(saved);
+    document.addEventListener('DOMContentLoaded', function() {
+      updateToggleUI(saved);
+      if (typeof initMermaid === 'function') { initMermaid(saved); }
+    });
   })();
 </script>
 </body>

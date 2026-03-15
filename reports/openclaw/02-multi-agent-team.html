@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,55 +11,83 @@
   }
 </script>
 <style>
-  :root {
-    --bg: #0f172a; --bg-card: #1e293b; --bg-code: #1e293b; --bg-callout: #1e1b4b;
-    --text: #e2e8f0; --text-muted: #94a3b8; --text-dim: #64748b;
-    --border: #334155; --border-light: #1e293b;
-    --accent: #6366f1; --accent-text: #a5b4fc; --accent-hover: #818cf8;
-    --tag-bg: #312e81; --tag-text: #a5b4fc;
-    --link: #6366f1; --link-hover: #818cf8;
-    --code-text: #a5b4fc;
+    :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+    --link: #818cf8;
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
   }
-  [data-theme="light"] {
-    --bg: #f8fafc; --bg-card: #ffffff; --bg-code: #f1f5f9; --bg-callout: #eef2ff;
-    --text: #1e293b; --text-muted: #475569; --text-dim: #94a3b8;
-    --border: #e2e8f0; --border-light: #f1f5f9;
-    --accent: #4f46e5; --accent-text: #4338ca; --accent-hover: #6366f1;
-    --tag-bg: #e0e7ff; --tag-text: #3730a3;
-    --link: #4f46e5; --link-hover: #6366f1;
-    --code-text: #7c3aed;
+    [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+    --link: #4f46e5;
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.8; transition: background 0.3s, color 0.3s; }
-  .header { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 2.5rem 2rem; text-align: center; position: relative; }
-  .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--text); }
-  .header .meta { color: var(--text-dim); font-size: 0.9rem; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.8; transition: background 0.3s, color 0.3s; }
+  .header { background: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 2.5rem 2rem; text-align: center; position: relative; }
+  .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--text-primary); }
+  .header .meta { color: var(--text-muted); font-size: 0.9rem; }
   .tag { display: inline-block; padding: 0.2rem 0.6rem; margin: 0.2rem; background: var(--tag-bg); color: var(--tag-text); border-radius: 4px; font-size: 0.8rem; }
   .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
-  .breadcrumb { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem; }
+  .breadcrumb { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
   .breadcrumb a { color: var(--link); text-decoration: none; }
-  h2 { color: var(--accent-text); font-size: 1.4rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); }
-  h3 { color: var(--accent-hover); font-size: 1.15rem; margin: 1.8rem 0 0.8rem; }
-  p { margin-bottom: 1rem; color: var(--text); }
-  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text); }
+  h2 { color: var(--accent-secondary); font-size: 1.4rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); }
+  h3 { color: var(--accent-primary); font-size: 1.15rem; margin: 1.8rem 0 0.8rem; }
+  p { margin-bottom: 1rem; color: var(--text-primary); }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text-primary); }
   li { margin-bottom: 0.4rem; }
-  code { background: var(--bg-code); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: var(--code-text); }
-  pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
+  code { background: var(--bg-code); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: var(--accent-secondary); }
+  pre { background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
   pre code { background: none; padding: 0; }
-  .callout { background: var(--bg-callout); border-left: 3px solid var(--accent); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
-  .callout strong { color: var(--accent-text); }
+  .callout { background: var(--bg-callout); border-left: 3px solid var(--accent-primary); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+  .callout strong { color: var(--accent-secondary); }
   table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-  th, td { text-align: left; padding: 0.6rem 0.8rem; border: 1px solid var(--border); }
-  th { background: var(--bg-code); color: var(--accent-text); }
-  td { color: var(--text); }
+  th, td { text-align: left; padding: 0.6rem 0.8rem; border: 1px solid var(--border-color); }
+  th { background: var(--bg-code); color: var(--accent-secondary); }
+  td { color: var(--text-primary); }
   .mermaid { background: var(--bg-code); border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; overflow-x: auto; }
-  .ref { color: var(--text-dim); font-size: 0.85rem; }
+  .ref { color: var(--text-muted); font-size: 0.85rem; }
   .ref a { color: var(--link); text-decoration: none; }
-  .footer { text-align: center; color: var(--text-dim); padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-light); font-size: 0.85rem; }
+  .footer { text-align: center; color: var(--text-muted); padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-light); font-size: 0.85rem; }
 
   /* Theme Toggle */
-  .theme-toggle { position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code); border: 1px solid var(--border); border-radius: 24px; padding: 0.3rem 0.6rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s; }
-  .theme-toggle:hover { border-color: var(--accent); }
+  .theme-toggle { position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 24px; padding: 0.3rem 0.6rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s; }
+  .theme-toggle:hover { border-color: var(--accent-primary); }
   .theme-toggle .icon { font-size: 1.1rem; }
   .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
 </style>
@@ -145,7 +173,8 @@ graph TB
 
   <h2>🔀 Binding 六维路由</h2>
   <p>Binding 支持 6 个匹配维度，<strong>最具体的规则优先</strong>：</p>
-  <table>
+  <div class="table-wrapper">
+<table>
     <tr><th>优先级</th><th>匹配维度</th><th>示例</th><th>典型用途</th></tr>
     <tr><td>1</td><td><code>peer</code></td><td>特定 DM 号码 / 群组 ID</td><td>VIP 客户专用 Agent</td></tr>
     <tr><td>2</td><td><code>parentPeer</code></td><td>线程继承</td><td>子线程跟随父级路由</td></tr>
@@ -154,6 +183,7 @@ graph TB
     <tr><td>5</td><td><code>accountId</code></td><td>WhatsApp 号码</td><td>工作号 vs 个人号</td></tr>
     <tr><td>6</td><td>渠道级</td><td><code>channel: "telegram"</code></td><td>整个渠道统一</td></tr>
   </table>
+</div>
 
   <h2>📱 场景 A：按渠道分流</h2>
   <p>最经典的用法：<strong>WhatsApp 走快速模型做日常对话，Telegram 走高级模型做深度工作</strong>。</p>
@@ -302,12 +332,14 @@ graph TB
 }</code></pre>
 
   <h3>工具策略按深度分层</h3>
-  <table>
+  <div class="table-wrapper">
+<table>
     <tr><th>深度</th><th>角色</th><th>可用工具</th><th>可再 spawn?</th></tr>
     <tr><td>0</td><td>主 Agent</td><td>全部</td><td>✅ 总是可以</td></tr>
     <tr><td>1</td><td>编排器</td><td>sessions_spawn, subagents, sessions_list, sessions_history</td><td>✅ 仅 maxSpawnDepth≥2</td></tr>
     <tr><td>2</td><td>Worker</td><td>读写执行等（无 session 工具）</td><td>❌ 永远不能</td></tr>
   </table>
+</div>
 
   <h3>级联停止</h3>
   <p>停止编排器会自动停止所有子级 Worker：</p>
@@ -324,25 +356,36 @@ graph TB
     <p>[3] <a href="https://docs.openclaw.ai/tools/multi-agent-sandbox-tools">Multi-Agent Sandbox & Tools</a></p>
   </div>
 </div>
-<div class="footer">探针 (Probe) · AI 技术研究分析师 · 2026-03-14</div>
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
 <script>
+  // Theme toggle — uses localStorage for persistence
   function toggleTheme() {
     const html = document.documentElement;
-    const current = html.getAttribute('data-theme');
-    const next = current === 'light' ? 'dark' : 'light';
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
     html.setAttribute('data-theme', next);
-    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
-    document.getElementById('themeLabel').textContent = next === 'light' ? '夜间' : '日间';
     localStorage.setItem('probe-theme', next);
-    initMermaid(next);
-    location.reload();
+    updateToggleUI(next);
+    if (typeof initMermaid === 'function') { initMermaid(next); }
   }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
   (function() {
     const saved = localStorage.getItem('probe-theme') || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
-    document.getElementById('themeIcon').textContent = saved === 'light' ? '🌙' : '☀️';
-    document.getElementById('themeLabel').textContent = saved === 'light' ? '夜间' : '日间';
-    initMermaid(saved);
+    document.addEventListener('DOMContentLoaded', function() {
+      updateToggleUI(saved);
+      if (typeof initMermaid === 'function') { initMermaid(saved); }
+    });
   })();
 </script>
 </body>
