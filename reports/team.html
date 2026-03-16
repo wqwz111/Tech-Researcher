@@ -164,7 +164,17 @@ subgraph SGReview["审稿层"]
  Reader2["读者-B"]
  Reader3["读者-C"]
  end
-User <-->|"Issues"| Chief Chief -->|"分派任务"| Research Chief -->|"设计需求"| Palette Chief -->|"采集任务"| Collector Chief -->|"索引更新"| Librarian Chief -->|"审稿安排"| Review Research -->|"报告草稿"| Review Review -->|"审稿意见"| Chief Research -->|"定稿"| Palette Palette -->|"美化报告"| Chief Chief -->|"发布"| User
+User <-->|"Issues"| Chief
+    Chief -->|"分派任务"| Research
+    Chief -->|"设计需求"| Palette
+    Chief -->|"采集任务"| Collector
+    Chief -->|"索引更新"| Librarian
+    Chief -->|"审稿安排"| Review
+    Research -->|"报告草稿"| Review
+    Review -->|"审稿意见"| Chief
+    Research -->|"定稿"| Palette
+    Palette -->|"美化报告"| Chief
+    Chief -->|"发布"| User
  style Chief fill:#38bdf8,color:#000,stroke:#0ea5e9
  style User fill:#f472b6,color:#000
  style Palette fill:#fb923c,color:#000
@@ -259,7 +269,15 @@ subgraph SGOutput["输出"]
  Release["Release<br/>版本发布"]
  Index["索引页<br/>分类导航"]
  end
-Issues --> Plan Trends --> Plan Plan -->|"分派任务"| Research Research -->|"报告草稿"| Review Review -->|"通过"| Design Review -->|"修改"| Research Design -->|"美化报告"| Pages Design --> Release Pages --> Index
+Issues --> Plan
+    Trends --> Plan
+    Plan -->|"分派任务"| Research
+    Research -->|"报告草稿"| Review
+    Review -->|"通过"| Design
+    Review -->|"修改"| Research
+    Design -->|"美化报告"| Pages
+    Design --> Release
+    Pages --> Index
  style Plan fill:#38bdf8,color:#000
  style Research fill:#7dd3fc,color:#000
  style Review fill:#a78bfa,color:#000
@@ -283,7 +301,13 @@ Issues --> Plan Trends --> Plan Plan -->|"分派任务"| Research Research -->|"
 Score["评分汇总<br/>每项 1-5 星"]
  Decision{"总分 ≥ 21/25?"}
  Pass["通过 → 调色板美化"]
- Revise["需修改 → 返回探针"] Draft --> Reviewers Reviewers --> Score Score --> Decision Decision -->|">= 21"| Pass Decision -->|"< 21"| Revise Revise --> Draft
+ Revise["需修改 → 返回探针"]
+Draft --> Reviewers
+    Reviewers --> Score
+    Score --> Decision
+    Decision -->|">= 21"| Pass
+    Decision -->|"< 21"| Revise
+    Revise --> Draft
  style Draft fill:#38bdf8,color:#000
  style Pass fill:#34d399,color:#000
  style Revise fill:#fb923c,color:#000
