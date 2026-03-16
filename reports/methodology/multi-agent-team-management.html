@@ -508,7 +508,28 @@
   <!-- ═══════════════════════════════════════════
        CONTENT
        ═══════════════════════════════════════════ -->
-  <h2>2. 角色定义与职责边界</h2>
+  <h2>1. 多 Agent 团队组织模式</h2>
+<h3>1.1 四种核心组织模式</h3>
+<p>当前多 Agent 系统的组织模式可归纳为四类：<strong>层级式（Hierarchical）</strong>、<strong>扁平式（Flat）</strong>、<strong>市场式（Market-Based）</strong>和<strong>混合式（Hybrid）</strong>。每种模式在通信效率、可扩展性和容错能力上各有优劣。</p>
+<div class="mermaid">
+flowchart TD
+    subgraph MODELS
+        direction LR
+        H[层级式]
+        F[扁平式]
+        M[市场式]
+        HY[混合式]
+    end
+    H --> H_DESC[树状结构, 上级指令下级执行]
+    F --> F_DESC[Agent 对等, 共识机制协作]
+    M --> M_DESC[任务商品化, Agent 竞标分配]
+    HY --> HY_DESC[组合多种模式, 分层分域]
+    style H fill:#4f46e5,color:#fff
+    style F fill:#059669,color:#fff
+    style M fill:#ea580c,color:#fff
+    style HY fill:#7c3aed,color:#fff
+</div>
+<h2>2. 角色定义与职责边界</h2>
 <h3>2.1 角色设计原则</h3>
 <p>设计多 Agent 团队角色时，遵循以下原则：</p>
 <ol>
@@ -717,6 +738,32 @@
 <li><strong>评审</strong> — 自动创建评审 Issue，指派读者审稿</li>
 <li><strong>迭代</strong> — 根据审稿意见修改报告</li>
 </ol>
+<div class="mermaid">
+flowchart TB
+    USER[用户: 提出需求/反馈]
+    ISSUES[GitHub Issues: 选题池]
+    CHIEF[主编: 选题策划与分派]
+    PROBE[探针: 技术研究与撰写]
+    PALETTE[调色板: 视觉美化]
+    READER[读者: 独立审稿]
+    RELEASE[发布: GitHub Pages + Release]
+    USER --> ISSUES
+    ISSUES --> |扫描| CHIEF
+    CHIEF --> |任务分派| PROBE
+    PROBE --> |Markdown 草稿| CHIEF
+    CHIEF --> |审核通过| PALETTE
+    PALETTE --> |HTML 报告| CHIEF
+    CHIEF --> |发布| RELEASE
+    RELEASE --> |创建评审 Issue| READER
+    READER --> |审稿意见| CHIEF
+    CHIEF --> |修改任务| PROBE
+    style USER fill:#64748b,color:#fff
+    style CHIEF fill:#4f46e5,color:#fff
+    style PROBE fill:#ea580c,color:#fff
+    style PALETTE fill:#059669,color:#fff
+    style READER fill:#7c3aed,color:#fff
+    style RELEASE fill:#0ea5e9,color:#fff
+</div>
 <h3>5.3 质量铁律体系</h3>
 <p>基于实战经验，OpenClaw 团队建立了四条质量铁律：</p>
 <ol>
