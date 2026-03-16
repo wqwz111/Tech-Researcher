@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw + MCP 工具生态实战</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>{{TITLE}}</h1>
+  <div class="meta">2026-03-16 · 🔬 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">MCP</span><span class="tag">OpenClaw</span><span class="tag">工具生态</span><span class="tag">实战</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="./index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p><p>本文以实战视角深入分析 OpenClaw 如何集成 MCP（Model Context Protocol）工具生态。我们从 MCP 协议的核心概念出发（交叉引用已有报告，不重复展开），重点聚焦 OpenClaw 作为 MCP Client 的实现细节、从零搭建 MCP Server 的完整流程、工具编排案例、安全边界以及故障排查与性能优化。</p>
+<p><strong>核心结论</strong>: OpenClaw 通过内置的 MCP Client 和 <code>mcporter</code> CLI 工具，实现了与 MCP 生态的深度集成。开发者可以通过 stdio 或 HTTP 两种传输方式连接任意 MCP Server，并将工具能力无缝注入 Agent 的会话上下文。配合 OpenClaw 的技能系统和会话管理，可以构建出强大的多工具 Agent 工作流。</p>
+</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <hr>
+<h2>1. MCP 协议回顾</h2>
+<p>MCP 协议的核心设计已在我们之前的 <a href="../tools/mcp-ecosystem.md">MCP 协议生态深度分析</a> 报告中详细展开。本节仅做关键概念回顾，为后续实战内容做铺垫。</p>
+<p><strong>MCP 三大能力层</strong>:</p>
+<ul>
+<li><strong>Tools</strong> — AI 模型可调用的函数，由 Client 发起调用请求，Server 执行并返回结果</li>
+<li><strong>Resources</strong> — 可读取的数据上下文，支持 URI 模式访问和变更订阅</li>
+<li><strong>Prompts</strong> — 预定义的提示模板，支持参数化，帮助标准化常见任务</li>
+</ul>
+<p><strong>传输方式</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>传输方式</th>
+<th>适用场景</th>
+<th>OpenClaw 支持</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>stdio</td>
+<td>本地工具（子进程通信）</td>
+<td>✅ 原生支持</td>
+</tr>
+<tr>
+<td>Streamable HTTP</td>
+<td>远程服务（推荐）</td>
+<td>✅ 通过 mcporter</td>
+</tr>
+<tr>
+<td>HTTP + SSE（旧版）</td>
+<td>兼容场景</td>
+<td>✅ 向后兼容</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>📖 详细协议分析参见: <a href="../tools/mcp-ecosystem.md">MCP 协议生态深度分析</a></p>
+</blockquote>
+<hr>
+<h2>2. OpenClaw 的 MCP Client 实现</h2>
+<h3>2.1 架构设计</h3>
+<p>OpenClaw 采用双通道 MCP Client 架构：<strong>Gateway 内置 Client</strong> 负责持久化连接和工具注册，<strong>mcporter CLI</strong> 提供独立的命令行调用能力。</p>
+<div class="mermaid">graph TB
+    subgraph OpenClaw["OpenClaw Platform"]
+        GW["Gateway (Node.js)"]
+        MCPClient["MCP Client Module"]
+        SkillLoader["Skill Loader"]
+        SessionMgr["Session Manager"]
+        AgentRT["Agent Runtime"]
+        MCPorter["mcporter CLI"]
+        GW --> MCPClient
+        GW --> SkillLoader
+        GW --> SessionMgr
+        SessionMgr --> AgentRT
+    end
+    subgraph MCPServers["MCP Servers"]
+        StdioSrv["stdio Server<br>(local process)"]
+        HttpSrv["HTTP Server<br>(remote / Streamable HTTP)"]
+    end
+    MCPClient -->|"spawn subprocess"| StdioSrv
+    MCPClient -->|"HTTP POST"| HttpSrv
+    MCPorter -->|"stdio / HTTP"| StdioSrv
+    MCPorter -->|"HTTP POST"| HttpSrv
+    AgentRT -->|"tool call"| MCPClient</div>
+<h3>2.2 Gateway 内置 MCP Client</h3>
+<p>OpenClaw Gateway 在启动时读取 MCP Server 配置，自动建立连接并注册工具。配置文件位于 <code>~/.openclaw/config.json</code> 的 <code>mcp.servers</code> 字段：</p>
+<pre><code class="language-json">{
+  &quot;mcp&quot;: {
+    &quot;servers&quot;: {
+      &quot;filesystem&quot;: {
+        &quot;command&quot;: &quot;npx&quot;,
+        &quot;args&quot;: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-filesystem&quot;, &quot;/home/user/docs&quot;],
+        &quot;transport&quot;: &quot;stdio&quot;
+      },
+      &quot;github&quot;: {
+        &quot;command&quot;: &quot;npx&quot;,
+        &quot;args&quot;: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-github&quot;],
+        &quot;env&quot;: {
+          &quot;GITHUB_TOKEN&quot;: &quot;${GITHUB_TOKEN}&quot;
+        },
+        &quot;transport&quot;: &quot;stdio&quot;
+      },
+      &quot;remote-tools&quot;: {
+        &quot;url&quot;: &quot;https://mcp.example.com/mcp&quot;,
+        &quot;transport&quot;: &quot;http&quot;,
+        &quot;headers&quot;: {
+          &quot;Authorization&quot;: &quot;Bearer ${MCP_API_KEY}&quot;
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<p><strong>工作流程</strong>:</p>
+<ol>
+<li>Gateway 启动时扫描 <code>mcp.servers</code> 配置</li>
+<li>对于 stdio 类型，spawn 子进程并建立 JSON-RPC 通道</li>
+<li>对于 HTTP 类型，建立到远程端点的连接</li>
+<li>执行 <code>tools/list</code> 获取可用工具列表</li>
+<li>将工具描述注入 Agent 的 System Prompt</li>
+<li>Agent 在会话中决定调用工具时，Gateway 转发 <code>tools/call</code> 请求</li>
+</ol>
+<h3>2.3 mcporter CLI</h3>
+<p><code>mcporter</code> 是 OpenClaw 生态中的独立 MCP 客户端工具，支持直接从命令行调用 MCP Server 工具，也用于调试和开发。</p>
+<pre><code class="language-bash"># 列出已配置的 MCP Server
+mcporter list
+
+# 查看某个 Server 的工具 Schema
+mcporter list filesystem --schema
+
+# 直接调用工具
+mcporter call filesystem.read_file path=/home/user/docs/readme.md
+
+# 调用远程 Server
+mcporter call https://api.example.com/mcp.search query=&quot;MCP protocol&quot;
+
+# 通过 stdio 运行自定义 Server
+mcporter call --stdio &quot;node ./my-server.js&quot; my_tool param=value
+
+# JSON 输出（供程序消费）
+mcporter call filesystem.list_directory path=/home/user --output json
+</code></pre>
+<h3>2.4 工具注入机制</h3>
+<p>OpenClaw 将 MCP 工具描述转换为 LLM Function Calling 格式，注入到 Agent 的 System Prompt 中。关键在于工具描述的精确性——Server 端的 <code>description</code> 和参数 Schema 直接决定了 LLM 选择工具的准确率。</p>
+<p><strong>工具描述最佳实践</strong>:</p>
+<pre><code class="language-typescript">// 好的工具定义
+{
+  name: &quot;search_docs&quot;,
+  description: &quot;在项目文档中搜索关键词。返回匹配的文档片段和文件路径。适用于查找 API 用法、配置说明、故障排查指南。&quot;,
+  inputSchema: {
+    type: &quot;object&quot;,
+    properties: {
+      query: {
+        type: &quot;string&quot;,
+        description: &quot;搜索关键词或短语，支持空格分隔的多关键词&quot;
+      },
+      limit: {
+        type: &quot;number&quot;,
+        description: &quot;返回结果数量，默认 5，最大 20&quot;,
+        default: 5
+      }
+    },
+    required: [&quot;query&quot;]
+  }
+}
+</code></pre>
+<hr>
+<h2>3. 从零搭建 MCP Server 实战</h2>
+<h3>3.1 Node.js 实现（推荐）</h3>
+<p>使用官方 <code>@modelcontextprotocol/sdk</code>，创建一个项目文档搜索 Server：</p>
+<pre><code class="language-bash">mkdir mcp-doc-search &amp;&amp; cd mcp-doc-search
+npm init -y
+npm install @modelcontextprotocol/sdk zod
+</code></pre>
+<pre><code class="language-typescript">// server.ts
+import { McpServer } from &quot;@modelcontextprotocol/sdk/server/mcp.js&quot;;
+import { StdioServerTransport } from &quot;@modelcontextprotocol/sdk/server/stdio.js&quot;;
+import { z } from &quot;zod&quot;;
+import fs from &quot;fs/promises&quot;;
+import path from &quot;path&quot;;
+
+const DOCS_DIR = process.env.DOCS_DIR || &quot;./docs&quot;;
+
+// 创建 MCP Server 实例
+const server = new McpServer({
+  name: &quot;doc-search&quot;,
+  version: &quot;1.0.0&quot;,
+});
+
+// 注册搜索工具
+server.tool(
+  &quot;search_docs&quot;,
+  &quot;在项目文档中搜索关键词，返回匹配的文档片段&quot;,
+  {
+    query: z.string().describe(&quot;搜索关键词&quot;),
+    limit: z.number().optional().default(5).describe(&quot;返回结果数量&quot;),
+    file_ext: z.string().optional().describe(&quot;文件扩展名过滤，如 .md&quot;),
+  },
+  async ({ query, limit, file_ext }) =&gt; {
+    const results: Array&lt;{ file: string; snippet: string; score: number }&gt; = [];
+    const keywords = query.toLowerCase().split(/\s+/);
+
+    async function searchDir(dir: string) {
+      const entries = await fs.readdir(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          await searchDir(fullPath);
+        } else if (entry.isFile()) {
+          if (file_ext &amp;&amp; !entry.name.endsWith(file_ext)) continue;
+          try {
+            const content = await fs.readFile(fullPath, &quot;utf-8&quot;);
+            const lowerContent = content.toLowerCase();
+            let score = 0;
+            for (const kw of keywords) {
+              const idx = lowerContent.indexOf(kw);
+              if (idx !== -1) {
+                score += 1;
+                // 提取上下文片段
+                const start = Math.max(0, idx - 80);
+                const end = Math.min(content.length, idx + kw.length + 80);
+                const snippet = content.slice(start, end).replace(/\n/g, &quot; &quot;);
+                results.push({
+                  file: path.relative(DOCS_DIR, fullPath),
+                  snippet: `...${snippet}...`,
+                  score,
+                });
+              }
+            }
+          } catch {
+            // 跳过无法读取的文件
+          }
+        }
+      }
+    }
+
+    await searchDir(DOCS_DIR);
+
+    // 按分数排序，返回 top N
+    results.sort((a, b) =&gt; b.score - a.score);
+    const topResults = results.slice(0, limit);
+
+    return {
+      content: [
+        {
+          type: &quot;text&quot;,
+          text: topResults.length &gt; 0
+            ? topResults
+                .map((r, i) =&gt; `### ${i + 1}. ${r.file} (score: ${r.score})\n${r.snippet}`)
+                .join(&quot;\n\n&quot;)
+            : `未找到与 &quot;${query}&quot; 相关的文档`,
+        },
+      ],
+    };
+  }
+);
+
+// 注册资源：文档目录列表
+server.resource(
+  &quot;doc-list&quot;,
+  &quot;docs://list&quot;,
+  async (uri) =&gt; {
+    const files: string[] = [];
+    async function listDir(dir: string) {
+      const entries = await fs.readdir(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          await listDir(fullPath);
+        } else {
+          files.push(path.relative(DOCS_DIR, fullPath));
+        }
+      }
+    }
+    await listDir(DOCS_DIR);
+    return {
+      contents: [
+        {
+          uri: uri.href,
+          mimeType: &quot;text/plain&quot;,
+          text: files.join(&quot;\n&quot;),
+        },
+      ],
+    };
+  }
+);
+
+// 启动 Server（stdio 传输）
+async function main() {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+  console.error(&quot;MCP Doc Search Server running on stdio&quot;);
+}
+
+main().catch(console.error);
+</code></pre>
+<p><strong>编译与运行</strong>:</p>
+<pre><code class="language-bash"># 编译 TypeScript
+npx tsc server.ts --outDir dist --target ES2022 --module NodeNext
+
+# 直接运行（需要 tsx）
+npx tsx server.ts
+
+# 通过 OpenClaw 连接测试
+mcporter call --stdio &quot;npx tsx ./server.ts&quot; search_docs query=&quot;authentication&quot; limit:3
+</code></pre>
+<h3>3.2 Python 实现</h3>
+<p>使用官方 <code>mcp</code> Python SDK：</p>
+<pre><code class="language-bash">pip install mcp
+</code></pre>
+<pre><code class="language-python"># server.py
+import os
+import glob
+from mcp.server import Server
+from mcp.server.stdio import stdio_server
+from mcp.types import Tool, TextContent, Resource
+
+DOCS_DIR = os.environ.get(&quot;DOCS_DIR&quot;, &quot;./docs&quot;)
+
+server = Server(&quot;doc-search&quot;)
+
+
+@server.list_tools()
+async def list_tools() -&gt; list[Tool]:
+    return [
+        Tool(
+            name=&quot;search_docs&quot;,
+            description=&quot;在项目文档中搜索关键词，返回匹配的文档片段&quot;,
+            inputSchema={
+                &quot;type&quot;: &quot;object&quot;,
+                &quot;properties&quot;: {
+                    &quot;query&quot;: {
+                        &quot;type&quot;: &quot;string&quot;,
+                        &quot;description&quot;: &quot;搜索关键词&quot;,
+                    },
+                    &quot;limit&quot;: {
+                        &quot;type&quot;: &quot;number&quot;,
+                        &quot;description&quot;: &quot;返回结果数量，默认 5&quot;,
+                        &quot;default&quot;: 5,
+                    },
+                },
+                &quot;required&quot;: [&quot;query&quot;],
+            },
+        ),
+        Tool(
+            name=&quot;read_doc&quot;,
+            description=&quot;读取指定文档的完整内容&quot;,
+            inputSchema={
+                &quot;type&quot;: &quot;object&quot;,
+                &quot;properties&quot;: {
+                    &quot;path&quot;: {
+                        &quot;type&quot;: &quot;string&quot;,
+                        &quot;description&quot;: &quot;相对于文档目录的文件路径&quot;,
+                    },
+                },
+                &quot;required&quot;: [&quot;path&quot;],
+            },
+        ),
+    ]
+
+
+@server.call_tool()
+async def call_tool(name: str, arguments: dict) -&gt; list[TextContent]:
+    if name == &quot;search_docs&quot;:
+        query = arguments[&quot;query&quot;].lower()
+        limit = arguments.get(&quot;limit&quot;, 5)
+        results = []
+
+        for filepath in glob.glob(f&quot;{DOCS_DIR}/**/*.md&quot;, recursive=True):
+            with open(filepath, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+                content = f.read()
+            if query in content.lower():
+                idx = content.lower().index(query)
+                start = max(0, idx - 80)
+                end = min(len(content), idx + len(query) + 80)
+                snippet = content[start:end].replace(&quot;\n&quot;, &quot; &quot;)
+                results.append(
+                    f&quot;### {os.path.relpath(filepath, DOCS_DIR)}\n...{snippet}...&quot;
+                )
+            if len(results) &gt;= limit:
+                break
+
+        text = &quot;\n\n&quot;.join(results) if results else f&#39;未找到与 &quot;{query}&quot; 相关的文档&#39;
+        return [TextContent(type=&quot;text&quot;, text=text)]
+
+    elif name == &quot;read_doc&quot;:
+        filepath = os.path.join(DOCS_DIR, arguments[&quot;path&quot;])
+        with open(filepath, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+            content = f.read()
+        return [TextContent(type=&quot;text&quot;, text=content)]
+
+    raise ValueError(f&quot;Unknown tool: {name}&quot;)
+
+
+@server.list_resources()
+async def list_resources() -&gt; list[Resource]:
+    files = []
+    for filepath in glob.glob(f&quot;{DOCS_DIR}/**/*.md&quot;, recursive=True):
+        files.append(
+            Resource(
+                uri=f&quot;file://{filepath}&quot;,
+                name=os.path.relpath(filepath, DOCS_DIR),
+                mimeType=&quot;text/markdown&quot;,
+            )
+        )
+    return files
+
+
+async def main():
+    async with stdio_server() as (read_stream, write_stream):
+        await server.run(read_stream, write_stream, server.create_initialization_options())
+
+
+if __name__ == &quot;__main__&quot;:
+    import asyncio
+    asyncio.run(main())
+</code></pre>
+<p><strong>运行与测试</strong>:</p>
+<pre><code class="language-bash"># 运行 Server
+python server.py
+
+# 通过 mcporter 测试
+mcporter call --stdio &quot;python ./server.py&quot; search_docs query=&quot;deploy&quot; limit:3
+</code></pre>
+<h3>3.3 HTTP 传输模式（Streamable HTTP）</h3>
+<p>对于需要远程访问的场景，使用 Streamable HTTP 传输：</p>
+<pre><code class="language-typescript">// http-server.ts
+import { McpServer } from &quot;@modelcontextprotocol/sdk/server/mcp.js&quot;;
+import { StreamableHTTPServerTransport } from &quot;@modelcontextprotocol/sdk/server/streamableHttp.js&quot;;
+import express from &quot;express&quot;;
+import { z } from &quot;zod&quot;;
+
+const app = express();
+app.use(express.json());
+
+const server = new McpServer({
+  name: &quot;remote-doc-search&quot;,
+  version: &quot;1.0.0&quot;,
+});
+
+server.tool(
+  &quot;search&quot;,
+  &quot;搜索文档&quot;,
+  { query: z.string(), limit: z.number().optional().default(5) },
+  async ({ query, limit }) =&gt; {
+    // 搜索逻辑...
+    return {
+      content: [{ type: &quot;text&quot;, text: `Found results for: ${query}` }],
+    };
+  }
+);
+
+// 为每个请求创建独立的 transport（无状态设计）
+app.post(&quot;/mcp&quot;, async (req, res) =&gt; {
+  const transport = new StreamableHTTPServerTransport({
+    sessionIdGenerator: undefined, // 无状态模式
+  });
+  await server.connect(transport);
+  await transport.handleRequest(req, res, req.body);
+});
+
+app.listen(3000, () =&gt; {
+  console.log(&quot;MCP HTTP Server running on :3000&quot;);
+});
+</code></pre>
+<p>在 OpenClaw 中配置远程 Server：</p>
+<pre><code class="language-json">{
+  &quot;mcp&quot;: {
+    &quot;servers&quot;: {
+      &quot;remote-docs&quot;: {
+        &quot;url&quot;: &quot;https://your-server.com/mcp&quot;,
+        &quot;transport&quot;: &quot;http&quot;,
+        &quot;headers&quot;: {
+          &quot;Authorization&quot;: &quot;Bearer your-token&quot;
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<hr>
+<h2>4. OpenClaw + MCP 工具编排案例</h2>
+<h3>4.1 案例一：文档研究工作流</h3>
+<p>将多个 MCP Server 组合，构建完整的研究工作流：</p>
+<div class="mermaid">sequenceDiagram
+    participant User
+    participant Agent as OpenClaw Agent
+    participant FS as Filesystem Server
+    participant Search as Brave Search Server
+    participant Doc as Doc Search Server
+    participant Mem as Memory Server
+    User->>Agent: "调研 RAG 最新进展，写入报告"
+    Agent->>Search: tools/call brave_web_search query="RAG 2025 latest"
+    Search-->>Agent: 搜索结果（5 篇文章摘要）
+    Agent->>Doc: tools/call search_docs query="RAG architecture"
+    Doc-->>Agent: 内部文档片段
+    Agent->>FS: tools/call read_file path="templates/report.md"
+    FS-->>Agent: 报告模板内容
+    Agent->>Agent: 综合分析 + 生成报告
+    Agent->>FS: tools/call write_file path="reports/rag-2025.md"
+    FS-->>Agent: 文件写入成功
+    Agent->>Mem: tools/call store key="rag-research" value="摘要..."
+    Mem-->>Agent: 记忆存储成功
+    Agent-->>User: "报告已生成: reports/rag-2025.md"</div>
+<p><strong>OpenClaw 配置</strong>:</p>
+<pre><code class="language-json">{
+  &quot;mcp&quot;: {
+    &quot;servers&quot;: {
+      &quot;filesystem&quot;: {
+        &quot;command&quot;: &quot;npx&quot;,
+        &quot;args&quot;: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-filesystem&quot;, &quot;/workspace&quot;],
+        &quot;transport&quot;: &quot;stdio&quot;
+      },
+      &quot;brave-search&quot;: {
+        &quot;command&quot;: &quot;npx&quot;,
+        &quot;args&quot;: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-brave-search&quot;],
+        &quot;env&quot;: { &quot;BRAVE_API_KEY&quot;: &quot;${BRAVE_API_KEY}&quot; },
+        &quot;transport&quot;: &quot;stdio&quot;
+      },
+      &quot;doc-search&quot;: {
+        &quot;command&quot;: &quot;npx&quot;,
+        &quot;args&quot;: [&quot;tsx&quot;, &quot;./servers/doc-search/server.ts&quot;],
+        &quot;env&quot;: { &quot;DOCS_DIR&quot;: &quot;/workspace/docs&quot; },
+        &quot;transport&quot;: &quot;stdio&quot;
+      },
+      &quot;memory&quot;: {
+        &quot;command&quot;: &quot;npx&quot;,
+        &quot;args&quot;: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-memory&quot;],
+        &quot;transport&quot;: &quot;stdio&quot;
+      }
+    }
+  }
+}
+</code></pre>
+<h3>4.2 案例二：数据库查询 + 通知工作流</h3>
+<pre><code class="language-json">{
+  &quot;mcp&quot;: {
+    &quot;servers&quot;: {
+      &quot;postgres&quot;: {
+        &quot;command&quot;: &quot;npx&quot;,
+        &quot;args&quot;: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-postgres&quot;],
+        &quot;env&quot;: {
+          &quot;DATABASE_URL&quot;: &quot;postgresql://readonly:pass@localhost:5432/proddb&quot;
+        },
+        &quot;transport&quot;: &quot;stdio&quot;
+      },
+      &quot;slack&quot;: {
+        &quot;url&quot;: &quot;https://mcp-slack.internal.company.com/mcp&quot;,
+        &quot;transport&quot;: &quot;http&quot;,
+        &quot;headers&quot;: {
+          &quot;Authorization&quot;: &quot;Bearer ${SLACK_MCP_TOKEN}&quot;
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<p>Agent 会话中用户说: &quot;查询上周订单总额，超过 100 万时通知销售团队&quot;</p>
+<p>Agent 自动:</p>
+<ol>
+<li>调用 <code>postgres</code> Server 的查询工具执行 SQL</li>
+<li>判断结果是否超过阈值</li>
+<li>调用 <code>slack</code> Server 发送通知消息</li>
+</ol>
+<h3>4.3 案例三：代码审查自动化</h3>
+<p>结合 GitHub MCP Server 和自定义代码分析 Server：</p>
+<pre><code class="language-json">{
+  &quot;mcp&quot;: {
+    &quot;servers&quot;: {
+      &quot;github&quot;: {
+        &quot;command&quot;: &quot;npx&quot;,
+        &quot;args&quot;: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-github&quot;],
+        &quot;env&quot;: { &quot;GITHUB_TOKEN&quot;: &quot;${GITHUB_TOKEN}&quot; },
+        &quot;transport&quot;: &quot;stdio&quot;
+      },
+      &quot;code-review&quot;: {
+        &quot;command&quot;: &quot;python&quot;,
+        &quot;args&quot;: [&quot;./servers/code-review/server.py&quot;],
+        &quot;transport&quot;: &quot;stdio&quot;
+      }
+    }
+  }
+}
+</code></pre>
+<p><strong>工作流</strong>: 用户触发 → Agent 获取 PR diff → 代码分析 Server 审查 → 生成审查意见 → GitHub Server 提交 Review Comment</p>
+<h3>4.4 工具编排策略</h3>
+<p>OpenClaw Agent 在面对多个可用工具时，采用以下策略进行编排：</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>说明</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>顺序调用</strong></td>
+<td>按依赖关系依次调用</td>
+<td>数据依赖（先查询再分析）</td>
+</tr>
+<tr>
+<td><strong>并行调用</strong></td>
+<td>同时发起多个独立调用</td>
+<td>多源数据收集</td>
+</tr>
+<tr>
+<td><strong>条件调用</strong></td>
+<td>根据上一步结果决定下一步</td>
+<td>阈值判断、分支逻辑</td>
+</tr>
+<tr>
+<td><strong>迭代调用</strong></td>
+<td>循环调用直到满足条件</td>
+<td>分页数据拉取、重试</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>5. 安全边界与最佳实践</h2>
+<h3>5.1 安全架构</h3>
+<div class="mermaid">graph LR
+    subgraph Trusted["可信区域"]
+        Agent["OpenClaw Agent"]
+        Config["配置文件"]
+    end
+    subgraph Boundary["安全边界"]
+        Auth["认证层<br>(OAuth / Token)"]
+        RBAC["权限控制<br>(路径/操作白名单)"]
+        Audit["审计日志"]
+        Sandbox["沙箱执行<br>(Docker / chroot)"]
+    end
+    subgraph External["外部 MCP Server"]
+        S1["stdio Server<br>(本地)"]
+        S2["HTTP Server<br>(远程)"]
+    end
+    Agent --> Auth
+    Auth --> RBAC
+    RBAC --> Sandbox
+    Sandbox --> S1
+    Auth --> S2
+    RBAC --> Audit</div>
+<h3>5.2 核心安全原则</h3>
+<p><strong>原则一：最小权限</strong></p>
+<p>每个 MCP Server 只应获得完成任务所需的最小权限：</p>
+<pre><code class="language-json">{
+  &quot;filesystem&quot;: {
+    &quot;command&quot;: &quot;npx&quot;,
+    &quot;args&quot;: [
+      &quot;-y&quot;, &quot;@modelcontextprotocol/server-filesystem&quot;,
+      &quot;/workspace/reports&quot;
+    ],
+    &quot;_comment&quot;: &quot;只允许访问 reports 目录，而非整个文件系统&quot;
+  }
+}
+</code></pre>
+<p><strong>原则二：只读优先</strong></p>
+<p>生产环境中的数据库 Server 应使用只读账号：</p>
+<pre><code class="language-json">{
+  &quot;postgres&quot;: {
+    &quot;env&quot;: {
+      &quot;DATABASE_URL&quot;: &quot;postgresql://readonly_user:pass@prod-db:5432/app&quot;
+    }
+  }
+}
+</code></pre>
+<p><strong>原则三：网络隔离</strong></p>
+<p>远程 MCP Server 应限制网络访问范围：</p>
+<pre><code class="language-bash"># iptables 示例：限制 MCP Server 只能访问特定端口
+iptables -A OUTPUT -m owner --uid-owner mcp-user -p tcp --dport 443 -d mcp-internal.company.com -j ACCEPT
+iptables -A OUTPUT -m owner --uid-owner mcp-user -j DROP
+</code></pre>
+<h3>5.3 认证与授权</h3>
+<p><strong>OAuth 2.1 集成</strong>（MCP 规范推荐）:</p>
+<pre><code class="language-typescript">// 远程 Server 的 OAuth 配置示例
+{
+  &quot;url&quot;: &quot;https://api.company.com/mcp&quot;,
+  &quot;transport&quot;: &quot;http&quot;,
+  &quot;auth&quot;: {
+    &quot;type&quot;: &quot;oauth2&quot;,
+    &quot;clientId&quot;: &quot;openclaw-agent&quot;,
+    &quot;tokenUrl&quot;: &quot;https://auth.company.com/oauth/token&quot;,
+    &quot;scopes&quot;: [&quot;mcp:read&quot;, &quot;mcp:write&quot;]
+  }
+}
+</code></pre>
+<p><strong>Token 轮换</strong>:</p>
+<pre><code class="language-bash"># 使用 mcporter 管理 OAuth Token
+mcporter auth https://api.company.com/mcp --reset
+mcporter auth https://api.company.com/mcp
+</code></pre>
+<h3>5.4 安全检查清单</h3>
+<table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Server 来源验证</td>
+<td>必须</td>
+<td>只使用官方或可信来源的 MCP Server</td>
+</tr>
+<tr>
+<td>依赖锁定</td>
+<td>必须</td>
+<td>使用 lockfile 锁定依赖版本</td>
+</tr>
+<tr>
+<td>权限最小化</td>
+<td>必须</td>
+<td>限制文件路径、数据库权限、API Scope</td>
+</tr>
+<tr>
+<td>网络隔离</td>
+<td>推荐</td>
+<td>限制 Server 的出站网络访问</td>
+</tr>
+<tr>
+<td>审计日志</td>
+<td>推荐</td>
+<td>记录所有工具调用和返回值</td>
+</tr>
+<tr>
+<td>返回值校验</td>
+<td>推荐</td>
+<td>对工具返回内容做异常检测</td>
+</tr>
+<tr>
+<td>速率限制</td>
+<td>推荐</td>
+<td>限制工具调用频率</td>
+</tr>
+<tr>
+<td>沙箱执行</td>
+<td>高安全</td>
+<td>在 Docker 容器中运行 Server</td>
+</tr>
+<tr>
+<td>人工审批</td>
+<td>高安全</td>
+<td>敏感操作需用户确认</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>📖 详细安全分析参见: <a href="../tools/mcp-ecosystem.md#6-%E5%AE%89%E5%85%A8%E9%A3%8E%E9%99%A9%E4%B8%8E%E7%BC%93%E8%A7%A3%E7%AD%96%E7%95%A5">MCP 协议生态深度分析 - 安全风险</a></p>
+</blockquote>
+<hr>
+<h2>6. 故障排查与性能优化</h2>
+<h3>6.1 常见问题排查</h3>
+<h4>问题一：MCP Server 启动失败</h4>
+<p><strong>症状</strong>: <code>mcporter list</code> 显示 Server 状态为 disconnected</p>
+<p><strong>排查步骤</strong>:</p>
+<pre><code class="language-bash"># 1. 手动运行 Server 看报错
+npx -y @modelcontextprotocol/server-filesystem /workspace
+
+# 2. 检查 Node.js 版本
+node --version  # 需要 v20+
+
+# 3. 检查环境变量
+echo $GITHUB_TOKEN
+
+# 4. 查看 OpenClaw 日志
+openclaw gateway logs --follow | grep -i mcp
+</code></pre>
+<h4>问题二：工具调用返回空结果</h4>
+<p><strong>症状</strong>: Agent 调用工具后收到空响应</p>
+<p><strong>排查</strong>:</p>
+<pre><code class="language-bash"># 直接用 mcporter 测试工具
+mcporter call --stdio &quot;npx tsx ./server.ts&quot; search_docs query=&quot;test&quot; --output json
+
+# 检查 Server 的 stderr 输出
+mcporter call --stdio &quot;npx tsx ./server.ts 2&gt;&amp;1&quot; search_docs query=&quot;test&quot;
+</code></pre>
+<h4>问题三：远程 Server 连接超时</h4>
+<p><strong>症状</strong>: HTTP MCP Server 响应慢或超时</p>
+<p><strong>排查</strong>:</p>
+<pre><code class="language-bash"># 测试网络连通性
+curl -X POST https://your-server.com/mcp \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:1,&quot;method&quot;:&quot;tools/list&quot;,&quot;params&quot;:{}}&#39;
+
+# 检查 TLS 证书
+openssl s_client -connect your-server.com:443
+</code></pre>
+<h4>问题四：工具描述不准确导致 Agent 选错工具</h4>
+<p><strong>症状</strong>: Agent 在应该用工具 A 时调用了工具 B</p>
+<p><strong>解决</strong>: 优化 Server 端的工具 <code>description</code> 字段，使其更具体、更区分性：</p>
+<pre><code class="language-typescript">// 差的描述
+description: &quot;读取文件&quot;
+
+// 好的描述
+description: &quot;读取本地文件的完整文本内容。适用于查看配置文件、代码文件、日志文件的内容。如果只需要搜索关键词，请使用 search_docs 工具。&quot;
+</code></pre>
+<h3>6.2 性能优化</h3>
+<h4>优化一：减少工具描述 Token</h4>
+<p>当 Server 暴露大量工具时，工具描述会占用大量 System Prompt Token。</p>
+<pre><code class="language-typescript">// 策略：按需注册工具
+// Server 端支持 filter 参数
+server.tool(
+  &quot;list_tools_filtered&quot;,
+  { category: z.enum([&quot;file&quot;, &quot;db&quot;, &quot;api&quot;]) },
+  async ({ category }) =&gt; {
+    // 只返回特定类别的工具
+  }
+);
+</code></pre>
+<h4>优化二：stdio Server 连接复用</h4>
+<p>OpenClaw Gateway 默认保持 stdio Server 进程运行，避免每次调用都 spawn 新进程：</p>
+<pre><code class="language-json">{
+  &quot;mcp&quot;: {
+    &quot;servers&quot;: {
+      &quot;my-server&quot;: {
+        &quot;command&quot;: &quot;node&quot;,
+        &quot;args&quot;: [&quot;./server.js&quot;],
+        &quot;transport&quot;: &quot;stdio&quot;,
+        &quot;keepAlive&quot;: true,
+        &quot;maxIdleMs&quot;: 300000
+      }
+    }
+  }
+}
+</code></pre>
+<h4>优化三：批量调用</h4>
+<p>对于需要多次调用同一工具的场景，考虑在 Server 端实现批量接口：</p>
+<pre><code class="language-typescript">// 批量读取文件
+server.tool(
+  &quot;read_files_batch&quot;,
+  &quot;批量读取多个文件的内容&quot;,
+  {
+    paths: z.array(z.string()).describe(&quot;文件路径列表&quot;),
+  },
+  async ({ paths }) =&gt; {
+    const results = await Promise.all(
+      paths.map(async (p) =&gt; {
+        const content = await fs.readFile(p, &quot;utf-8&quot;);
+        return { path: p, content };
+      })
+    );
+    return {
+      content: [{ type: &quot;text&quot;, text: JSON.stringify(results, null, 2) }],
+    };
+  }
+);
+</code></pre>
+<h4>优化四：缓存层</h4>
+<p>对于不变或变化缓慢的数据，在 Client 端添加缓存：</p>
+<pre><code class="language-typescript">// OpenClaw Skill 中的缓存示例
+const toolCache = new Map&lt;string, { data: any; timestamp: number }&gt;();
+const CACHE_TTL = 60_000; // 1 分钟
+
+async function cachedToolCall(server: string, tool: string, args: any) {
+  const key = `${server}.${tool}:${JSON.stringify(args)}`;
+  const cached = toolCache.get(key);
+  if (cached &amp;&amp; Date.now() - cached.timestamp &lt; CACHE_TTL) {
+    return cached.data;
+  }
+  const result = await mcporter.call(`${server}.${tool}`, args);
+  toolCache.set(key, { data: result, timestamp: Date.now() });
+  return result;
+}
+</code></pre>
+<h3>6.3 监控与可观测性</h3>
+<p><strong>关键指标</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>说明</th>
+<th>告警阈值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>工具调用延迟</td>
+<td>从发起调用到收到结果的时间</td>
+<td>&gt; 5s</td>
+</tr>
+<tr>
+<td>工具调用成功率</td>
+<td>成功调用占总调用的比例</td>
+<td>&lt; 95%</td>
+</tr>
+<tr>
+<td>Server 可用性</td>
+<td>Server 进程/连接是否存活</td>
+<td>连续 3 次失败</td>
+</tr>
+<tr>
+<td>工具调用频率</td>
+<td>每分钟调用次数</td>
+<td>&gt; 100/min</td>
+</tr>
+<tr>
+<td>Token 消耗</td>
+<td>工具描述占用的 Token 数</td>
+<td>&gt; 2000 tokens</td>
+</tr>
+</tbody></table>
+<p><strong>日志配置</strong>:</p>
+<pre><code class="language-bash"># OpenClaw Gateway 开启 MCP 调试日志
+OPENCLAW_LOG_LEVEL=debug openclaw gateway start
+
+# 过滤 MCP 相关日志
+openclaw gateway logs | grep &quot;MCP\|mcp\|tool&quot;
+</code></pre>
+<hr>
+<h2>总结</h2>
+<p>OpenClaw + MCP 的集成模式为 AI Agent 提供了一种标准化、可扩展的工具接入方式。核心优势在于：</p>
+<ol>
+<li><strong>协议标准化</strong> — MCP 的 JSON-RPC 2.0 基础让工具集成不再依赖各厂商私有 API</li>
+<li><strong>双通道 Client</strong> — Gateway 内置 Client 处理持久连接，mcporter CLI 提供调试和脚本能力</li>
+<li><strong>灵活传输</strong> — stdio 适合本地工具，Streamable HTTP 适合远程服务</li>
+<li><strong>安全可控</strong> — 通过路径白名单、只读模式、网络隔离等手段控制安全边界</li>
+<li><strong>生态丰富</strong> — 1000+ 开源 MCP Server 覆盖主流开发场景</li>
+</ol>
+<p><strong>建议路径</strong>: 从 stdio + 官方 Server 起步 → 自定义 Server 解决特定需求 → 逐步引入远程 Server 和认证机制 → 构建多 Server 编排工作流。</p>
+<hr>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <div class="ref"><span class="ref-grade grade-a">A</span><a href="https://modelcontextprotocol.io" target="_blank" rel="noopener">MCP 官方文档</a> — 协议规范与 SDK</div>
+<div class="ref"><span class="ref-grade grade-a">A</span><a href="https://spec.modelcontextprotocol.io" target="_blank" rel="noopener">MCP Specification</a> — 完整协议规范（含 Streamable HTTP）</div>
+<div class="ref"><span class="ref-grade grade-a">A</span><a href="https://github.com/modelcontextprotocol/typescript-sdk" target="_blank" rel="noopener">MCP TypeScript SDK</a> — 官方 TS SDK</div>
+<div class="ref"><span class="ref-grade grade-a">A</span><a href="https://github.com/modelcontextprotocol/python-sdk" target="_blank" rel="noopener">MCP Python SDK</a> — 官方 Python SDK</div>
+<div class="ref"><span class="ref-grade grade-a">A</span><a href="https://docs.openclaw.ai" target="_blank" rel="noopener">OpenClaw 文档</a> — OpenClaw 平台文档</div>
+<div class="ref"><span class="ref-grade grade-a">A</span><a href="https://docs.openclaw.ai" target="_blank" rel="noopener">OpenClaw mcporter 技能</a> — MCP CLI 工具使用指南</div>
+<div class="ref"><span class="ref-grade grade-a">A</span><a href="https://www.anthropic.com/news/model-context-protocol" target="_blank" rel="noopener">Anthropic MCP 公告</a> — MCP 发布背景</div>
+<div class="ref"><span class="ref-grade grade-a">A</span><a href="https://mcp.so" target="_blank" rel="noopener">mcp.so</a> / <a href="https://glama.ai/mcp/servers" target="_blank" rel="noopener">glama.ai/mcp/servers</a> — 社区 Server 目录</div>
+<div class="ref"><span class="ref-grade grade-a">A</span><a href="../tools/mcp-ecosystem.md" target="_blank" rel="noopener">MCP 协议生态深度分析</a> — MCP 协议全面分析</div>
+<div class="ref"><span class="ref-grade grade-a">A</span><a href="../tools/openclaw-guide.md" target="_blank" rel="noopener">OpenClaw 深度使用指南</a> — OpenClaw 平台完整指南</div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true, theme:"dark", securityLevel:"loose"});</script>
+</body>
+</html>
