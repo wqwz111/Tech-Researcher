@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw 全渠道接入实战指南</title>
+<style>
+:root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+body {
+    background: var(--bg-primary); color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
+    transition: background .3s, color .3s;
+}
+.top-nav {
+    background: var(--bg-secondary); padding: .6rem 1rem; border-radius: 8px;
+    margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
+    border: 1px solid var(--border-color);
+}
+.top-nav a { color: var(--accent-secondary); text-decoration: none; }
+.top-nav a:hover { text-decoration: underline; }
+.top-nav .sep { color: var(--text-muted); }
+.theme-btn {
+    background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 20px;
+    padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
+    transition: border-color .2s;
+}
+.theme-btn:hover { border-color: var(--accent-primary); }
+.meta {
+    background: var(--bg-secondary); border-left: 4px solid var(--accent-primary);
+    padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
+}
+.meta h1 { color: var(--accent-primary); margin: 0 0 .5rem; font-size: 1.6rem; }
+.meta .info { color: var(--text-muted); font-size: .85rem; }
+.toc {
+    background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px;
+    padding: 1rem 1.5rem; margin-bottom: 2rem;
+}
+.toc h2 { color: var(--accent-secondary); font-size: 1rem; margin-bottom: .5rem; border: none; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: .2rem 0; font-size: .9rem; }
+.toc a { color: var(--accent-secondary); text-decoration: none; }
+h1 { color: var(--accent-primary); border-bottom: 2px solid var(--border-color); padding-bottom: .5rem; }
+h2 { color: var(--accent-secondary); margin-top: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: .3rem; }
+h3 { color: var(--accent-secondary); margin-top: 1.8rem; }
+a { color: var(--link); }
+code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
+pre {
+    background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
+    overflow-x: auto; max-width: 100%; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
+}
+pre code { background: none; color: var(--text-primary); }
+pre .lang-label {
+    position: absolute; top: 0; right: 0; background: var(--border-color);
+    color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
+}
+.mermaid { background: var(--bg-secondary); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+blockquote {
+    border-left: 4px solid var(--accent-primary); margin: 1.5rem 0; padding: .8rem 1.2rem;
+    background: var(--bg-secondary); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
+th, td { border: 1px solid var(--border-color); padding: .7rem 1rem; text-align: left; }
+th { background: var(--bg-secondary); color: var(--accent-secondary); }
+tr:nth-child(even) { background: var(--bg-secondary); }
+hr { border: none; border-top: 1px solid var(--border-color); margin: 2.5rem 0; }
+strong { color: var(--text-primary); }
+.footer {
+    text-align: center; color: var(--text-muted); padding: 2rem 0 1rem;
+    border-top: 1px solid var(--border-color); margin-top: 3rem; font-size: .85rem;
+}
+.footer a { color: var(--link); }
+@media print {
+    body { background: #fff; color: #000; max-width: 100%; }
+    .top-nav, .toc { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="top-nav">
+<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
+<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
+<span style="color:var(--text-muted)">📊 案例实践</span>
+<button class="theme-btn" onclick="toggleTheme()" title="切换日夜模式"><span id="themeIcon">☀️</span></button>
+</div>
+<div class="meta">
+<h1>OpenClaw 全渠道接入实战指南</h1>
+<div class="info">2026-03-16 · 分类: 📊 案例实践 · 作者: 探针</div>
+</div>
+
+<div class="breadcrumb">
+  <a href="../index.html">← 返回报告索引</a>
+</div>
+
+<div class="toc">
+<h2>📑 目录</h2>
+<ul>
+<li><a href="#executive-summary">Executive Summary</a></li>
+<li><a href="#1-渠道全景">1. 渠道全景</a></li>
+<li><a href="#2-主流渠道深度配置">2. 主流渠道深度配置</a></li>
+<li><a href="#3-多渠道统一管理">3. 多渠道统一管理</a></li>
+<li><a href="#4-企业级场景">4. 企业级场景</a></li>
+<li><a href="#5-故障排查">5. 故障排查</a></li>
+<li><a href="#参考来源">参考来源</a></li>
+</ul>
+</div>
+
+<p>> <strong>发布日期</strong>: 2026-03-16<br>
+> <strong>分类</strong>: 案例实践<br>
+> <strong>作者</strong>: 探针</p>
+
+<hr>
+
+<h2 id="executive-summary">Executive Summary</h2>
+
+<p>OpenClaw 是目前开源 AI Agent 领域中渠道覆盖最广的框架之一，原生支持 <strong>22 个通讯平台</strong>（截至 2026 年 3 月），从大众化的 WhatsApp/Telegram 到企业级的 Microsoft Teams/Slack，再到隐私导向的 Signal，几乎覆盖了全球主流 IM 生态。本文基于 OpenClaw 官方文档和实际部署经验，深入分析各渠道的技术实现差异（Baileys / grammY / Discord Gateway / signal-cli）、统一的路由与会话隔离机制、多账号管理策略，以及企业级多渠道路由（Binding）的最佳实践。</p>
+
+<p><strong>核心结论</strong>：</p>
+<li><strong>Telegram 是最快的入门渠道</strong>：纯 Bot Token 即可，5 分钟上手</li>
+<li><strong>WhatsApp 是用户基数最大的渠道</strong>：但需要 QR 配对，状态管理较重</li>
+<li><strong>Signal 是隐私最强的渠道</strong>：但依赖 signal-cli 外部进程，注册流程复杂</li>
+<li><strong>Discord 是团队协作最灵活的渠道</strong>：Guild + Forum + 线程绑定，支持语音</li>
+<li><strong>Slack 是企业集成最成熟的渠道</strong>：原生 Streaming 支持，Block Kit 交互</li>
+
+<hr>
+
+<h2 id="1-渠道全景">1. 渠道全景</h2>
+
+<h3 id="11-支持渠道列表">1.1 支持渠道列表（22 个）</h3>
+
+<p>OpenClaw 的渠道生态分为<strong>内置渠道</strong>和<strong>插件渠道</strong>两类：</p>
+
+<p><strong>内置渠道</strong>（开箱即用）：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>渠道</th><th>技术栈</th><th>连接模式</th><th>状态</th></tr>
+</thead>
+<tbody>
+<tr><td>WhatsApp</td><td>Baileys</td><td>WebSocket + QR 配对</td><td>生产就绪</td></tr>
+<tr><td>Telegram</td><td>grammY</td><td>Long Polling / Webhook</td><td>生产就绪</td></tr>
+<tr><td>Discord</td><td>Discord.js Gateway</td><td>WebSocket</td><td>生产就绪</td></tr>
+<tr><td>Slack</td><td>Bolt SDK</td><td>Socket Mode / HTTP Events</td><td>生产就绪</td></tr>
+<tr><td>Signal</td><td>signal-cli</td><td>JSON-RPC + SSE</td><td>生产就绪</td></tr>
+<tr><td>BlueBubbles (iMessage)</td><td>REST API</td><td>HTTP</td><td>生产就绪</td></tr>
+<tr><td>iMessage (legacy)</td><td>imsg CLI</td><td>本地</td><td>已弃用</td></tr>
+<tr><td>IRC</td><td>IRC 协议</td><td>TCP Socket</td><td>生产就绪</td></tr>
+<tr><td>WebChat</td><td>WebSocket</td><td>内置 UI</td><td>生产就绪</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>插件渠道</strong>（需单独安装）：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>渠道</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td>Feishu / Lark</td><td>飞书/钉钉国际化版，WebSocket</td></tr>
+<tr><td>Google Chat</td><td>Google Workspace 通讯</td></tr>
+<tr><td>LINE</td><td>日本/东南亚主流 IM</td></tr>
+<tr><td>Matrix</td><td>去中心化通讯协议</td></tr>
+<tr><td>Mattermost</td><td>开源企业 Slack 替代</td></tr>
+<tr><td>Microsoft Teams</td><td>企业协作，Bot Framework</td></tr>
+<tr><td>Nextcloud Talk</td><td>自托管通讯</td></tr>
+<tr><td>Nostr</td><td>去中心化 DM (NIP-04)</td></tr>
+<tr><td>Synology Chat</td><td>群晖 NAS 通讯</td></tr>
+<tr><td>Tlon</td><td>Urbit 通讯</td></tr>
+<tr><td>Twitch</td><td>直播平台聊天 (IRC)</td></tr>
+<tr><td>Zalo</td><td>越南主流 IM</td></tr>
+<tr><td>Zalo Personal</td><td>Zalo 个人账号 QR 登录</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="12-技术分类">1.2 技术分类</h3>
+
+<p>按连接模式分类：</p>
+<li><strong>WebSocket（全双工）</strong>：WhatsApp (Baileys)、Discord Gateway、Feishu</li>
+<li><strong>Long Polling</strong>：Telegram (grammY runner，默认模式)</li>
+<li><strong>Webhook (HTTP)</strong>：Telegram（可选）、Slack HTTP Mode、Google Chat、Synology Chat</li>
+<li><strong>Socket Mode</strong>：Slack（默认，WebSocket 封装）</li>
+<li><strong>JSON-RPC + SSE</strong>：signal-cli 进程通信</li>
+<li><strong>REST API</strong>：BlueBubbles (iMessage)、Twitch (IRC 桥接)</li>
+<li><strong>原生 TCP</strong>：IRC</li>
+
+<h3 id="13-架构图">1.3 架构图：渠道 → Gateway → Agent</h3>
+
+<div class="mermaid">
+flowchart TD
+subgraph ExternalChannels
+    WA[WhatsApp]
+    TG[Telegram]
+    DC[Discord]
+    SL[Slack]
+    SG[Signal]
+    IM[iMessage]
+    IC[IRC]
+    WC[WebChat]
+end
+
+subgraph OpenClawGateway
+    GW[Gateway Core]
+    Router[Channel Router]
+    SessionMgr[Session Manager]
+    BindingEngine[Binding Engine]
+end
+
+subgraph AgentLayer
+    Main[Main Agent]
+    Agent1[Agent: support]
+    Agent2[Agent: coder]
+    Agent3[Agent: research]
+end
+
+WA --> GW
+TG --> GW
+DC --> GW
+SL --> GW
+SG --> GW
+IM --> GW
+IC --> GW
+WC --> GW
+
+GW --> Router
+Router --> BindingEngine
+BindingEngine --> Main
+BindingEngine --> Agent1
+BindingEngine --> Agent2
+BindingEngine --> Agent3
+Router --> SessionMgr
+</div>
+
+<hr>
+
+<h2 id="2-主流渠道深度配置">2. 主流渠道深度配置</h2>
+
+<h3 id="21-whatsapp">2.1 WhatsApp（Baileys）</h3>
+
+<p><strong>技术原理</strong>：基于 whatsapp-web.js 生态的 <a href="https://github.com/WhiskeySockets/Baileys">Baileys</a> 库，通过 WebSocket 模拟 WhatsApp Web 客户端。Gateway 持有 WhatsApp socket 并管理重连循环。</p>
+
+<p><strong>配置步骤</strong>：</p>
+<pre><code class="language-json5">{
+  channels: {
+    whatsapp: {
+      dmPolicy: "allowlist",
+      allowFrom: ["+15551234567"],
+      groupPolicy: "allowlist",
+      groupAllowFrom: ["+15551234567"],
+    },
+  },
+}</code></pre>
+
+<pre><code class="language-bash"># QR 配对
+openclaw channels login --channel whatsapp
+
+# 启动 Gateway
+openclaw gateway</code></pre>
+
+<p><strong>常见坑</strong>：</p>
+<li><strong>必须使用 Node 运行时</strong>：Bun 对 WhatsApp 不兼容</li>
+<li><strong>QR 配对会过期</strong>：需要定期重连</li>
+<li><strong>个人号码自聊保护</strong>：自聊模式需显式配置 <code>selfChatMode: true</code></li>
+<li><strong>群组历史注入</strong>：默认缓冲 50 条未处理消息作为上下文，可通过 <code>historyLimit</code> 调整</li>
+<li><strong>媒体大小限制</strong>：默认 50MB，超出会自动优化图片</li>
+<li><strong>凭据存储路径</strong>：<code>~/.openclaw/credentials/whatsapp/&lt;accountId&gt;/creds.json</code></li>
+
+<h3 id="22-telegram">2.2 Telegram（grammY）</h3>
+
+<p><strong>技术原理</strong>：使用 <a href="https://grammy.dev/">grammY</a> 框架（Telegram Bot API 的现代 Node.js 封装），默认 Long Polling 模式，可选 Webhook。</p>
+
+<p><strong>配置步骤</strong>：</p>
+<li>通过 @BotFather 创建 Bot 并获取 Token</li>
+<li>配置 OpenClaw：</li>
+
+<pre><code class="language-json5">{
+  channels: {
+    telegram: {
+      enabled: true,
+      botToken: "123:abc",
+      dmPolicy: "pairing",
+      groups: { "*": { requireMention: true } },
+    },
+  },
+}</code></pre>
+
+<li>启动 Gateway，发送第一条 DM 消息并审批配对码</li>
+
+<p><strong>常见坑</strong>：</p>
+<li><strong>Telegram 隐私模式</strong>：默认看不到群组非命令消息，需在 @BotFather 中 <code>/setprivacy</code> 禁用，或设为群管理员</li>
+<li><strong>IPv6 连接问题</strong>：部分 VPS 上 <code>api.telegram.org</code> 的 IPv6 解析不稳定，可通过 <code>dnsResultOrder: "ipv4first"</code> 或设置 proxy 解决</li>
+<li><strong>Bot 命令溢出</strong>：<code>setMyCommands</code> 失败时需要减少插件/技能命令数量</li>
+<li><strong>Webhook 模式</strong>：需要 <code>webhookSecret</code> 和公网可访问的 URL</li>
+<li><strong>Forum Topic 支持</strong>：每个 Topic 可路由到不同 Agent（通过 <code>agentId</code>）</li>
+
+<h3 id="23-discord">2.3 Discord（Discord.js Gateway）</h3>
+
+<p><strong>技术原理</strong>：基于官方 Discord Gateway 协议，WebSocket 全双工通信。</p>
+
+<p><strong>配置步骤</strong>：</p>
+<li>在 <a href="https://discord.com/developers/applications">Discord Developer Portal</a> 创建应用</li>
+<li>启用 <strong>Message Content Intent</strong> 和 <strong>Server Members Intent</strong></li>
+<li>配置 OAuth2 权限并邀请 Bot 到服务器</li>
+
+<pre><code class="language-json5">{
+  channels: {
+    discord: {
+      enabled: true,
+      token: "YOUR_BOT_TOKEN",
+    },
+  },
+}</code></pre>
+
+<p><strong>常见坑</strong>：</p>
+<li><strong>Intent 未启用</strong>：Message Content Intent 是必须的，否则 Bot 看不到消息内容</li>
+<li><strong>Guild 白名单</strong>：需显式添加 Server ID 到 <code>guilds</code> 配置</li>
+<li><strong>DM 隐私设置</strong>：需在服务器隐私设置中允许 DM</li>
+<li><strong>Group DM 默认忽略</strong>：<code>dm.groupEnabled=false</code>，需显式开启</li>
+<li><strong>线程绑定</strong>：支持 <code>/focus</code> 命令将线程绑定到子 Agent 会话</li>
+<li><strong>语音频道</strong>：支持实时语音对话，需额外配置 <code>voice</code> 段</li>
+
+<h3 id="24-signal">2.4 Signal（signal-cli）</h3>
+
+<p><strong>技术原理</strong>：通过 <a href="https://github.com/AsamK/signal-cli">signal-cli</a> 进程提供 JSON-RPC + SSE 接口，Gateway 与其通信。</p>
+
+<p><strong>配置步骤</strong>：</p>
+
+<pre><code class="language-bash"># 安装 signal-cli
+VERSION=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/AsamK/signal-cli/releases/latest | sed -e 's/^.*\/v//')
+curl -L -O "https://github.com/AsamK/signal-cli/releases/download/v${VERSION}/signal-cli-${VERSION}-Linux-native.tar.gz"
+sudo tar xf "signal-cli-${VERSION}-Linux-native.tar.gz" -C /opt
+sudo ln -sf /opt/signal-cli /usr/local/bin/
+
+# 注册号码（需要 SMS 验证码 + Captcha）
+signal-cli -a +<BOT_PHONE_NUMBER> register --captcha '&lt;SIGNALCAPTCHA_URL&gt;'
+signal-cli -a +<BOT_PHONE_NUMBER> verify &lt;VERIFICATION_CODE&gt;</code></pre>
+
+<pre><code class="language-json5">{
+  channels: {
+    signal: {
+      enabled: true,
+      account: "+15551234567",
+      cliPath: "signal-cli",
+      dmPolicy: "pairing",
+      allowFrom: ["+15557654321"],
+    },
+  },
+}</code></pre>
+
+<p><strong>常见坑</strong>：</p>
+<li><strong>需独立号码</strong>：注册新号码会注销该号码的 Signal 主客户端</li>
+<li><strong>Captcha 流程</strong>：需从 <a href="https://signalcaptchas.org">signalcaptchas.org</a> 获取，且需在同一 IP 注册</li>
+<li><strong>Java 依赖</strong>：若用 JVM 版本需要 JRE 25+</li>
+<li><strong>旧版 signal-cli 会失效</strong>：Signal 服务端 API 变更可能导致旧版无法使用</li>
+<li><strong>媒体大小限制</strong>：默认仅 8MB（比其他渠道小）</li>
+<li><strong>外部守护进程模式</strong>：可通过 <code>httpUrl</code> 指向自行管理的 signal-cli 实例</li>
+
+<h3 id="25-imessage">2.5 iMessage / BlueBubbles</h3>
+
+<p><strong>技术原理</strong>：推荐使用 <a href="https://bluebubbles.app/">BlueBubbles</a>（macOS 服务端 REST API），完整支持编辑、撤回、特效、表情回应。</p>
+
+<p><strong>配置</strong>：通过 BlueBubbles 插件安装，配置 macOS 服务端地址。</p>
+
+<p><strong>常见坑</strong>：</p>
+<li><strong>需要 macOS 设备</strong>：BlueBubbles 服务端必须运行在 macOS 上</li>
+<li><strong>macOS 26 Tahoe</strong>：编辑功能在最新 macOS 上暂时不可用</li>
+<li><strong>旧版 iMessage（imsg CLI）已弃用</strong>：新部署应使用 BlueBubbles</li>
+
+<h3 id="26-slack">2.6 Slack</h3>
+
+<p><strong>技术原理</strong>：基于 Slack Bolt SDK，默认 Socket Mode（WebSocket 封装），可选 HTTP Events API 模式。</p>
+
+<p><strong>配置步骤</strong>：</p>
+<li>创建 Slack App 并启用 Socket Mode</li>
+<li>创建 App Token（<code>xapp-...</code>）和 Bot Token（<code>xoxb-...</code>）</li>
+<li>订阅事件：<code>app_mention</code>, <code>message.channels/groups/im/mpim</code> 等</li>
+
+<pre><code class="language-json5">{
+  channels: {
+    slack: {
+      enabled: true,
+      mode: "socket",
+      appToken: "xapp-...",
+      botToken: "xoxb-...",
+    },
+  },
+}</code></pre>
+
+<p><strong>常见坑</strong>：</p>
+<li><strong>Socket Mode vs HTTP Mode</strong>：Socket Mode 无需公网暴露，但 HTTP Mode 更适合企业部署</li>
+<li><strong>Native Commands 默认关闭</strong>：Slack 的 <code>commands.native: "auto"</code> 不会自动启用，需显式 <code>true</code></li>
+<li><strong>Streaming 支持</strong>：通过 Agents and AI Apps API 实现原生流式输出</li>
+<li><strong>Thread 历史继承</strong>：默认不继承父频道上下文（<code>thread.inheritParent: false</code>）</li>
+
+<hr>
+
+<h2 id="3-多渠道统一管理">3. 多渠道统一管理</h2>
+
+<h3 id="31-binding-路由">3.1 Binding 路由：不同渠道 → 不同 Agent</h3>
+
+<p>OpenClaw 的 Binding 引擎支持精细的路由规则，匹配优先级如下：</p>
+<li><strong>精确 Peer 匹配</strong>（<code>peer.kind</code> + <code>peer.id</code>）</li>
+<li><strong>父 Peer 匹配</strong>（线程继承）</li>
+<li><strong>Guild + Roles 匹配</strong>（Discord）</li>
+<li><strong>Guild 匹配</strong>（Discord）</li>
+<li><strong>Team 匹配</strong>（Slack）</li>
+<li><strong>Account 匹配</strong></li>
+<li><strong>Channel 匹配</strong></li>
+<li><strong>默认 Agent</strong></li>
+
+<p><strong>配置示例</strong>：</p>
+
+<pre><code class="language-json5">{
+  agents: {
+    list: [
+      { id: "support", name: "客服", workspace: "~/.openclaw/workspace-support" },
+      { id: "coder", name: "代码", workspace: "~/.openclaw/workspace-coder" },
+      { id: "main", name: "主编", workspace: "~/.openclaw/workspace-chief-editor", default: true },
+    ],
+  },
+  bindings: [
+    // Slack 某个 Team → support Agent
+    { match: { channel: "slack", teamId: "T123" }, agentId: "support" },
+    // Telegram 某个群 → support Agent
+    { match: { channel: "telegram", peer: { kind: "group", id: "-100123" } }, agentId: "support" },
+    // Discord 某角色 → coder Agent
+    { match: { channel: "discord", guildId: "456", roles: ["789"] }, agentId: "coder" },
+  ],
+}</code></pre>
+
+<h3 id="32-多账号管理">3.2 多账号管理</h3>
+
+<p>每个渠道支持多账号实例，通过 <code>accounts</code> 配置管理：</p>
+
+<pre><code class="language-json5">{
+  channels: {
+    whatsapp: {
+      accounts: {
+        personal: { dmPolicy: "allowlist", allowFrom: ["+15551111111"] },
+        work: { dmPolicy: "allowlist", allowFrom: ["+15552222222"] },
+      },
+      defaultAccount: "personal",
+    },
+    telegram: {
+      accounts: {
+        bot1: { botToken: "TOKEN_1" },
+        bot2: { botToken: "TOKEN_2" },
+      },
+    },
+  },
+}</code></pre>
+
+<blockquote><strong>关键规则</strong>：当配置了两个或以上账号时，必须设置 <code>defaultAccount</code> 或 <code>accounts.default</code>，否则回退路由可能选择第一个归一化的账号 ID。</blockquote>
+
+<h3 id="33-会话隔离">3.3 会话隔离与上下文管理</h3>
+
+<p>OpenClaw 的会话键（Session Key）决定了上下文如何隔离：</p>
+
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>场景</th><th>Session Key 格式</th><th>说明</th></tr>
+</thead>
+<tbody>
+<tr><td>私聊 (DM)</td><td><code>agent:&lt;agentId&gt;:main</code></td><td>默认合并到主会话</td></tr>
+<tr><td>群组</td><td><code>agent:&lt;agentId&gt;:&lt;channel&gt;:group:&lt;id&gt;</code></td><td>每个群独立</td></tr>
+<tr><td>Discord 频道</td><td><code>agent:&lt;agentId&gt;:discord:channel:&lt;id&gt;</code></td><td>每个频道独立</td></tr>
+<tr><td>Slack 线程</td><td><code>agent:&lt;agentId&gt;:slack:channel:&lt;id&gt;:thread:&lt;ts&gt;</code></td><td>线程独立</td></tr>
+<tr><td>Telegram Topic</td><td><code>agent:&lt;agentId&gt;:telegram:group:&lt;id&gt;:topic:&lt;topicId&gt;</code></td><td>Topic 独立</td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>Broadcast Groups</strong>：允许同一 Peer 运行多个 Agent（并行处理）：</p>
+
+<pre><code class="language-json5">{
+  broadcast: {
+    strategy: "parallel",
+    "120363403215116621@g.us": ["alfred", "baerbel"],
+    "+15555550123": ["support", "logger"],
+  },
+}</code></pre>
+
+<h3 id="34-路由流程">3.4 多渠道路由流程</h3>
+
+<div class="mermaid">
+flowchart TD
+    Inbound[入站消息] --> CheckBinding{Binding 匹配?}
+    CheckBinding -->|精确 Peer| AgentPeer[Agent: peer 指定]
+    CheckBinding -->|Guild/Team| AgentGuild[Agent: guild/team 指定]
+    CheckBinding -->|Channel| AgentChannel[Agent: channel 指定]
+    CheckBinding -->|无匹配| AgentDefault[Agent: default/main]
+
+    AgentPeer --> SessionKey[生成 Session Key]
+    AgentGuild --> SessionKey
+    AgentChannel --> SessionKey
+    AgentDefault --> SessionKey
+
+    SessionKey --> RouteBack[路由回源渠道]
+    RouteBack --> Reply[回复发送]
+</div>
+
+<hr>
+
+<h2 id="4-企业级场景">4. 企业级场景</h2>
+
+<h3 id="41-客服机器人">4.1 客服机器人多渠道部署</h3>
+
+<p><strong>场景</strong>：一个客服 Agent 同时接入 WhatsApp Business、Telegram、Discord 和 Slack。</p>
+
+<p><strong>配置要点</strong>：</p>
+<li>每个渠道配置独立的 <code>allowFrom</code> 和 <code>groupPolicy</code></li>
+<li>使用统一的 Agent workspace 保持客服知识库一致</li>
+<li>通过 <code>ackReaction</code> 给用户即时反馈（如 👀 表示正在处理）</li>
+<li>利用 <code>streaming: "partial"</code> 在 Telegram/Discord/Slack 上实现实时打字效果</li>
+
+<p><strong>安全考量</strong>：</p>
+<li><code>dmPolicy</code> 在生产环境使用 <code>allowlist</code> 或 <code>pairing</code>，避免 <code>open</code></li>
+<li>WhatsApp 建议使用专用号码，避免个人号码混用</li>
+<li>Bot Token 和 API Key 通过环境变量或 SecretRef 管理</li>
+
+<h3 id="42-团队协作">4.2 团队协作多平台同步</h3>
+
+<p><strong>场景</strong>：开发团队在 Discord 和 Slack 上同时使用 AI 编码助手。</p>
+
+<p><strong>配置要点</strong>：</p>
+<li>Discord Forum Channel 的每个帖子自动路由到 Agent 线程会话</li>
+<li>通过 <code>/focus</code> 命令将线程绑定到子 Agent（如 coder）</li>
+<li>Slack Thread 支持线程会话隔离</li>
+<li>使用 <code>execApprovals</code> 在 Telegram/Discord 审批敏感命令</li>
+
+<h3 id="43-安全合规">4.3 安全与合规考虑</h3>
+
+<li><strong>DM 配对</strong>：所有渠道默认启用 <code>pairing</code> 模式，新发件人需审批</li>
+<li><strong>群组白名单</strong>：通过 <code>groups</code> 配置明确允许的群组 ID</li>
+<li><strong>命令审计</strong>：通过 <code>execApprovals</code> 实现聊天内命令审批</li>
+<li><strong>数据隔离</strong>：每个 Agent 有独立的 workspace 和 session 存储</li>
+<li><strong>权限最小化</strong>：Discord OAuth2 只授予必要权限，避免 <code>Administrator</code></li>
+
+<hr>
+
+<h2 id="5-故障排查">5. 故障排查</h2>
+
+<h3 id="51-常见问题">5.1 各渠道常见问题</h3>
+
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>渠道</th><th>问题</th><th>解决方案</th></tr>
+</thead>
+<tbody>
+<tr><td>WhatsApp</td><td>未链接 (QR required)</td><td><code>openclaw channels login --channel whatsapp</code></td></tr>
+<tr><td>WhatsApp</td><td>频繁断连重连</td><td><code>openclaw doctor</code> + 检查网络稳定性</td></tr>
+<tr><td>Telegram</td><td>群消息无响应</td><td>检查 <code>requireMention</code> 和 <code>/setprivacy</code> 设置</td></tr>
+<tr><td>Telegram</td><td>API 请求失败</td><td>检查 IPv6/Proxy 配置，<code>dnsResultOrder: "ipv4first"</code></td></tr>
+<tr><td>Discord</td><td>未启用 Intent</td><td>Developer Portal → Bot → Privileged Gateway Intents</td></tr>
+<tr><td>Discord</td><td>Guild 消息被拦截</td><td>检查 <code>groupPolicy</code> + <code>guilds</code> 白名单配置</td></tr>
+<tr><td>Signal</td><td>daemon 不可达</td><td>检查 <code>signal-cli</code> 进程状态，<code>httpUrl</code> 配置</td></tr>
+<tr><td>Signal</td><td>注册失败</td><td>获取新 Captcha + 同 IP 重新注册</td></tr>
+<tr><td>Slack</td><td>Socket Mode 未连接</td><td>验证 <code>appToken</code> 和 Socket Mode 启用状态</td></tr>
+<tr><td>Slack</td><td>频道消息被屏蔽</td><td>检查 <code>channels</code> 白名单和 <code>requireMention</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="52-连接优化">5.2 连接稳定性优化</h3>
+
+<li><strong>WhatsApp</strong>：使用 Node 运行时（非 Bun），确保网络稳定</li>
+<li><strong>Telegram</strong>：配置 Proxy（<code>channels.telegram.proxy: "socks5://..."</code>）应对网络不稳定</li>
+<li><strong>Discord</strong>：调整 <code>eventQueue.listenerTimeout</code>（默认 30s 可能太短）和 <code>inboundWorker.runTimeoutMs</code></li>
+<li><strong>Signal</strong>：使用外部守护进程模式（<code>httpUrl</code>）避免冷启动延迟</li>
+<li><strong>通用</strong>：设置合理的 <code>retry</code> 策略和 <code>textChunkLimit</code></li>
+
+<h3 id="53-监控告警">5.3 监控与告警</h3>
+
+<pre><code class="language-bash"># 查看渠道状态
+openclaw channels status
+
+# 探针模式（详细检查权限和连接）
+openclaw channels status --probe
+
+# 实时日志
+openclaw logs --follow
+
+# 健康检查
+openclaw doctor</code></pre>
+
+<p><strong>建议的监控实践</strong>：</p>
+<li>定期运行 <code>openclaw doctor</code> 检查配置健康度</li>
+<li>监控 <code>openclaw logs</code> 中的 reconnect/timeout 关键词</li>
+<li>为关键渠道配置多个独立 Agent 作为冗余</li>
+
+<hr>
+
+<h2 id="参考来源">参考来源</h2>
+
+<li><a href="https://docs.openclaw.ai/channels">OpenClaw 官方文档 — Chat Channels 索引</a></li>
+<li><a href="https://docs.openclaw.ai/channels/channel-routing">OpenClaw 官方文档 — Channel Routing（路由与会话管理）</a></li>
+<li><a href="https://docs.openclaw.ai/channels/whatsapp">OpenClaw 官方文档 — WhatsApp 频道配置（Baileys）</a></li>
+<li><a href="https://docs.openclaw.ai/channels/telegram">OpenClaw 官方文档 — Telegram 频道配置（grammY）</a></li>
+<li><a href="https://docs.openclaw.ai/channels/discord">OpenClaw 官方文档 — Discord 频道配置</a></li>
+<li><a href="https://docs.openclaw.ai/channels/signal">OpenClaw 官方文档 — Signal 频道配置（signal-cli）</a></li>
+<li><a href="https://docs.openclaw.ai/channels/slack">OpenClaw 官方文档 — Slack 频道配置</a></li>
+<li><a href="https://docs.openclaw.ai/channels/pairing">OpenClaw 官方文档 — Pairing（配对与审批机制）</a></li>
+<li><a href="https://github.com/WhiskeySockets/Baileys">Baileys — WhatsApp Web API Library</a></li>
+<li><a href="https://grammy.dev/">grammY — Telegram Bot Framework</a></li>
+<li><a href="https://github.com/AsamK/signal-cli">signal-cli — Signal CLI 客户端</a></li>
+<li><a href="https://bluebubbles.app/">BlueBubbles — iMessage macOS 服务端</a></li>
+
+<hr>
+
+<p><em>本报告基于截至 2026 年 3 月的 OpenClaw 官方文档编写。渠道支持和配置选项可能随版本更新而变化。</em></p>
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+<script>
+function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('tr-theme', next);
+    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
+}
+(function() {
+    const saved = localStorage.getItem('tr-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
+})();
+</script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+  mermaid.initialize({startOnLoad: false, theme: theme});
+  mermaid.run();
+</script>
+</body></html>
