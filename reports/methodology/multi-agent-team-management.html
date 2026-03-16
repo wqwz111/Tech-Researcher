@@ -541,33 +541,27 @@ flowchart TD
 <h3>2.2 OpenClaw 角色体系</h3>
 <p>以 Tech-Researcher 项目为例，OpenClaw 采用 <strong>1:N:1:N</strong> 角色体系：</p>
 <div class="mermaid">
-    flowchart TB
-        subgraph TEAM[Tech-Researcher 团队]
-            direction TB
-            CHIEF[📋 主编 Chief x1] --> |分派任务, 审核报告| PROBES
-            subgraph PROBES[探针池 Probe xN]
-                direction LR
-                P1[探针-AI/LLM]
-                P2[探针-架构]
-                P3[探针-设计]
-            end
-            CHIEF --> |设计需求| PALETTE[🎨 调色板 Palette x1]
-            CHIEF --> |数据采集任务| COLLECTOR[📊 采集员 Collector x1]
-            CHIEF --> |索引管理| LIBRARIAN[🗃️ 图书管理员 Librarian x1]
-            CHIEF --> |审稿任务| READERS
-            subgraph READERS[读者池 Reader xN]
-                direction LR
-                R1[读者-技术准确性]
-                R2[读者-可读性]
-            end
-            PROBES --> |报告草稿| CHIEF
-            PALETTE --> |美化设计| CHIEF
-            READERS --> |审稿意见| CHIEF
-        end
-        style CHIEF fill:#4f46e5,color:#fff
-        style PALETTE fill:#059669,color:#fff
-        style COLLECTOR fill:#ea580c,color:#fff
-        style LIBRARIAN fill:#7c3aed,color:#fff
+flowchart TB
+    CHIEF[主编 Chief x1]
+    PROBES[探针池 Probe xN]
+    PALETTE[调色板 Palette x1]
+    COLLECTOR[采集员 Collector x1]
+    LIBRARIAN[图书管理员 Librarian x1]
+    READERS[读者池 Reader xN]
+    CHIEF --> |分派任务, 审核报告| PROBES
+    CHIEF --> |设计需求| PALETTE
+    CHIEF --> |数据采集任务| COLLECTOR
+    CHIEF --> |索引管理| LIBRARIAN
+    CHIEF --> |审稿任务| READERS
+    PROBES --> |报告草稿| CHIEF
+    PALETTE --> |美化设计| CHIEF
+    COLLECTOR --> |结构化数据| CHIEF
+    LIBRARIAN --> |索引更新| CHIEF
+    READERS --> |审稿意见| CHIEF
+    style CHIEF fill:#4f46e5,color:#fff
+    style PALETTE fill:#059669,color:#fff
+    style COLLECTOR fill:#ea580c,color:#fff
+    style LIBRARIAN fill:#7c3aed,color:#fff
 </div>
 <h4>角色职责矩阵</h4>
 <div class="table-wrapper">
@@ -611,6 +605,15 @@ flowchart TD
 <td>明确 <strong>任务深度等级</strong>（快速扫描 / 标准深度 / 深度分析）</td>
 </tr>
 </tbody></table>
+<div class="mermaid">
+flowchart TD
+    A[角色内自治] --> B[主编协调]
+    B --> C[用户决策]
+    C -.->|可回落| A
+    style A fill:#059669,color:#fff
+    style B fill:#4f46e5,color:#fff
+    style C fill:#ea580c,color:#fff
+</div>
 <hr>
 <h2>3. 任务分派与进度跟踪</h2>
 <h3>3.1 任务分派模型</h3>
@@ -688,6 +691,18 @@ flowchart TD
 <li><strong>上下文隔离</strong>: 每个探针运行在独立的 session 中，避免交叉污染</li>
 <li><strong>标签标记</strong>: <code>label</code> 参数标记探针身份，便于主编追踪多个并行任务</li>
 </ul>
+<div class="mermaid">
+sequenceDiagram
+    participant Chief as 主编
+    participant Session as Subagent Session
+    participant Probe as 探针
+    Chief->>Session: sessions_spawn(label, task)
+    Session->>Probe: 启动隔离上下文
+    Note over Probe: 执行研究任务
+    Probe->>Session: sessions_yield()
+    Session-->>Chief: 自动推送结果
+    Note over Chief: 审核结果，继续下一步
+</div>
 <h3>4.3 审稿意见处理协议</h3>
 <p>当收到审稿意见时，主编组织团队按以下协议处理：</p>
 <div class="mermaid">
@@ -824,19 +839,22 @@ flowchart TB
 <h2>6. 选型决策树</h2>
 <h3>6.1 组织模式选择</h3>
 <div class="mermaid">
-    flowchart TD
-        START[选择多 Agent 组织模式] --> Q1{团队规模?}
-        Q1 -->|2-5 个| Q2{任务类型?}
-        Q1 -->|6-20 个| HIER[层级式]
-        Q1 -->|20+ 个| Q3{Agent 是否异构?}
-        Q2 -->|创意/讨论| FLAT[扁平式]
-        Q2 -->|执行/生产| HIER
-        Q3 -->|同构| HIER
-        Q3 -->|异构| MARKET[市场式]
-        style START fill:#4f46e5,color:#fff
-        style HIER fill:#059669,color:#fff
-        style FLAT fill:#ea580c,color:#fff
-        style MARKET fill:#7c3aed,color:#fff
+flowchart TD
+    START[选择多 Agent 组织模式] --> Q1{团队规模?}
+    Q1 -->|2-5 个| Q2{任务类型?}
+    Q1 -->|6-20 个| Q4{是否需要容错?}
+    Q1 -->|20+ 个| Q3{Agent 是否异构?}
+    Q2 -->|创意讨论| FLAT[扁平式]
+    Q2 -->|执行生产| HIER[层级式]
+    Q3 -->|同构| HIER
+    Q3 -->|异构| MARKET[市场式]
+    Q4 -->|是| HYBRID[混合式]
+    Q4 -->|否| HIER
+    style START fill:#4f46e5,color:#fff
+    style HIER fill:#059669,color:#fff
+    style FLAT fill:#ea580c,color:#fff
+    style MARKET fill:#7c3aed,color:#fff
+    style HYBRID fill:#0ea5e9,color:#fff
 </div>
 <h3>6.2 角色配置建议</h3>
 <p>根据项目类型推荐角色配置：</p>

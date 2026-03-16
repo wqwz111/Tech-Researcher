@@ -326,14 +326,17 @@ flowchart LR
 
 OpenClaw 平台通过 **subagent 机制** 实现跨角色通信：
 
-```
-主编 → sessions_spawn(label="probe-xxx", task="...")
-       ↓
-     探针执行（隔离上下文）
-       ↓
-     sessions_yield() 返回结果
-       ↓
-主编收到自动通知 → 审核 → 继续下一步
+```mermaid
+sequenceDiagram
+    participant Chief as 主编
+    participant Session as Subagent Session
+    participant Probe as 探针
+    Chief->>Session: sessions_spawn(label, task)
+    Session->>Probe: 启动隔离上下文
+    Note over Probe: 执行研究任务
+    Probe->>Session: sessions_yield()
+    Session-->>Chief: 自动推送结果
+    Note over Chief: 审核结果，继续下一步
 ```
 
 **协议特征**:
@@ -441,9 +444,14 @@ OpenClaw 采用**分层决策**机制：
 
 ### 5.4 冲突升级路径
 
-```
-角色内自治 → 主编协调 → 用户决策
-    ↑_______可回落_______|
+```mermaid
+flowchart TD
+    A[角色内自治] --> B[主编协调]
+    B --> C[用户决策]
+    C -.->|可回落| A
+    style A fill:#059669,color:#fff
+    style B fill:#4f46e5,color:#fff
+    style C fill:#ea580c,color:#fff
 ```
 
 - 大多数冲突在角色内或主编层面解决
@@ -644,9 +652,9 @@ flowchart TD
 - [1] [AutoGen - Multi-Agent Conversation Framework (Microsoft)](https://microsoft.github.io/autogen/) (2024-2025)
 - [2] [CrewAI - Multi-Agent Framework](https://docs.crewai.com/) (2024-2025)
 - [3] [Swarm - OpenAI Multi-Agent Framework](https://github.com/openai/swarm) (2024)
-- [4] [MetaGPT - Multi-Agent Framework with SOP](https://deepwisdom.github.io/MetaGPT/) (2024-2025)
+- [4] [MetaGPT - Multi-Agent Framework with SOP](https://github.com/deepwisdom/MetaGPT) (2024-2025)
 - [5] [OpenClaw Documentation - Multi-Agent Orchestration](https://docs.openclaw.ai/) (2025-2026)
-- [6] [Google A2A Protocol - Agent-to-Agent Communication](https://developers.google.com/agents/a2a-protocol) (2025)
+- [6] [Google A2A Protocol - Agent-to-Agent Communication](https://github.com/google/A2A) (2025)
 - [7] [Anthropic MCP - Model Context Protocol](https://modelcontextprotocol.io/) (2024-2025)
 - [8] [LangGraph - Multi-Agent Workflows](https://langchain-ai.github.io/langgraph/) (2024-2025)
 - [9] [IBM ACP - Agent Communication Protocol](https://agentcommunicationprotocol.dev/) (2025)
