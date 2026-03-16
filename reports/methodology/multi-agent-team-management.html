@@ -486,9 +486,9 @@
     <span class="label" id="themeLabel">日间</span>
   </button>
   <h1>多 Agent 团队管理方法论</h1>
-  <div class="meta">2026-03-16 · 探针 (Probe)</div>
+  <div class="meta">2026-03-16 · 分类: 方法论 · 探针 (Probe)</div>
   <div style="margin-top:0.8rem">
-    <span class="tag">方法论</span> <span class="tag">多Agent</span> <span class="tag">团队协作</span> <span class="tag">OpenClaw</span>
+    <span class="tag">Agent</span><span class="tag">团队</span><span class="tag">编排</span>
   </div>
 </div>
 
@@ -502,101 +502,13 @@
   <!-- Executive Summary -->
   <div class="exec-summary">
     <div class="exec-summary__label">Executive Summary</div>
-    <p>以 OpenClaw 平台的 1:N:1 团队结构为核心案例，系统分析多 Agent 团队的组织模式（层级式/扁平式/市场式）、角色定义与职责边界、任务分派与进度跟踪、跨角色通信协议，并提供选型决策树，帮助读者为自己的场景选择合适的团队架构。</p>
+    <p>设计多 Agent 团队角色时，遵循以下原则：</p>
   </div>
 
   <!-- ═══════════════════════════════════════════
        CONTENT
        ═══════════════════════════════════════════ -->
-<blockquote>
-<p><strong>标签</strong>: <code>方法论</code> <code>多Agent</code> <code>团队协作</code> <code>OpenClaw</code></p>
-<p><strong>作者</strong>: 探针 (Probe) · <strong>日期</strong>: 2026-03-16</p>
-</blockquote>
-<h2>1. 多 Agent 团队组织模式</h2>
-<h3>1.1 三种核心组织模式</h3>
-<p>当前多 Agent 系统的组织模式可以归纳为三大类：<strong>层级式（Hierarchical）</strong>、<strong>扁平式（Flat）<strong>和</strong>市场式（Market-Based）</strong>。每种模式在通信效率、可扩展性和容错能力上各有优劣。</p>
-<div class="mermaid">
-flowchart TD
-    subgraph MODELS[多 Agent 组织模式]
-        direction LR
-        H[层级式 Hierarchical] --> H_DESC[树状结构, 上级下达指令, 下级执行报告]
-        F[扁平式 Flat] --> F_DESC[所有 Agent 对等, 通过共识机制协作]
-        M[市场式 Market-Based] --> M_DESC[任务为商品, Agent 竞标分配]
-    end
-    style H fill:#4f46e5,color:#fff
-    style F fill:#059669,color:#fff
-    style M fill:#ea580c,color:#fff
-</div>
-<h4>1.1.1 层级式（Hierarchical）</h4>
-<p><strong>核心特征</strong>: 树状结构，存在明确的上下级关系。上层 Agent 负责规划和决策，下层 Agent 负责执行和反馈。</p>
-<p><strong>典型架构</strong>: Manager → Worker → Reporter</p>
-<p><strong>优势</strong>:</p>
-<ul>
-<li>职责清晰，避免重复劳动</li>
-<li>支持大规模团队（通过增加层级）</li>
-<li>决策效率高（无需全员共识）</li>
-</ul>
-<p><strong>劣势</strong>:</p>
-<ul>
-<li>上层 Agent 成为单点瓶颈</li>
-<li>信息在传递中可能失真</li>
-<li>下层 Agent 缺乏自主性</li>
-</ul>
-<p><strong>适用场景</strong>: 结构化任务、有明确分工的专业领域、对输出质量有严格要求的场景。</p>
-<h4>1.1.2 扁平式（Flat）</h4>
-<p><strong>核心特征</strong>: 所有 Agent 地位对等，通过轮询讨论或投票机制达成共识。</p>
-<p><strong>典型架构</strong>: Agent A ⟷ Agent B ⟷ Agent C（全连接）</p>
-<p><strong>优势</strong>:</p>
-<ul>
-<li>容错性强（无单点故障）</li>
-<li>信息共享充分</li>
-<li>适合创意发散类任务</li>
-</ul>
-<p><strong>劣势</strong>:</p>
-<ul>
-<li>Agent 数量增加后通信开销呈 O(n²)</li>
-<li>决策速度慢</li>
-<li>容易陷入无休止的讨论</li>
-</ul>
-<p><strong>适用场景</strong>: 小团队（3-5 个 Agent）、头脑风暴、开放式问题探索。</p>
-<h4>1.1.3 市场式（Market-Based）</h4>
-<p><strong>核心特征</strong>: 任务以&quot;商品&quot;形式发布，Agent 根据自身能力&quot;竞标&quot;，通过价格机制实现资源最优分配。</p>
-<p><strong>典型架构</strong>: Task Broker ↔ Bidder Agents</p>
-<p><strong>优势</strong>:</p>
-<ul>
-<li>自适应资源分配</li>
-<li>无需中心化调度</li>
-<li>Agent 可动态加入/退出</li>
-</ul>
-<p><strong>劣势</strong>:</p>
-<ul>
-<li>实现复杂度高</li>
-<li>需要设计合理的竞标机制</li>
-<li>可能出现&quot;竞标博弈&quot;导致非最优解</li>
-</ul>
-<p><strong>适用场景</strong>: 大规模异构 Agent 集群、动态任务环境、云计算资源调度。</p>
-<h3>1.2 模式对比</h3>
-<div class="table-wrapper">
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>维度</th><th>层级式</th><th>扁平式</th><th>市场式</th></tr>
-</thead>
-<tbody>
-<tr><td><strong>通信复杂度</strong></td><td>O(n)</td><td>O(n²)</td><td>O(n log n)</td></tr>
-<tr><td><strong>决策速度</strong></td><td>快</td><td>慢</td><td>中等</td></tr>
-<tr><td><strong>可扩展性</strong></td><td>高（增加层级）</td><td>低（>5个困难）</td><td>高</td></tr>
-<tr><td><strong>容错性</strong></td><td>低（根节点单点故障）</td><td>高</td><td>中等</td></tr>
-<tr><td><strong>实现复杂度</strong></td><td>低</td><td>低</td><td>高</td></tr>
-<tr><td><strong>适用团队规模</strong></td><td>3-50+</td><td>2-5</td><td>10-100+</td></tr>
-<tr><td><strong>典型场景</strong></td><td>项目管理、内容生产</td><td>头脑风暴、审稿</td><td>资源调度、微服务编排</td></tr>
-</tbody>
-</table>
-</div>
-</div>
-
-<hr>
-<h2>2. 角色定义与职责边界</h2>
+  <h2>2. 角色定义与职责边界</h2>
 <h3>2.1 角色设计原则</h3>
 <p>设计多 Agent 团队角色时，遵循以下原则：</p>
 <ol>
@@ -608,36 +520,35 @@ flowchart TD
 <h3>2.2 OpenClaw 角色体系</h3>
 <p>以 Tech-Researcher 项目为例，OpenClaw 采用 <strong>1:N:1:N</strong> 角色体系：</p>
 <div class="mermaid">
-flowchart TB
-    subgraph TEAM[Tech-Researcher 团队]
-        direction TB
-        CHIEF[📋 主编 Chief x1] --> |分派任务, 审核报告| PROBES
-        subgraph PROBES[探针池 Probe xN]
-            direction LR
-            P1[探针-AI/LLM]
-            P2[探针-架构]
-            P3[探针-设计]
+    flowchart TB
+        subgraph TEAM[Tech-Researcher 团队]
+            direction TB
+            CHIEF[📋 主编 Chief x1] --> |分派任务, 审核报告| PROBES
+            subgraph PROBES[探针池 Probe xN]
+                direction LR
+                P1[探针-AI/LLM]
+                P2[探针-架构]
+                P3[探针-设计]
+            end
+            CHIEF --> |设计需求| PALETTE[🎨 调色板 Palette x1]
+            CHIEF --> |数据采集任务| COLLECTOR[📊 采集员 Collector x1]
+            CHIEF --> |索引管理| LIBRARIAN[🗃️ 图书管理员 Librarian x1]
+            CHIEF --> |审稿任务| READERS
+            subgraph READERS[读者池 Reader xN]
+                direction LR
+                R1[读者-技术准确性]
+                R2[读者-可读性]
+            end
+            PROBES --> |报告草稿| CHIEF
+            PALETTE --> |美化设计| CHIEF
+            READERS --> |审稿意见| CHIEF
         end
-        CHIEF --> |设计需求| PALETTE[🎨 调色板 Palette x1]
-        CHIEF --> |数据采集任务| COLLECTOR[📊 采集员 Collector x1]
-        CHIEF --> |索引管理| LIBRARIAN[🗃️ 图书管理员 Librarian x1]
-        CHIEF --> |审稿任务| READERS
-        subgraph READERS[读者池 Reader xN]
-            direction LR
-            R1[读者-技术准确性]
-            R2[读者-可读性]
-        end
-        PROBES --> |报告草稿| CHIEF
-        PALETTE --> |美化设计| CHIEF
-        READERS --> |审稿意见| CHIEF
-    end
-    style CHIEF fill:#4f46e5,color:#fff
-    style PALETTE fill:#059669,color:#fff
-    style COLLECTOR fill:#ea580c,color:#fff
-    style LIBRARIAN fill:#7c3aed,color:#fff
+        style CHIEF fill:#4f46e5,color:#fff
+        style PALETTE fill:#059669,color:#fff
+        style COLLECTOR fill:#ea580c,color:#fff
+        style LIBRARIAN fill:#7c3aed,color:#fff
 </div>
 <h4>角色职责矩阵</h4>
-<div class="table-wrapper">
 <div class="table-wrapper">
 <table>
 <thead>
@@ -653,9 +564,8 @@ flowchart TB
 </tbody>
 </table>
 </div>
-</div>
 
-<h3>2.3 职责边界的常见冲突</h3><div class="table-wrapper">
+<h3>2.3 职责边界的常见冲突</h3>
 <table>
 <thead>
 <tr>
@@ -680,7 +590,7 @@ flowchart TB
 <td>明确 <strong>任务深度等级</strong>（快速扫描 / 标准深度 / 深度分析）</td>
 </tr>
 </tbody></table>
-</div><hr>
+<hr>
 <h2>3. 任务分派与进度跟踪</h2>
 <h3>3.1 任务分派模型</h3>
 <p>OpenClaw 采用 <strong>结构化任务描述</strong> 模式，确保探针收到的任务有清晰的边界：</p>
@@ -702,21 +612,21 @@ flowchart TB
 </ul>
 <h3>3.2 进度跟踪机制</h3>
 <div class="mermaid">
-flowchart LR
-    BACKLOG[待分派] --> |主编下达| ASSIGNED[已分派]
-    ASSIGNED --> |探针接受| IN_PROGRESS[进行中]
-    IN_PROGRESS --> |探针提交| REVIEW[审核中]
-    REVIEW --> |主编通过| PUBLISHED[已发布]
-    REVIEW --> |主编驳回| IN_PROGRESS
-    PUBLISHED --> |触发评审| UNDER_REVIEW[读者审稿]
-    UNDER_REVIEW --> |审稿通过| DONE[已完成]
-    UNDER_REVIEW --> |需修改| IN_PROGRESS
-    style BACKLOG fill:#64748b,color:#fff
-    style ASSIGNED fill:#4f46e5,color:#fff
-    style IN_PROGRESS fill:#ea580c,color:#fff
-    style REVIEW fill:#7c3aed,color:#fff
-    style PUBLISHED fill:#059669,color:#fff
-    style DONE fill:#059669,color:#fff
+    flowchart LR
+        BACKLOG[待分派] --> |主编下达| ASSIGNED[已分派]
+        ASSIGNED --> |探针接受| IN_PROGRESS[进行中]
+        IN_PROGRESS --> |探针提交| REVIEW[审核中]
+        REVIEW --> |主编通过| PUBLISHED[已发布]
+        REVIEW --> |主编驳回| IN_PROGRESS
+        PUBLISHED --> |触发评审| UNDER_REVIEW[读者审稿]
+        UNDER_REVIEW --> |审稿通过| DONE[已完成]
+        UNDER_REVIEW --> |需修改| IN_PROGRESS
+        style BACKLOG fill:#64748b,color:#fff
+        style ASSIGNED fill:#4f46e5,color:#fff
+        style IN_PROGRESS fill:#ea580c,color:#fff
+        style REVIEW fill:#7c3aed,color:#fff
+        style PUBLISHED fill:#059669,color:#fff
+        style DONE fill:#059669,color:#fff
 </div>
 <p><strong>状态流转规则</strong>:</p>
 <ol>
@@ -760,22 +670,22 @@ flowchart LR
 <h3>4.3 审稿意见处理协议</h3>
 <p>当收到审稿意见时，主编组织团队按以下协议处理：</p>
 <div class="mermaid">
-flowchart TD
-    A[收到审稿意见] --> B[主编分发意见]
-    B --> C[探针评估: 内容类]
-    B --> D[调色板评估: 设计类]
-    C --> E[各自独立投票]
-    D --> E
-    E --> F{投票结果}
-    F -->|一致| G[按多数执行]
-    F -->|分歧| H[主编权衡裁决]
-    G --> I[执行决定]
-    H --> I
-    I --> J[GitHub Issue 回复]
-    style A fill:#4f46e5,color:#fff
-    style F fill:#ea580c,color:#fff
-    style G fill:#059669,color:#fff
-    style H fill:#7c3aed,color:#fff
+    flowchart TD
+        A[收到审稿意见] --> B[主编分发意见]
+        B --> C[探针评估: 内容类]
+        B --> D[调色板评估: 设计类]
+        C --> E[各自独立投票]
+        D --> E
+        E --> F{投票结果}
+        F -->|一致| G[按多数执行]
+        F -->|分歧| H[主编权衡裁决]
+        G --> I[执行决定]
+        H --> I
+        I --> J[GitHub Issue 回复]
+        style A fill:#4f46e5,color:#fff
+        style F fill:#ea580c,color:#fff
+        style G fill:#059669,color:#fff
+        style H fill:#7c3aed,color:#fff
 </div>
 <p><strong>投票选项</strong>:</p>
 <ul>
@@ -815,7 +725,7 @@ flowchart TD
 <li><strong>禁止文本示意图</strong> — 流程图/架构图用 Mermaid，汇总图用信息图</li>
 <li><strong>内容必须紧跟潮流</strong> — 案例/工具/框架紧跟热门产品和最新版本</li>
 </ol>
-<h3>5.4 经验教训</h3><div class="table-wrapper">
+<h3>5.4 经验教训</h3>
 <table>
 <thead>
 <tr>
@@ -855,7 +765,7 @@ flowchart TD
 <td>在 GitHub Issue 上公开回复</td>
 </tr>
 </tbody></table>
-</div><h3>5.5 选题决策框架</h3>
+<h3>5.5 选题决策框架</h3>
 <p>主编面对选题冲突时的优先级排序：</p>
 <ol>
 <li><strong>用户明确请求</strong>（Issue 中多人提出的）</li>
@@ -867,23 +777,22 @@ flowchart TD
 <h2>6. 选型决策树</h2>
 <h3>6.1 组织模式选择</h3>
 <div class="mermaid">
-flowchart TD
-    START[选择多 Agent 组织模式] --> Q1{团队规模?}
-    Q1 -->|2-5 个| Q2{任务类型?}
-    Q1 -->|6-20 个| HIER[层级式]
-    Q1 -->|20+ 个| Q3{Agent 是否异构?}
-    Q2 -->|创意/讨论| FLAT[扁平式]
-    Q2 -->|执行/生产| HIER
-    Q3 -->|同构| HIER
-    Q3 -->|异构| MARKET[市场式]
-    style START fill:#4f46e5,color:#fff
-    style HIER fill:#059669,color:#fff
-    style FLAT fill:#ea580c,color:#fff
-    style MARKET fill:#7c3aed,color:#fff
+    flowchart TD
+        START[选择多 Agent 组织模式] --> Q1{团队规模?}
+        Q1 -->|2-5 个| Q2{任务类型?}
+        Q1 -->|6-20 个| HIER[层级式]
+        Q1 -->|20+ 个| Q3{Agent 是否异构?}
+        Q2 -->|创意/讨论| FLAT[扁平式]
+        Q2 -->|执行/生产| HIER
+        Q3 -->|同构| HIER
+        Q3 -->|异构| MARKET[市场式]
+        style START fill:#4f46e5,color:#fff
+        style HIER fill:#059669,color:#fff
+        style FLAT fill:#ea580c,color:#fff
+        style MARKET fill:#7c3aed,color:#fff
 </div>
 <h3>6.2 角色配置建议</h3>
 <p>根据项目类型推荐角色配置：</p>
-<div class="table-wrapper">
 <div class="table-wrapper">
 <table>
 <thead>
@@ -896,7 +805,6 @@ flowchart TD
 <tr><td><strong>客服系统</strong></td><td>1 路由 Agent + N 专业 Agent</td><td>路由 Agent 分流，专业 Agent 处理特定领域问题</td></tr>
 </tbody>
 </table>
-</div>
 </div>
 
 <h3>6.3 扩展性考量</h3>
@@ -931,19 +839,24 @@ flowchart TD
 <li>通过评审回路实现人机协作的质量闭环</li>
 </ul>
 <hr>
+<h2>参考资料</h2>
+<ul>
+<li>[1] <a href="https://developers.google.com/agents/a2a-protocol">Google A2A Protocol - Agent-to-Agent Communication</a> (2024-2025)</li>
+<li>[2] <a href="https://modelcontextprotocol.io/">Anthropic MCP - Model Context Protocol</a> (2024-2025)</li>
+<li>[3] <a href="https://langchain-ai.github.io/langgraph/">LangGraph - Multi-Agent Workflows</a> (2024-2025)</li>
+<li>[4] <a href="https://microsoft.github.io/autogen/">AutoGen - Multi-Agent Conversation Framework (Microsoft)</a> (2024)</li>
+<li>[5] <a href="https://docs.crewai.com/">CrewAI - Multi-Agent Framework</a> (2024-2025)</li>
+<li>[6] <a href="https://docs.openclaw.ai/">OpenClaw Documentation - Multi-Agent Orchestration</a> (2025-2026)</li>
+<li>[7] <a href="https://github.com/openai/swarm">Swarm - OpenAI Multi-Agent Framework</a> (2024)</li>
+<li>[8] <a href="https://arxiv.org/abs/2402.03578">Multi-Agent Systems: A Survey - arXiv</a> (2024)</li>
+</ul>
+
 
   <!-- ═══════════════════════════════════════════
        REFERENCES
        ═══════════════════════════════════════════ -->
   <h2>📚 参考资料</h2>
-  <div class="ref"><span class="ref-grade grade-a">A</span> <a href="https://developers.google.com/agents/a2a-protocol">Google A2A Protocol - Agent-to-Agent Communication</a> (2024-2025)</div>
-<div class="ref"><span class="ref-grade grade-a">A</span> <a href="https://modelcontextprotocol.io/">Anthropic MCP - Model Context Protocol</a> (2024-2025)</div>
-<div class="ref"><span class="ref-grade grade-a">A</span> <a href="https://langchain-ai.github.io/langgraph/">LangGraph - Multi-Agent Workflows</a> (2024-2025)</div>
-<div class="ref"><span class="ref-grade grade-a">A</span> <a href="https://microsoft.github.io/autogen/">AutoGen - Multi-Agent Conversation Framework (Microsoft)</a> (2024)</div>
-<div class="ref"><span class="ref-grade grade-a">A</span> <a href="https://docs.crewai.com/">CrewAI - Multi-Agent Framework</a> (2024-2025)</div>
-<div class="ref"><span class="ref-grade grade-b">B</span> <a href="https://docs.openclaw.ai/">OpenClaw Documentation - Multi-Agent Orchestration</a> (2025-2026)</div>
-<div class="ref"><span class="ref-grade grade-a">A</span> <a href="https://github.com/openai/swarm">Swarm - OpenAI Multi-Agent Framework</a> (2024)</div>
-<div class="ref"><span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/abs/2402.03578">Multi-Agent Systems: A Survey - arXiv</a> (2024)</div>
+  
 
 </div>
 
