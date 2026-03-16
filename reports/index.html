@@ -1,3 +1,11 @@
+<!--
+  调色板美化记录 (2026-03-16):
+  1. 移除 Hero 区域的统计数据展示（报告数量、方向数量、文件产出）
+  2. 修复导航栏分类链接：移除 filterCat()，改为纯锚点滚动 + 平滑定位
+  3. 移除 Featured 区域（"最新发布"和"推荐阅读"卡片）
+  4. 优化结构：修复缺失的闭合 div，添加分类折叠功能，保留分类计数
+  5. Footer 显示团队名 "🔬 Tech-Researcher 团队"，保留 GitHub 链接
+-->
 <!DOCTYPE html>
 <html lang="zh-CN" data-theme="dark">
 <head>
@@ -22,19 +30,16 @@
     --tag-bg:#e0e7ff;--tag-text:#312e81;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
   body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans SC',sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
   a { color:var(--blue); text-decoration:none; transition:color .2s; }
   a:hover { color:var(--accent-hover); }
 
-  /* Hero */
-  .hero { background:var(--gradient); padding:3.5rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  /* Hero - 简洁版，无统计数据 */
+  .hero { background:var(--gradient); padding:2.5rem 2rem; text-align:center; position:relative; overflow:hidden; }
   .hero::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0v60M0 30h60' stroke='rgba(255,255,255,.06)' stroke-width='1'/%3E%3C/svg%3E"); }
   .hero h1 { font-size:2.4rem; color:#fff; position:relative; }
   .hero p { color:rgba(255,255,255,.85); font-size:1.1rem; margin-top:.5rem; position:relative; }
-  .hero .stats { display:flex; justify-content:center; gap:2rem; margin-top:1.5rem; position:relative; }
-  .hero .stat { text-align:center; color:#fff; }
-  .hero .stat-num { font-size:2rem; font-weight:700; }
-  .hero .stat-label { font-size:.8rem; opacity:.8; }
 
   /* Nav */
   .nav-bar { background:var(--bg-card); border-bottom:1px solid var(--border); padding:.8rem 2rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; position:sticky; top:0; z-index:100; }
@@ -51,10 +56,20 @@
 
   /* Section */
   .section { margin-bottom:2.5rem; }
-  .section-header { display:flex; align-items:center; gap:.6rem; margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid var(--border); }
+  .section-header { display:flex; align-items:center; gap:.6rem; margin-bottom:1rem; padding-bottom:.5rem; border-bottom:2px solid var(--border); cursor:pointer; user-select:none; }
+  .section-header:hover { border-color:var(--accent); }
   .section-icon { font-size:1.5rem; }
   .section-title { font-size:1.3rem; font-weight:700; color:var(--text); }
   .section-count { background:var(--tag-bg); color:var(--tag-text); font-size:.75rem; padding:.15rem .5rem; border-radius:10px; margin-left:auto; }
+  .section-toggle { color:var(--text-dim); font-size:.9rem; margin-left:.5rem; transition:transform .3s; }
+  .section.collapsed .section-toggle { transform:rotate(-90deg); }
+  .section-body { overflow:hidden; transition:max-height .4s ease, opacity .3s; max-height:5000px; opacity:1; }
+  .section.collapsed .section-body { max-height:0; opacity:0; }
+
+  /* Global toggle bar */
+  .toggle-bar { display:flex; justify-content:flex-end; margin-bottom:1rem; }
+  .toggle-btn { background:var(--bg-card); border:1px solid var(--border); border-radius:6px; padding:.4rem .8rem; cursor:pointer; color:var(--text-muted); font-size:.8rem; transition:all .2s; }
+  .toggle-btn:hover { border-color:var(--accent); color:var(--accent-text); }
 
   /* Grid */
   .report-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1rem; }
@@ -73,14 +88,6 @@
   .report-card .card-tag { font-size:.7rem; padding:.1rem .4rem; background:var(--bg-code); border:1px solid var(--border); border-radius:4px; color:var(--text-dim); }
   .report-card .card-new { position:absolute; top:0; right:0; background:var(--green); color:#000; font-size:.65rem; font-weight:700; padding:.2rem .5rem; border-radius:0 12px 0 8px; }
 
-  /* Featured row */
-  .featured { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem; }
-  .featured-card { background:var(--gradient); border-radius:12px; padding:1.5rem; color:#fff; }
-  .featured-card .fc-label { font-size:.7rem; opacity:.8; text-transform:uppercase; letter-spacing:1px; }
-  .featured-card .fc-title { font-size:1.2rem; font-weight:700; margin:.5rem 0; }
-  .featured-card .fc-desc { font-size:.85rem; opacity:.9; }
-  .featured-card a { color:#fff; }
-
   /* Footer */
   .footer { text-align:center; color:var(--text-dim); padding:2rem; border-top:1px solid var(--border-light); margin-top:2rem; }
   .footer a { color:var(--accent); }
@@ -88,33 +95,25 @@
   /* Responsive */
   @media(max-width:700px) {
     .hero h1 { font-size:1.8rem; }
-    .featured { grid-template-columns:1fr; }
     .report-grid { grid-template-columns:1fr; }
-    .hero .stats { gap:1rem; }
-    .hero .stat-num { font-size:1.5rem; }
   }
 </style>
 </head>
 <body>
 
-<!-- Hero -->
+<!-- Hero - 简洁标题，无统计数据 -->
 <div class="hero">
   <h1>🔬 Tech Researcher</h1>
   <p>AI 驱动的技术研究报告 · 求真求实 · 深度分析</p>
-  <div class="stats">
-    <div class="stat"><div class="stat-num">32</div><div class="stat-label">研究报告</div></div>
-    <div class="stat"><div class="stat-num">4</div><div class="stat-label">研究方向</div></div>
-    <div class="stat"><div class="stat-num">64</div><div class="stat-label">文件产出</div></div>
-  </div>
 </div>
 
-<!-- Nav -->
+<!-- Nav - 纯锚点滚动 -->
 <div class="nav-bar">
-  <a href="#" class="active" onclick="showAll()">全部</a>
-  <a href="#methodology" onclick="filterCat('methodology')">🔬 方法论</a>
-  <a href="#case-studies" onclick="filterCat('case-studies')">📊 案例实践</a>
-  <a href="#tools" onclick="filterCat('tools')">🛠️ 工具</a>
-  <a href="#frameworks" onclick="filterCat('frameworks')">🏗️ 框架</a>
+  <a href="#" class="active">全部</a>
+  <a href="#methodology">🔬 方法论</a>
+  <a href="#case-studies">📊 案例实践</a>
+  <a href="#tools">🛠️ 工具</a>
+  <a href="#frameworks">🏗️ 框架</a>
   <a href="./team.html">👥 团队</a>
   <div class="spacer"></div>
   <a href="https://github.com/wqwz111/Tech-Researcher/issues" target="_blank" class="gh-btn">💬 Issues</a>
@@ -124,27 +123,20 @@
 <!-- Content -->
 <div class="container">
 
-  <!-- Featured -->
-  <div class="featured">
-    <a href="#methodology" class="featured-card" style="text-decoration:none;">
-      <div class="fc-label">🆕 最新发布</div>
-      <div class="fc-title">AI 技术全景研究报告</div>
-      <div class="fc-desc">系统梳理 AI 技术栈，提供可落地的选型建议</div>
-    </a>
-    <a href="./methodology/rag-patterns.html" class="featured-card" style="background:linear-gradient(135deg,#1e3a5f,#0f172a);border:1px solid #38bdf8;text-decoration:none;">
-      <div class="fc-label">🔥 推荐阅读</div>
-      <div class="fc-title">RAG 架构设计模式全解析</div>
-      <div class="fc-desc">从 Naive RAG 到 Modular RAG，覆盖检索策略、分块方法、生产实践</div>
-    </a>
+  <!-- 全部展开/折叠控制 -->
+  <div class="toggle-bar">
+    <button class="toggle-btn" onclick="toggleAll()">📂 全部展开 / 折叠</button>
   </div>
 
   <!-- Methodology -->
   <div class="section" id="methodology">
-    <div class="section-header">
+    <div class="section-header" onclick="toggleSection('methodology')">
       <span class="section-icon">🔬</span>
       <span class="section-title">方法论 Methodology</span>
       <span class="section-count">11 篇</span>
+      <span class="section-toggle">▼</span>
     </div>
+    <div class="section-body">
     <div class="report-grid">
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/prompt-engineering.html">Prompt Engineering 系统化方法论</a></div><div class="card-desc">从 Zero-shot CoT 到 Tree-of-Thought，系统梳理 Prompt 工程的核心技巧与高级策略</div><div class="card-tags"><span class="card-tag">CoT</span><span class="card-tag">ToT</span><span class="card-tag">Few-shot</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/rag-patterns.html">RAG 架构设计模式全解析</a></div><div class="card-desc">Naive → Advanced → Modular RAG 三代演进，检索策略与分块方法深度分析</div><div class="card-tags"><span class="card-tag">RAG</span><span class="card-tag">混合检索</span><span class="card-tag">Reranking</span></div></div>
@@ -158,14 +150,18 @@
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/agent-memory-engineering.html">Agent 记忆系统工程化</a></div><div class="card-desc">OpenClaw/MemGPT/Mem0/Zep 记忆架构对比</div><div class="card-tags"><span class="card-tag">记忆</span><span class="card-tag">架构</span><span class="card-tag">工程化</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/multi-agent-team-management.html">多 Agent 团队管理方法论</a></div><div class="card-desc">1:N:1 团队结构的编排与分工模式</div><div class="card-tags"><span class="card-tag">团队</span><span class="card-tag">管理</span><span class="card-tag">编排</span></div></div>
     </div>
+    </div>
+  </div>
 
   <!-- Case Studies -->
   <div class="section" id="case-studies">
-    <div class="section-header">
+    <div class="section-header" onclick="toggleSection('case-studies')">
       <span class="section-icon">📊</span>
       <span class="section-title">案例实践 Case Studies</span>
       <span class="section-count">11 篇</span>
+      <span class="section-toggle">▼</span>
     </div>
+    <div class="section-body">
     <div class="report-grid">
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/openai-ecosystem.html">OpenAI 产品生态深度拆解</a></div><div class="card-desc">GPT-4o/o1/o3 模型演进，API 产品线与定价策略，GPTs 生态分析</div><div class="card-tags"><span class="card-tag">GPT-4o</span><span class="card-tag">o1</span><span class="card-tag">API</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/anthropic-enterprise.html">Anthropic Claude 企业级实践</a></div><div class="card-desc">Claude 3.5/4 能力分析，Claude Code 编程实践，Constitutional AI 安全</div><div class="card-tags"><span class="card-tag">Claude</span><span class="card-tag">Claude Code</span><span class="card-tag">Artifacts</span></div></div>
@@ -178,14 +174,18 @@
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/multi-channel-deployment.html">OpenClaw 全渠道接入实战</a></div><div class="card-desc">WhatsApp/Telegram/Discord/Signal 多渠道部署</div><div class="card-tags"><span class="card-tag">渠道</span><span class="card-tag">部署</span><span class="card-tag">实战</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/openclaw-mcp-integration.html">OpenClaw + MCP 工具生态实战</a></div><div class="card-desc">从零搭建MCP Server + OpenClaw集成</div><div class="card-tags"><span class="card-tag">MCP</span><span class="card-tag">集成</span><span class="card-tag">实战</span></div></div>
     </div>
+    </div>
+  </div>
 
   <!-- Tools -->
   <div class="section" id="tools">
-    <div class="section-header">
+    <div class="section-header" onclick="toggleSection('tools')">
       <span class="section-icon">🛠️</span>
       <span class="section-title">工具 Tools</span>
-      <span class="section-count">11 篇</span>
+      <span class="section-count">8 篇</span>
+      <span class="section-toggle">▼</span>
     </div>
+    <div class="section-body">
     <div class="report-grid">
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/langchain-vs-llamaindex.html">LangChain vs LlamaIndex 深度对比</a></div><div class="card-desc">架构设计哲学差异，核心组件对比，生态系统与选型建议</div><div class="card-tags"><span class="card-tag">LangChain</span><span class="card-tag">LlamaIndex</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/vector-databases.html">向量数据库选型指南 2026</a></div><div class="card-desc">Pinecone/Milvus/Qdrant/Chroma/pgvector 性能基准与选型决策树</div><div class="card-tags"><span class="card-tag">Milvus</span><span class="card-tag">Qdrant</span><span class="card-tag">pgvector</span></div></div>
@@ -196,15 +196,18 @@
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/observability-tools.html">AI 可观测性与调试工具研究</a></div><div class="card-desc">LangSmith/LangFuse/Phoenix 追踪，成本监控，质量回归测试</div><div class="card-tags"><span class="card-tag">LangSmith</span><span class="card-tag">LangFuse</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/ai-security-tools.html">AI 安全与防护工具研究</a></div><div class="card-desc">Prompt Injection 防护、内容安全过滤、模型安全评估、隐私保护</div><div class="card-tags"><span class="card-tag">安全</span><span class="card-tag">Prompt Injection</span><span class="card-tag">合规</span></div></div>
     </div>
+    </div>
   </div>
 
   <!-- Frameworks -->
   <div class="section" id="frameworks">
-    <div class="section-header">
+    <div class="section-header" onclick="toggleSection('frameworks')">
       <span class="section-icon">🏗️</span>
       <span class="section-title">框架 Frameworks</span>
-      <span class="section-count">11 篇</span>
+      <span class="section-count">8 篇</span>
+      <span class="section-toggle">▼</span>
     </div>
+    <div class="section-body">
     <div class="report-grid">
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/openai-api.html">OpenAI API 最佳实践指南</a></div><div class="card-desc">Function Calling、Structured Output、流式处理、成本优化</div><div class="card-tags"><span class="card-tag">OpenAI</span><span class="card-tag">API</span><span class="card-tag">Function Calling</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/claude-api.html">Anthropic Claude API 深度指南</a></div><div class="card-desc">Tool Use、Computer Use、Prompt Caching、系统提示词最佳实践</div><div class="card-tags"><span class="card-tag">Claude API</span><span class="card-tag">Tool Use</span></div></div>
@@ -215,13 +218,14 @@
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/ai-frontend.html">AI 应用前端框架选型指南</a></div><div class="card-desc">Vercel AI SDK/Streamlit/Gradio，流式响应与聊天界面组件库</div><div class="card-tags"><span class="card-tag">Vercel AI SDK</span><span class="card-tag">Streamlit</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/ai-infrastructure.html">AI 基础设施与云平台对比</a></div><div class="card-desc">AWS Bedrock/Azure OpenAI/Vertex AI/Together AI 定价与企业特性对比</div><div class="card-tags"><span class="card-tag">AWS</span><span class="card-tag">Azure</span><span class="card-tag">GCP</span></div></div>
     </div>
+    </div>
   </div>
 
 </div>
 
 <!-- Footer -->
 <div class="footer">
-  <p>🔬 Tech Researcher · 探针 (Probe) · AI 技术研究分析师 · 2026</p>
+  <p>🔬 Tech-Researcher 团队</p>
   <p><a href="https://github.com/wqwz111/Tech-Researcher">GitHub</a> · <a href="https://github.com/wqwz111/Tech-Researcher/issues">Issues</a> · <a href="https://github.com/wqwz111/Tech-Researcher/releases">Releases</a></p>
 </div>
 
@@ -240,18 +244,41 @@ function toggleTheme() {
   if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
 })();
 
-function filterCat(cat) {
-  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-  const el = document.getElementById(cat);
-  if (el) el.style.display = 'block';
-  document.querySelectorAll('.nav-bar a').forEach(a => a.classList.remove('active'));
-  event.target.classList.add('active');
+// 分类折叠功能
+function toggleSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('collapsed');
 }
-function showAll() {
-  document.querySelectorAll('.section').forEach(s => s.style.display = 'block');
-  document.querySelectorAll('.nav-bar a').forEach(a => a.classList.remove('active'));
-  event.target.classList.add('active');
+
+function toggleAll() {
+  const sections = document.querySelectorAll('.section');
+  const allCollapsed = Array.from(sections).every(s => s.classList.contains('collapsed'));
+  sections.forEach(s => {
+    if (allCollapsed) s.classList.remove('collapsed');
+    else s.classList.add('collapsed');
+  });
 }
+
+// 滚动时高亮当前分类
+(function() {
+  const navLinks = document.querySelectorAll('.nav-bar a[href^="#"]');
+  const sections = document.querySelectorAll('.section[id]');
+  const allLink = document.querySelector('.nav-bar a[href="#"]');
+
+  function highlightNav() {
+    let current = '';
+    sections.forEach(s => {
+      const rect = s.getBoundingClientRect();
+      if (rect.top <= 120) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.classList.remove('active');
+      if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+    });
+    if (!current && allLink) allLink.classList.add('active');
+  }
+  window.addEventListener('scroll', highlightNav);
+})();
 </script>
 </body>
 </html>
