@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent 工作流编排模式</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>{{TITLE}}</h1>
+  <div class="meta">2026-03-16 · 分类: 方法论 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span><span class="tag">编排</span><span class="tag">工作流</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="./index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>传统工作流引擎（<a href="https://airflow.apache.org/">Apache Airflow</a>、<a href="https://www.prefect.io/">Prefect</a>、<a href="https://dagster.io/">Dagster</a>）基于 DAG（有向无环图）模型，核心特征是：</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. 工作流编排范式演进</h2>
+<h3>1.1 传统 Workflow 引擎的局限</h3>
+<p>传统工作流引擎（<a href="https://airflow.apache.org/">Apache Airflow</a>、<a href="https://www.prefect.io/">Prefect</a>、<a href="https://dagster.io/">Dagster</a>）基于 DAG（有向无环图）模型，核心特征是：</p>
+<ul>
+<li><strong>预定义流程</strong>：所有任务节点和依赖关系在执行前确定</li>
+<li><strong>中心调度器</strong>：由调度器统一管理任务分发和状态追踪</li>
+<li><strong>确定性执行</strong>：相同输入产生相同执行路径</li>
+</ul>
+<p>这种模式在 ETL 管道、数据处理等<strong>高确定性、可预判</strong>的场景中表现出色，但在 Agent 场景中面临本质困难：</p>
+<table>
+<thead>
+<tr>
+<th>传统 Workflow 引擎痛点</th>
+<th>Agent 场景的冲突</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DAG 结构固定</td>
+<td>Agent 任务路径由 LLM 推理决定，无法预定义</td>
+</tr>
+<tr>
+<td>任务是无状态函数</td>
+<td>Agent 需要维护对话上下文和工作记忆</td>
+</tr>
+<tr>
+<td>异常处理是预设分支</td>
+<td>Agent 需要自主诊断失败原因并选择恢复策略</td>
+</tr>
+<tr>
+<td>编排层与执行层分离</td>
+<td>Agent 的&quot;编排&quot;和&quot;执行&quot;是同一个 LLM 调用</td>
+</tr>
+</tbody></table>
+<h3>1.2 Agent 原生编排模式</h3>
+<p>Agent 原生编排放弃了预定义 DAG，转而采用事件驱动和角色自治机制：</p>
+<ul>
+<li><strong>Heartbeat 轮询</strong>：主编以固定间隔检查消息队列，按需唤醒子任务（类似操作系统的进程调度）</li>
+<li><strong>Cron 定时调度</strong>：精确定时触发的周期性任务（日报生成、定期扫描）</li>
+<li><strong>Subagent 嵌套</strong>：主编动态创建子 Agent，子 Agent 独立执行后汇报结果</li>
+</ul>
+<h3>1.3 两种范式的本质区别</h3>
+<pre><code>传统 Workflow 引擎:
+  编排 = 预定义图结构 + 中心调度器 + 任务队列
+  
+Agent 原生编排:
+  编排 = 事件触发 + 角色自治 + 结果汇总
+</code></pre>
+<p>核心区别在于<strong>决策权的位置</strong>：传统引擎的决策在编排层（DAG 定义者），Agent 编排的决策在执行层（每个 Agent 自己决定下一步）。</p>
+<hr>
+<h2>2. OpenClaw 编排模型深度分析</h2>
+<h3>2.1 Heartbeat 轮询机制</h3>
+<p>Heartbeat 是 OpenClaw 的核心调度机制。主编 Agent 以固定时间间隔（如 60 秒）被唤醒，检查是否有新的用户消息、Issue 更新或子 Agent 结果需要处理。</p>
+<p><strong>工作机制</strong>：</p>
+<ul>
+<li><strong>轮询间隔</strong>：可配置（默认 60 秒，可通过 <code>heartbeat_interval</code> 调整）</li>
+<li><strong>检查内容</strong>：消息队列、子 Agent 状态、定时任务到期情况</li>
+<li><strong>按需唤醒</strong>：有新消息时启动处理流程，无消息时进入休眠</li>
+</ul>
+<p><strong>类比</strong>：Heartbeat 本质上是一个<strong>协程调度器</strong>——主编是主协程，子 Agent 是子协程，heartbeat interval 是调度周期。</p>
+<p><strong>优势</strong>：</p>
+<ul>
+<li>极低的资源开销（无消息时仅一个空轮询）</li>
+<li>自然支持&quot;主编等待探针返回&quot;的模式</li>
+<li>用户体验良好（定期响应，不会长期沉默）</li>
+</ul>
+<p><strong>局限</strong>：</p>
+<ul>
+<li>轮询间隔决定了最小响应延迟</li>
+<li>不适合毫秒级实时响应场景</li>
+</ul>
+<h3>2.2 Cron 定时任务</h3>
+<p>Cron 是 OpenClaw 的精确调度机制，基于标准 cron 表达式（如 <code>0 9 * * 1-5</code> 表示工作日早上 9 点）。</p>
+<p><strong>与 heartbeat 的关系</strong>：</p>
+<ul>
+<li><strong>Heartbeat</strong>：事件驱动，有消息才处理</li>
+<li><strong>Cron</strong>：时间驱动，到点就执行</li>
+<li>两者可以组合：Cron 触发一个任务，任务中创建 subagent 处理复杂工作</li>
+</ul>
+<p><strong>典型用例</strong>：</p>
+<ul>
+<li>每日 GitHub Issue 扫描</li>
+<li>定期报告生成</li>
+<li>周/月研究计划制定</li>
+</ul>
+<h3>2.3 Sub-agent 嵌套编排</h3>
+<p>Sub-agent 是 OpenClaw 实现并行处理和角色分工的核心机制。</p>
+<p><strong>工作机制</strong>：</p>
+<ol>
+<li>主编收到复杂任务，拆分为子任务</li>
+<li>为每个子任务创建独立的 subagent session</li>
+<li>Subagent 独立执行（可并行）</li>
+<li>Subagent 完成后自动汇报结果</li>
+<li>主编汇总结果，决定下一步动作</li>
+</ol>
+<p><strong>关键特性</strong>：</p>
+<ul>
+<li><strong>隔离性</strong>：每个 subagent 有独立的 context window</li>
+<li><strong>并行性</strong>：多个 subagent 可同时运行</li>
+<li><strong>自动汇总</strong>：subagent 完成后 push 通知主编</li>
+<li><strong>深度限制</strong>：subagent 不能再创建子 subagent（避免无限递归）</li>
+</ul>
+<h3>2.4 编排工作流全景</h3>
+<pre><code class="language-mermaid">flowchart TD
+    User[用户] --&gt;|消息/Issue| Chief[主编 Chief]
+    Cron[Cron 定时器] --&gt;|触发| Chief
+    HB[Heartbeat 轮询] --&gt;|唤醒| Chief
+    
+    Chief --&gt;|分派研究任务| Probe1[探针 Probe-AI]
+    Chief --&gt;|分派研究任务| Probe2[探针 Probe-Arch]
+    Chief --&gt;|设计请求| Palette[调色板 Palette]
+    Chief --&gt;|数据采集| Collector[采集员 Collector]
+    
+    Probe1 --&gt;|报告草稿| Chief
+    Probe2 --&gt;|报告草稿| Chief
+    Palette --&gt;|设计稿| Chief
+    Collector --&gt;|数据| Chief
+    
+    Chief --&gt;|审核通过| Publish[发布报告]
+    Chief --&gt;|需要修改| Feedback[反馈修改]
+    
+    Feedback --&gt; Probe1
+    Feedback --&gt; Probe2
+    
+    Publish --&gt;|通知| Reader1[读者 Reader-1]
+    Publish --&gt;|通知| Reader2[读者 Reader-2]
+    
+    Reader1 --&gt;|审稿意见| Chief
+    Reader2 --&gt;|审稿意见| Chief
+    
+    style Chief fill:#3730a3,color:#c7d2fe
+    style Probe1 fill:#1e3a5f,color:#93c5fd
+    style Probe2 fill:#1e3a5f,color:#93c5fd
+    style Palette fill:#3d1f5e,color:#d8b4fe
+    style Collector fill:#1a3d2e,color:#86efac
+    style Reader1 fill:#3d2e1f,color:#fcd34d
+    style Reader2 fill:#3d2e1f,color:#fcd34d
+</code></pre>
+<hr>
+<h2>3. 对比其他 Agent 编排方案</h2>
+<h3>3.1 LangGraph（图结构编排）</h3>
+<p><a href="https://github.com/langchain-ai/langgraph">LangGraph</a>（v0.2.x，截至 2025）是 LangChain 生态的图编排框架，核心思想是用有向图定义 Agent 之间的流转关系。</p>
+<p><strong>核心特征</strong>：</p>
+<ul>
+<li><strong>显式图定义</strong>：用 Python 定义节点（Agent）和边（条件分支）</li>
+<li><strong>状态管理</strong>：全局 State 对象在节点间传递</li>
+<li><strong>条件路由</strong>：根据状态决定下一个节点</li>
+<li><strong>检查点（Checkpoint）</strong>：支持断点恢复和时间旅行调试</li>
+</ul>
+<p><strong>适用场景</strong>：需要严格控制执行路径的工作流、需要调试和回放的生产系统。</p>
+<p><strong>局限</strong>：</p>
+<ul>
+<li>图结构需要预先设计，灵活度低于事件驱动</li>
+<li>状态管理增加复杂度</li>
+<li>学习曲线陡峭</li>
+</ul>
+<h3>3.2 CrewAI（角色编排）</h3>
+<p><a href="https://github.com/crewAIInc/crewAI">CrewAI</a>（v0.108.x，截至 2025）采用&quot;船员&quot;隐喻，每个 Agent 是一个具有特定角色、目标和工具的&quot;船员&quot;。</p>
+<p><strong>核心特征</strong>：</p>
+<ul>
+<li><strong>角色定义</strong>：每个 Agent 有 role、goal、backstory</li>
+<li><strong>任务分配</strong>：Task 明确指定执行者和期望输出</li>
+<li><strong>执行模式</strong>：sequential（串行）、parallel（并行）、hierarchical（层级）</li>
+<li><strong>委派机制</strong>：Agent 可以将子任务委派给其他 Agent</li>
+</ul>
+<p><strong>适用场景</strong>：需要明确角色分工的协作任务、内容生成流水线。</p>
+<p><strong>与 OpenClaw 的区别</strong>：</p>
+<ul>
+<li>CrewAI 的角色在代码中预定义，OpenClaw 的角色在配置文件中定义</li>
+<li>CrewAI 的执行流在 <code>Crew.kickoff()</code> 时确定，OpenClaw 的执行流由 heartbeat 事件驱动</li>
+<li>CrewAI 无内置的定时调度能力</li>
+</ul>
+<h3>3.3 AutoGen（对话编排）</h3>
+<p><a href="https://github.com/microsoft/autogen">AutoGen</a>（v0.4.x，截至 2025）是微软推出的多 Agent 对话框架，核心是让多个 Agent 通过结构化对话完成任务。</p>
+<p><strong>核心特征</strong>：</p>
+<ul>
+<li><strong>对话驱动</strong>：Agent 之间通过消息传递协作</li>
+<li><strong>GroupChat</strong>：多个 Agent 轮流发言的协调机制</li>
+<li><strong>人类在环</strong>：支持 Human Proxy Agent 介入决策</li>
+<li><strong>代码执行</strong>：内置安全的代码执行沙箱</li>
+</ul>
+<p><strong>适用场景</strong>：需要多轮讨论、人类审批、代码生成和调试的场景。</p>
+<p><strong>与 OpenClaw 的区别</strong>：</p>
+<ul>
+<li>AutoGen 以&quot;对话&quot;为基本单位，OpenClaw 以&quot;任务&quot;为基本单位</li>
+<li>AutoGen 的 GroupChat 调度器决定谁发言，OpenClaw 的主编决定谁执行</li>
+<li>AutoGen 更适合交互式场景，OpenClaw 更适合自动化流水线</li>
+</ul>
+<h3>3.4 OpenClaw（事件驱动 + 角色编排）</h3>
+<p>OpenClaw 融合了事件驱动和角色编排的特点：</p>
+<ul>
+<li><strong>事件驱动</strong>：Heartbeat 和 Cron 作为触发源</li>
+<li><strong>角色编排</strong>：主编/探针/调色板/采集员/读者各司其职</li>
+<li><strong>Session 隔离</strong>：每个角色独立 session，互不干扰</li>
+<li><strong>Push-based 完成</strong>：子任务完成后主动通知主编</li>
+</ul>
+<h3>3.5 框架对比全景</h3>
+<pre><code class="language-mermaid">flowchart LR
+    subgraph Paradigm[编排范式]
+        direction TB
+        P1[图结构编排]
+        P2[角色编排]
+        P3[对话编排]
+        P4[事件驱动编排]
+    end
+    
+    subgraph Frameworks[代表框架]
+        direction TB
+        F1[LangGraph]
+        F2[CrewAI]
+        F3[AutoGen]
+        F4[OpenClaw]
+    end
+    
+    subgraph BestFor[最佳场景]
+        direction TB
+        B1[确定性工作流]
+        B2[内容生成流水线]
+        B3[交互式讨论]
+        B4[自主研究团队]
+    end
+    
+    P1 --&gt; F1
+    P2 --&gt; F2
+    P3 --&gt; F3
+    P4 --&gt; F4
+    
+    F1 --&gt; B1
+    F2 --&gt; B2
+    F3 --&gt; B3
+    F4 --&gt; B4
+    
+    style P1 fill:#1e3a5f,color:#93c5fd
+    style P2 fill:#3d1f5e,color:#d8b4fe
+    style P3 fill:#3d2e1f,color:#fcd34d
+    style P4 fill:#3730a3,color:#c7d2fe
+</code></pre>
+<p><strong>对比表</strong>：</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>LangGraph</th>
+<th>CrewAI</th>
+<th>AutoGen</th>
+<th>OpenClaw</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>编排范式</strong></td>
+<td>图结构</td>
+<td>角色编排</td>
+<td>对话编排</td>
+<td>事件驱动+角色</td>
+</tr>
+<tr>
+<td><strong>执行模型</strong></td>
+<td>DAG 遍历</td>
+<td>串行/并行/层级</td>
+<td>GroupChat 轮询</td>
+<td>Heartbeat+Cron</td>
+</tr>
+<tr>
+<td><strong>状态管理</strong></td>
+<td>全局 State</td>
+<td>Task 上下文</td>
+<td>对话历史</td>
+<td>Session 隔离</td>
+</tr>
+<tr>
+<td><strong>调度能力</strong></td>
+<td>无内置</td>
+<td>无内置</td>
+<td>无内置</td>
+<td>Heartbeat+Cron</td>
+</tr>
+<tr>
+<td><strong>调试能力</strong></td>
+<td>检查点+时间旅行</td>
+<td>日志</td>
+<td>对话记录</td>
+<td>Session 日志</td>
+</tr>
+<tr>
+<td><strong>适用确定性</strong></td>
+<td>高</td>
+<td>中</td>
+<td>低</td>
+<td>低-中</td>
+</tr>
+<tr>
+<td><strong>自治程度</strong></td>
+<td>低</td>
+<td>中</td>
+<td>高</td>
+<td>高</td>
+</tr>
+<tr>
+<td><strong>学习曲线</strong></td>
+<td>陡峭</td>
+<td>平缓</td>
+<td>中等</td>
+<td>平缓</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+<h2>4. 选型决策树</h2>
+<h3>4.1 决策流程图</h3>
+<pre><code class="language-mermaid">flowchart TD
+    Start[开始选型] --&gt; Q1{任务可预定义吗}
+    
+    Q1 --&gt;|是 DAG 结构| LangGraph[LangGraph]
+    Q1 --&gt;|否 需要灵活路径| Q2{需要多角色协作吗}
+    
+    Q2 --&gt;|是| Q3{协作模式}
+    Q2 --&gt;|否| SingleAgent[单 Agent 框架]
+    
+    Q3 --&gt;|角色分工明确| CrewAI[CrewAI]
+    Q3 --&gt;|讨论式协作| AutoGen[AutoGen]
+    Q3 --&gt;|主编制+自治团队| Q4{需要定时调度吗}
+    
+    Q4 --&gt;|是| OpenClaw[OpenClaw]
+    Q4 --&gt;|否| CrewAI2[CrewAI + 外部 Cron]
+    
+    style Start fill:#334155,color:#f1f5f9
+    style LangGraph fill:#1e3a5f,color:#93c5fd
+    style CrewAI fill:#3d1f5e,color:#d8b4fe
+    style CrewAI2 fill:#3d1f5e,color:#d8b4fe
+    style AutoGen fill:#3d2e1f,color:#fcd34d
+    style OpenClaw fill:#3730a3,color:#c7d2fe
+    style SingleAgent fill:#1a3d2e,color:#86efac
+</code></pre>
+<h3>4.2 场景到编排模式映射</h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐方案</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ETL 数据管道</td>
+<td>Airflow / Dagster</td>
+<td>DAG 固定、重试机制成熟、生态完善</td>
+</tr>
+<tr>
+<td>文档生成流水线</td>
+<td>CrewAI</td>
+<td>角色明确（写作/编辑/校对）、输出格式固定</td>
+</tr>
+<tr>
+<td>代码审查系统</td>
+<td>AutoGen</td>
+<td>需要多轮讨论、人类审批介入</td>
+</tr>
+<tr>
+<td>自主研究团队</td>
+<td>OpenClaw</td>
+<td>主编协调、探针自治、定时扫描、角色多样</td>
+</tr>
+<tr>
+<td>客服工作流</td>
+<td>LangGraph</td>
+<td>路由规则明确、状态流转可预测</td>
+</tr>
+<tr>
+<td>AI DevOps 流水线</td>
+<td>OpenClaw + Cron</td>
+<td>定时触发、多角色协作（监控/诊断/修复）</td>
+</tr>
+<tr>
+<td>创意内容工作坊</td>
+<td>AutoGen + CrewAI</td>
+<td>Brainstorm 用 AutoGen、执行用 CrewAI</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+<h2>5. 实战案例</h2>
+<h3>5.1 OpenClaw 研究团队的 1:N:1 编排模式</h3>
+<p>OpenClaw Tech-Researcher 项目是 Agent 原生编排的典型案例：</p>
+<p><strong>团队结构</strong>：1 主编 : N 探针 : 1 调色板 : N 读者</p>
+<p><strong>工作流程</strong>：</p>
+<ol>
+<li><strong>选题阶段</strong>：主编通过 cron 扫描 GitHub Issues，收集用户建议</li>
+<li><strong>分派阶段</strong>：主编创建 subagent（探针），传入明确的研究任务</li>
+<li><strong>研究阶段</strong>：探针独立执行研究，包括搜索、分析、撰写</li>
+<li><strong>审核阶段</strong>：主编审核报告，不合格则退回修改</li>
+<li><strong>设计阶段</strong>：调色板生成信息图和美化 HTML</li>
+<li><strong>发布阶段</strong>：主编执行 git commit + push + release</li>
+<li><strong>评审阶段</strong>：读者独立审稿，提交 GitHub Issue 意见</li>
+<li><strong>迭代阶段</strong>：主编汇总意见，决定是否跟进</li>
+</ol>
+<h3>5.2 Heartbeat + Cron 的组合使用</h3>
+<p>在实际运行中，两种调度方式形成互补：</p>
+<ul>
+<li><p><strong>Heartbeat（60秒间隔）</strong>：主编的日常工作循环</p>
+<ul>
+<li>检查新消息</li>
+<li>监控 subagent 状态</li>
+<li>响应用户请求</li>
+</ul>
+</li>
+<li><p><strong>Cron（每日 09:00 UTC）</strong>：定期批量任务</p>
+<ul>
+<li>扫描 GitHub Issues</li>
+<li>检查报告链接有效性</li>
+<li>更新研究计划</li>
+</ul>
+</li>
+</ul>
+<p><strong>关键洞察</strong>：Heartbeat 处理&quot;突发&quot;事件，Cron 处理&quot;周期&quot;事件。两者覆盖了 Agent 工作流中的两大时间维度。</p>
+<h3>5.3 异常处理与降级策略</h3>
+<p>Agent 编排中的异常处理比传统 Workflow 更复杂，因为异常原因更多样：</p>
+<p><strong>常见异常类型</strong>：</p>
+<ul>
+<li><strong>LLM 超时/限流</strong>：降级到更小的模型或增加重试间隔</li>
+<li><strong>Subagent 失败</strong>：主编重新分派或合并任务</li>
+<li><strong>上下文溢出</strong>：压缩历史或拆分为更小的子任务</li>
+<li><strong>工具调用失败</strong>：切换备用工具或手动降级</li>
+</ul>
+<p><strong>降级策略示例</strong>：</p>
+<pre><code class="language-mermaid">flowchart TD
+    Error[检测到错误] --&gt; Type{错误类型}
+    
+    Type --&gt;|LLM 超时| Retry[重试 3 次]
+    Type --&gt;|上下文溢出| Compress[压缩上下文]
+    Type --&gt;|工具失败| Fallback[切换备用工具]
+    Type --&gt;|Subagent 挂起| Respawn[重建 Subagent]
+    
+    Retry --&gt;|成功| Continue[继续执行]
+    Retry --&gt;|失败| Downgrade[降级模型]
+    
+    Compress --&gt; Continue
+    Fallback --&gt; Continue
+    Respawn --&gt; Continue
+    
+    Downgrade --&gt; Continue
+    
+    Continue --&gt; Done[恢复]
+    
+    style Error fill:#7f1d1d,color:#fca5a5
+    style Done fill:#14532d,color:#86efac
+    style Retry fill:#3d2e1f,color:#fcd34d
+    style Compress fill:#1e3a5f,color:#93c5fd
+    style Fallback fill:#3d1f5e,color:#d8b4fe
+    style Respawn fill:#3730a3,color:#c7d2fe
+</code></pre>
+<hr>
+<h2>6. 最佳实践</h2>
+<h3>6.1 编排设计原则</h3>
+<ol>
+<li><strong>单一职责</strong>：每个 Agent 只负责一个明确的领域（探针不设计、调色板不写报告）</li>
+<li><strong>结果驱动</strong>：Subagent 的产出必须是可验证的（文件存在、链接有效）</li>
+<li><strong>失败快速</strong>：Agent 编排不适合&quot;尽力而为&quot;，超时和失败要快速上报</li>
+<li><strong>状态外置</strong>：重要状态写入文件，不要仅依赖 session 内存</li>
+<li><strong>幂等设计</strong>：Cron 任务可以安全重复执行</li>
+</ol>
+<h3>6.2 常见陷阱</h3>
+<table>
+<thead>
+<tr>
+<th>陷阱</th>
+<th>症状</th>
+<th>解决方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>探针承诺过多</td>
+<td>一次分派 8 篇报告，产出不完整</td>
+<td>固定 2 篇/队，逐步增加</td>
+</tr>
+<tr>
+<td>盲信 subagent</td>
+<td>&quot;已完成&quot;但文件不存在</td>
+<td>主编必须验证产出文件</td>
+</tr>
+<tr>
+<td>忽略 context 溢出</td>
+<td>报告写到一半输出截断</td>
+<td>监控 token 使用，适时压缩</td>
+</tr>
+<tr>
+<td>Cron 重叠执行</td>
+<td>上次任务未完成，新的又触发</td>
+<td>加锁机制或增加任务间隔</td>
+</tr>
+<tr>
+<td>角色职责模糊</td>
+<td>探针做了调色板的工作</td>
+<td>严格遵循角色定义</td>
+</tr>
+</tbody></table>
+<h3>6.3 性能优化建议</h3>
+<ol>
+<li><strong>并行 subagent</strong>：独立任务同时分派，不串行等待</li>
+<li><strong>模型分层</strong>：简单任务用小模型（如 Gemini Flash），复杂任务用大模型（如 Claude）</li>
+<li><strong>缓存搜索结果</strong>：避免同一主题重复搜索</li>
+<li><strong>Heartbeat 间隔调优</strong>：根据负载调整（繁忙时缩短，空闲时延长）</li>
+<li><strong>上下文预算管理</strong>：每个 session 预设 token 上限，超出则自动压缩</li>
+</ol>
+<hr>
+<h2>参考资料</h2>
+<ol>
+<li><p><strong>Apache Airflow Documentation</strong> — 传统 Workflow 引擎的代表，DAG 编排范式
+<a href="https://airflow.apache.org/docs/">https://airflow.apache.org/docs/</a></p>
+</li>
+<li><p><strong>LangGraph GitHub Repository</strong> — LangChain 图编排框架，v0.2.x（截至 2025）
+<a href="https://github.com/langchain-ai/langgraph">https://github.com/langchain-ai/langgraph</a></p>
+</li>
+<li><p><strong>CrewAI Documentation</strong> — 角色编排多 Agent 框架，v0.108.x（截至 2025）
+<a href="https://docs.crewai.com/">https://docs.crewai.com/</a></p>
+</li>
+<li><p><strong>Microsoft AutoGen</strong> — 对话编排多 Agent 框架，v0.4.x（截至 2025）
+<a href="https://github.com/microsoft/autogen">https://github.com/microsoft/autogen</a></p>
+</li>
+<li><p><strong>Anthropic: Building Effective Agents</strong> — 2024 年 12 月，Agent 构建最佳实践指南
+<a href="https://www.anthropic.com/engineering/building-effective-agents">https://www.anthropic.com/engineering/building-effective-agents</a></p>
+</li>
+<li><p><strong>OpenClaw Documentation</strong> — Agent 原生编排平台，heartbeat/cron/subagent 机制
+<a href="https://docs.openclaw.ai/">https://docs.openclaw.ai/</a></p>
+</li>
+<li><p><strong>Prefect Documentation</strong> — 现代 Workflow 编排引擎
+<a href="https://docs.prefect.io/">https://docs.prefect.io/</a></p>
+</li>
+<li><p><strong>Dagster Documentation</strong> — 数据编排平台
+<a href="https://docs.dagster.io/">https://docs.dagster.io/</a></p>
+</li>
+<li><p><strong>CrewAI vs LangGraph vs AutoGen: Multi-Agent Framework Comparison</strong> — 2025 年 1 月
+<a href="https://www.datacamp.com/tutorial/crewai-vs-autogen-vs-langgraph">https://www.datacamp.com/tutorial/crewai-vs-autogen-vs-langgraph</a></p>
+</li>
+<li><p><strong>The Shift from Workflows to Agents</strong> — 2025 年，从工作流向 Agent 范式的演进分析
+<a href="https://www.sequoiacap.com/article/ais-agent-era/">https://www.sequoiacap.com/article/ais-agent-era/</a></p>
+</li>
+</ol>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+</body>
+</html>
