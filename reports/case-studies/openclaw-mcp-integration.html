@@ -1434,6 +1434,53 @@ openclaw gateway logs | grep &quot;MCP\|mcp\|tool&quot;
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({startOnLoad:true, theme:"dark", securityLevel:"loose"});</script>
+<script>
+(function initMermaid() {
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: isDark ? 'dark' : 'default',
+    securityLevel: 'loose',
+    themeVariables: isDark ? {
+      primaryColor: '#312e81',
+      primaryTextColor: '#e2e8f0',
+      primaryBorderColor: '#4f46e5',
+      lineColor: '#6366f1',
+      secondaryColor: '#1e293b',
+      tertiaryColor: '#0f172a',
+      fontSize: '14px'
+    } : { fontSize: '14px' }
+  });
+  mermaid.run();
+
+  // Re-render mermaid on theme toggle
+  const origToggle = window.toggleTheme;
+  window.toggleTheme = function() {
+    origToggle();
+    const dark = document.documentElement.getAttribute('data-theme') !== 'light';
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: dark ? 'dark' : 'default',
+      securityLevel: 'loose',
+      themeVariables: dark ? {
+        primaryColor: '#312e81',
+        primaryTextColor: '#e2e8f0',
+        primaryBorderColor: '#4f46e5',
+        lineColor: '#6366f1',
+        secondaryColor: '#1e293b',
+        tertiaryColor: '#0f172a',
+        fontSize: '14px'
+      } : { fontSize: '14px' }
+    });
+    document.querySelectorAll('.mermaid').forEach(el => {
+      const code = el.getAttribute('data-mermaid-code') || el.textContent;
+      if (!el.getAttribute('data-mermaid-code')) el.setAttribute('data-mermaid-code', el.textContent);
+      el.removeAttribute('data-processed');
+      el.innerHTML = code;
+    });
+    mermaid.run();
+  };
+})();
+</script>
 </body>
 </html>
