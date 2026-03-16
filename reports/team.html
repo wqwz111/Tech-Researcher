@@ -146,44 +146,30 @@ a:hover { color:#a5b4fc; }
   <div class="section-title">🏗️ 团队结构</div>
   <div class="diagram-container">
     <div class="mermaid">
-    graph TB
-   
-    User["[ ] 用户<br/>提出需求 & 反馈"]
-    Chief["[ ] 主编 Chief<br/>选题 · 计划 · 质控 · 发布"]
-    subgraph
-    Research["[ ] 研究层"]
-    Probe1["[ ] 探针-AI/LLM"]
-    Probe2["[ ] 探针-架构"]
-    Probe3["[ ] 探针-设计"]
-    end
-    subgraph
-    Support["[[ ]] 支撑层"]
-    Palette["[ ] 调色板<br/>视觉设计"]
-    Collector["[ ] 采集员<br/>数据收集"]
-    Librarian["[[ ]] 图书管理员<br/>知识管理"]
-    end
-    subgraph
-    Review["[ ] 审稿层"]
-    Reader1["[ ] 读者-A"]
-    Reader2["[ ] 读者-B"]
-    Reader3["[ ] 读者-C"]
-    end User
-    <-->|"Issues"| Chief Chief
-    -->|"分派任务"| Research Chief
-    -->|"设计需求"| Palette Chief
-    -->|"采集任务"| Collector Chief
-    -->|"索引更新"| Librarian Chief
-    -->|"审稿安排"| Review Research
-    -->|"报告草稿"| Review Review
-    -->|"审稿意见"| Chief Research
-    -->|"定稿"| Palette Palette
-    -->|"美化报告"| Chief Chief
-    -->|"发布"| User
-    style Chief fill:#38bdf8,color:#000,stroke:#0ea5e9
-    style User fill:#f472b6,color:#000
-    style Palette fill:#fb923c,color:#000
-    style Collector fill:#34d399,color:#000
-    style Librarian fill:#a78bfa,color:#000
+ graph TB
+ User["用户<br/>提出需求 & 反馈"]
+ Chief["主编 Chief<br/>选题 · 计划 · 质控 · 发布"]
+ subgraph SGResearch["研究层"]
+ Probe1["探针-AI/LLM"]
+ Probe2["探针-架构"]
+ Probe3["探针-设计"]
+ end
+subgraph SGSupport["支撑层"]
+ Palette["调色板<br/>视觉设计"]
+ Collector["采集员<br/>数据收集"]
+ Librarian["图书管理员<br/>知识管理"]
+ end
+subgraph SGReview["审稿层"]
+ Reader1["读者-A"]
+ Reader2["读者-B"]
+ Reader3["读者-C"]
+ end
+User <-->|"Issues"| Chief Chief -->|"分派任务"| Research Chief -->|"设计需求"| Palette Chief -->|"采集任务"| Collector Chief -->|"索引更新"| Librarian Chief -->|"审稿安排"| Review Research -->|"报告草稿"| Review Review -->|"审稿意见"| Chief Research -->|"定稿"| Palette Palette -->|"美化报告"| Chief Chief -->|"发布"| User
+ style Chief fill:#38bdf8,color:#000,stroke:#0ea5e9
+ style User fill:#f472b6,color:#000
+ style Palette fill:#fb923c,color:#000
+ style Collector fill:#34d399,color:#000
+ style Librarian fill:#a78bfa,color:#000
 </div>
     <div class="diagram-caption">图 1: Tech Researcher 团队结构与协作关系（1:N:1:1:1:N）</div>
   </div>
@@ -257,40 +243,28 @@ a:hover { color:#a5b4fc; }
   <div class="section-title">🔄 工作流程</div>
   <div class="diagram-container">
     <div class="mermaid">
-    flowchart LR
-   
-    subgraph
-    Input["[ ] 输入"]
-    Issues["[ ] GitHub Issues<br/>用户需求"]
-    Trends["[ ] 趋势监控<br/>技术动态"]
-    end
-    subgraph
-    Production["[ ] 生产"]
-    Plan["[ ] 主编<br/>选题 & 计划"]
-    Research["[ ] 探针<br/>多源研究"]
-    Review["[ ] 读者<br/>独立审稿"]
-    Design["[ ] 调色板<br/>视觉美化"]
-    end
-    subgraph
-    Output["[ ] 输出"]
-    Pages["[ ] GitHub Pages<br/>在线阅读"]
-    Release["[ ] Release<br/>版本发布"]
-    Index["[ ] 索引页<br/>分类导航"]
-    end Issues
-    --> Plan Trends
-    --> Plan Plan
-    -->|"分派任务"| Research Research
-    -->|"报告草稿"| Review Review
-    -->|"[ ] 通过"| Design Review
-    -->|"[ ] 修改"| Research Design
-    -->|"美化报告"| Pages Design
-    --> Release Pages
-    --> Index
-    style Plan fill:#38bdf8,color:#000
-    style Research fill:#7dd3fc,color:#000
-    style Review fill:#a78bfa,color:#000
-    style Design fill:#fb923c,color:#000
-    style Pages fill:#34d399,color:#000
+ flowchart LR
+ subgraph SGInput["输入"]
+ Issues["GitHub Issues<br/>用户需求"]
+ Trends["趋势监控<br/>技术动态"]
+ end
+subgraph SGProduction["生产"]
+ Plan["主编<br/>选题 & 计划"]
+ Research["探针<br/>多源研究"]
+ Review["读者<br/>独立审稿"]
+ Design["调色板<br/>视觉美化"]
+ end
+subgraph SGOutput["输出"]
+ Pages["GitHub Pages<br/>在线阅读"]
+ Release["Release<br/>版本发布"]
+ Index["索引页<br/>分类导航"]
+ end
+Issues --> Plan Trends --> Plan Plan -->|"分派任务"| Research Research -->|"报告草稿"| Review Review -->|"通过"| Design Review -->|"修改"| Research Design -->|"美化报告"| Pages Design --> Release Pages --> Index
+ style Plan fill:#38bdf8,color:#000
+ style Research fill:#7dd3fc,color:#000
+ style Review fill:#a78bfa,color:#000
+ style Design fill:#fb923c,color:#000
+ style Pages fill:#34d399,color:#000
 </div>
     <div class="diagram-caption">图 2: 报告生产流程 — 从选题到发布的完整链路</div>
   </div>
@@ -299,29 +273,21 @@ a:hover { color:#a5b4fc; }
   <div class="section-title">🔍 审稿流程</div>
   <div class="diagram-container">
     <div class="mermaid">
-    flowchart TD
-   
-    Draft["[ ] 探针提交报告草稿"]
-    subgraph
-    Reviewers["独立审稿（并行）"]
-    TechReader["[ ] 技术审稿人<br/>事实准确性 · 逻辑完整性"]
-    ReadReader["[ ] 可读性审稿人<br/>Executive Summary · 术语"]
-    DomainReader["[ ] 领域审稿人<br/>专业深度 · 前沿性"]
-    end
-    Score["[ ] 评分汇总<br/>每项 1-5 星"]
-    Decision{"总分 ≥ 21/25?"}
-    Pass["[ ] 通过 → 调色板美化"]
-    Revise["[ ] 需修改 → 返回探针"] Draft
-    --> Reviewers Reviewers
-    --> Score Score
-    --> Decision Decision
-    -->|">= 21"| Pass Decision
-    -->|"< 21"| Revise Revise
-    --> Draft
-    style Draft fill:#38bdf8,color:#000
-    style Pass fill:#34d399,color:#000
-    style Revise fill:#fb923c,color:#000
-    style Decision fill:#f472b6,color:#000
+ flowchart TD
+ Draft["探针提交报告草稿"]
+ subgraph SGReviewers["独立审稿（并行）"]
+ TechReader["技术审稿人<br/>事实准确性 · 逻辑完整性"]
+ ReadReader["可读性审稿人<br/>Executive Summary · 术语"]
+ DomainReader["领域审稿人<br/>专业深度 · 前沿性"]
+ end
+Score["评分汇总<br/>每项 1-5 星"]
+ Decision{"总分 ≥ 21/25?"}
+ Pass["通过 → 调色板美化"]
+ Revise["需修改 → 返回探针"] Draft --> Reviewers Reviewers --> Score Score --> Decision Decision -->|">= 21"| Pass Decision -->|"< 21"| Revise Revise --> Draft
+ style Draft fill:#38bdf8,color:#000
+ style Pass fill:#34d399,color:#000
+ style Revise fill:#fb923c,color:#000
+ style Decision fill:#f472b6,color:#000
 </div>
     <div class="diagram-caption">图 3: 三轮独立审稿流程 — 确保报告质量</div>
   </div>
