@@ -8,7 +8,7 @@
 
 随着大模型 Agent 能力的快速提升，单一 Agent 已无法满足复杂任务需求。**多 Agent 团队管理**已从实验探索进入工程实践阶段。2025-2026 年间，Google A2A 协议、MCP 标准化、LangGraph 和 CrewAI 等框架的成熟，标志着行业正在形成统一的多 Agent 协作范式。
 
-本报告以 OpenClaw 平台的 **1:N:1:N** 团队结构（主编 + 探针 + 调色板 + 采集员 + 图书管理员 + 读者）为核心案例，系统分析多 Agent 团队的组织模式、角色定义、任务分派、跨角色通信协议和冲突解决机制，并提供选型决策树，帮助读者为自己的场景选择合适的团队架构。
+本报告以 OpenClaw 平台的 **1:N:1:1:1:N** 团队结构（主编 + 探针 + 调色板 + 图书管理员 + 读者）为核心案例，系统分析多 Agent 团队的组织模式、角色定义、任务分派、跨角色通信协议和冲突解决机制，并提供选型决策树，帮助读者为自己的场景选择合适的团队架构。
 
 **核心结论**:
 - 层级式模式适合结构化生产任务，扁平式适合创意讨论，市场式适合大规模异构集群
@@ -119,7 +119,7 @@ flowchart TD
 
 **适用场景**: 中大型团队、多阶段复杂任务、需要平衡效率和灵活性的场景。
 
-**行业案例**: OpenClaw 平台的 1:N:1:N 结构是典型的混合式——主编对下属角色采用层级式分派，探针池和读者池内部扁平运作，任务和资源通过结构化机制分配 [5]。
+**行业案例**: OpenClaw 平台的 1:N:1:1:1:N 结构是典型的混合式——主编对下属角色采用层级式分派，探针池和读者池内部扁平运作，任务和资源通过结构化机制分配 [5]。
 
 ### 1.2 模式对比
 
@@ -172,22 +172,18 @@ flowchart TB
     CHIEF[主编 Chief x1]
     PROBES[探针池 Probe xN]
     PALETTE[调色板 Palette x1]
-    COLLECTOR[采集员 Collector x1]
     LIBRARIAN[图书管理员 Librarian x1]
     READERS[读者池 Reader xN]
     CHIEF --> |分派任务, 审核报告| PROBES
     CHIEF --> |设计需求| PALETTE
-    CHIEF --> |数据采集任务| COLLECTOR
     CHIEF --> |索引管理| LIBRARIAN
     CHIEF --> |审稿任务| READERS
     PROBES --> |报告草稿| CHIEF
     PALETTE --> |美化设计| CHIEF
-    COLLECTOR --> |结构化数据| CHIEF
     LIBRARIAN --> |索引更新| CHIEF
     READERS --> |审稿意见| CHIEF
     style CHIEF fill:#4f46e5,color:#fff
     style PALETTE fill:#059669,color:#fff
-    style COLLECTOR fill:#ea580c,color:#fff
     style LIBRARIAN fill:#7c3aed,color:#fff
 ```
 
@@ -202,7 +198,6 @@ flowchart TB
 <tr><td><strong>主编 (Chief)</strong></td><td>选题策划、计划制定、质量把控、Issue 管理、团队编排</td><td>用户反馈、报告草稿、审稿意见</td><td>研究计划、任务分派、发布决策</td><td>最终裁决</td></tr>
 <tr><td><strong>探针 (Probe)</strong></td><td>技术研究、信息收集、报告撰写</td><td>任务分派（主题+范围+深度）</td><td>Markdown 报告</td><td>技术判断</td></tr>
 <tr><td><strong>调色板 (Palette)</strong></td><td>视觉设计、模板维护、HTML 生成</td><td>设计需求、报告草稿</td><td>HTML 报告、信息图</td><td>设计判断</td></tr>
-<tr><td><strong>采集员 (Collector)</strong></td><td>论文检索、趋势数据、竞品情报</td><td>数据采集任务</td><td>结构化数据</td><td>无</td></tr>
 <tr><td><strong>图书管理员 (Librarian)</strong></td><td>知识库维护、标签体系、交叉引用</td><td>新报告元数据</td><td>索引更新、关联分析</td><td>分类判断</td></tr>
 <tr><td><strong>读者 (Reader)</strong></td><td>独立审稿、提出改进意见</td><td>报告全文</td><td>审稿意见（GitHub Issue）</td><td>仅建议</td></tr>
 </tbody>
@@ -216,7 +211,6 @@ flowchart TB
 | 探针 vs 调色板 | 探针生成的 Mermaid 语法有误，调色板无法渲染 | 建立 Mermaid 生成铁律：探针负责语法正确，调色板负责样式美化 |
 | 探针 vs 读者 | 读者要求补充文献，探针认为已有足够来源 | 主编裁决，以引用规范为准 |
 | 主编 vs 探针 | 主编要求快速交付，探针认为深度不够 | 明确任务深度等级（快速扫描 / 标准深度 / 深度分析） |
-| 采集员 vs 探针 | 探针自行搜索数据，绕过采集员 | 明确数据采集的正式流程，探针可辅助搜索但不替代采集员 |
 
 ### 2.4 角色设计反模式
 
@@ -408,7 +402,6 @@ OpenClaw 采用**分层决策**机制：
 各角色在职责范围内自主决策，无需上报。例如：
 - 探针决定使用哪些搜索关键词
 - 调色板决定配色方案
-- 采集员决定数据来源优先级
 
 **第二层：主编协调**
 
@@ -460,7 +453,7 @@ flowchart TD
 
 ---
 
-## 6. 案例：OpenClaw 1:N:1:N 团队结构
+## 6. 案例：OpenClaw 1:N:1:1:1:N 团队结构
 
 ### 6.1 Tech-Researcher 项目架构
 
@@ -583,7 +576,7 @@ flowchart TD
 <tr><td><strong>软件开发</strong></td><td>1 架构师 + N 开发 + 1 测试 + 1 运维</td><td>架构师做技术决策，并行开发提高效率，独立测试保证质量</td></tr>
 <tr><td><strong>数据分析</strong></td><td>1 分析主管 + N 分析师 + 1 可视化</td><td>主管分解问题，并行分析不同维度，统一可视化输出</td></tr>
 <tr><td><strong>客服系统</strong></td><td>1 路由 Agent + N 专业 Agent</td><td>路由 Agent 分流，专业 Agent 处理特定领域问题</td></tr>
-<tr><td><strong>研究调研</strong></td><td>1 主编 + N 探针 + 1 采集员 + 1 图书管理员</td><td>采集员负责数据收集，探针负责分析，图书管理员维护知识库</td></tr>
+<tr><td><strong>研究调研</strong></td><td>1 主编 + N 探针 + 1 图书管理员</td><td>探针负责数据收集和分析，图书管理员维护知识库</td></tr>
 </tbody>
 </table>
 </div>

@@ -22,25 +22,19 @@
     --bg-card:       #1e293b;
     --bg-code:       #0d1117;
     --bg-callout:    #1a1040;
-
     --text-primary:  #f1f5f9;
     --text-secondary:#94a3b8;
     --text-muted:    #64748b;
-
     --accent-primary:   #818cf8;
     --accent-secondary: #a78bfa;
     --accent-success:   #34d399;
     --accent-warning:   #fb923c;
     --accent-danger:    #f87171;
-
     --border-color:   #334155;
     --border-light:   #1e293b;
-
     --tag-bg:   #3730a3;
     --tag-text: #c7d2fe;
-
     --link: #818cf8;
-
     --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     --header-border: #334155;
   }
@@ -53,396 +47,110 @@
     --bg-card:       #f8fafc;
     --bg-code:       #f1f5f9;
     --bg-callout:    #eef2ff;
-
     --text-primary:  #0f172a;
     --text-secondary:#475569;
     --text-muted:    #94a3b8;
-
     --accent-primary:   #4f46e5;
     --accent-secondary: #7c3aed;
     --accent-success:   #059669;
     --accent-warning:   #ea580c;
     --accent-danger:    #dc2626;
-
     --border-color:   #e2e8f0;
     --border-light:   #f1f5f9;
-
     --tag-bg:   #e0e7ff;
     --tag-text: #312e81;
-
     --link: #4f46e5;
-
     --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
     --header-border: #e2e8f0;
   }
 
-  /* ═══════════════════════════════════════════
-     BASE
-     ═══════════════════════════════════════════ */
-  html {
-    font-size: 16px;
-    scroll-behavior: smooth;
-    -webkit-font-smoothing: antialiased;
-  }
-
+  /* ═══════════════════════════════════════════ BASE ═══════════════════════════════════════════ */
+  html { font-size: 16px; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    font-size: 1rem;
-    line-height: 1.8;
-    color: var(--text-primary);
-    background: var(--bg-primary);
-    transition: background 0.3s, color 0.3s;
+    font-size: 1rem; line-height: 1.8; color: var(--text-primary); background: var(--bg-primary); transition: background 0.3s, color 0.3s;
   }
 
-  /* ═══════════════════════════════════════════
-     HEADER / COVER
-     ═══════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════ HEADER ═══════════════════════════════════════════ */
   .header {
-    background: var(--header-bg);
-    border-bottom: 1px solid var(--header-border);
-    padding: 2.5rem 2rem;
-    text-align: center;
-    position: relative;
+    background: var(--header-bg); border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem; text-align: center; position: relative;
   }
-
-  .header h1 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
-  }
-
-  .header .meta {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-  }
-
-  /* Theme Toggle */
+  .header h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary); }
+  .header .meta { color: var(--text-muted); font-size: 0.9rem; }
   .theme-toggle {
-    position: absolute;
-    top: 1rem;
-    right: 1.5rem;
-    background: var(--bg-code);
-    border: 1px solid var(--border-color);
-    border-radius: 24px;
-    padding: 0.3rem 0.6rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    transition: all 0.3s;
+    position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code);
+    border: 1px solid var(--border-color); border-radius: 24px; padding: 0.3rem 0.6rem;
+    cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s;
   }
-
   .theme-toggle:hover { border-color: var(--accent-primary); }
   .theme-toggle .icon { font-size: 1.1rem; }
   .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
 
-  /* ═══════════════════════════════════════════
-     LAYOUT
-     ═══════════════════════════════════════════ */
-  .container {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem;
-  }
-
-  /* Breadcrumb */
-  .breadcrumb {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .breadcrumb a {
-    color: var(--link);
-    text-decoration: none;
-  }
-
+  /* ═══════════════════════════════════════════ LAYOUT ═══════════════════════════════════════════ */
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .breadcrumb { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
+  .breadcrumb a { color: var(--link); text-decoration: none; }
   .breadcrumb a:hover { text-decoration: underline; }
 
-  /* ═══════════════════════════════════════════
-     TAGS
-     ═══════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════ TAGS ═══════════════════════════════════════════ */
   .tag {
-    display: inline-block;
-    padding: 0.2rem 0.6rem;
-    margin: 0.2rem;
-    background: var(--tag-bg);
-    color: var(--tag-text);
-    border-radius: 4px;
-    font-size: 0.8rem;
+    display: inline-block; padding: 0.2rem 0.6rem; margin: 0.2rem;
+    background: var(--tag-bg); color: var(--tag-text); border-radius: 4px; font-size: 0.8rem;
   }
 
-  /* ═══════════════════════════════════════════
-     TYPOGRAPHY
-     ═══════════════════════════════════════════ */
-  h2 {
-    color: var(--accent-primary);
-    font-size: 1.4rem;
-    font-weight: 600;
-    margin: 2.5rem 0 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border-light);
-  }
-
-  h3 {
-    color: var(--accent-secondary);
-    font-size: 1.15rem;
-    font-weight: 600;
-    margin: 1.8rem 0 0.8rem;
-  }
-
-  h4 {
-    font-size: 1.05rem;
-    font-weight: 600;
-    margin: 1.4rem 0 0.6rem;
-    color: var(--text-primary);
-  }
-
-  p {
-    margin-bottom: 1rem;
-    color: var(--text-primary);
-  }
-
+  /* ═══════════════════════════════════════════ TYPOGRAPHY ═══════════════════════════════════════════ */
+  h2 { color: var(--accent-primary); font-size: 1.4rem; font-weight: 600; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); }
+  h3 { color: var(--accent-secondary); font-size: 1.15rem; font-weight: 600; margin: 1.8rem 0 0.8rem; }
+  h4 { font-size: 1.05rem; font-weight: 600; margin: 1.4rem 0 0.6rem; color: var(--text-primary); }
+  p { margin-bottom: 1rem; color: var(--text-primary); }
   strong { color: var(--text-primary); }
-
-  a {
-    color: var(--link);
-    text-decoration: none;
-  }
-
+  a { color: var(--link); text-decoration: none; }
   a:hover { text-decoration: underline; }
-
-  ul, ol {
-    margin: 0.5rem 0 1rem 1.5rem;
-    color: var(--text-primary);
-  }
-
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text-primary); }
   li { margin-bottom: 0.4rem; }
 
-  /* ═══════════════════════════════════════════
-     CODE
-     ═══════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════ CODE ═══════════════════════════════════════════ */
   code {
-    background: var(--bg-code);
-    padding: 0.15rem 0.4rem;
-    border-radius: 4px;
-    font-size: 0.9em;
-    color: var(--accent-secondary);
-    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--bg-code); padding: 0.15rem 0.4rem; border-radius: 4px;
+    font-size: 0.9em; color: var(--accent-secondary); font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
   }
+  pre { background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
+  pre code { background: none; padding: 0; color: var(--text-primary); font-size: 0.85rem; line-height: 1.6; }
 
-  pre {
-    background: var(--bg-code);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 1rem;
-    overflow-x: auto;
-    margin: 1rem 0;
-  }
+  /* ═══════════════════════════════════════════ TABLE ═══════════════════════════════════════════ */
+  .table-wrapper { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border-color); border-radius: 8px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 0.6rem 0.8rem; border: 1px solid var(--border-color); }
+  th { background: var(--bg-code); color: var(--accent-primary); font-weight: 600; font-size: 0.9rem; }
+  td { color: var(--text-primary); font-size: 0.9rem; }
+  tr:hover td { background: rgba(129, 140, 248, 0.03); }
 
-  pre code {
-    background: none;
-    padding: 0;
-    color: var(--text-primary);
-    font-size: 0.85rem;
-    line-height: 1.6;
-  }
-
-  /* ═══════════════════════════════════════════
-     CALLOUT
-     ═══════════════════════════════════════════ */
-  .callout {
-    background: var(--bg-callout);
-    border-left: 3px solid var(--accent-primary);
-    padding: 1rem 1.2rem;
-    border-radius: 0 8px 8px 0;
-    margin: 1rem 0;
-  }
-
-  .callout strong { color: var(--accent-primary); }
-
-  .callout.warn {
-    border-left-color: var(--accent-warning);
-    background: rgba(251, 146, 60, 0.06);
-  }
-  .callout.warn strong { color: var(--accent-warning); }
-
-  .callout.success {
-    border-left-color: var(--accent-success);
-    background: rgba(52, 211, 153, 0.06);
-  }
-  .callout.success strong { color: var(--accent-success); }
-
-  .callout.danger {
-    border-left-color: var(--accent-danger);
-    background: rgba(248, 113, 113, 0.06);
-  }
-  .callout.danger strong { color: var(--accent-danger); }
-
-  /* ═══════════════════════════════════════════
-     TABLE
-     ═══════════════════════════════════════════ */
-  .table-wrapper {
-    overflow-x: auto;
-    margin: 1rem 0;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  th, td {
-    text-align: left;
-    padding: 0.6rem 0.8rem;
-    border: 1px solid var(--border-color);
-  }
-
-  th {
-    background: var(--bg-code);
-    color: var(--accent-primary);
-    font-weight: 600;
-    font-size: 0.9rem;
-  }
-
-  td {
-    color: var(--text-primary);
-    font-size: 0.9rem;
-  }
-
-  tr:hover td {
-    background: rgba(129, 140, 248, 0.03);
-  }
-
-  /* ═══════════════════════════════════════════
-     STATS GRID (for key metrics)
-     ═══════════════════════════════════════════ */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1rem;
-    margin: 1rem 0;
-  }
-
-  .stat-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 1.2rem;
-    text-align: center;
-  }
-
-  .stat-card .num {
-    font-size: 2rem;
-    font-weight: 800;
-    color: var(--accent-primary);
-  }
-
-  .stat-card .label {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    margin-top: 0.3rem;
-  }
-
-  /* ═══════════════════════════════════════════
-     EXECUTIVE SUMMARY
-     ═══════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════ EXEC SUMMARY ═══════════════════════════════════════════ */
   .exec-summary {
-    background: var(--bg-callout);
-    border: 1px solid rgba(129, 140, 248, 0.2);
-    border-left: 3px solid var(--accent-primary);
-    border-radius: 0 8px 8px 0;
-    padding: 1.2rem 1.5rem;
-    margin: 1.5rem 0;
+    background: var(--bg-callout); border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary); border-radius: 0 8px 8px 0; padding: 1.2rem 1.5rem; margin: 1.5rem 0;
   }
+  .exec-summary__label { font-size: 0.75rem; font-weight: 600; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+  .exec-summary p { color: var(--text-primary); margin-bottom: 0; }
 
-  .exec-summary__label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--accent-primary);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 0.5rem;
-  }
+  hr { border: none; height: 1px; background: var(--border-color); margin: 2rem 0; }
 
-  .exec-summary p {
-    color: var(--text-primary);
-    margin-bottom: 0;
-  }
-
-  /* ═══════════════════════════════════════════
-     REFERENCES
-     ═══════════════════════════════════════════ */
-  .ref {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .ref a {
-    color: var(--link);
-    text-decoration: none;
-  }
-
-  .ref a:hover { text-decoration: underline; }
-
-  .ref-grade {
-    display: inline-block;
-    padding: 0.1rem 0.4rem;
-    border-radius: 3px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    margin-right: 0.3rem;
-  }
-
-  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
-  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
-  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
-  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
-
-  /* ═══════════════════════════════════════════
-     FIGURE
-     ═══════════════════════════════════════════ */
-  figure { margin: 1.5rem 0; }
-  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
-  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
-
-  hr {
-    border: none;
-    height: 1px;
-    background: var(--border-color);
-    margin: 2rem 0;
-  }
-
-  /* ═══════════════════════════════════════════
-     FOOTER
-     ═══════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════ FOOTER ═══════════════════════════════════════════ */
   .footer {
-    text-align: center;
-    color: var(--text-muted);
-    padding: 2rem;
-    margin-top: 3rem;
-    border-top: 1px solid var(--border-light);
-    font-size: 0.85rem;
+    text-align: center; color: var(--text-muted); padding: 2rem; margin-top: 3rem;
+    border-top: 1px solid var(--border-light); font-size: 0.85rem;
   }
 
-  /* ═══════════════════════════════════════════
-     RESPONSIVE
-     ═══════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════ RESPONSIVE ═══════════════════════════════════════════ */
   @media (max-width: 640px) {
     .header h1 { font-size: 1.4rem; }
     .header { padding: 1.5rem 1rem; }
     .container { padding: 1.5rem 1rem; }
     h2 { font-size: 1.2rem; }
-    .stats { grid-template-columns: repeat(2, 1fr); }
   }
 
-  /* ═══════════════════════════════════════════
-     PRINT
-     ═══════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════ PRINT ═══════════════════════════════════════════ */
   @media print {
     body { background: white; color: #1a1a1a; }
     .theme-toggle { display: none; }
@@ -450,7 +158,6 @@
   }
 </style>
 <script>
-  // Theme toggle — uses localStorage for persistence
   function toggleTheme() {
     const html = document.documentElement;
     const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
@@ -458,61 +165,55 @@
     localStorage.setItem('probe-theme', next);
     updateToggleUI(next);
   }
-
   function updateToggleUI(theme) {
     const icon = document.getElementById('themeIcon');
     const label = document.getElementById('themeLabel');
     if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
     if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
   }
-
-  // Apply saved theme on load
   (function() {
     const saved = localStorage.getItem('probe-theme') || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
-    // Update UI after DOM ready
     document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
   })();
 </script>
 </head>
 <body>
-
-<!-- ═══════════════════════════════════════════
-     HEADER
-     ═══════════════════════════════════════════ -->
 <div class="header" style="position:relative">
   <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
     <span class="icon" id="themeIcon">☀️</span>
     <span class="label" id="themeLabel">日间</span>
   </button>
   <h1>多 Agent 团队管理方法论</h1>
-  <div class="meta">2026-03-16 · 分类: 方法论 · 探针 (Probe)</div>
+  <div class="meta">2026-03-16 · 探针 (Probe) · **日期**: 2026-03-16</div>
   <div style="margin-top:0.8rem">
-    <span class="tag">Agent</span><span class="tag">团队</span><span class="tag">编排</span>
+    <span class="tag">方法论</span><span class="tag">多Agent</span><span class="tag">团队协作</span><span class="tag">OpenClaw</span>
   </div>
 </div>
-
 <div class="container">
-
-  <!-- Breadcrumb -->
   <div class="breadcrumb">
     <a href="../index.html">← 返回报告索引</a>
   </div>
-
-  <!-- Executive Summary -->
-  <div class="exec-summary">
-    <div class="exec-summary__label">Executive Summary</div>
-    <p>设计多 Agent 团队角色时，遵循以下原则：</p>
-  </div>
-
-  <!-- ═══════════════════════════════════════════
-       CONTENT
-       ═══════════════════════════════════════════ -->
-  <h2>1. 多 Agent 团队组织模式</h2>
+<h1>多 Agent 团队管理方法论</h1>
+<blockquote>
+<p><strong>标签</strong>: <code>方法论</code> <code>多Agent</code> <code>团队协作</code> <code>OpenClaw</code></p>
+<p><strong>作者</strong>: 探针 (Probe) · <strong>日期</strong>: 2026-03-16</p>
+</blockquote>
+<h2>Executive Summary</h2>
+<p>随着大模型 Agent 能力的快速提升，单一 Agent 已无法满足复杂任务需求。<strong>多 Agent 团队管理</strong>已从实验探索进入工程实践阶段。2025-2026 年间，Google A2A 协议、MCP 标准化、LangGraph 和 CrewAI 等框架的成熟，标志着行业正在形成统一的多 Agent 协作范式。</p>
+<p>本报告以 OpenClaw 平台的 <strong>1:N:1:1:1:N</strong> 团队结构（主编 + 探针 + 调色板 + 图书管理员 + 读者）为核心案例，系统分析多 Agent 团队的组织模式、角色定义、任务分派、跨角色通信协议和冲突解决机制，并提供选型决策树，帮助读者为自己的场景选择合适的团队架构。</p>
+<p><strong>核心结论</strong>:</p>
+<ul>
+<li>层级式模式适合结构化生产任务，扁平式适合创意讨论，市场式适合大规模异构集群</li>
+<li>混合式（Hybrid）是当前工程实践的主流选择，结合层级式的效率和扁平式的容错</li>
+<li>角色设计遵循单一职责、接口最小化、能力互补三大原则</li>
+<li>2025-2026 年通信协议标准化（A2A/MCP）正在改变多 Agent 系统的互操作性格局</li>
+</ul>
+<hr>
+<h2>1. 多 Agent 团队组织模式</h2>
 <h3>1.1 四种核心组织模式</h3>
-<p>当前多 Agent 系统的组织模式可归纳为四类：<strong>层级式（Hierarchical）</strong>、<strong>扁平式（Flat）</strong>、<strong>市场式（Market-Based）</strong>和<strong>混合式（Hybrid）</strong>。每种模式在通信效率、可扩展性和容错能力上各有优劣。</p>
-<div class="mermaid">
-flowchart TD
+<p>当前多 Agent 系统的组织模式可归纳为四类：<strong>层级式（Hierarchical）</strong>、<strong>扁平式（Flat）</strong>、<strong>市场式（Market-Based）<strong>和</strong>混合式（Hybrid）</strong>。每种模式在通信效率、可扩展性和容错能力上各有优劣。</p>
+<pre><code class="language-mermaid">flowchart TD
     subgraph MODELS
         direction LR
         H[层级式]
@@ -520,16 +221,110 @@ flowchart TD
         M[市场式]
         HY[混合式]
     end
-    H --> H_DESC[树状结构, 上级指令下级执行]
-    F --> F_DESC[Agent 对等, 共识机制协作]
-    M --> M_DESC[任务商品化, Agent 竞标分配]
-    HY --> HY_DESC[组合多种模式, 分层分域]
+    H --&gt; H_DESC[树状结构, 上级指令下级执行]
+    F --&gt; F_DESC[Agent 对等, 共识机制协作]
+    M --&gt; M_DESC[任务商品化, Agent 竞标分配]
+    HY --&gt; HY_DESC[组合多种模式, 分层分域]
     style H fill:#4f46e5,color:#fff
     style F fill:#059669,color:#fff
     style M fill:#ea580c,color:#fff
     style HY fill:#7c3aed,color:#fff
+</code></pre>
+<h4>1.1.1 层级式（Hierarchical）</h4>
+<p><strong>核心特征</strong>: 树状结构，存在明确的上下级关系。上层 Agent 负责规划和决策，下层 Agent 负责执行和反馈。</p>
+<p><strong>典型架构</strong>: Manager → Worker → Reporter</p>
+<p><strong>优势</strong>:</p>
+<ul>
+<li>职责清晰，避免重复劳动</li>
+<li>支持大规模团队（通过增加层级）</li>
+<li>决策效率高（无需全员共识）</li>
+</ul>
+<p><strong>劣势</strong>:</p>
+<ul>
+<li>上层 Agent 成为单点瓶颈</li>
+<li>信息在传递中可能失真</li>
+<li>下层 Agent 缺乏自主性</li>
+</ul>
+<p><strong>适用场景</strong>: 结构化任务、有明确分工的专业领域、对输出质量有严格要求的场景。</p>
+<p><strong>行业案例</strong>: Microsoft AutoGen 的 GroupChat 模式采用主持人（Admin）统筹多个专家 Agent 的层级式协作 [1]。CrewAI 的 Crew 结构也支持定义明确的层级关系和任务依赖链 [2]。</p>
+<h4>1.1.2 扁平式（Flat）</h4>
+<p><strong>核心特征</strong>: 所有 Agent 地位对等，通过轮询讨论或投票机制达成共识。</p>
+<p><strong>典型架构</strong>: Agent A ⟷ Agent B ⟷ Agent C（全连接）</p>
+<p><strong>优势</strong>:</p>
+<ul>
+<li>容错性强（无单点故障）</li>
+<li>信息共享充分</li>
+<li>适合创意发散类任务</li>
+</ul>
+<p><strong>劣势</strong>:</p>
+<ul>
+<li>Agent 数量增加后通信开销呈 O(n²)</li>
+<li>决策速度慢</li>
+<li>容易陷入无休止的讨论</li>
+</ul>
+<p><strong>适用场景</strong>: 小团队（3-5 个 Agent）、头脑风暴、开放式问题探索。</p>
+<p><strong>行业案例</strong>: OpenAI 的 Swarm 框架采用轻量级 Agent 间直接交接（handoff）模式，本质上是扁平式协作 [3]。MetaGPT 的 SOP（Standard Operating Procedure）模式虽然有流程约束，但 Agent 间地位对等 [4]。</p>
+<h4>1.1.3 市场式（Market-Based）</h4>
+<p><strong>核心特征</strong>: 任务以&quot;商品&quot;形式发布，Agent 根据自身能力&quot;竞标&quot;，通过价格机制实现资源最优分配。</p>
+<p><strong>典型架构</strong>: Task Broker ↔ Bidder Agents</p>
+<p><strong>优势</strong>:</p>
+<ul>
+<li>自适应资源分配</li>
+<li>无需中心化调度</li>
+<li>Agent 可动态加入/退出</li>
+</ul>
+<p><strong>劣势</strong>:</p>
+<ul>
+<li>实现复杂度高</li>
+<li>需要设计合理的竞标机制</li>
+<li>可能出现&quot;竞标博弈&quot;导致非最优解</li>
+</ul>
+<p><strong>适用场景</strong>: 大规模异构 Agent 集群、动态任务环境、云计算资源调度。</p>
+<h4>1.1.4 混合式（Hybrid）</h4>
+<p><strong>核心特征</strong>: 在不同层级或不同任务类型上组合使用多种模式。例如顶层采用层级式决策、子团队采用扁平式协作、资源分配采用市场式竞标。</p>
+<p><strong>典型架构</strong>: 层级式框架 + 扁平式子团队 + 市场式资源池</p>
+<p><strong>优势</strong>:</p>
+<ul>
+<li>灵活性最高，可针对不同场景定制</li>
+<li>兼顾效率和容错</li>
+<li>支持渐进式扩展</li>
+</ul>
+<p><strong>劣势</strong>:</p>
+<ul>
+<li>设计复杂度高</li>
+<li>需要清晰的模式切换边界</li>
+<li>调试和排查问题更困难</li>
+</ul>
+<p><strong>适用场景</strong>: 中大型团队、多阶段复杂任务、需要平衡效率和灵活性的场景。</p>
+<p><strong>行业案例</strong>: OpenClaw 平台的 1:N:1:1:1:N 结构是典型的混合式——主编对下属角色采用层级式分派，探针池和读者池内部扁平运作，任务和资源通过结构化机制分配 [5]。</p>
+<h3>1.2 模式对比</h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>维度</th><th>层级式</th><th>扁平式</th><th>市场式</th><th>混合式</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>通信复杂度</strong></td><td>O(n)</td><td>O(n²)</td><td>O(n log n)</td><td>分层 O(n)</td></tr>
+<tr><td><strong>决策速度</strong></td><td>快</td><td>慢</td><td>中等</td><td>中-快</td></tr>
+<tr><td><strong>可扩展性</strong></td><td>高（增加层级）</td><td>低（超过 5 个困难）</td><td>高</td><td>高</td></tr>
+<tr><td><strong>容错性</strong></td><td>低（根节点单点故障）</td><td>高</td><td>中等</td><td>中-高</td></tr>
+<tr><td><strong>实现复杂度</strong></td><td>低</td><td>低</td><td>高</td><td>高</td></tr>
+<tr><td><strong>适用团队规模</strong></td><td>3-50+</td><td>2-5</td><td>10-100+</td><td>5-200+</td></tr>
+<tr><td><strong>典型场景</strong></td><td>项目管理、内容生产</td><td>头脑风暴、审稿</td><td>资源调度、微服务</td><td>综合项目、企业级</td></tr>
+</tbody>
+</table>
 </div>
-<h2>2. 角色定义与职责边界</h2>
+
+<h3>1.3 2025-2026 年趋势：标准化与互操作</h3>
+<p>2025 年，多 Agent 领域最重要的进展是<strong>通信协议标准化</strong>：</p>
+<ul>
+<li><strong>Google A2A Protocol</strong> (Agent-to-Agent): 定义了 Agent 间的标准发现、任务委派和结果回传机制，支持跨平台 Agent 协作 [6]</li>
+<li><strong>Anthropic MCP</strong> (Model Context Protocol): 标准化 Agent 与外部工具和数据源的交互接口 [7]</li>
+<li><strong>LangGraph</strong>: 提供基于图结构的多 Agent 工作流编排框架，支持状态管理和人机交互节点 [8]</li>
+</ul>
+<p>这些标准的出现意味着多 Agent 团队管理正从&quot;各自为战&quot;走向&quot;互联互通&quot;。</p>
+<hr>
+<h2>2. 角色定义与职责分离</h2>
 <h3>2.1 角色设计原则</h3>
 <p>设计多 Agent 团队角色时，遵循以下原则：</p>
 <ol>
@@ -539,30 +334,25 @@ flowchart TD
 <li><strong>可替换性（Replaceability）</strong>: 同一角色可由多个 Agent 实例承担</li>
 </ol>
 <h3>2.2 OpenClaw 角色体系</h3>
-<p>以 Tech-Researcher 项目为例，OpenClaw 采用 <strong>1:N:1:N</strong> 角色体系：</p>
-<div class="mermaid">
-flowchart TB
+<p>OpenClaw 采用 <strong>1:N:1:1:1:N</strong> 角色体系，覆盖从选题到发布的完整工作流：</p>
+<pre><code class="language-mermaid">flowchart TB
     CHIEF[主编 Chief x1]
     PROBES[探针池 Probe xN]
     PALETTE[调色板 Palette x1]
-    COLLECTOR[采集员 Collector x1]
     LIBRARIAN[图书管理员 Librarian x1]
     READERS[读者池 Reader xN]
-    CHIEF --> |分派任务, 审核报告| PROBES
-    CHIEF --> |设计需求| PALETTE
-    CHIEF --> |数据采集任务| COLLECTOR
-    CHIEF --> |索引管理| LIBRARIAN
-    CHIEF --> |审稿任务| READERS
-    PROBES --> |报告草稿| CHIEF
-    PALETTE --> |美化设计| CHIEF
-    COLLECTOR --> |结构化数据| CHIEF
-    LIBRARIAN --> |索引更新| CHIEF
-    READERS --> |审稿意见| CHIEF
+    CHIEF --&gt; |分派任务, 审核报告| PROBES
+    CHIEF --&gt; |设计需求| PALETTE
+    CHIEF --&gt; |索引管理| LIBRARIAN
+    CHIEF --&gt; |审稿任务| READERS
+    PROBES --&gt; |报告草稿| CHIEF
+    PALETTE --&gt; |美化设计| CHIEF
+    LIBRARIAN --&gt; |索引更新| CHIEF
+    READERS --&gt; |审稿意见| CHIEF
     style CHIEF fill:#4f46e5,color:#fff
     style PALETTE fill:#059669,color:#fff
-    style COLLECTOR fill:#ea580c,color:#fff
     style LIBRARIAN fill:#7c3aed,color:#fff
-</div>
+</code></pre>
 <h4>角色职责矩阵</h4>
 <div class="table-wrapper">
 <table>
@@ -570,17 +360,16 @@ flowchart TB
 <tr><th>角色</th><th>核心职责</th><th>输入</th><th>输出</th><th>决策权</th></tr>
 </thead>
 <tbody>
-<tr><td><strong>主编 (Chief)</strong></td><td>选题策划、计划制定、质量把控、Issue 管理、团队编排</td><td>用户反馈、报告草稿、审稿意见</td><td>研究计划、任务分派、发布决策</td><td>✅ 最终裁决</td></tr>
-<tr><td><strong>探针 (Probe)</strong></td><td>技术研究、信息收集、报告撰写</td><td>任务分派（主题+范围+深度）</td><td>Markdown 报告</td><td>⚠️ 技术判断</td></tr>
-<tr><td><strong>调色板 (Palette)</strong></td><td>视觉设计、模板维护、HTML 生成</td><td>设计需求、报告草稿</td><td>HTML 报告、信息图</td><td>⚠️ 设计判断</td></tr>
-<tr><td><strong>采集员 (Collector)</strong></td><td>论文检索、趋势数据、竞品情报</td><td>数据采集任务</td><td>结构化数据</td><td>❌ 无</td></tr>
-<tr><td><strong>图书管理员 (Librarian)</strong></td><td>知识库维护、标签体系、交叉引用</td><td>新报告元数据</td><td>索引更新、关联分析</td><td>⚠️ 分类判断</td></tr>
-<tr><td><strong>读者 (Reader)</strong></td><td>独立审稿、提出改进意见</td><td>报告全文</td><td>审稿意见（GitHub Issue）</td><td>❌ 仅建议</td></tr>
+<tr><td><strong>主编 (Chief)</strong></td><td>选题策划、计划制定、质量把控、Issue 管理、团队编排</td><td>用户反馈、报告草稿、审稿意见</td><td>研究计划、任务分派、发布决策</td><td>最终裁决</td></tr>
+<tr><td><strong>探针 (Probe)</strong></td><td>技术研究、信息收集、报告撰写</td><td>任务分派（主题+范围+深度）</td><td>Markdown 报告</td><td>技术判断</td></tr>
+<tr><td><strong>调色板 (Palette)</strong></td><td>视觉设计、模板维护、HTML 生成</td><td>设计需求、报告草稿</td><td>HTML 报告、信息图</td><td>设计判断</td></tr>
+<tr><td><strong>图书管理员 (Librarian)</strong></td><td>知识库维护、标签体系、交叉引用</td><td>新报告元数据</td><td>索引更新、关联分析</td><td>分类判断</td></tr>
+<tr><td><strong>读者 (Reader)</strong></td><td>独立审稿、提出改进意见</td><td>报告全文</td><td>审稿意见（GitHub Issue）</td><td>仅建议</td></tr>
 </tbody>
 </table>
 </div>
 
-<h3>2.3 职责边界的常见冲突</h3>
+<h3>2.3 职责边界的常见冲突与解决方案</h3>
 <table>
 <thead>
 <tr>
@@ -592,32 +381,58 @@ flowchart TB
 <tbody><tr>
 <td>探针 vs 调色板</td>
 <td>探针生成的 Mermaid 语法有误，调色板无法渲染</td>
-<td>建立 <strong>Mermaid 生成铁律</strong>：探针负责语法正确，调色板负责样式美化</td>
+<td>建立 Mermaid 生成铁律：探针负责语法正确，调色板负责样式美化</td>
 </tr>
 <tr>
 <td>探针 vs 读者</td>
 <td>读者要求补充文献，探针认为已有足够来源</td>
-<td>主编裁决，以 <strong>引用规范</strong> 为准</td>
+<td>主编裁决，以引用规范为准</td>
 </tr>
 <tr>
 <td>主编 vs 探针</td>
 <td>主编要求快速交付，探针认为深度不够</td>
-<td>明确 <strong>任务深度等级</strong>（快速扫描 / 标准深度 / 深度分析）</td>
+<td>明确任务深度等级（快速扫描 / 标准深度 / 深度分析）</td>
 </tr>
 </tbody></table>
-<div class="mermaid">
-flowchart TD
-    A[角色内自治] --> B[主编协调]
-    B --> C[用户决策]
-    C -.->|可回落| A
-    style A fill:#059669,color:#fff
-    style B fill:#4f46e5,color:#fff
-    style C fill:#ea580c,color:#fff
-</div>
+<h3>2.4 角色设计反模式</h3>
+<table>
+<thead>
+<tr>
+<th>反模式</th>
+<th>表现</th>
+<th>后果</th>
+<th>正确做法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>万能角色</td>
+<td>一个 Agent 承担过多职责</td>
+<td>上下文膨胀、输出质量下降</td>
+<td>拆分为多个专职角色</td>
+</tr>
+<tr>
+<td>职责重叠</td>
+<td>多个角色做同一件事</td>
+<td>重复劳动、结果不一致</td>
+<td>明确职责边界，建立交接协议</td>
+</tr>
+<tr>
+<td>孤立角色</td>
+<td>某个角色缺乏与其他角色的通信</td>
+<td>信息孤岛、协作断裂</td>
+<td>设计清晰的输入输出接口</td>
+</tr>
+<tr>
+<td>过度细分</td>
+<td>角色拆分过细</td>
+<td>管理开销超过协作收益</td>
+<td>合并相关职责，保持合理粒度</td>
+</tr>
+</tbody></table>
 <hr>
-<h2>3. 任务分派与进度跟踪</h2>
+<h2>3. 任务分派与负载均衡</h2>
 <h3>3.1 任务分派模型</h3>
-<p>OpenClaw 采用 <strong>结构化任务描述</strong> 模式，确保探针收到的任务有清晰的边界：</p>
+<p>OpenClaw 采用<strong>结构化任务描述</strong>模式，确保探针收到的任务有清晰的边界：</p>
 <pre><code>📋 新研究任务
 
 主题: [具体主题]
@@ -632,26 +447,42 @@ flowchart TD
 <ul>
 <li><strong>限定范围比限定内容更重要</strong> — 明确&quot;不做什么&quot;避免探针过度扩展</li>
 <li><strong>深度等级前置</strong> — 避免交付后才发现期望不匹配</li>
-<li><strong>可视化需求显式标注</strong> — 使用 <code>[VIZ:type]</code> 标记，调色板据此生成配图</li>
+<li><strong>可视化需求显式标注</strong> — 使用标记标注可视化需求，调色板据此生成配图</li>
 </ul>
-<h3>3.2 进度跟踪机制</h3>
-<div class="mermaid">
-    flowchart LR
-        BACKLOG[待分派] --> |主编下达| ASSIGNED[已分派]
-        ASSIGNED --> |探针接受| IN_PROGRESS[进行中]
-        IN_PROGRESS --> |探针提交| REVIEW[审核中]
-        REVIEW --> |主编通过| PUBLISHED[已发布]
-        REVIEW --> |主编驳回| IN_PROGRESS
-        PUBLISHED --> |触发评审| UNDER_REVIEW[读者审稿]
-        UNDER_REVIEW --> |审稿通过| DONE[已完成]
-        UNDER_REVIEW --> |需修改| IN_PROGRESS
-        style BACKLOG fill:#64748b,color:#fff
-        style ASSIGNED fill:#4f46e5,color:#fff
-        style IN_PROGRESS fill:#ea580c,color:#fff
-        style REVIEW fill:#7c3aed,color:#fff
-        style PUBLISHED fill:#059669,color:#fff
-        style DONE fill:#059669,color:#fff
-</div>
+<h3>3.2 负载均衡策略</h3>
+<p>多 Agent 团队的负载均衡需要同时考虑<strong>任务分配</strong>和<strong>资源管理</strong>两个维度：</p>
+<p><strong>策略一：基于能力的任务匹配</strong></p>
+<p>将任务分配给最擅长该领域的 Agent，而非最空闲的 Agent。OpenClaw 的探针按专题分工（AI/LLM 探针、架构探针等）就是这一策略的体现。</p>
+<p><strong>策略二：容量上限约束</strong></p>
+<p>基于实战经验设定硬性约束：</p>
+<ul>
+<li>探针分派上限：固定 <strong>2 篇/队</strong>，超出后失败率显著上升</li>
+<li>读者审稿配额：每篇报告 1-3 名读者，按报告重要性动态调整</li>
+</ul>
+<p><strong>策略三：动态优先级调整</strong></p>
+<p>任务的优先级根据以下因素动态调整：</p>
+<ul>
+<li>用户需求强度（Issue 中的讨论热度）</li>
+<li>时效性（新发布/新论文的半衰期）</li>
+<li>依赖关系（被其他报告引用的报告优先级提升）</li>
+</ul>
+<h3>3.3 进度跟踪与状态管理</h3>
+<pre><code class="language-mermaid">flowchart LR
+    BACKLOG[待分派] --&gt; |主编下达| ASSIGNED[已分派]
+    ASSIGNED --&gt; |探针接受| IN_PROGRESS[进行中]
+    IN_PROGRESS --&gt; |探针提交| REVIEW[审核中]
+    REVIEW --&gt; |主编通过| PUBLISHED[已发布]
+    REVIEW --&gt; |主编驳回| IN_PROGRESS
+    PUBLISHED --&gt; |触发评审| UNDER_REVIEW[读者审稿]
+    UNDER_REVIEW --&gt; |审稿通过| DONE[已完成]
+    UNDER_REVIEW --&gt; |需修改| IN_PROGRESS
+    style BACKLOG fill:#64748b,color:#fff
+    style ASSIGNED fill:#4f46e5,color:#fff
+    style IN_PROGRESS fill:#ea580c,color:#fff
+    style REVIEW fill:#7c3aed,color:#fff
+    style PUBLISHED fill:#059669,color:#fff
+    style DONE fill:#059669,color:#fff
+</code></pre>
 <p><strong>状态流转规则</strong>:</p>
 <ol>
 <li>主编在 <code>memory/YYYY-MM-DD.md</code> 记录每次分派</li>
@@ -659,16 +490,17 @@ flowchart TD
 <li>HTML 与 Markdown 必须同步——MD 修改后立即重新生成 HTML</li>
 <li>读者审稿设 24 小时时限，避免拖延</li>
 </ol>
-<h3>3.3 容量管理</h3>
-<p>基于实战经验的关键约束：</p>
+<h3>3.4 批量任务管理</h3>
+<p>当需要同时处理多个报告时的管理策略：</p>
 <ul>
-<li><strong>探针分派上限</strong>: 固定 <strong>2 篇/队</strong>，8 篇/队经常失败或产出不完整</li>
-<li><strong>读者审稿配额</strong>: 每篇报告 1-3 名读者，按报告重要性动态调整</li>
-<li><strong>主编裁决时效</strong>: 收到审稿意见后 <strong>当天裁决</strong>，不拖延</li>
+<li><strong>串行瓶颈识别</strong>: 主编的审核是最大瓶颈，需建立快速审核清单</li>
+<li><strong>并行最大化</strong>: 多个探针可同时执行研究任务，互不干扰</li>
+<li><strong>依赖解耦</strong>: 报告之间尽量避免依赖关系，降低串行阻塞风险</li>
+<li><strong>优先级队列</strong>: 使用 P0/P1/P2 三级优先级，P0 任务打断 P1/P2</li>
 </ul>
 <hr>
 <h2>4. 跨角色通信协议</h2>
-<h3>4.1 通信模式</h3>
+<h3>4.1 通信模式分类</h3>
 <p>多 Agent 团队的通信模式可分为三种：</p>
 <ol>
 <li><strong>直接指令（Direct Command）</strong>: 主编 → 探针，一对一任务下达</li>
@@ -677,52 +509,73 @@ flowchart TD
 </ol>
 <h3>4.2 OpenClaw 消息协议</h3>
 <p>OpenClaw 平台通过 <strong>subagent 机制</strong> 实现跨角色通信：</p>
-<pre><code>主编 → sessions_spawn(label=&quot;probe-xxx&quot;, task=&quot;...&quot;)
-       ↓
-     探针执行（隔离上下文）
-       ↓
-     sessions_yield() 返回结果
-       ↓
-主编收到自动通知 → 审核 → 继续下一步
+<pre><code class="language-mermaid">sequenceDiagram
+    participant Chief as 主编
+    participant Session as Subagent Session
+    participant Probe as 探针
+    Chief-&gt;&gt;Session: sessions_spawn(label, task)
+    Session-&gt;&gt;Probe: 启动隔离上下文
+    Note over Probe: 执行研究任务
+    Probe-&gt;&gt;Session: sessions_yield()
+    Session--&gt;&gt;Chief: 自动推送结果
+    Note over Chief: 审核结果，继续下一步
 </code></pre>
 <p><strong>协议特征</strong>:</p>
 <ul>
 <li><strong>Push-based completion</strong>: 探针完成后自动推送结果，主编无需轮询</li>
 <li><strong>上下文隔离</strong>: 每个探针运行在独立的 session 中，避免交叉污染</li>
-<li><strong>标签标记</strong>: <code>label</code> 参数标记探针身份，便于主编追踪多个并行任务</li>
+<li><strong>标签标记</strong>: label 参数标记探针身份，便于主编追踪多个并行任务</li>
 </ul>
-<div class="mermaid">
-sequenceDiagram
-    participant Chief as 主编
-    participant Session as Subagent Session
-    participant Probe as 探针
-    Chief->>Session: sessions_spawn(label, task)
-    Session->>Probe: 启动隔离上下文
-    Note over Probe: 执行研究任务
-    Probe->>Session: sessions_yield()
-    Session-->>Chief: 自动推送结果
-    Note over Chief: 审核结果，继续下一步
-</div>
-<h3>4.3 审稿意见处理协议</h3>
+<h3>4.3 行业标准协议（2025-2026）</h3>
+<p>2025-2026 年，多 Agent 通信协议正在走向标准化：</p>
+<table>
+<thead>
+<tr>
+<th>协议</th>
+<th>提出方</th>
+<th>核心功能</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>A2A</strong> (Agent-to-Agent)</td>
+<td>Google</td>
+<td>Agent 发现、任务委派、结果回传</td>
+<td>2025 年发布 [6]</td>
+</tr>
+<tr>
+<td><strong>MCP</strong> (Model Context Protocol)</td>
+<td>Anthropic</td>
+<td>Agent 与工具/数据源的标准化接口</td>
+<td>2024 年发布，2025 年广泛采用 [7]</td>
+</tr>
+<tr>
+<td><strong>ACP</strong> (Agent Communication Protocol)</td>
+<td>IBM</td>
+<td>Agent 间消息格式和路由标准</td>
+<td>2025 年提案 [9]</td>
+</tr>
+</tbody></table>
+<p>这些协议解决的核心问题是<strong>跨平台 Agent 互操作</strong>——让不同框架（AutoGen、CrewAI、LangGraph、OpenClaw）的 Agent 能够协作。</p>
+<h3>4.4 审稿意见处理协议</h3>
 <p>当收到审稿意见时，主编组织团队按以下协议处理：</p>
-<div class="mermaid">
-    flowchart TD
-        A[收到审稿意见] --> B[主编分发意见]
-        B --> C[探针评估: 内容类]
-        B --> D[调色板评估: 设计类]
-        C --> E[各自独立投票]
-        D --> E
-        E --> F{投票结果}
-        F -->|一致| G[按多数执行]
-        F -->|分歧| H[主编权衡裁决]
-        G --> I[执行决定]
-        H --> I
-        I --> J[GitHub Issue 回复]
-        style A fill:#4f46e5,color:#fff
-        style F fill:#ea580c,color:#fff
-        style G fill:#059669,color:#fff
-        style H fill:#7c3aed,color:#fff
-</div>
+<pre><code class="language-mermaid">flowchart TD
+    A[收到审稿意见] --&gt; B[主编分发意见]
+    B --&gt; C[探针评估: 内容类]
+    B --&gt; D[调色板评估: 设计类]
+    C --&gt; E[各自独立投票]
+    D --&gt; E
+    E --&gt; F{投票结果}
+    F --&gt;|一致| G[按多数执行]
+    F --&gt;|分歧| H[主编权衡裁决]
+    G --&gt; I[执行决定]
+    H --&gt; I
+    I --&gt; J[GitHub Issue 回复]
+    style A fill:#4f46e5,color:#fff
+    style F fill:#ea580c,color:#fff
+    style G fill:#059669,color:#fff
+    style H fill:#7c3aed,color:#fff
+</code></pre>
 <p><strong>投票选项</strong>:</p>
 <ul>
 <li><strong>A) 跟进改进</strong> — 列入计划，分配任务</li>
@@ -730,8 +583,91 @@ sequenceDiagram
 <li><strong>C) 暂不处理</strong> — 关闭或搁置</li>
 </ul>
 <hr>
-<h2>5. OpenClaw 团队管理实战案例</h2>
-<h3>5.1 Tech-Researcher 项目架构</h3>
+<h2>5. 冲突解决与决策机制</h2>
+<h3>5.1 冲突类型</h3>
+<p>多 Agent 团队中的冲突可分为三类：</p>
+<table>
+<thead>
+<tr>
+<th>冲突类型</th>
+<th>描述</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>资源冲突</strong></td>
+<td>多个 Agent 争夺同一资源</td>
+<td>两个探针同时要求使用同一数据源</td>
+</tr>
+<tr>
+<td><strong>结果冲突</strong></td>
+<td>Agent 间对同一问题得出不同结论</td>
+<td>两个探针对某技术的评价相反</td>
+</tr>
+<tr>
+<td><strong>优先级冲突</strong></td>
+<td>Agent 对任务优先级判断不一致</td>
+<td>主编认为 P0，探针认为 P2</td>
+</tr>
+</tbody></table>
+<h3>5.2 决策机制</h3>
+<p>OpenClaw 采用<strong>分层决策</strong>机制：</p>
+<p><strong>第一层：角色内自治</strong></p>
+<p>各角色在职责范围内自主决策，无需上报。例如：</p>
+<ul>
+<li>探针决定使用哪些搜索关键词</li>
+<li>调色板决定配色方案</li>
+</ul>
+<p><strong>第二层：主编协调</strong></p>
+<p>跨角色的冲突由主编协调解决：</p>
+<ul>
+<li>收到审稿意见后分发给对应角色</li>
+<li>各角色独立评估并投票</li>
+<li>主编汇总并裁决</li>
+</ul>
+<p><strong>第三层：用户决策</strong></p>
+<p>重大方向性决策交由用户（人类）最终拍板：</p>
+<ul>
+<li>选题方向的重大调整</li>
+<li>团队结构的变更</li>
+<li>质量标准的修订</li>
+</ul>
+<h3>5.3 投票机制设计</h3>
+<p>对于需要团队共识的决策，OpenClaw 采用<strong>结构化投票</strong>：</p>
+<p><strong>投票权重</strong>:</p>
+<ul>
+<li>主编：1.5 票（最终裁决权）</li>
+<li>其他角色：各 1 票</li>
+</ul>
+<p><strong>裁决规则</strong>:</p>
+<ul>
+<li>票数一致（超过 2/3）→ 按多数执行</li>
+<li>票数分歧 → 主编权衡后裁决，记录理由</li>
+<li>主编裁决需附带解释，保证透明度</li>
+</ul>
+<p><strong>时效约束</strong>:</p>
+<ul>
+<li>投票发起后 24 小时内完成</li>
+<li>超时未投票视为弃权</li>
+<li>主编当天裁决，不拖延</li>
+</ul>
+<h3>5.4 冲突升级路径</h3>
+<pre><code class="language-mermaid">flowchart TD
+    A[角色内自治] --&gt; B[主编协调]
+    B --&gt; C[用户决策]
+    C -.-&gt;|可回落| A
+    style A fill:#059669,color:#fff
+    style B fill:#4f46e5,color:#fff
+    style C fill:#ea580c,color:#fff
+</code></pre>
+<ul>
+<li>大多数冲突在角色内或主编层面解决</li>
+<li>仅重大方向性决策需要用户介入</li>
+<li>冲突解决后可回落到更低层级处理后续问题</li>
+</ul>
+<hr>
+<h2>6. 案例：OpenClaw 1:N:1:1:1:N 团队结构</h2>
+<h3>6.1 Tech-Researcher 项目架构</h3>
 <p>Tech-Researcher 是一个基于 OpenClaw 的技术研究报告项目，完整实践了多 Agent 团队管理方法论。</p>
 <p><strong>技术栈</strong>:</p>
 <ul>
@@ -741,20 +677,8 @@ sequenceDiagram
 <li><strong>发布</strong>: GitHub Pages + GitHub Releases</li>
 <li><strong>审稿</strong>: GitHub Issue 标签系统</li>
 </ul>
-<h3>5.2 报告生命周期</h3>
-<p>一份报告从选题到发布的完整生命周期：</p>
-<ol>
-<li><strong>选题</strong> — 主编扫描 GitHub Issues，识别用户需求和技术趋势</li>
-<li><strong>分派</strong> — 主编给探针下达结构化任务</li>
-<li><strong>研究</strong> — 探针搜索、分析、撰写 Markdown 报告</li>
-<li><strong>初审</strong> — 主编审核报告质量（选题契合度、来源质量、分析深度）</li>
-<li><strong>美化</strong> — 调色板生成 HTML 报告，应用模板和可视化</li>
-<li><strong>发布</strong> — 主编执行 <code>git push</code> + GitHub Release</li>
-<li><strong>评审</strong> — 自动创建评审 Issue，指派读者审稿</li>
-<li><strong>迭代</strong> — 根据审稿意见修改报告</li>
-</ol>
-<div class="mermaid">
-flowchart TB
+<h3>6.2 团队工作流架构</h3>
+<pre><code class="language-mermaid">flowchart TB
     USER[用户: 提出需求/反馈]
     ISSUES[GitHub Issues: 选题池]
     CHIEF[主编: 选题策划与分派]
@@ -762,32 +686,44 @@ flowchart TB
     PALETTE[调色板: 视觉美化]
     READER[读者: 独立审稿]
     RELEASE[发布: GitHub Pages + Release]
-    USER --> ISSUES
-    ISSUES --> |扫描| CHIEF
-    CHIEF --> |任务分派| PROBE
-    PROBE --> |Markdown 草稿| CHIEF
-    CHIEF --> |审核通过| PALETTE
-    PALETTE --> |HTML 报告| CHIEF
-    CHIEF --> |发布| RELEASE
-    RELEASE --> |创建评审 Issue| READER
-    READER --> |审稿意见| CHIEF
-    CHIEF --> |修改任务| PROBE
+    USER --&gt; ISSUES
+    ISSUES --&gt; |扫描| CHIEF
+    CHIEF --&gt; |任务分派| PROBE
+    PROBE --&gt; |Markdown 草稿| CHIEF
+    CHIEF --&gt; |审核通过| PALETTE
+    PALETTE --&gt; |HTML 报告| CHIEF
+    CHIEF --&gt; |发布| RELEASE
+    RELEASE --&gt; |创建评审 Issue| READER
+    READER --&gt; |审稿意见| CHIEF
+    CHIEF --&gt; |修改任务| PROBE
     style USER fill:#64748b,color:#fff
     style CHIEF fill:#4f46e5,color:#fff
     style PROBE fill:#ea580c,color:#fff
     style PALETTE fill:#059669,color:#fff
     style READER fill:#7c3aed,color:#fff
     style RELEASE fill:#0ea5e9,color:#fff
-</div>
-<h3>5.3 质量铁律体系</h3>
+</code></pre>
+<h3>6.3 报告生命周期</h3>
+<p>一份报告从选题到发布的完整生命周期：</p>
+<ol>
+<li><strong>选题</strong> — 主编扫描 GitHub Issues，识别用户需求和技术趋势</li>
+<li><strong>分派</strong> — 主编给探针下达结构化任务（主题+范围+深度+截止时间）</li>
+<li><strong>研究</strong> — 探针搜索、分析、撰写 Markdown 报告，嵌入 Mermaid 图</li>
+<li><strong>初审</strong> — 主编审核报告质量（选题契合度、来源质量、分析深度）</li>
+<li><strong>美化</strong> — 调色板生成 HTML 报告，应用模板和信息图</li>
+<li><strong>发布</strong> — 主编执行 <code>git push</code> + GitHub Release + 分发通知</li>
+<li><strong>评审</strong> — 自动创建评审 Issue，指派读者审稿（24 小时时限）</li>
+<li><strong>迭代</strong> — 根据审稿意见修改报告，可能触发新一轮评审</li>
+</ol>
+<h3>6.4 质量铁律体系</h3>
 <p>基于实战经验，OpenClaw 团队建立了四条质量铁律：</p>
 <ol>
-<li><strong>信息必须最新</strong> — 引用优先 2024-2025 年来源，旧文献需说明原因</li>
+<li><strong>信息必须最新</strong> — 引用优先 2025-2026 年来源，旧文献需说明原因</li>
 <li><strong>引用必须带链接</strong> — 所有参考来源和正文数据必须附 URL</li>
 <li><strong>禁止文本示意图</strong> — 流程图/架构图用 Mermaid，汇总图用信息图</li>
 <li><strong>内容必须紧跟潮流</strong> — 案例/工具/框架紧跟热门产品和最新版本</li>
 </ol>
-<h3>5.4 经验教训</h3>
+<h3>6.5 经验教训</h3>
 <table>
 <thead>
 <tr>
@@ -827,7 +763,7 @@ flowchart TB
 <td>在 GitHub Issue 上公开回复</td>
 </tr>
 </tbody></table>
-<h3>5.5 选题决策框架</h3>
+<h3>6.6 选题决策框架</h3>
 <p>主编面对选题冲突时的优先级排序：</p>
 <ol>
 <li><strong>用户明确请求</strong>（Issue 中多人提出的）</li>
@@ -836,27 +772,26 @@ flowchart TB
 <li><strong>探索性研究</strong>（前沿但不确定是否有价值）</li>
 </ol>
 <hr>
-<h2>6. 选型决策树</h2>
-<h3>6.1 组织模式选择</h3>
-<div class="mermaid">
-flowchart TD
-    START[选择多 Agent 组织模式] --> Q1{团队规模?}
-    Q1 -->|2-5 个| Q2{任务类型?}
-    Q1 -->|6-20 个| Q4{是否需要容错?}
-    Q1 -->|20+ 个| Q3{Agent 是否异构?}
-    Q2 -->|创意讨论| FLAT[扁平式]
-    Q2 -->|执行生产| HIER[层级式]
-    Q3 -->|同构| HIER
-    Q3 -->|异构| MARKET[市场式]
-    Q4 -->|是| HYBRID[混合式]
-    Q4 -->|否| HIER
+<h2>7. 选型决策树</h2>
+<h3>7.1 组织模式选择</h3>
+<pre><code class="language-mermaid">flowchart TD
+    START[选择多 Agent 组织模式] --&gt; Q1{团队规模?}
+    Q1 --&gt;|2-5 个| Q2{任务类型?}
+    Q1 --&gt;|6-20 个| Q4{是否需要容错?}
+    Q1 --&gt;|20+ 个| Q3{Agent 是否异构?}
+    Q2 --&gt;|创意讨论| FLAT[扁平式]
+    Q2 --&gt;|执行生产| HIER[层级式]
+    Q3 --&gt;|同构| HIER
+    Q3 --&gt;|异构| MARKET[市场式]
+    Q4 --&gt;|是| HYBRID[混合式]
+    Q4 --&gt;|否| HIER
     style START fill:#4f46e5,color:#fff
     style HIER fill:#059669,color:#fff
     style FLAT fill:#ea580c,color:#fff
     style MARKET fill:#7c3aed,color:#fff
     style HYBRID fill:#0ea5e9,color:#fff
-</div>
-<h3>6.2 角色配置建议</h3>
+</code></pre>
+<h3>7.2 角色配置建议</h3>
 <p>根据项目类型推荐角色配置：</p>
 <div class="table-wrapper">
 <table>
@@ -868,11 +803,43 @@ flowchart TD
 <tr><td><strong>软件开发</strong></td><td>1 架构师 + N 开发 + 1 测试 + 1 运维</td><td>架构师做技术决策，并行开发提高效率，独立测试保证质量</td></tr>
 <tr><td><strong>数据分析</strong></td><td>1 分析主管 + N 分析师 + 1 可视化</td><td>主管分解问题，并行分析不同维度，统一可视化输出</td></tr>
 <tr><td><strong>客服系统</strong></td><td>1 路由 Agent + N 专业 Agent</td><td>路由 Agent 分流，专业 Agent 处理特定领域问题</td></tr>
+<tr><td><strong>研究调研</strong></td><td>1 主编 + N 探针 + 1 图书管理员</td><td>探针负责数据收集和分析，图书管理员维护知识库</td></tr>
 </tbody>
 </table>
 </div>
 
-<h3>6.3 扩展性考量</h3>
+<h3>7.3 通信协议选择</h3>
+<p>根据团队规模和互操作性需求选择通信协议：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐协议</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单平台内部通信</td>
+<td>框架原生机制（如 OpenClaw subagent）</td>
+<td>最低延迟，无需序列化开销</td>
+</tr>
+<tr>
+<td>跨框架协作</td>
+<td>Google A2A</td>
+<td>标准化 Agent 发现和任务委派</td>
+</tr>
+<tr>
+<td>Agent 与工具交互</td>
+<td>Anthropic MCP</td>
+<td>标准化工具调用接口</td>
+</tr>
+<tr>
+<td>大规模集群</td>
+<td>自定义市场式协议 + A2A</td>
+<td>结合内部优化和外部互操作</td>
+</tr>
+</tbody></table>
+<h3>7.4 扩展性策略</h3>
 <p>当团队规模需要扩展时，考虑以下策略：</p>
 <ul>
 <li><strong>横向扩展</strong>: 增加同一角色的 Agent 实例（如增加探针数量）</li>
@@ -881,53 +848,63 @@ flowchart TD
 <li><strong>动态扩缩</strong>: 根据任务量动态调整 Agent 数量</li>
 </ul>
 <hr>
-<h2>7. 未来趋势</h2>
-<h3>7.1 Agent 间协议标准化</h3>
-<p>随着多 Agent 系统的普及，Agent 间通信协议的标准化将成为关键。目前已有多个框架在探索这一方向：</p>
+<h2>8. 总结与展望</h2>
+<h3>8.1 核心要点</h3>
+<ol>
+<li><strong>混合式组织模式是工程实践的主流选择</strong> — 单一模式各有局限，组合使用能兼顾效率和灵活性</li>
+<li><strong>角色设计遵循单一职责原则</strong> — 清晰的职责边界是团队协作的基础</li>
+<li><strong>结构化通信协议保障协作质量</strong> — Push-based 完成通知、上下文隔离、标签追踪缺一不可</li>
+<li><strong>分层决策机制平衡效率与民主</strong> — 角色内自治、主编协调、用户决策三层递进</li>
+<li><strong>2025-2026 年协议标准化正在改变格局</strong> — A2A 和 MCP 让跨框架 Agent 协作成为可能</li>
+</ol>
+<h3>8.2 未来趋势</h3>
+<p><strong>短期（2026-2027）</strong>:</p>
 <ul>
-<li><strong>Google A2A (Agent-to-Agent Protocol)</strong> — 定义 Agent 间的标准通信格式 [1]</li>
-<li><strong>Anthropic MCP (Model Context Protocol)</strong> — 标准化 Agent 与工具的交互 [2]</li>
-<li><strong>LangGraph</strong> — 提供多 Agent 工作流编排的图结构框架 [3]</li>
+<li>A2A 和 MCP 协议将进一步成熟，更多框架原生支持</li>
+<li>多 Agent 可视化调试工具将普及</li>
+<li>Agent 市场（Agent Marketplace）开始出现</li>
 </ul>
-<h3>7.2 自主团队组建</h3>
-<p>未来的多 Agent 系统可能具备 <strong>自主组建团队</strong> 的能力：</p>
+<p><strong>中期（2027-2028）</strong>:</p>
 <ul>
-<li>Agent 根据任务需求自动招募其他 Agent</li>
-<li>动态调整团队结构和角色分配</li>
-<li>基于历史表现选择最优 Agent 组合</li>
+<li>Agent 自主组建团队成为可能</li>
+<li>人类-AI 混合团队协作模式成熟</li>
+<li>Agent 间的信任和声誉机制建立</li>
 </ul>
-<h3>7.3 人类-AI 混合团队</h3>
-<p>人类专家与 AI Agent 的协作将成为主流：</p>
+<p><strong>长期（2028+）</strong>:</p>
 <ul>
-<li>人类负责最终决策和创意方向</li>
-<li>AI Agent 负责信息收集、分析和初稿生成</li>
-<li>通过评审回路实现人机协作的质量闭环</li>
+<li>Agent 团队具备自我进化能力</li>
+<li>跨组织 Agent 协作网络形成</li>
+<li>Agent 治理和伦理框架建立</li>
+</ul>
+<h3>8.3 行动建议</h3>
+<ul>
+<li><strong>从混合式开始</strong>: 如果不确定选什么模式，从层级式框架 + 扁平式子团队开始</li>
+<li><strong>先定义角色，再选框架</strong>: 角色设计是团队架构的核心，框架只是实现工具</li>
+<li><strong>关注协议标准化</strong>: 优先选择支持 A2A/MCP 的框架，为未来的互操作性做准备</li>
+<li><strong>建立质量铁律</strong>: 明确的产出标准比复杂的管理机制更有效</li>
+<li><strong>迭代优化</strong>: 从简单配置开始，根据实际运行情况逐步调整</li>
 </ul>
 <hr>
 <h2>参考资料</h2>
 <ul>
-<li>[1] <a href="https://developers.google.com/agents/a2a-protocol">Google A2A Protocol - Agent-to-Agent Communication</a> (2024-2025)</li>
-<li>[2] <a href="https://modelcontextprotocol.io/">Anthropic MCP - Model Context Protocol</a> (2024-2025)</li>
-<li>[3] <a href="https://langchain-ai.github.io/langgraph/">LangGraph - Multi-Agent Workflows</a> (2024-2025)</li>
-<li>[4] <a href="https://microsoft.github.io/autogen/">AutoGen - Multi-Agent Conversation Framework (Microsoft)</a> (2024)</li>
-<li>[5] <a href="https://docs.crewai.com/">CrewAI - Multi-Agent Framework</a> (2024-2025)</li>
-<li>[6] <a href="https://docs.openclaw.ai/">OpenClaw Documentation - Multi-Agent Orchestration</a> (2025-2026)</li>
-<li>[7] <a href="https://github.com/openai/swarm">Swarm - OpenAI Multi-Agent Framework</a> (2024)</li>
-<li>[8] <a href="https://arxiv.org/abs/2402.03578">Multi-Agent Systems: A Survey - arXiv</a> (2024)</li>
+<li>[1] <a href="https://microsoft.github.io/autogen/">AutoGen - Multi-Agent Conversation Framework (Microsoft)</a> (2024-2025)</li>
+<li>[2] <a href="https://docs.crewai.com/">CrewAI - Multi-Agent Framework</a> (2024-2025)</li>
+<li>[3] <a href="https://github.com/openai/swarm">Swarm - OpenAI Multi-Agent Framework</a> (2024)</li>
+<li>[4] <a href="https://github.com/deepwisdom/MetaGPT">MetaGPT - Multi-Agent Framework with SOP</a> (2024-2025)</li>
+<li>[5] <a href="https://docs.openclaw.ai/">OpenClaw Documentation - Multi-Agent Orchestration</a> (2025-2026)</li>
+<li>[6] <a href="https://github.com/google/A2A">Google A2A Protocol - Agent-to-Agent Communication</a> (2025)</li>
+<li>[7] <a href="https://modelcontextprotocol.io/">Anthropic MCP - Model Context Protocol</a> (2024-2025)</li>
+<li>[8] <a href="https://langchain-ai.github.io/langgraph/">LangGraph - Multi-Agent Workflows</a> (2024-2025)</li>
+<li>[9] <a href="https://agentcommunicationprotocol.dev/">IBM ACP - Agent Communication Protocol</a> (2025)</li>
+<li>[10] <a href="https://arxiv.org/abs/2402.03578">Multi-Agent Systems: A Survey - arXiv</a> (2024)</li>
+<li>[11] <a href="https://arxiv.org/abs/2405.15554">A Survey on LLM-based Multi-Agent Systems - arXiv</a> (2024)</li>
 </ul>
 
-
-
 </div>
-
-<!-- ═══════════════════════════════════════════
-     FOOTER
-     ═══════════════════════════════════════════ -->
 <div class="footer">
   🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
   <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
-
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
   const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';

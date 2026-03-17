@@ -120,30 +120,27 @@ flowchart TD
     Chief -->|分派研究任务| Probe1[探针 Probe-AI]
     Chief -->|分派研究任务| Probe2[探针 Probe-Arch]
     Chief -->|设计请求| Palette[调色板 Palette]
-    Chief -->|数据采集| Collector[采集员 Collector]
-    
+
     Probe1 -->|报告草稿| Chief
     Probe2 -->|报告草稿| Chief
     Palette -->|设计稿| Chief
-    Collector -->|数据| Chief
-    
+
     Chief -->|审核通过| Publish[发布报告]
     Chief -->|需要修改| Feedback[反馈修改]
-    
+
     Feedback --> Probe1
     Feedback --> Probe2
-    
+
     Publish -->|通知| Reader1[读者 Reader-1]
     Publish -->|通知| Reader2[读者 Reader-2]
-    
+
     Reader1 -->|审稿意见| Chief
     Reader2 -->|审稿意见| Chief
-    
+
     style Chief fill:#3730a3,color:#c7d2fe
     style Probe1 fill:#1e3a5f,color:#93c5fd
     style Probe2 fill:#1e3a5f,color:#93c5fd
     style Palette fill:#3d1f5e,color:#d8b4fe
-    style Collector fill:#1a3d2e,color:#86efac
     style Reader1 fill:#3d2e1f,color:#fcd34d
     style Reader2 fill:#3d2e1f,color:#fcd34d
 ```
@@ -208,7 +205,7 @@ flowchart TD
 OpenClaw 融合了事件驱动和角色编排的特点：
 
 - **事件驱动**：Heartbeat 和 Cron 作为触发源
-- **角色编排**：主编/探针/调色板/采集员/读者各司其职
+- **角色编排**：主编/探针/调色板/图书管理员/读者各司其职
 - **Session 隔离**：每个角色独立 session，互不干扰
 - **Push-based 完成**：子任务完成后主动通知主编
 
