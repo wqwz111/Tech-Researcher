@@ -717,7 +717,7 @@ graph LR
 <li><strong>条件路由</strong>：基于状态动态决定下一步，避免线性执行的脆弱性</li>
 <li><strong>人在环路</strong>：内置 human-in-the-loop 节点，在关键决策点引入人工确认</li>
 <li><strong>持久化</strong>：内置多种存储后端（SQLite、PostgreSQL），Agent 状态可跨会话保持</li>
-</ul>
+</ol>
 <p><strong>局限性</strong>：</p>
 <ul>
 <li>无法解决模型层面的幻觉问题</li>
@@ -735,7 +735,7 @@ graph LR
 <li><strong>任务分解</strong>：复杂任务拆解为多个子任务，每个子任务有明确的预期输出</li>
 <li><strong>任务上下文</strong>：后续任务可引用前序任务的输出，形成信息传递链</li>
 <li><strong>层级流程</strong>：Manager Agent 可以监督和协调 Worker Agent 的执行</li>
-</ul>
+</ol>
 <p><strong>局限性</strong>：</p>
 <ul>
 <li>任务间的信息传递依赖自然语言，存在信息损失</li>
@@ -754,7 +754,7 @@ graph LR
 <li><strong>审查机制</strong>：可引入 Reviewer Agent 对输出进行质量审查</li>
 <li><strong>人类参与</strong>：灵活的人类输入模式（ALWAYS、TERMINATE、NEVER）</li>
 <li><strong>代码执行沙箱</strong>：安全的代码执行环境，限制 Agent 的操作范围</li>
-</ul>
+</ol>
 <p><strong>局限性</strong>：</p>
 <ul>
 <li>对话历史管理不够完善，长对话中容易出现上下文问题</li>
@@ -774,7 +774,7 @@ graph LR
 <li><strong>工具重试机制</strong>：工具调用失败时自动重试，支持指数退避</li>
 <li><strong>上下文窗口管理</strong>：主动管理上下文长度，避免溢出</li>
 <li><strong>子 Agent 编排</strong>：主编可创建子 Agent 处理具体任务，隔离故障范围</li>
-</ul>
+</ol>
 <p><strong>局限性</strong>：</p>
 <ul>
 <li>幻觉控制仍依赖底层模型能力</li>
@@ -792,7 +792,7 @@ graph LR
 <li><strong>节点级指令</strong>：每个节点有独立的指令和输入输出定义</li>
 <li><strong>错误处理节点</strong>：可定义专门的错误处理路径</li>
 <li><strong>变量传递</strong>：显式的变量传递机制，避免上下文混淆</li>
-</ul>
+</ol>
 <p><strong>局限性</strong>：</p>
 <ul>
 <li>灵活性受限于预定义的工作流结构</li>
@@ -811,21 +811,21 @@ graph LR
 <li><strong>人在环路</strong>：在高风险操作前引入人工确认</li>
 <li><strong>故障隔离</strong>：通过子 Agent 或会话隔离限制故障传播范围</li>
 <li><strong>可观测性</strong>：完整的日志记录和追踪，支持问题诊断</li>
-</ul>
+</ol>
 <h3>5.2 Prompt 层面</h3>
 <ol>
 <li><strong>规则嵌入</strong>：将关键行为规范直接嵌入 system prompt</li>
 <li><strong>输出格式约束</strong>：使用结构化输出（JSON Schema）约束 Agent 的输出格式</li>
 <li><strong>自我审查</strong>：要求 Agent 在输出前进行自我审查</li>
 <li><strong>Few-shot 示例</strong>：提供高质量的示例，引导 Agent 的行为</li>
-</ul>
+</ol>
 <h3>5.3 运维层面</h3>
 <ol>
 <li><strong>自动重试</strong>：工具调用失败时自动重试，设置最大重试次数</li>
 <li><strong>健康检查</strong>：定期检查 Agent 状态，自动重启异常 Agent</li>
 <li><strong>降级策略</strong>：Agent 失败时自动切换到人工处理或简化流程</li>
 <li><strong>A/B 测试</strong>：对比不同 prompt 和配置的稳定性表现</li>
-</ul>
+</ol>
 <hr>
 <h2>6. 团队观点与可操作建议</h2>
 <h3>6.1 基于实际使用经验的观察</h3>
@@ -848,20 +848,20 @@ graph LR
 <li><strong>实现完整的可观测性</strong>：记录每一步的输入、输出、工具调用和状态变化，便于问题诊断</li>
 <li><strong>设置合理的超时和重试策略</strong>：避免无限循环，设置最大重试次数和总超时时间</li>
 <li><strong>在高风险操作前强制人工确认</strong>：数据库写入、外部 API 调用、文件删除等操作必须有人工确认</li>
-</ul>
+</ol>
 <h4>对于框架选择者</h4>
 <ol>
 <li><strong>LangGraph 适合高可靠性场景</strong>：如果系统需要强状态管理和可追溯性，LangGraph 是最佳选择</li>
 <li><strong>CrewAI 适合快速原型</strong>：如果需要快速构建多 Agent 团队原型，CrewAI 的 API 最简洁</li>
 <li><strong>OpenClaw 适合长期运行的 Agent</strong>：如果 Agent 需要长期在线运行（如聊天机器人），OpenClaw 的会话管理和心跳机制更适合</li>
 <li><strong>Dify 适合非技术团队</strong>：如果团队缺乏工程能力，Dify 的可视化工作流降低了使用门槛</li>
-</ul>
+</ol>
 <h4>对于 Agent 使用者</h4>
 <ol>
 <li><strong>不要期望 Agent 完全自主</strong>：即使是最好的 Agent 系统也需要人工监督</li>
 <li><strong>建立结果验证习惯</strong>：Agent 的输出必须经过验证，尤其是涉及数据、代码和外部操作的场景</li>
 <li><strong>保持合理的预期</strong>：Agent 的价值在于提升效率，而非完全替代人工。合理设置期望值可以避免失望</li>
-</ul>
+</ol>
 <hr>
 <h2>7. 未来展望</h2>
 <h3>7.1 正在发展的技术方向</h3>
@@ -870,7 +870,7 @@ graph LR
 <li><strong>Agent 可观测性</strong>：LangSmith、LangFuse 等工具正在构建完整的 Agent 追踪和监控能力</li>
 <li><strong>结构化输出</strong>：JSON Schema、Outlines 等技术正在提升 Agent 输出的可控性</li>
 <li><strong>自愈机制</strong>：Agent 自动检测和修复自身错误的能力正在快速发展</li>
-</ul>
+</ol>
 <h3>7.2 预期发展轨迹</h3>
 <ul>
 <li><strong>2026 年</strong>：Agent 稳定性工具链成熟（可观测性、测试框架、调试工具）</li>
@@ -907,17 +907,52 @@ graph LR
 <!-- Mermaid -->
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>
-  mermaid.initialize({ 
-    startOnLoad: true,
-    theme: 'dark',
-    themeVariables: {
-      darkMode: true,
-      background: '#1e293b',
-      primaryColor: '#334155',
-      primaryTextColor: '#f1f5f9',
-      lineColor: '#818cf8'
-    }
+(function initMermaid() {
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: isDark ? 'dark' : 'default',
+    securityLevel: 'loose',
+    themeVariables: isDark ? {
+      primaryColor: '#312e81',
+      primaryTextColor: '#e2e8f0',
+      primaryBorderColor: '#4f46e5',
+      lineColor: '#6366f1',
+      secondaryColor: '#1e293b',
+      tertiaryColor: '#0f172a',
+      fontSize: '14px'
+    } : { fontSize: '14px' }
   });
+  mermaid.run();
+
+  // Re-render mermaid on theme toggle
+  const origToggle = window.toggleTheme;
+  window.toggleTheme = function() {
+    origToggle();
+    const dark = document.documentElement.getAttribute('data-theme') !== 'light';
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: dark ? 'dark' : 'default',
+      securityLevel: 'loose',
+      themeVariables: dark ? {
+        primaryColor: '#312e81',
+        primaryTextColor: '#e2e8f0',
+        primaryBorderColor: '#4f46e5',
+        lineColor: '#6366f1',
+        secondaryColor: '#1e293b',
+        tertiaryColor: '#0f172a',
+        fontSize: '14px'
+      } : { fontSize: '14px' }
+    });
+    document.querySelectorAll('.mermaid').forEach(el => {
+      const code = el.getAttribute('data-mermaid-code') || el.textContent;
+      if (!el.getAttribute('data-mermaid-code')) el.setAttribute('data-mermaid-code', el.textContent);
+      el.removeAttribute('data-processed');
+      el.innerHTML = code;
+    });
+    mermaid.run();
+  };
+})();
 </script>
 
 </body>
