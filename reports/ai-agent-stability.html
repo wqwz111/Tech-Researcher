@@ -3,15 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>移动端 AI 智能体应用 — 深度研究报告</title>
-<script>
-  function initMermaid(theme) {
-    mermaid.initialize({theme: theme === 'light' ? 'default' : 'dark', themeVariables: theme === 'light' ? {} : {primaryColor:'#312e81',primaryTextColor:'#e2e8f0',primaryBorderColor:'#4f46e5',lineColor:'#6366f1',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'}});
-  }
-</script>
+<title>AI Agent 工作稳定性研究</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.8; }
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
   :root, [data-theme="dark"] {
     --bg-primary:    #0f172a;
     --bg-secondary:  #1e293b;
@@ -40,16 +43,10 @@
 
     --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     --header-border: #334155;
-
-    --accent-text: #c7d2fe;
-    --accent-hover: #a5b4fc;
-    --code-text: #a78bfa;
-    --orange: #fb923c;
-    --green: #34d399;
-    --blue: #818cf8;
-    --pink: #f472b6;
   }
-    [data-theme="light"] {
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
     --bg-primary:    #ffffff;
     --bg-secondary:  #f8fafc;
     --bg-tertiary:   #f1f5f9;
@@ -78,278 +75,561 @@
     --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
     --header-border: #e2e8f0;
   }
-  .header { background: var(--header-bg); border-bottom: 1px solid var(--header-border); padding: 2.5rem 2rem; text-align: center; position: relative; }
-  .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
-  .header .meta { color: var(--text-muted); font-size: 0.9rem; }
-  .tag { display: inline-block; padding: 0.2rem 0.6rem; margin: 0.2rem; background: var(--tag-bg); color: var(--tag-text); border-radius: 4px; font-size: 0.8rem; }
-  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
-  .breadcrumb { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
-  .breadcrumb a { color: var(--link); text-decoration: none; }
-  .breadcrumb a:hover { text-decoration: underline; }
-  h2 { color: var(--accent-text); font-size: 1.4rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); }
-  h3 { color: var(--accent-hover); font-size: 1.15rem; margin: 1.8rem 0 0.8rem; }
-  p { margin-bottom: 1rem; color: var(--text-primary); }
-  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text-primary); }
-  li { margin-bottom: 0.4rem; }
-  code { background: var(--bg-code); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: var(--code-text); }
-  pre { background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; max-width: 100%; }
-  pre code { background: none; padding: 0; font-size: 0.85rem; max-width: 100%; }
-  .callout { background: var(--bg-callout); border-left: 3px solid var(--accent-primary); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
-  .callout strong { color: var(--accent-text); }
-  .callout.warn { border-left-color: var(--orange); }
-  .callout.warn strong { color: var(--orange); }
-  .callout.success { border-left-color: var(--green); }
-  .callout.success strong { color: var(--green); }
-  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-  th, td { text-align: left; padding: 0.6rem 0.8rem; border: 1px solid var(--border-color); }
-  th { background: var(--bg-code); color: var(--accent-text); }
-  td { color: var(--text-primary); }
-  .ref { color: var(--text-muted); font-size: 0.85rem; }
-  .ref a { color: var(--link); text-decoration: none; }
-  .ref a:hover { text-decoration: underline; }
-  .ref-grade { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600; margin-right: 0.3rem; }
-  .grade-a { background: rgba(52,211,153,0.15); color: var(--green); }
-  .grade-b { background: rgba(129,140,248,0.15); color: var(--accent-primary); }
-  .grade-c { background: rgba(251,146,60,0.15); color: var(--orange); }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1rem 0; }
-  .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.2rem; text-align: center; }
-  .stat-card .num { font-size: 2rem; font-weight: 800; color: var(--accent-primary); }
-  .stat-card .label { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.3rem; }
-  .footer { text-align: center; color: var(--text-muted); padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-light); font-size: 0.85rem; }
-  .theme-toggle { position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 24px; padding: 0.3rem 0.6rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s; }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
   .theme-toggle:hover { border-color: var(--accent-primary); }
   .theme-toggle .icon { font-size: 1.1rem; }
   .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
 </style>
 <script>
+  // Theme toggle — uses localStorage for persistence
   function toggleTheme() {
     const html = document.documentElement;
     const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
     html.setAttribute('data-theme', next);
     localStorage.setItem('probe-theme', next);
     updateToggleUI(next);
-    if (typeof initMermaid === 'function') { initMermaid(next); }
   }
+
   function updateToggleUI(theme) {
     const icon = document.getElementById('themeIcon');
     const label = document.getElementById('themeLabel');
     if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
     if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
   }
+
+  // Apply saved theme on load
   (function() {
     const saved = localStorage.getItem('probe-theme') || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
-    document.addEventListener('DOMContentLoaded', function() {
-      updateToggleUI(saved);
-      if (typeof initMermaid === 'function') { initMermaid(saved); }
-    });
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
   })();
 </script>
 </head>
 <body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
 <div class="header" style="position:relative">
-  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式"><span class="icon" id="themeIcon">☀️</span><span class="label" id="themeLabel">日间</span></button>
-  <h1>📱 移动端 AI 智能体应用</h1>
-  <div class="meta">2026-03-14 · 探针 (Probe)</div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>AI Agent 工作稳定性研究</h1>
+  <div class="meta">2026-03-16 · 探针</div>
   <div style="margin-top:0.8rem">
-    <span class="tag">Mobile AI</span><span class="tag">On-Device Agent</span><span class="tag">Edge Computing</span><span class="tag">LLM</span><span class="tag">GUI Agent</span>
+    <span class="tag">Agent</span>
   </div>
 </div>
+
 <div class="container">
-<h1>AI Agent 工作稳定性研究</h1>
-<blockquote>
-<p>发布日期：2026-03-16 | 分类：Agent | 作者：探针</p>
-</blockquote>
-<hr>
-<h2>Executive Summary</h2>
-<p>AI Agent 在从实验原型走向生产部署的过程中，稳定性问题已成为核心瓶颈。本报告系统性地分析了 AI Agent 在长期运行、多轮交互、复杂任务中出现的稳定性问题，涵盖幻觉累积、上下文丢失、指令偏离、工具调用失败等典型故障模式。</p>
-<p><strong>核心结论：</strong></p>
-<ul>
-<li><strong>稳定性是多维问题</strong>：不存在单一&quot;稳定性&quot;指标，需要从幻觉控制、上下文保真度、指令遵从度、工具可靠性四个维度分别评估</li>
-<li><strong>故障模式呈链式传播</strong>：单一节点的错误会在多轮交互中累积放大，形成&quot;级联故障&quot;</li>
-<li><strong>框架层面的解决方案差异显著</strong>：LangGraph 以状态机和检查点机制见长，CrewAI 依赖任务级容错，OpenClaw 通过会话隔离降低故障传播范围</li>
-<li><strong>实际生产部署仍处于&quot;高人工介入&quot;阶段</strong>：关键任务 Agent 需要人在环路（Human-in-the-loop）保障，完全自主的 Agent 在高可靠性场景中尚未成熟</li>
-</ul>
-<hr>
-<h2>1. Agent 稳定性的定义维度</h2>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="./index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>AI Agent 在从实验原型走向生产部署的过程中，稳定性问题已成为核心瓶颈。本报告系统性地分析了 AI Agent 在长期运行、多轮交互、复杂任务中出现的稳定性问题，涵盖幻觉累积、上下文丢失、指令偏离、工具调用失败等典型故障模式。<br>
+<br>
+**核心结论：**<br>
+<strong>稳定性是多维问题</strong>：不存在单一"稳定性"指标，需要从幻觉控制、上下文保真度、指令遵从度、工具可靠性四个维度分别评估<br>
+<strong>故障模式呈链式传播</strong>：单一节点的错误会在多轮交互中累积放大，形成"级联故障"<br>
+<strong>框架层面的解决方案差异显著</strong>：LangGraph 以状态机和检查点机制见长，CrewAI 依赖任务级容错，OpenClaw 通过会话隔离降低故障传播范围<br>
+<strong>实际生产部署仍处于"高人工介入"阶段</strong>：关键任务 Agent 需要人在环路（Human-in-the-loop）保障，完全自主的 Agent 在高可靠性场景中尚未成熟</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. Agent 稳定性的定义维度</h2>
 <h3>1.1 稳定性不是单一指标</h3>
 <p>AI Agent 的稳定性需要从多个维度分别度量：</p>
+<div class="table-wrapper">
 <table>
-<thead>
-<tr>
-<th>维度</th>
-<th>定义</th>
-<th>典型表现</th>
-<th>度量方法</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>幻觉控制</strong></td>
-<td>Agent 生成内容与事实的一致性</td>
-<td>编造不存在的 API、虚构数据来源</td>
-<td>事实核查准确率</td>
-</tr>
-<tr>
-<td><strong>上下文保真度</strong></td>
-<td>Agent 对历史交互信息的保持能力</td>
-<td>遗忘早期指令、混淆多轮对话</td>
-<td>关键信息召回率</td>
-</tr>
-<tr>
-<td><strong>指令遵从度</strong></td>
-<td>Agent 执行用户指令的准确程度</td>
-<td>偏离任务目标、自行添加未请求的操作</td>
-<td>指令完成率</td>
-</tr>
-<tr>
-<td><strong>工具可靠性</strong></td>
-<td>工具调用的成功率和参数准确性</td>
-<td>调用错误工具、参数格式错误</td>
-<td>工具调用成功率</td>
-</tr>
-<tr>
-<td><strong>状态一致性</strong></td>
-<td>多轮交互中内部状态的连贯性</td>
-<td>前后矛盾的决策、重复执行已完成步骤</td>
-<td>状态冲突率</td>
-</tr>
-</tbody></table>
+<tr><th>维度</th><th>定义</th><th>典型表现</th><th>度量方法</th></tr>
+<tr><td>**幻觉控制**</td><td>Agent 生成内容与事实的一致性</td><td>编造不存在的 API、虚构数据来源</td><td>事实核查准确率</td></tr>
+<tr><td>**上下文保真度**</td><td>Agent 对历史交互信息的保持能力</td><td>遗忘早期指令、混淆多轮对话</td><td>关键信息召回率</td></tr>
+<tr><td>**指令遵从度**</td><td>Agent 执行用户指令的准确程度</td><td>偏离任务目标、自行添加未请求的操作</td><td>指令完成率</td></tr>
+<tr><td>**工具可靠性**</td><td>工具调用的成功率和参数准确性</td><td>调用错误工具、参数格式错误</td><td>工具调用成功率</td></tr>
+<tr><td>**状态一致性**</td><td>多轮交互中内部状态的连贯性</td><td>前后矛盾的决策、重复执行已完成步骤</td><td>状态冲突率</td></tr>
+</table>
+</div>
 <h3>1.2 稳定性的边界条件</h3>
 <p>Agent 稳定性受以下因素显著影响：</p>
 <ul>
 <li><strong>任务复杂度</strong>：步骤越多，故障概率呈指数增长</li>
 <li><strong>上下文长度</strong>：接近模型 context window 上限时，信息丢失加剧</li>
 <li><strong>工具数量</strong>：工具集越大，工具选择错误率越高</li>
-<li><strong>运行时长</strong>：长时间运行的 Agent 出现&quot;注意力漂移&quot;</li>
+<li><strong>运行时长</strong>：长时间运行的 Agent 出现"注意力漂移"</li>
 <li><strong>多 Agent 交互</strong>：Agent 之间的通信引入额外的不稳定性</li>
 </ul>
 <hr>
 <h2>2. 常见故障模式分类</h2>
 <h3>2.1 故障模式全景图</h3>
-<div class="mermaid">graph TD
+<div class="mermaid">
+graph TD
     ROOT["AI Agent 故障模式"]
     
-<pre><code>ROOT --&gt; HALL[&quot;🔴 幻觉类故障&quot;]
-ROOT --&gt; CTX[&quot;🟡 上下文类故障&quot;]
-ROOT --&gt; INST[&quot;🟠 指令类故障&quot;]
-ROOT --&gt; TOOL[&quot;🔵 工具类故障&quot;]
-ROOT --&gt; STATE[&quot;🟣 状态类故障&quot;]
+    ROOT --> HALL["🔴 幻觉类故障"]
+    ROOT --> CTX["🟡 上下文类故障"]
+    ROOT --> INST["🟠 指令类故障"]
+    ROOT --> TOOL["🔵 工具类故障"]
+    ROOT --> STATE["🟣 状态类故障"]
+    
+    HALL --> H1["事实性幻觉<br/>编造不存在的信息"]
+    HALL --> H2["来源幻觉<br/>引用不存在的 URL/文献"]
+    HALL --> H3["能力幻觉<br/>声称能执行实际无法完成的操作"]
+    
+    CTX --> C1["上下文溢出<br/>超过 context window 导致信息截断"]
+    CTX --> C2["上下文遗忘<br/>多轮对话中丢失早期关键信息"]
+    CTX --> C3["上下文混淆<br/>混合不同任务/用户的信息"]
+    
+    INST --> I1["指令偏离<br/>偏离原始任务目标"]
+    INST --> I2["过度执行<br/>执行用户未请求的额外操作"]
+    INST --> I3["指令矛盾<br/>多条指令之间产生冲突"]
+    
+    TOOL --> T1["工具选择错误<br/>调用了错误的工具"]
+    TOOL --> T2["参数错误<br/>工具参数格式/值不正确"]
+    TOOL --> T3["工具链断裂<br/>前一步工具输出未正确传递"]
+    
+    STATE --> S1["状态漂移<br/>Agent 内部状态与实际不一致"]
+    STATE --> S2["死循环<br/>Agent 陷入重复执行循环"]
+    STATE --> S3["级联故障<br/>单点错误引发连锁反应"]
 
-HALL --&gt; H1[&quot;事实性幻觉&lt;br/&gt;编造不存在的信息&quot;]
-HALL --&gt; H2[&quot;来源幻觉&lt;br/&gt;引用不存在的 URL/文献&quot;]
-HALL --&gt; H3[&quot;能力幻觉&lt;br/&gt;声称能执行实际无法完成的操作&quot;]
+    style ROOT fill:#1e293b,stroke:#475569,color:#fff
+    style HALL fill:#dc2626,stroke:#ef4444,color:#fff
+    style CTX fill:#d97706,stroke:#f59e0b,color:#fff
+    style INST fill:#ea580c,stroke:#fb923c,color:#fff
+    style TOOL fill:#2563eb,stroke:#3b82f6,color:#fff
+    style STATE fill:#7c3aed,stroke:#a78bfa,color:#fff
 
-CTX --&gt; C1[&quot;上下文溢出&lt;br/&gt;超过 context window 导致信息截断&quot;]
-CTX --&gt; C2[&quot;上下文遗忘&lt;br/&gt;多轮对话中丢失早期关键信息&quot;]
-CTX --&gt; C3[&quot;上下文混淆&lt;br/&gt;混合不同任务/用户的信息&quot;]
-
-INST --&gt; I1[&quot;指令偏离&lt;br/&gt;偏离原始任务目标&quot;]
-INST --&gt; I2[&quot;过度执行&lt;br/&gt;执行用户未请求的额外操作&quot;]
-INST --&gt; I3[&quot;指令矛盾&lt;br/&gt;多条指令之间产生冲突&quot;]
-
-TOOL --&gt; T1[&quot;工具选择错误&lt;br/&gt;调用了错误的工具&quot;]
-TOOL --&gt; T2[&quot;参数错误&lt;br/&gt;工具参数格式/值不正确&quot;]
-TOOL --&gt; T3[&quot;工具链断裂&lt;br/&gt;前一步工具输出未正确传递&quot;]
-
-STATE --&gt; S1[&quot;状态漂移&lt;br/&gt;Agent 内部状态与实际不一致&quot;]
-STATE --&gt; S2[&quot;死循环&lt;br/&gt;Agent 陷入重复执行循环&quot;]
-STATE --&gt; S3[&quot;级联故障&lt;br/&gt;单点错误引发连锁反应&quot;]
-
-style ROOT fill:#1e293b,stroke:#475569,color:#fff
-style HALL fill:#dc2626,stroke:#ef4444,color:#fff
-style CTX fill:#d97706,stroke:#f59e0b,color:#fff
-style INST fill:#ea580c,stroke:#fb923c,color:#fff
-style TOOL fill:#2563eb,stroke:#3b82f6,color:#fff
-style STATE fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
-</code></pre>
+</div>
 <h3>2.2 各故障模式详细分析</h3>
 <h4>2.2.1 幻觉类故障</h4>
 <p>幻觉是 LLM Agent 最广为人知的稳定性问题。在 Agent 场景中，幻觉的危害被进一步放大：</p>
 <p><strong>事实性幻觉</strong>：Agent 在长任务执行过程中可能编造不存在的 API 端点、数据库表名或配置参数。这在代码生成和系统管理类任务中尤为危险。</p>
 <p><strong>来源幻觉</strong>：Agent 引用不存在的 URL、论文或文档。这在研究和内容创作类 Agent 中频繁出现——Agent 可能生成看似合理但无法访问的链接。</p>
 <p><strong>能力幻觉</strong>：Agent 声称能够执行实际上超出其能力范围的操作，或者错误地报告任务已完成。这在自动化流程中可能导致下游系统收到错误的完成信号。</p>
-<blockquote>
+<div class="callout">
 <p>典型案例：在我们团队的实际使用中，探针（Probe）在撰写技术报告时曾多次生成看似合理但无法访问的 URL。后来通过强制要求引用规范（所有引用必须带链接）来缓解这一问题。</p>
-</blockquote>
+</div>
 <h4>2.2.2 上下文类故障</h4>
 <p><strong>上下文溢出</strong>：当 Agent 的交互历史超过模型的 context window 时，早期信息会被截断。对于需要长时间运行的 Agent，这是一个根本性挑战。</p>
-<p><strong>上下文遗忘</strong>：即使未达到 context window 上限，Agent 也可能在多轮对话中&quot;忘记&quot;早期的关键指令。这与 Transformer 的注意力机制有关——序列中间位置的信息更容易被忽略（&quot;Lost in the Middle&quot;现象）。</p>
-<blockquote>
-<p>参考：Liu et al., &quot;Lost in the Middle: How Language Models Use Long Contexts&quot;, 2023 — <a href="https://arxiv.org/abs/2307.03172">arxiv.org/abs/2307.03172</a></p>
-</blockquote>
+<p><strong>上下文遗忘</strong>：即使未达到 context window 上限，Agent 也可能在多轮对话中"忘记"早期的关键指令。这与 Transformer 的注意力机制有关——序列中间位置的信息更容易被忽略（"Lost in the Middle"现象）。</p>
+<div class="callout warn">
+<p>参考：Liu et al., "Lost in the Middle: How Language Models Use Long Contexts", 2023 — [arxiv.org/abs/2307.03172](https://arxiv.org/abs/2307.03172)</p>
+</div>
 <p><strong>上下文混淆</strong>：在多任务或多用户场景中，Agent 可能将不同任务的上下文信息混合，导致错误的行为。</p>
 <h4>2.2.3 指令类故障</h4>
-<p><strong>指令偏离</strong>：Agent 在执行过程中逐渐偏离原始任务目标，开始执行与目标无关的操作。这在复杂任务中尤为常见——Agent 可能被中间结果&quot;分散注意力&quot;。</p>
-<p><strong>过度执行</strong>：Agent 执行用户未明确请求的额外操作。这在具有工具调用能力的 Agent 中表现为&quot;自作主张&quot;——例如用户要求查询信息，Agent 却主动修改了数据库。</p>
+<p><strong>指令偏离</strong>：Agent 在执行过程中逐渐偏离原始任务目标，开始执行与目标无关的操作。这在复杂任务中尤为常见——Agent 可能被中间结果"分散注意力"。</p>
+<p><strong>过度执行</strong>：Agent 执行用户未明确请求的额外操作。这在具有工具调用能力的 Agent 中表现为"自作主张"——例如用户要求查询信息，Agent 却主动修改了数据库。</p>
 <p><strong>指令矛盾</strong>：当系统 prompt、用户指令和工具描述之间存在冲突时，Agent 的行为变得不可预测。</p>
 <h4>2.2.4 工具类故障</h4>
 <p><strong>工具选择错误</strong>：面对多个可用工具时，Agent 可能选择不合适的工具执行任务。工具数量越多，选择错误率越高。</p>
 <p><strong>参数错误</strong>：Agent 生成的工具调用参数可能格式不正确或值不合理。JSON 格式错误、枚举值拼写错误、数值范围超出限制等问题频繁出现。</p>
 <p><strong>工具链断裂</strong>：在多步工具调用中，前一步的输出未正确传递给下一步。这可能是由于输出格式不匹配、信息提取失败或上下文管理问题导致的。</p>
 <h4>2.2.5 状态类故障</h4>
-<p><strong>状态漂移</strong>：Agent 的内部状态（&quot;认为当前进度在哪里&quot;）与实际状态不一致。这在长时间运行的 Agent 中表现为重复执行已完成的步骤或跳过必要的步骤。</p>
+<p><strong>状态漂移</strong>：Agent 的内部状态（"认为当前进度在哪里"）与实际状态不一致。这在长时间运行的 Agent 中表现为重复执行已完成的步骤或跳过必要的步骤。</p>
 <p><strong>死循环</strong>：Agent 陷入重复执行相同操作的循环，无法自行跳出。这在工具调用失败后尤为常见——Agent 不断重试相同的调用。</p>
 <p><strong>级联故障</strong>：单个步骤的错误在后续步骤中被放大，最终导致整个任务失败。这是多步 Agent 系统中最危险的故障模式。</p>
 <hr>
 <h2>3. 对实际生产部署的影响</h2>
 <h3>3.1 影响程度评估</h3>
+<div class="table-wrapper">
 <table>
-<thead>
-<tr>
-<th>场景</th>
-<th>稳定性要求</th>
-<th>当前状态</th>
-<th>风险等级</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>客服对话</td>
-<td>中等（可人工接管）</td>
-<td>✅ 可用</td>
-<td>🟡 中</td>
-</tr>
-<tr>
-<td>代码生成</td>
-<td>高（错误代码进入生产）</td>
-<td>⚠️ 需人工审核</td>
-<td>🟠 高</td>
-</tr>
-<tr>
-<td>数据分析</td>
-<td>高（错误结论影响决策）</td>
-<td>⚠️ 需人工验证</td>
-<td>🟠 高</td>
-</tr>
-<tr>
-<td>自动化运维</td>
-<td>极高（误操作影响生产）</td>
-<td>❌ 需人在环路</td>
-<td>🔴 极高</td>
-</tr>
-<tr>
-<td>内容创作</td>
-<td>低（可事后修改）</td>
-<td>✅ 可用</td>
-<td>🟢 低</td>
-</tr>
-<tr>
-<td>研究辅助</td>
-<td>中等（可引用核查）</td>
-<td>✅ 可用</td>
-<td>🟡 中</td>
-</tr>
-</tbody></table>
+<tr><th>场景</th><th>稳定性要求</th><th>当前状态</th><th>风险等级</th></tr>
+<tr><td>客服对话</td><td>中等（可人工接管）</td><td>✅ 可用</td><td>🟡 中</td></tr>
+<tr><td>代码生成</td><td>高（错误代码进入生产）</td><td>⚠️ 需人工审核</td><td>🟠 高</td></tr>
+<tr><td>数据分析</td><td>高（错误结论影响决策）</td><td>⚠️ 需人工验证</td><td>🟠 高</td></tr>
+<tr><td>自动化运维</td><td>极高（误操作影响生产）</td><td>❌ 需人在环路</td><td>🔴 极高</td></tr>
+<tr><td>内容创作</td><td>低（可事后修改）</td><td>✅ 可用</td><td>🟢 低</td></tr>
+<tr><td>研究辅助</td><td>中等（可引用核查）</td><td>✅ 可用</td><td>🟡 中</td></tr>
+</table>
+</div>
 <h3>3.2 典型案例</h3>
 <p><strong>案例 1：AutoGPT 的无限循环问题</strong></p>
 <p>AutoGPT 是最早尝试完全自主 Agent 的项目之一，但其在实际使用中频繁出现无限循环——Agent 重复执行相同操作、生成无意义的子任务、或在工具调用失败后陷入重试循环。这直接导致 AutoGPT 难以用于生产环境。</p>
-<blockquote>
-<p>参考：AutoGPT GitHub Issues 中关于循环和稳定性的问题 — <a href="https://github.com/Significant-Gravitas/AutoGPT/issues">github.com/Significant-Gravitas/AutoGPT/issues</a></p>
-</blockquote>
+<div class="callout warn">
+<p>参考：AutoGPT GitHub Issues 中关于循环和稳定性的问题 — [github.com/Significant-Gravitas/AutoGPT/issues](https://github.com/Significant-Gravitas/AutoGPT/issues)</p>
+</div>
 <p><strong>案例 2：多 Agent 系统中的通信失真</strong></p>
-<p>在 CrewAI 和 AutoGen 等多 Agent 框架中，Agent 之间通过自然语言传递信息。研究表明，信息在 Agent 之间传递时会发生&quot;传话游戏&quot;效应——每经过一个 Agent，信息的准确性就下降一层。</p>
-<blockquote>
-<p>参考：CrewAI 官方文档中关于 Agent 通信的说明 — <a href="https://docs.crewai.com">docs.crewai.com</a></p>
-</blockquote>
+<p>在 CrewAI 和 AutoGen 等多 Agent 框架中，Agent 之间通过自然语言传递信息。研究表明，信息在 Agent 之间传递时会发生"传话游戏"效应——每经过一个 Agent，信息的准确性就下降一层。</p>
+<div class="callout warn">
+<p>参考：CrewAI 官方文档中关于 Agent 通信的说明 — [docs.crewai.com](https://docs.crewai.com)</p>
+</div>
 <p><strong>案例 3：长任务中的上下文退化</strong></p>
 <p>我们团队在实际使用中发现，当 Agent 执行超过 20 步的复杂任务时，任务完成率显著下降。探针在撰写长篇技术报告时，经常在后半部分出现引用格式混乱、重复内容、或偏离主题的情况。解决方案是将长任务拆分为多个短任务，由主编（Chief）进行任务编排。</p>
 <h3>3.3 经济影响</h3>
@@ -359,13 +639,14 @@ style STATE fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
 <li>人工介入修复 Agent 错误的平均时间：<strong>15-30 分钟/次</strong></li>
 <li>Agent 系统在生产环境中的人工审核率：<strong>30-70%</strong>（取决于场景）</li>
 </ul>
-<blockquote>
+<div class="callout warn">
 <p>注：以上数据为基于多个社区讨论和实践报告的综合估算，不同场景差异较大，仅供参考方向性趋势。</p>
-</blockquote>
+</div>
 <hr>
 <h2>4. 主流框架的稳定性解决方案对比</h2>
 <h3>4.1 框架方案对比总览</h3>
-<div class="mermaid">graph LR
+<div class="mermaid">
+graph LR
     subgraph "稳定性问题"
         H["幻觉累积"]
         C["上下文丢失"]
@@ -374,58 +655,59 @@ style STATE fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
         S["状态不一致"]
     end
     
-<pre><code>subgraph &quot;LangGraph&quot;
-    LG1[&quot;✅ 状态机&lt;br/&gt;+ 检查点&quot;]
-    LG2[&quot;✅ 持久化&lt;br/&gt;+ 时间旅行&quot;]
-    LG3[&quot;⚠️ 条件路由&lt;br/&gt;需手动设计&quot;]
-    LG4[&quot;✅ 重试机制&lt;br/&gt;+ 错误处理&quot;]
-    LG5[&quot;✅ 全局状态&lt;br/&gt;+ 持久化&quot;]
-end
+    subgraph "LangGraph"
+        LG1["✅ 状态机<br/>+ 检查点"]
+        LG2["✅ 持久化<br/>+ 时间旅行"]
+        LG3["⚠️ 条件路由<br/>需手动设计"]
+        LG4["✅ 重试机制<br/>+ 错误处理"]
+        LG5["✅ 全局状态<br/>+ 持久化"]
+    end
+    
+    subgraph "CrewAI"
+        CR1["⚠️ 依赖<br/>模型能力"]
+        CR2["⚠️ 任务上下文<br/>传递"]
+        CR3["✅ 角色定义<br/>+ 目标约束"]
+        CR4["⚠️ 基础<br/>错误处理"]
+        CR5["⚠️ 任务链<br/>状态管理"]
+    end
+    
+    subgraph "AutoGen"
+        AU1["⚠️ 依赖<br/>模型能力"]
+        AU2["⚠️ 对话历史<br/>管理"]
+        AU3["✅ 多轮对话<br/>+ 审查机制"]
+        AU4["⚠️ 有限的<br/>重试机制"]
+        AU5["⚠️ 对话状态<br/>隐式管理"]
+    end
+    
+    subgraph "OpenClaw"
+        OC1["⚠️ 依赖<br/>模型能力"]
+        OC2["✅ 会话隔离<br/>+ 上下文窗口管理"]
+        OC3["✅ SOUL.md<br/>+ 规则嵌入"]
+        OC4["✅ 工具重试<br/>+ 错误恢复"]
+        OC5["✅ 会话状态<br/>+ 心跳检查"]
+    end
+    
+    subgraph "Dify"
+        DI1["⚠️ 依赖<br/>模型能力"]
+        DI2["✅ 工作流<br/>上下文传递"]
+        DI3["✅ 节点级<br/>指令定义"]
+        DI4["✅ 可视化<br/>错误处理"]
+        DI5["✅ 工作流<br/>状态管理"]
+    end
+    
+    H -.-> LG1 & CR1 & AU1 & OC1 & DI1
+    C -.-> LG2 & CR2 & AU2 & OC2 & DI2
+    I -.-> LG3 & CR3 & AU3 & OC3 & DI3
+    T -.-> LG4 & CR4 & AU4 & OC4 & DI4
+    S -.-> LG5 & CR5 & AU5 & OC5 & DI5
 
-subgraph &quot;CrewAI&quot;
-    CR1[&quot;⚠️ 依赖&lt;br/&gt;模型能力&quot;]
-    CR2[&quot;⚠️ 任务上下文&lt;br/&gt;传递&quot;]
-    CR3[&quot;✅ 角色定义&lt;br/&gt;+ 目标约束&quot;]
-    CR4[&quot;⚠️ 基础&lt;br/&gt;错误处理&quot;]
-    CR5[&quot;⚠️ 任务链&lt;br/&gt;状态管理&quot;]
-end
+    style H fill:#dc2626,stroke:#ef4444,color:#fff
+    style C fill:#d97706,stroke:#f59e0b,color:#fff
+    style I fill:#ea580c,stroke:#fb923c,color:#fff
+    style T fill:#2563eb,stroke:#3b82f6,color:#fff
+    style S fill:#7c3aed,stroke:#a78bfa,color:#fff
 
-subgraph &quot;AutoGen&quot;
-    AU1[&quot;⚠️ 依赖&lt;br/&gt;模型能力&quot;]
-    AU2[&quot;⚠️ 对话历史&lt;br/&gt;管理&quot;]
-    AU3[&quot;✅ 多轮对话&lt;br/&gt;+ 审查机制&quot;]
-    AU4[&quot;⚠️ 有限的&lt;br/&gt;重试机制&quot;]
-    AU5[&quot;⚠️ 对话状态&lt;br/&gt;隐式管理&quot;]
-end
-
-subgraph &quot;OpenClaw&quot;
-    OC1[&quot;⚠️ 依赖&lt;br/&gt;模型能力&quot;]
-    OC2[&quot;✅ 会话隔离&lt;br/&gt;+ 上下文窗口管理&quot;]
-    OC3[&quot;✅ SOUL.md&lt;br/&gt;+ 规则嵌入&quot;]
-    OC4[&quot;✅ 工具重试&lt;br/&gt;+ 错误恢复&quot;]
-    OC5[&quot;✅ 会话状态&lt;br/&gt;+ 心跳检查&quot;]
-end
-
-subgraph &quot;Dify&quot;
-    DI1[&quot;⚠️ 依赖&lt;br/&gt;模型能力&quot;]
-    DI2[&quot;✅ 工作流&lt;br/&gt;上下文传递&quot;]
-    DI3[&quot;✅ 节点级&lt;br/&gt;指令定义&quot;]
-    DI4[&quot;✅ 可视化&lt;br/&gt;错误处理&quot;]
-    DI5[&quot;✅ 工作流&lt;br/&gt;状态管理&quot;]
-end
-
-H -.-&gt; LG1 &amp; CR1 &amp; AU1 &amp; OC1 &amp; DI1
-C -.-&gt; LG2 &amp; CR2 &amp; AU2 &amp; OC2 &amp; DI2
-I -.-&gt; LG3 &amp; CR3 &amp; AU3 &amp; OC3 &amp; DI3
-T -.-&gt; LG4 &amp; CR4 &amp; AU4 &amp; OC4 &amp; DI4
-S -.-&gt; LG5 &amp; CR5 &amp; AU5 &amp; OC5 &amp; DI5
-
-style H fill:#dc2626,stroke:#ef4444,color:#fff
-style C fill:#d97706,stroke:#f59e0b,color:#fff
-style I fill:#ea580c,stroke:#fb923c,color:#fff
-style T fill:#2563eb,stroke:#3b82f6,color:#fff
-style S fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
-</code></pre>
+</div>
 <h3>4.2 LangGraph：状态机范式</h3>
 <p><strong>核心策略</strong>：将 Agent 行为建模为有向图，通过状态机保证执行的确定性和可追溯性。</p>
 <p><strong>稳定性机制</strong>：</p>
@@ -435,16 +717,16 @@ style S fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
 <li><strong>条件路由</strong>：基于状态动态决定下一步，避免线性执行的脆弱性</li>
 <li><strong>人在环路</strong>：内置 human-in-the-loop 节点，在关键决策点引入人工确认</li>
 <li><strong>持久化</strong>：内置多种存储后端（SQLite、PostgreSQL），Agent 状态可跨会话保持</li>
-</ol>
+</ul>
 <p><strong>局限性</strong>：</p>
 <ul>
 <li>无法解决模型层面的幻觉问题</li>
 <li>图结构设计需要较高的工程能力</li>
 <li>条件路由的逻辑仍依赖 LLM 判断，存在误判风险</li>
 </ul>
-<blockquote>
-<p>参考：LangGraph 文档 — <a href="https://langchain-ai.github.io/langgraph">langchain-ai.github.io/langgraph</a></p>
-</blockquote>
+<div class="callout warn">
+<p>参考：LangGraph 文档 — [langchain-ai.github.io/langgraph](https://langchain-ai.github.io/langgraph)</p>
+</div>
 <h3>4.3 CrewAI：角色扮演范式</h3>
 <p><strong>核心策略</strong>：通过明确的角色定义和任务分解来约束 Agent 行为，降低指令偏离风险。</p>
 <p><strong>稳定性机制</strong>：</p>
@@ -453,7 +735,7 @@ style S fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
 <li><strong>任务分解</strong>：复杂任务拆解为多个子任务，每个子任务有明确的预期输出</li>
 <li><strong>任务上下文</strong>：后续任务可引用前序任务的输出，形成信息传递链</li>
 <li><strong>层级流程</strong>：Manager Agent 可以监督和协调 Worker Agent 的执行</li>
-</ol>
+</ul>
 <p><strong>局限性</strong>：</p>
 <ul>
 <li>任务间的信息传递依赖自然语言，存在信息损失</li>
@@ -461,9 +743,9 @@ style S fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
 <li>状态管理不如 LangGraph 完善</li>
 <li>多 Agent 协作时的 token 消耗较高</li>
 </ul>
-<blockquote>
-<p>参考：CrewAI 文档 — <a href="https://docs.crewai.com">docs.crewai.com</a></p>
-</blockquote>
+<div class="callout warn">
+<p>参考：CrewAI 文档 — [docs.crewai.com](https://docs.crewai.com)</p>
+</div>
 <h3>4.4 AutoGen：对话驱动范式</h3>
 <p><strong>核心策略</strong>：通过 Agent 之间的多轮对话来解决问题，利用对话中的反馈和纠正机制提升稳定性。</p>
 <p><strong>稳定性机制</strong>：</p>
@@ -472,16 +754,16 @@ style S fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
 <li><strong>审查机制</strong>：可引入 Reviewer Agent 对输出进行质量审查</li>
 <li><strong>人类参与</strong>：灵活的人类输入模式（ALWAYS、TERMINATE、NEVER）</li>
 <li><strong>代码执行沙箱</strong>：安全的代码执行环境，限制 Agent 的操作范围</li>
-</ol>
+</ul>
 <p><strong>局限性</strong>：</p>
 <ul>
 <li>对话历史管理不够完善，长对话中容易出现上下文问题</li>
 <li>多 Agent 对话的非确定性较高</li>
 <li>0.4 版本的重构带来了 API 不稳定性</li>
 </ul>
-<blockquote>
-<p>参考：AutoGen 文档 — <a href="https://microsoft.github.io/autogen">microsoft.github.io/autogen</a></p>
-</blockquote>
+<div class="callout warn">
+<p>参考：AutoGen 文档 — [microsoft.github.io/autogen](https://microsoft.github.io/autogen)</p>
+</div>
 <h3>4.5 OpenClaw：通信与规则嵌入范式</h3>
 <p><strong>核心策略</strong>：通过会话隔离、规则嵌入和心跳检查来保障 Agent 的长期稳定运行。</p>
 <p><strong>稳定性机制</strong>：</p>
@@ -492,16 +774,16 @@ style S fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
 <li><strong>工具重试机制</strong>：工具调用失败时自动重试，支持指数退避</li>
 <li><strong>上下文窗口管理</strong>：主动管理上下文长度，避免溢出</li>
 <li><strong>子 Agent 编排</strong>：主编可创建子 Agent 处理具体任务，隔离故障范围</li>
-</ol>
+</ul>
 <p><strong>局限性</strong>：</p>
 <ul>
 <li>幻觉控制仍依赖底层模型能力</li>
 <li>规则嵌入方式需要精心设计，否则可能与用户指令冲突</li>
 <li>相对较新的项目，生态不如 LangChain 成熟</li>
 </ul>
-<blockquote>
-<p>参考：OpenClaw 文档 — <a href="https://docs.openclaw.ai">docs.openclaw.ai</a></p>
-</blockquote>
+<div class="callout warn">
+<p>参考：OpenClaw 文档 — [docs.openclaw.ai](https://docs.openclaw.ai)</p>
+</div>
 <h3>4.6 Dify：工作流范式</h3>
 <p><strong>核心策略</strong>：通过可视化工作流编排，将 Agent 行为限定在预定义的节点和连接中。</p>
 <p><strong>稳定性机制</strong>：</p>
@@ -510,16 +792,16 @@ style S fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
 <li><strong>节点级指令</strong>：每个节点有独立的指令和输入输出定义</li>
 <li><strong>错误处理节点</strong>：可定义专门的错误处理路径</li>
 <li><strong>变量传递</strong>：显式的变量传递机制，避免上下文混淆</li>
-</ol>
+</ul>
 <p><strong>局限性</strong>：</p>
 <ul>
 <li>灵活性受限于预定义的工作流结构</li>
 <li>复杂场景的表达能力不如图结构</li>
 <li>需要前端操作，不适合纯代码驱动的场景</li>
 </ul>
-<blockquote>
-<p>参考：Dify 文档 — <a href="https://docs.dify.ai">docs.dify.ai</a></p>
-</blockquote>
+<div class="callout warn">
+<p>参考：Dify 文档 — [docs.dify.ai](https://docs.dify.ai)</p>
+</div>
 <hr>
 <h2>5. 稳定性提升的通用策略</h2>
 <h3>5.1 架构层面</h3>
@@ -529,57 +811,57 @@ style S fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
 <li><strong>人在环路</strong>：在高风险操作前引入人工确认</li>
 <li><strong>故障隔离</strong>：通过子 Agent 或会话隔离限制故障传播范围</li>
 <li><strong>可观测性</strong>：完整的日志记录和追踪，支持问题诊断</li>
-</ol>
+</ul>
 <h3>5.2 Prompt 层面</h3>
 <ol>
 <li><strong>规则嵌入</strong>：将关键行为规范直接嵌入 system prompt</li>
 <li><strong>输出格式约束</strong>：使用结构化输出（JSON Schema）约束 Agent 的输出格式</li>
 <li><strong>自我审查</strong>：要求 Agent 在输出前进行自我审查</li>
 <li><strong>Few-shot 示例</strong>：提供高质量的示例，引导 Agent 的行为</li>
-</ol>
+</ul>
 <h3>5.3 运维层面</h3>
 <ol>
 <li><strong>自动重试</strong>：工具调用失败时自动重试，设置最大重试次数</li>
 <li><strong>健康检查</strong>：定期检查 Agent 状态，自动重启异常 Agent</li>
 <li><strong>降级策略</strong>：Agent 失败时自动切换到人工处理或简化流程</li>
 <li><strong>A/B 测试</strong>：对比不同 prompt 和配置的稳定性表现</li>
-</ol>
+</ul>
 <hr>
 <h2>6. 团队观点与可操作建议</h2>
 <h3>6.1 基于实际使用经验的观察</h3>
 <p>我们团队（主编+探针+调色板多 Agent 团队）在实际运行中积累了以下观察：</p>
-<p><strong>观察 1：稳定性问题的核心是&quot;失控&quot;</strong></p>
-<p>Agent 稳定性的本质不是&quot;模型不够聪明&quot;，而是&quot;行为不够可控&quot;。LLM 的生成能力已经足够强大，问题在于如何将这种能力约束在预期范围内。LangGraph 的状态机范式、Dify 的工作流范式，本质上都是在增加&quot;可控性&quot;。</p>
+<p><strong>观察 1：稳定性问题的核心是"失控"</strong></p>
+<p>Agent 稳定性的本质不是"模型不够聪明"，而是"行为不够可控"。LLM 的生成能力已经足够强大，问题在于如何将这种能力约束在预期范围内。LangGraph 的状态机范式、Dify 的工作流范式，本质上都是在增加"可控性"。</p>
 <p><strong>观察 2：多 Agent 系统的不稳定性是乘法关系，不是加法关系</strong></p>
 <p>两个 90% 可靠的 Agent 协作时，整体可靠性不是 90% + 90%，而是 90% × 90% = 81%。三个 Agent 协作时降至 72.9%。这意味着多 Agent 系统对单 Agent 的稳定性要求更高。</p>
 <p><strong>观察 3：人工介入不是失败，而是成熟的设计</strong></p>
-<p>早期的 Agent 框架（如 AutoGPT）追求&quot;完全自主&quot;，结果是频繁的失控。成熟的 Agent 系统（如 LangGraph、OpenClaw）都将&quot;人在环路&quot;作为核心设计原则。关键不是消除人工介入，而是将其放在最高效的位置。</p>
+<p>早期的 Agent 框架（如 AutoGPT）追求"完全自主"，结果是频繁的失控。成熟的 Agent 系统（如 LangGraph、OpenClaw）都将"人在环路"作为核心设计原则。关键不是消除人工介入，而是将其放在最高效的位置。</p>
 <p><strong>观察 4：规则嵌入比外部规则文件更有效</strong></p>
-<p>我们的实际经验表明，将行为规范直接嵌入 system prompt（如 OpenClaw 的 SOUL.md 机制）比依赖外部规则文件更有效。Agent 在每轮交互中都会&quot;看到&quot;这些规则，而外部规则文件容易被忽略或遗忘。</p>
-<p><strong>观察 5：探针说&quot;已完成&quot;后必须验证</strong></p>
-<p>一个重要的实践教训：不要盲目信任 Agent 报告的完成状态。在我们的工作流中，探针交付报告后，主编必须验证文件是否实际存在、内容是否完整。这是最基本的&quot;结果验证&quot;环节。</p>
+<p>我们的实际经验表明，将行为规范直接嵌入 system prompt（如 OpenClaw 的 SOUL.md 机制）比依赖外部规则文件更有效。Agent 在每轮交互中都会"看到"这些规则，而外部规则文件容易被忽略或遗忘。</p>
+<p><strong>观察 5：探针说"已完成"后必须验证</strong></p>
+<p>一个重要的实践教训：不要盲目信任 Agent 报告的完成状态。在我们的工作流中，探针交付报告后，主编必须验证文件是否实际存在、内容是否完整。这是最基本的"结果验证"环节。</p>
 <h3>6.2 可操作建议</h3>
 <h4>对于 Agent 系统设计者</h4>
 <ol>
 <li><strong>从第一天就设计故障处理</strong>：不要在系统稳定后再添加错误处理，从架构设计阶段就考虑故障场景</li>
-<li><strong>采用&quot;短任务+检查点&quot;模式</strong>：避免设计超过 10 步的连续任务，每个关键节点设置检查点</li>
+<li><strong>采用"短任务+检查点"模式</strong>：避免设计超过 10 步的连续任务，每个关键节点设置检查点</li>
 <li><strong>实现完整的可观测性</strong>：记录每一步的输入、输出、工具调用和状态变化，便于问题诊断</li>
 <li><strong>设置合理的超时和重试策略</strong>：避免无限循环，设置最大重试次数和总超时时间</li>
 <li><strong>在高风险操作前强制人工确认</strong>：数据库写入、外部 API 调用、文件删除等操作必须有人工确认</li>
-</ol>
+</ul>
 <h4>对于框架选择者</h4>
 <ol>
 <li><strong>LangGraph 适合高可靠性场景</strong>：如果系统需要强状态管理和可追溯性，LangGraph 是最佳选择</li>
 <li><strong>CrewAI 适合快速原型</strong>：如果需要快速构建多 Agent 团队原型，CrewAI 的 API 最简洁</li>
 <li><strong>OpenClaw 适合长期运行的 Agent</strong>：如果 Agent 需要长期在线运行（如聊天机器人），OpenClaw 的会话管理和心跳机制更适合</li>
 <li><strong>Dify 适合非技术团队</strong>：如果团队缺乏工程能力，Dify 的可视化工作流降低了使用门槛</li>
-</ol>
+</ul>
 <h4>对于 Agent 使用者</h4>
 <ol>
 <li><strong>不要期望 Agent 完全自主</strong>：即使是最好的 Agent 系统也需要人工监督</li>
 <li><strong>建立结果验证习惯</strong>：Agent 的输出必须经过验证，尤其是涉及数据、代码和外部操作的场景</li>
 <li><strong>保持合理的预期</strong>：Agent 的价值在于提升效率，而非完全替代人工。合理设置期望值可以避免失望</li>
-</ol>
+</ul>
 <hr>
 <h2>7. 未来展望</h2>
 <h3>7.1 正在发展的技术方向</h3>
@@ -588,7 +870,7 @@ style S fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
 <li><strong>Agent 可观测性</strong>：LangSmith、LangFuse 等工具正在构建完整的 Agent 追踪和监控能力</li>
 <li><strong>结构化输出</strong>：JSON Schema、Outlines 等技术正在提升 Agent 输出的可控性</li>
 <li><strong>自愈机制</strong>：Agent 自动检测和修复自身错误的能力正在快速发展</li>
-</ol>
+</ul>
 <h3>7.2 预期发展轨迹</h3>
 <ul>
 <li><strong>2026 年</strong>：Agent 稳定性工具链成熟（可观测性、测试框架、调试工具）</li>
@@ -596,409 +878,47 @@ style S fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
 <li><strong>2028 年</strong>：形式化验证方法在 Agent 安全领域开始应用</li>
 </ul>
 <hr>
-<h2>参考来源</h2>
-<ol>
-<li>LangGraph 文档 — <a href="https://langchain-ai.github.io/langgraph">langchain-ai.github.io/langgraph</a></li>
-<li>CrewAI 文档 — <a href="https://docs.crewai.com">docs.crewai.com</a></li>
-<li>AutoGen 文档 — <a href="https://microsoft.github.io/autogen">microsoft.github.io/autogen</a></li>
-<li>Dify 文档 — <a href="https://docs.dify.ai">docs.dify.ai</a></li>
-<li>OpenClaw 文档 — <a href="https://docs.openclaw.ai">docs.openclaw.ai</a></li>
-<li>Liu et al., &quot;Lost in the Middle: How Language Models Use Long Contexts&quot; — <a href="https://arxiv.org/abs/2307.03172">arxiv.org/abs/2307.03172</a></li>
-<li>AutoGPT GitHub Issues — <a href="https://github.com/Significant-Gravitas/AutoGPT/issues">github.com/Significant-Gravitas/AutoGPT/issues</a></li>
-</ol>
 
-<!DOCTYPE html>
-<html lang="zh-CN" data-theme="dark">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>移动端 AI 智能体应用 — 深度研究报告</title>
-<script>
-  function initMermaid(theme) {
-    mermaid.initialize({theme: theme === 'light' ? 'default' : 'dark', themeVariables: theme === 'light' ? {} : {primaryColor:'#312e81',primaryTextColor:'#e2e8f0',primaryBorderColor:'#4f46e5',lineColor:'#6366f1',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'}});
-  }
-</script>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.8; }
-  :root, [data-theme="dark"] {
-    --bg-primary:    #0f172a;
-    --bg-secondary:  #1e293b;
-    --bg-tertiary:   #334155;
-    --bg-card:       #1e293b;
-    --bg-code:       #0d1117;
-    --bg-callout:    #1a1040;
 
-    --text-primary:  #f1f5f9;
-    --text-secondary:#94a3b8;
-    --text-muted:    #64748b;
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <div class="ref"><span class="ref-grade grade-b">REF</span>LangGraph 文档 — <a href="https://langchain-ai.github.io/langgraph" target="_blank">langchain-ai.github.io/langgraph</a></div>
+<div class="ref"><span class="ref-grade grade-b">REF</span>CrewAI 文档 — <a href="https://docs.crewai.com" target="_blank">docs.crewai.com</a></div>
+<div class="ref"><span class="ref-grade grade-b">REF</span>AutoGen 文档 — <a href="https://microsoft.github.io/autogen" target="_blank">microsoft.github.io/autogen</a></div>
+<div class="ref"><span class="ref-grade grade-b">REF</span>Dify 文档 — <a href="https://docs.dify.ai" target="_blank">docs.dify.ai</a></div>
+<div class="ref"><span class="ref-grade grade-b">REF</span>OpenClaw 文档 — <a href="https://docs.openclaw.ai" target="_blank">docs.openclaw.ai</a></div>
+<div class="ref"><span class="ref-grade grade-b">REF</span>Liu et al., "Lost in the Middle: How Language Models Use Long Contexts" — <a href="https://arxiv.org/abs/2307.03172" target="_blank">arxiv.org/abs/2307.03172</a></div>
+<div class="ref"><span class="ref-grade grade-b">REF</span>AutoGPT GitHub Issues — <a href="https://github.com/Significant-Gravitas/AutoGPT/issues" target="_blank">github.com/Significant-Gravitas/AutoGPT/issues</a></div>
 
-    --accent-primary:   #818cf8;
-    --accent-secondary: #a78bfa;
-    --accent-success:   #34d399;
-    --accent-warning:   #fb923c;
-    --accent-danger:    #f87171;
 
-    --border-color:   #334155;
-    --border-light:   #1e293b;
-
-    --tag-bg:   #3730a3;
-    --tag-text: #c7d2fe;
-
-    --link: #818cf8;
-
-    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    --header-border: #334155;
-
-    --accent-text: #c7d2fe;
-    --accent-hover: #a5b4fc;
-    --code-text: #a78bfa;
-    --orange: #fb923c;
-    --green: #34d399;
-    --blue: #818cf8;
-    --pink: #f472b6;
-  }
-    [data-theme="light"] {
-    --bg-primary:    #ffffff;
-    --bg-secondary:  #f8fafc;
-    --bg-tertiary:   #f1f5f9;
-    --bg-card:       #f8fafc;
-    --bg-code:       #f1f5f9;
-    --bg-callout:    #eef2ff;
-
-    --text-primary:  #0f172a;
-    --text-secondary:#475569;
-    --text-muted:    #94a3b8;
-
-    --accent-primary:   #4f46e5;
-    --accent-secondary: #7c3aed;
-    --accent-success:   #059669;
-    --accent-warning:   #ea580c;
-    --accent-danger:    #dc2626;
-
-    --border-color:   #e2e8f0;
-    --border-light:   #f1f5f9;
-
-    --tag-bg:   #e0e7ff;
-    --tag-text: #312e81;
-
-    --link: #4f46e5;
-
-    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
-    --header-border: #e2e8f0;
-  }
-  .header { background: var(--header-bg); border-bottom: 1px solid var(--header-border); padding: 2.5rem 2rem; text-align: center; position: relative; }
-  .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
-  .header .meta { color: var(--text-muted); font-size: 0.9rem; }
-  .tag { display: inline-block; padding: 0.2rem 0.6rem; margin: 0.2rem; background: var(--tag-bg); color: var(--tag-text); border-radius: 4px; font-size: 0.8rem; }
-  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
-  .breadcrumb { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
-  .breadcrumb a { color: var(--link); text-decoration: none; }
-  .breadcrumb a:hover { text-decoration: underline; }
-  h2 { color: var(--accent-text); font-size: 1.4rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); }
-  h3 { color: var(--accent-hover); font-size: 1.15rem; margin: 1.8rem 0 0.8rem; }
-  p { margin-bottom: 1rem; color: var(--text-primary); }
-  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text-primary); }
-  li { margin-bottom: 0.4rem; }
-  code { background: var(--bg-code); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: var(--code-text); }
-  pre { background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; max-width: 100%; }
-  pre code { background: none; padding: 0; font-size: 0.85rem; max-width: 100%; }
-  .callout { background: var(--bg-callout); border-left: 3px solid var(--accent-primary); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
-  .callout strong { color: var(--accent-text); }
-  .callout.warn { border-left-color: var(--orange); }
-  .callout.warn strong { color: var(--orange); }
-  .callout.success { border-left-color: var(--green); }
-  .callout.success strong { color: var(--green); }
-  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-  th, td { text-align: left; padding: 0.6rem 0.8rem; border: 1px solid var(--border-color); }
-  th { background: var(--bg-code); color: var(--accent-text); }
-  td { color: var(--text-primary); }
-  .ref { color: var(--text-muted); font-size: 0.85rem; }
-  .ref a { color: var(--link); text-decoration: none; }
-  .ref a:hover { text-decoration: underline; }
-  .ref-grade { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600; margin-right: 0.3rem; }
-  .grade-a { background: rgba(52,211,153,0.15); color: var(--green); }
-  .grade-b { background: rgba(129,140,248,0.15); color: var(--accent-primary); }
-  .grade-c { background: rgba(251,146,60,0.15); color: var(--orange); }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1rem 0; }
-  .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.2rem; text-align: center; }
-  .stat-card .num { font-size: 2rem; font-weight: 800; color: var(--accent-primary); }
-  .stat-card .label { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.3rem; }
-  .footer { text-align: center; color: var(--text-muted); padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-light); font-size: 0.85rem; }
-  .theme-toggle { position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 24px; padding: 0.3rem 0.6rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s; }
-  .theme-toggle:hover { border-color: var(--accent-primary); }
-  .theme-toggle .icon { font-size: 1.1rem; }
-  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
-</style>
-<script>
-  function toggleTheme() {
-    const html = document.documentElement;
-    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('probe-theme', next);
-    updateToggleUI(next);
-    if (typeof initMermaid === 'function') { initMermaid(next); }
-  }
-  function updateToggleUI(theme) {
-    const icon = document.getElementById('themeIcon');
-    const label = document.getElementById('themeLabel');
-    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
-    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
-  }
-  (function() {
-    const saved = localStorage.getItem('probe-theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
-    document.addEventListener('DOMContentLoaded', function() {
-      updateToggleUI(saved);
-      if (typeof initMermaid === 'function') { initMermaid(saved); }
-    });
-  })();
-</script>
-</head>
-<body>
-<div class="header" style="position:relative">
-  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式"><span class="icon" id="themeIcon">☀️</span><span class="label" id="themeLabel">日间</span></button>
-  <h1>📱 移动端 AI 智能体应用</h1>
-  <div class="meta">2026-03-14 · 探针 (Probe)</div>
-  <div style="margin-top:0.8rem">
-    <span class="tag">Mobile AI</span><span class="tag">On-Device Agent</span><span class="tag">Edge Computing</span><span class="tag">LLM</span><span class="tag">GUI Agent</span>
-  </div>
 </div>
-<div class="container">
-  <div class="breadcrumb"><a href="./index.html">📋 总索引</a> / 移动端 AI 智能体应用</div>
 
-  <h2>📋 Executive Summary</h2>
-  <p>移动端 AI 智能体正从「对话式助手」向「自主行动型 Agent」跃迁。Apple Intelligence、Google Gemini Nano、Samsung Galaxy AI 形成三巨头格局，而学术界在 <em>ClawMobile</em>、<em>HeRo</em> 等框架上探索智能手机原生的 Agent 架构。核心挑战依然集中在<em>算力约束下的推理效率</em>、<em>GUI 理解与操控</em>、<em>隐私保护的 on-device 推理</em>三个维度。2025-2026 年的关键转折是：Agent 不再只是「回答问题」，而是能在手机上<em>跨应用完成多步任务</em>——从理解意图、规划步骤，到操控 UI 执行。</p>
-
-  <h2>📊 市场速览</h2>
-  <div class="stats">
-    <div class="stat-card">
-      <div class="num">$1B+</div>
-      <div class="label">2024 年 AI 移动应用消费支出</div>
-    </div>
-    <div class="stat-card">
-      <div class="num">3</div>
-      <div class="label">主流平台已有 on-device LLM</div>
-    </div>
-    <div class="stat-card">
-      <div class="num">6+</div>
-      <div class="label">2025 年新移动 Agent 研究框架</div>
-    </div>
-    <div class="stat-card">
-      <div class="num">~3B</div>
-      <div class="label">主流 on-device 模型参数量</div>
-    </div>
-  </div>
-
-  <h2>🌍 背景：为什么移动端 Agent 是下一个战场</h2>
-  <h3>从 App 到 Agent 的范式转移</h3>
-  <p>过去十年，移动体验被 <strong>App 范式</strong>主导——每个功能一个独立应用，用户需要手动切换、点击、输入。AI Agent 的出现正在打破这个模式：</p>
-  <ul>
-    <li><strong>意图驱动</strong>：用户表达目标（"帮我订明天去上海最便宜的航班"），Agent 自动完成多步操作</li>
-    <li><strong>跨应用协作</strong>：Agent 能在多个 App 间导航，不再受限于单个应用的封闭生态</li>
-    <li><strong>上下文感知</strong>：结合位置、时间、日历、消息等手机传感器和数据，提供个性化服务</li>
-    <li><strong>持续学习</strong>：Agent 能积累用户偏好，越用越懂你</li>
-  </ul>
-  <div class="callout warn">
-    <strong>⚠️ 关键转折点：</strong>2024-2025 年，端侧算力（NPU/TPU 达 45+ TOPS）终于让 on-device LLM 推理达到实用水平。Snapdragon 8 Gen 3 的 NPU 达 45 TOPS，Apple A18 Pro 的 Neural Engine 达 35 TOPS。
-  </div>
-
-  <h2>⚔️ 三大平台格局</h2>
-  <div class="table-wrapper">
-  <table>
-    <tr>
-      <th>维度</th>
-      <th>Apple Intelligence</th>
-      <th>Google Gemini</th>
-      <th>Samsung Galaxy AI</th>
-    </tr>
-    <tr>
-      <td><strong>端侧模型</strong></td>
-      <td>Apple Foundation Model (~3B)</td>
-      <td>Gemini Nano (1.8B/3.25B)</td>
-      <td>Gauss (授权 + 自研混合)</td>
-    </tr>
-    <tr>
-      <td><strong>云侧能力</strong></td>
-      <td>Private Cloud Compute (安全飞地)</td>
-      <td>Gemini Pro/Ultra (通过 API)</td>
-      <td>Google + 自研混合</td>
-    </tr>
-    <tr>
-      <td><strong>Agent 能力</strong></td>
-      <td>App Intents + Siri 升级，跨 App 操作</td>
-      <td>Gemini Extensions + Actions，深度 Android 集成</td>
-      <td>Galaxy AI 套件，翻译/摘要/图像处理</td>
-    </tr>
-    <tr>
-      <td><strong>隐私策略</strong></td>
-      <td>端侧优先，Private Cloud Compute 零留存</td>
-      <td>端侧 + 云侧混合，用户可控</td>
-      <td>主要依赖 Google 基础设施</td>
-    </tr>
-    <tr>
-      <td><strong>开发者生态</strong></td>
-      <td>App Intents API + SiriKit</td>
-      <td>AICore API + ML Kit + Gemini API</td>
-      <td>One UI SDK + Samsung Knox</td>
-    </tr>
-    <tr>
-      <td><strong>Agent 成熟度</strong></td>
-      <td>⭐⭐⭐ 深度集成但开放度有限</td>
-      <td>⭐⭐⭐⭐ 最开放，Android 原生支持</td>
-      <td>⭐⭐⭐ 功能丰富但生态较封闭</td>
-    </tr>
-  </table>
-  </div>
-
-  <div class="callout">
-    <strong>🔍 关键差异：</strong>Apple 走「隐私第一 + 深度集成」路线，Private Cloud Compute 是行业首创安全飞地云推理方案；Google 拥有最完整的端到端 Agent 基础设施；Samsung 采取务实路线，自研 + Google 双轨并行。
-  </div>
-
-  <h2>🏗️ 移动端 Agent 技术架构</h2>
-  <p>基于 ClawMobile、HeRo 等最新研究框架，移动端 Agent 的典型架构分为四层：</p>
-
-  <h3>Layer 1: Perception Layer（感知层）</h3>
-  <p>屏幕截图 → UI 元素识别（OCR + Layout Analysis）→ 屏幕状态序列化。关键挑战：不同 App 的 UI 差异极大，需要通用的 GUI 理解能力。当前主流方案是 <strong>多模态 VLM + Accessibility Tree 融合</strong>，比纯图像理解更可靠。</p>
-
-  <h3>Layer 2: Reasoning Layer（推理层）</h3>
-  <p>On-device LLM（1-3B 参数）处理用户意图 + 当前屏幕状态 → 生成动作计划。采用 <code>Chain-of-Thought</code> 或 <code>ReAct</code> 框架进行多步推理。复杂任务可调用云端大模型，形成 <strong>端云混合推理</strong> 架构。</p>
-
-  <h3>Layer 3: Action Layer（执行层）</h3>
-  <p>将推理结果转化为具体的 UI 操作：点击、滑动、输入文本。通过 Android Accessibility API 或 iOS UI Testing API 实现。需要 <strong>容错机制</strong>处理 UI 变化——ClawMobile 提出了 Self-healing 定位 + 视觉验证 + 回滚机制。</p>
-
-  <h3>Layer 4: Memory Layer（记忆层）</h3>
-  <p>短期记忆（当前任务上下文）+ 长期记忆（用户偏好、历史操作模式）。HeRo 框架探索了在异构移动 SoC 上的高效 RAG 实现，支持 <strong>DIKW 分层</strong>（Data → Information → Knowledge → Wisdom）。</p>
-
-  <h2>🔬 核心发现</h2>
-
-  <h3>1. ClawMobile：重新思考智能手机原生 Agent 系统</h3>
-  <p>2025 年发布的 <strong>ClawMobile</strong> 框架是首个专门为智能手机环境设计的 Agent 架构。其核心洞察：</p>
-  <ul>
-    <li>移动环境不同于云端/桌面——<em>受限的执行上下文</em>、<em>碎片化的控制接口</em>、<em>快速变化的 App 状态</em></li>
-    <li>传统 LLM-Agent 框架（如 ReAct、AutoGPT）直接移植到手机上效果很差</li>
-    <li>提出<em>推理-控制分离</em>架构：轻量级 on-device 模型负责实时控制，复杂推理委托给云端</li>
-    <li>设计了专门的 <code>Mobile-Action Space</code>，将 UI 操作抽象为结构化动作原语</li>
-  </ul>
-  <div class="callout success">
-    <strong>💡 核心贡献：</strong>证明了 3B 参数模型在适当架构下，可以完成 80%+ 的常见手机操作任务。
-  </div>
-
-  <h3>2. HeRo：异构移动 SoC 上的高效 Agent RAG</h3>
-  <p><strong>HeRo</strong> 框架解决了移动 Agent 的一个关键瓶颈：在资源受限的异构 SoC 上运行多阶段 Agent 工作流。</p>
-  <ul>
-    <li>移动 SoC 的特点：<em>加速器亲和性</em>（NPU/GPU/DSP 各有所长）、<em>形状敏感性</em>（不同 batch size 性能差异巨大）、<em>共享内存带宽竞争</em></li>
-    <li>HeRo 为每个子阶段和模型-PU 配置建立性能模型，捕捉延迟、工作负载形状和竞争导致的减速</li>
-    <li>轻量级在线调度器根据实时负载选择最优执行路径</li>
-    <li>相比 naive 调度，延迟降低 <strong>2-4x</strong>，能耗降低 <strong>30-50%</strong></li>
-  </ul>
-  <div class="callout success">
-    <strong>💡 意义：</strong>让复杂的多步 Agent RAG 在手机上实时运行成为可能。
-  </div>
-
-  <h3>3. GUI Agent 从被动响应到主动推荐</h3>
-  <p>arxiv 上的 <strong>PIRA-Bench</strong> 论文标志着一个重要转变：</p>
-  <ul>
-    <li>传统 GUI Agent 是<em>被动响应</em>型：用户给指令 → Agent 执行</li>
-    <li>新范式是<em>主动意图推荐</em>：Agent 观察用户操作模式，主动预测并建议下一步操作</li>
-    <li>例如：用户打开订票 App 搜索航班 → Agent 主动建议"要帮你加到日历吗？"</li>
-    <li>这需要更强的上下文理解和用户行为建模能力</li>
-  </ul>
-  <div class="callout warn">
-    <strong>⚠️ 挑战：</strong>主动推荐容易造成干扰，需要精准把握推荐时机和频率。这不仅是技术问题，也是 UX 设计问题。
-  </div>
-
-  <h3>4. On-Device 推理效率的突破</h3>
-  <p>2025 年多个技术进展让 on-device Agent 推理达到实用水平：</p>
-  <ul>
-    <li><strong>FlexServe</strong>：面向移动设备的快速安全 LLM 推理系统，支持灵活的资源隔离</li>
-    <li><strong>SimpleTool</strong>：并行解码技术，实现<em>实时</em> LLM function calling，大幅降低 Agent 动作延迟</li>
-    <li><strong>量化技术成熟</strong>：GPTQ/AWQ/QuIP# 等方案让 3B 模型在 INT4 量化下仅需 ~1.5GB 内存</li>
-    <li><strong>端侧推理延迟</strong>已从 2023 年的 5-10 秒降至 2025 年的 <strong>1-3 秒</strong>，进入用户可接受范围</li>
-  </ul>
-
-  <h3>5. 多模态感知是 Agent 的眼睛</h3>
-  <p>移动 Agent 要操控手机，首先需要「看懂」屏幕：</p>
-  <ul>
-    <li><strong>屏幕理解</strong>：将截图转为结构化 UI 表示（元素类型、位置、文本内容）</li>
-    <li><strong>多模态 LLM</strong>（如 Gemini Vision、GPT-4V）可以直接理解截图并生成操作指令</li>
-    <li><strong>Accessibility Tree</strong>：Android/iOS 提供的辅助功能树是 Agent 的理想输入，比纯图像理解更可靠</li>
-    <li><strong>挑战</strong>：动态内容（视频、动画）、自定义 UI 组件、弹窗和权限对话框的处理</li>
-  </ul>
-
-  <h2>⚡ 关键技术挑战</h2>
-  <div class="table-wrapper">
-  <table>
-    <tr>
-      <th>挑战</th>
-      <th>现状</th>
-      <th>解决方向</th>
-    </tr>
-    <tr>
-      <td><strong>算力约束</strong></td>
-      <td>端侧模型参数量受限于 1-3B，复杂推理能力有限</td>
-      <td>端云协同推理（edge-cloud hybrid），智能路由</td>
-    </tr>
-    <tr>
-      <td><strong>GUI 理解</strong></td>
-      <td>不同 App UI 差异大，动态内容难以解析</td>
-      <td>多模态 VLM + Accessibility Tree 融合</td>
-    </tr>
-    <tr>
-      <td><strong>动作可靠性</strong></td>
-      <td>UI 变化导致定位失败，错误累积</td>
-      <td>Self-healing 定位 + 视觉验证 + 回滚机制</td>
-    </tr>
-    <tr>
-      <td><strong>隐私安全</strong></td>
-      <td>Agent 需要读取屏幕内容和个人数据</td>
-      <td>沙箱隔离 + 差分隐私 + Private Cloud Compute</td>
-    </tr>
-    <tr>
-      <td><strong>电池续航</strong></td>
-      <td>持续推理对电池消耗显著</td>
-      <td>动态电压频率调节 + 推理调度优化</td>
-    </tr>
-    <tr>
-      <td><strong>用户信任</strong></td>
-      <td>用户对 Agent 自主操作手机存在顾虑</td>
-      <td>渐进式授权 + 操作预览 + 可解释性</td>
-    </tr>
-  </table>
-  </div>
-
-  <h2>🔮 趋势判断</h2>
-  <h3>2026 是移动 Agent 的「iPhone 时刻」</h3>
-  <p>当端侧推理延迟降到 <strong>&lt;1 秒</strong>、模型能力达到 7B 级别、操作系统原生支持 Agent 操作时，移动 Agent 将从「演示」进入「日常使用」。预计 2026 下半年到 2027 年达到这个临界点。</p>
-
-  <h3>操作系统级 Agent 平台将成为标配</h3>
-  <p>Android 16 和 iOS 19 预计将提供更深层的 Agent 原生支持——不仅限于 Accessibility API，而是专用的 <code>Agent Action Protocol</code>，让第三方 App 声明自己支持的操作，Agent 可以安全地调用。</p>
-
-  <h3>端云混合推理成为主流架构</h3>
-  <p>纯端侧受限于算力，纯云端受限于延迟和隐私。<strong>意图分类在端侧完成，复杂推理和长尾任务路由到云端</strong>将成为标准模式。Apple 的 Private Cloud Compute 就是这个方向的先驱。</p>
-
-  <h3>垂直场景 Agent 率先落地</h3>
-  <p>通用 Agent 距离成熟还远，但<em>垂直场景</em>（旅行预订、日程管理、消息摘要、健康追踪）的 Agent 会在 2026 年大量涌现。开发者应该关注具体场景而非追求通用能力。</p>
-
-  <h3>Agent 安全与治理成为核心议题</h3>
-  <p>当 Agent 能操作你的手机、访问你的支付 App 时，<em>安全边界</em>变得至关重要。预计 2026-2027 年将出现移动 Agent 安全标准和监管框架。</p>
-
-  <h2>📖 参考资料</h2>
-  <div class="ref">
-    <p>[1] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/abs/2502.06456">ClawMobile: Rethinking Smartphone-Native Agentic Systems</a> — 首个智能手机原生 Agent 架构</p>
-    <p>[2] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/search/?query=%22HeRo%3A+Adaptive+Orchestration%22">HeRo: Adaptive Orchestration of Agentic RAG on Heterogeneous Mobile SoC</a> — 异构 SoC 上的高效 Agent RAG</p>
-    <p>[3] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/search/?query=%22Knowledge-driven+Reasoning+for+Mobile+Agentic+AI%22">Knowledge-driven Reasoning for Mobile Agentic AI</a> — 知识驱动的移动 Agent 推理框架</p>
-    <p>[4] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/search/?query=PIRA-Bench">PIRA-Bench: From Reactive GUI Agents to Proactive Intent Recommendation Agents</a> — 主动意图推荐 Agent 基准</p>
-    <p>[5] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/search/?query=FlexServe+LLM+mobile">FlexServe: Fast and Secure LLM Serving for Mobile Devices</a> — 移动端 LLM 推理系统</p>
-    <p>[6] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/search/?query=SimpleTool+parallel+decoding">SimpleTool: Parallel Decoding for Real-Time LLM Function Calling</a> — 实时 function calling</p>
-    <p>[7] <span class="ref-grade grade-b">B</span> <a href="https://developer.apple.com/apple-intelligence/">Apple Intelligence Developer Documentation</a></p>
-    <p>[8] <span class="ref-grade grade-b">B</span> <a href="https://ai.google.dev/edge/mediapipe/solutions/genai">Google AI Edge: On-Device GenAI</a></p>
-    <p>[9] <span class="ref-grade grade-c">C</span> <a href="https://techcrunch.com/2024/12/30/ai-apps-saw-over-1-billion-in-consumer-spending-in-2024/">TechCrunch: AI apps saw over $1B in consumer spending in 2024</a></p>
-  </div>
-</div>
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
 <div class="footer">
   🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
   <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
+
+
+<!-- Mermaid -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ 
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      darkMode: true,
+      background: '#1e293b',
+      primaryColor: '#334155',
+      primaryTextColor: '#f1f5f9',
+      lineColor: '#818cf8'
+    }
+  });
+</script>
+
 </body>
 </html>
