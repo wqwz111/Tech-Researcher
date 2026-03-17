@@ -150,6 +150,7 @@ a:hover { color:#a5b4fc; }
  User["用户<br/>提出需求 & 反馈"]
  Chief["主编 Chief<br/>选题 · 计划 · 质控 · 发布"]
  subgraph SGResearch["研究层"]
+ Research["🔬 研究"]
  Probe1["探针-AI/LLM"]
  Probe2["探针-架构"]
  Probe3["探针-设计"]
@@ -159,6 +160,7 @@ subgraph SGSupport["支撑层"]
  Librarian["图书管理员<br/>知识管理"]
  end
 subgraph SGReview["审稿层"]
+ Review["💬 审稿"]
  Reader1["读者-A"]
  Reader2["读者-B"]
  Reader3["读者-C"]
@@ -284,13 +286,19 @@ Issues --> Plan
  TechReader["技术审稿人<br/>事实准确性 · 逻辑完整性"]
  ReadReader["可读性审稿人<br/>Executive Summary · 术语"]
  DomainReader["领域审稿人<br/>专业深度 · 前沿性"]
+ Reviewers["👥 并行审稿"]
  end
 Score["评分汇总<br/>每项 1-5 星"]
  Decision{"总分 ≥ 21/25?"}
  Pass["通过 → 调色板美化"]
  Revise["需修改 → 返回探针"]
+Reviewers --> TechReader
+    Reviewers --> ReadReader
+    Reviewers --> DomainReader
 Draft --> Reviewers
-    Reviewers --> Score
+    TechReader --> Score
+    ReadReader --> Score
+    DomainReader --> Score
     Score --> Decision
     Decision -->|">= 21"| Pass
     Decision -->|"< 21"| Revise
