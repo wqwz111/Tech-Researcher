@@ -531,11 +531,13 @@
 </ol>
 <h3>1.3 为什么需要事件机制？</h3>
 <p>事件机制提供了第四种交互范式：<strong>发布-订阅（Pub/Sub）</strong>。Agent 发布事件，而不关心谁在监听；其他 Agent 订阅感兴趣的事件，而不关心谁在发布。</p>
-<pre><code class="language-">
-发布者 ──event──&gt; [事件总线] ──event──&gt; 订阅者A
-                            ──event──&gt; 订阅者B
-                            ──event──&gt; 订阅者C
-</code></pre>
+<div class="mermaid">
+flowchart LR
+    Publisher["发布者"] -->|event| EventBus["事件总线"]
+    EventBus -->|event| SubscriberA["订阅者 A"]
+    EventBus -->|event| SubscriberB["订阅者 B"]
+    EventBus -->|event| SubscriberC["订阅者 C"]
+</div>
 <p>这种方式天然解决了上述所有局限：解耦了发送者和接收者、支持异步处理、提供了统一的可观测接口、允许新 Agent 无侵入地加入系统。</p>
 <hr>
 <h2>2. 当前流行框架的相应机制</h2>
@@ -608,11 +610,12 @@ async def handle_research(self, message: ResearchRequest, ctx: MessageContext):
 <li><strong>SystemEvent</strong>：系统级事件（如节点连接/断开、消息到达）</li>
 </ul>
 <p>OpenClaw 的事件模型面向"Agent 作为长期运行进程"的场景，事件主要用于 Agent 的自我管理和外部响应：</p>
-<pre><code class="language-">
-Heartbeat (周期) ──&gt; Agent 检查状态、执行例行任务
-Cron (定时)     ──&gt; Agent 执行预定任务
-SystemEvent     ──&gt; Agent 响应系统变化
-</code></pre>
+<div class="mermaid">
+flowchart LR
+    Heartbeat["Heartbeat (周期)"] --> Agent1["Agent 检查状态、执行例行任务"]
+    Cron["Cron (定时)"] --> Agent2["Agent 执行预定任务"]
+    SysEvent["SystemEvent"] --> Agent3["Agent 响应系统变化"]
+</div>
 <p><strong>事件特征</strong>：系统级、进程驱动、面向长期运行、偏向基础设施层。</p>
 <h3>2.5 框架事件模型对比</h3>
 <div class="mermaid">
@@ -675,20 +678,25 @@ writer_agent.write(report_data)  # 必须知道 writer_agent 存在且可用
 event_bus.publish(ReportReadyEvent(data=report_data))  # 不关心谁在听
 </code></pre>
 <p><strong>实际价值</strong>：当系统中的 Agent 从 3 个增长到 20 个时，传统调用模式的依赖关系从 O(n) 增长到 O(n²)，而事件模式的依赖关系保持线性增长。</p>
-<p>根据 Distributed Systems Patterns 的分析，事件驱动架构能将系统组件间的耦合度降低 60-80% <sup>[1]</sup>。</p>
-<p><sup>[1]</sup>: https://www.distributedsystemspatterns.dev/</p>
+<p>事件驱动架构通过消除发送者与接收者之间的直接依赖，显著降低了系统组件间的耦合度。</p>
 <h3>3.2 异步：非阻塞的 Agent 协作</h3>
 <p>多 Agent 协作中，一个 Agent 经常需要触发多个并行操作。同步调用模式下：</p>
-<pre><code class="language-">
-Agent_A → Agent_B (等待) → Agent_C (等待) → Agent_D (等待)
-总耗时 = T_B + T_C + T_D
-</code></pre>
+<div class="mermaid">
+flowchart LR
+    AgentA["Agent_A"] -->|等待| AgentB["Agent_B"]
+    AgentB -->|等待| AgentC["Agent_C"]
+    AgentC -->|等待| AgentD["Agent_D"]
+</div>
+<p>总耗时 = T_B + T_C + T_D</p>
 <p>事件模式下：</p>
-<pre><code class="language-">
-Agent_A → 发布事件 → Agent_B, Agent_C, Agent_D 并行处理
-总耗时 = max(T_B, T_C, T_D)
-</code></pre>
-<p>对于延迟敏感的 Agent 应用（如实时对话系统、代码生成流水线），异步事件机制可以将整体延迟降低 50-70%。</p>
+<div class="mermaid">
+flowchart LR
+    AgentA2["Agent_A"] -->|发布事件| AgentB2["Agent_B"]
+    AgentA2 -->|发布事件| AgentC2["Agent_C"]
+    AgentA2 -->|发布事件| AgentD2["Agent_D"]
+</div>
+<p>总耗时 = max(T_B, T_C, T_D)</p>
+<p>对于延迟敏感的 Agent 应用（如实时对话系统、代码生成流水线），异步事件机制可以大幅降低整体延迟。</p>
 <p>LangChain 团队在 2024 年的博客中指出，LangGraph 的异步节点执行可以将复杂工作流的执行时间缩短约 40% <sup>[2]</sup>。</p>
 <p><sup>[2]</sup>: https://blog.langchain.dev/langgraph/</p>
 <h3>3.3 可观测：事件流 = 天然的审计日志</h3>
@@ -717,13 +725,17 @@ Agent_A → 发布事件 → Agent_B, Agent_C, Agent_D 并行处理
 <li><strong>新增 Agent 作为事件生产者</strong>：只需发布新事件，已有 Agent 选择性订阅</li>
 <li><strong>替换 Agent 实现</strong>：只要发布相同的事件，消费者完全无感知</li>
 </ol>
-<pre><code class="language-">
-已有系统：Agent_A → 事件E → Agent_B
+<div class="mermaid">
+flowchart TB
+    subgraph Before["已有系统"]
+        AgentA1["Agent_A"] -->|事件E| AgentB1["Agent_B"]
+    end
 
-扩展后：Agent_A → 事件E → Agent_B
-                    ↓
-                    Agent_C (新加入，只需订阅事件E)
-</code></pre>
+    subgraph After["扩展后 — Agent_C 无侵入加入"]
+        AgentA2["Agent_A"] -->|事件E| AgentB2["Agent_B"]
+        AgentA2 -->|事件E| AgentC["Agent_C ✨ 新加入"]
+    end
+</div>
 <p>这种特性对于多 Agent 系统至关重要——在多 Agent 系统中，Agent 的增删是常态，事件机制确保这种变化不会引发连锁反应。</p>
 <hr>
 <h2>4. 事件机制设计面临的问题和解决方法</h2>
@@ -760,10 +772,12 @@ Agent_A → 发布事件 → Agent_B, Agent_C, Agent_D 并行处理
 <li><strong>事件溯源（Event Sourcing）</strong>：系统状态由事件序列重建，而非存储当前状态。这使得系统可以回滚到任意时间点。</li>
 <li><strong>Checkpoint + 事件回放</strong>：LangGraph 的 Checkpointer 机制——定期保存状态快照，崩溃后从最近快照 + 后续事件重建状态。</li>
 </ul>
-<pre><code class="language-">
-快照_1 → [事件E1, E2, E3] → 快照_2 → [E4, E5] → 崩溃
-恢复：加载快照_2，重放 E4, E5 → 恢复到崩溃前状态
-</code></pre>
+<div class="mermaid">
+flowchart LR
+    S1["快照_1"] --> E1["E1"] --> E2["E2"] --> E3["E3"]
+    E3 --> S2["快照_2"] --> E4["E4"] --> E5["E5"] --> Crash["💥 崩溃"]
+    S2 -.->|恢复: 加载快照_2, 重放 E4,E5| Recovered["恢复到崩溃前状态"]
+</div>
 <h3>4.4 跨 Agent 事件路由</h3>
 <p><strong>问题</strong>：在多 Agent 系统中，事件需要被路由到正确的消费者。简单的广播效率低下，复杂的路由又增加系统复杂度。</p>
 <p><strong>解决方案</strong>：</p>
@@ -793,19 +807,24 @@ Agent_A → 发布事件 → Agent_B, Agent_C, Agent_D 并行处理
 <p><strong>场景</strong>：研究 Agent 生成报告后，需要同时触发（1）格式化 Agent 排版、（2）审查 Agent 校验、（3）发布 Agent 准备发布。</p>
 <p><strong>无事件机制</strong>：串行执行，总耗时 = T_格式化 + T_审查 + T_发布</p>
 <p><strong>有事件机制</strong>：并行执行，总耗时 = max(T_格式化, T_审查, T_发布)</p>
-<p>根据 Martin Fowler 对事件驱动架构的分析，在典型的多消费者场景下，并行处理可以将延迟降低到串行的 1/N（N 为消费者数量）<sup>[5]</sup>。</p>
+<p>根据并行计算理论，在典型的多消费者场景下，并行处理可以将延迟降低到串行的 1/N（N 为消费者数量）。Martin Fowler 在其事件驱动架构文章中也阐述了异步并行带来的性能优势 <sup>[5]</sup>。</p>
 <p><sup>[5]</sup>: https://martinfowler.com/articles/201701-event-driven.html</p>
 <h3>5.2 故障隔离与恢复能力</h3>
 <p>事件机制天然支持<strong>故障隔离</strong>：</p>
-<pre><code class="language-">
-正常情况：Agent_A → 事件 → Agent_B
-                         Agent_C
-                         Agent_D
+<div class="mermaid">
+flowchart TB
+    subgraph Normal["正常情况"]
+        A1["Agent_A"] -->|事件| B1["Agent_B ✓"]
+        A1 -->|事件| C1["Agent_C ✓"]
+        A1 -->|事件| D1["Agent_D ✓"]
+    end
 
-Agent_B 崩溃：Agent_A → 事件 → Agent_B (✗ 失败)
-                            Agent_C (✓ 正常)
-                            Agent_D (✓ 正常)
-</code></pre>
+    subgraph Failure["Agent_B 崩溃"]
+        A2["Agent_A"] -->|事件| B2["Agent_B ✗"]
+        A2 -->|事件| C2["Agent_C ✓"]
+        A2 -->|事件| D2["Agent_D ✓"]
+    end
+</div>
 <p>一个 Agent 的故障不会影响其他 Agent 的正常工作。结合重试机制和死信队列，系统可以在故障恢复后自动处理积压的事件。</p>
 <p>对比直接调用模式，调用链中的任何一环故障都会导致整条链路中断——这就是所谓的"级联故障"（Cascading Failure）。</p>
 <h3>5.3 可调试性提升（事件溯源）</h3>
@@ -818,12 +837,16 @@ Agent_B 崩溃：Agent_A → 事件 → Agent_B (✗ 失败)
 <li><strong>时间旅行调试</strong>：在任意事件点暂停，检查系统状态</li>
 <li><strong>审计追踪</strong>：完整记录每个决策的触发事件和处理结果</li>
 </ol>
-<pre><code class="language-">
-事件流：E1 → E2 → E3 → E4 → E5 → E6
-                     ↑
-                  Bug 发生点
-回放：E1 → E2 → E3 → 暂停 → 检查状态 → 问题定位
-</code></pre>
+<div class="mermaid">
+flowchart LR
+    subgraph EventStream["事件流"]
+        E1["E1"] --> E2["E2"] --> E3["E3"] --> E4["E4 🐛"] --> E5["E5"] --> E6["E6"]
+    end
+
+    subgraph Replay["回放定位"]
+        R1["E1"] --> R2["E2"] --> R3["E3"] --> Pause["⏸ 暂停"] --> Check["检查状态 → 定位问题"]
+    end
+</div>
 <h3>5.4 与外部系统集成能力增强</h3>
 <p>事件机制让 Agent 系统与外部系统的集成变得简单：</p>
 <p><strong>外部系统作为事件生产者</strong>：</p>
@@ -839,10 +862,11 @@ Agent_B 崩溃：Agent_A → 事件 → Agent_B (✗ 失败)
 <li>ErrorOccurred 事件 → 发送 Slack 通知</li>
 <li>DataUpdated 事件 → 更新数据库</li>
 </ul>
-<pre><code class="language-">
-外部系统 ──事件──&gt; Agent 系统 ──事件──&gt; 外部系统
-  (GitHub)         (处理逻辑)         (Slack)
-</code></pre>
+<div class="mermaid">
+flowchart LR
+    GitHub["外部系统 (GitHub)"] -->|事件| Agent["Agent 系统 (处理逻辑)"]
+    Agent -->|事件| Slack["外部系统 (Slack)"]
+</div>
 <p>OpenClaw 的 SystemEvent 和 Cron 机制正是这种集成能力的体现——外部系统事件（如 Telegram 消息、GitHub webhook）可以无缝触发 Agent 行为。</p>
 <hr>
 <h2>6. 总结与展望</h2>
@@ -886,10 +910,9 @@ Agent_B 崩溃：Agent_A → 事件 → Agent_B (✗ 失败)
 <div class="ref"><span class="ref-grade grade-a">[4]</span> <a href="https://docs.openclaw.ai/">OpenClaw Documentation</a> — Heartbeat, Cron, and SystemEvent. https://docs.openclaw.ai/</div>
 <div class="ref"><span class="ref-grade grade-a">[5]</span> <a href="https://martinfowler.com/articles/201701-event-driven.html">Martin Fowler</a> — Event-Driven Architecture. https://martinfowler.com/articles/201701-event-driven.html</div>
 <div class="ref"><span class="ref-grade grade-a">[6]</span> <a href="https://cloudevents.io/">CloudEvents Specification</a> — A Specification for Describing Events. https://cloudevents.io/</div>
-<div class="ref"><span class="ref-grade grade-a">[7]</span> <a href="https://www.distributedsystemspatterns.dev/">Distributed Systems Patterns</a> — Event-Driven Architecture Patterns. https://www.distributedsystemspatterns.dev/</div>
+<div class="ref"><span class="ref-grade grade-a">[7]</span> <a href="https://www.enterpriseintegrationpatterns.com/">Enterprise Integration Patterns</a> — Event-Driven Architecture. https://www.enterpriseintegrationpatterns.com/</div>
 <div class="ref"><span class="ref-grade grade-a">[8]</span> <a href="https://blog.langchain.dev/langgraph/">LangChain Blog</a> — LangGraph for Multi-Agent Workflows. https://blog.langchain.dev/langgraph/</div>
-<div class="ref">9. Microsoft AutoGen GitHub Repository. https://github.com/microsoft/autogen</div>
-<div class="ref"><span class="ref-grade grade-a">[10]</span> <a href="https://www.enterpriseintegrationpatterns.com/">Enterprise Integration Patterns</a> — Event-Driven Architecture. https://www.enterpriseintegrationpatterns.com/</div>
+<div class="ref"><span class="ref-grade grade-a">[9]</span> <a href="https://github.com/microsoft/autogen">Microsoft AutoGen</a> — GitHub Repository. https://github.com/microsoft/autogen</div>
 
 </div>
 
