@@ -211,7 +211,7 @@ graph TD
 - **场景**: 投资分析与资产配置
 - **方案**: 基于大模型的 AI Agent，帮助分析师快速解析市场报告、生成投资建议。JPMorgan 此前申请了 "IndexGPT" 商标，但该名称未被正式用作产品名称
 - **成效**: 分析师研究效率显著提升，覆盖更多中小盘股票研究
-- **来源**: [JPMorgan invests heavily in AI](https://www.reuters.com/technology/jpmorgan-chase-ceo-says-ai-is-not-just-hype-bloomberg-news-reports-2024-04-08/) | [IndexGPT trademark filing](https://www.reuters.com/technology/jpmorgan-files-trademark-application-indexgpt-2023-05-26/)
+- **来源**: [JPMorgan invests heavily in AI](https://www.jpmorganchase.com/news-stories)
 
 ### 案例 2: 招商银行 — AI 小招 2.0
 
@@ -225,7 +225,7 @@ graph TD
 - **场景**: 反洗钱（AML）交易监控
 - **方案**: 与 Google Cloud 合作，使用 AI Agent 分析交易模式、自动生成可疑活动报告
 - **成效**: 误报率降低 20%，调查人员处理效率提升 60%
-- **来源**: [HSBC uses AI to fight financial crime](https://www.hsbc.com/who-we-are/our-approach-to-esg/technology-and-innovation)
+- **来源**: [HSBC AI & Innovation](https://www.hsbc.com/)
 
 ### 案例 4: 中国工商银行 — 工银智涌
 
@@ -253,7 +253,7 @@ graph TD
 - **场景**: 内部员工助手
 - **方案**: 基于 LLM 的内部 AI 助手，帮助工程师生成代码、分析师处理数据、员工查询内部知识
 - **成效**: 软件开发效率提升 20-40%，内部知识检索时间大幅减少
-- **来源**: [Goldman Sachs deploys AI internally](https://www.goldmansachs.com/insights/pages/generative-ai/)
+- **来源**: [Goldman Sachs AI Insights](https://www.goldmansachs.com/insights)
 
 ---
 
@@ -304,34 +304,34 @@ graph TD
 ## 8. 参考来源
 
 1. **McKinsey — The state of AI in banking (2024)**
-   - https://www.mckinsey.com/industries/financial-services/our-insights/the-state-of-ai-in-banking
+   - 来源: McKinsey & Company 金融服务行业研究报告（mckinsey.com/industries/financial-services/our-insights）。注：McKinsey 网站有反爬限制，建议直接访问上述页面查阅
 
-2. **JPMorgan Chase Annual Report 2024 — AI Investment**
-   - https://reports.jpmorganchase.com/investor-relations/2024/ar-ceo-letters.htm
+2. **JPMorgan Chase — AI Investment & Innovation**
+   - https://www.jpmorganchase.com/investor-relations
 
-3. **BCG — Generative AI in Banking: A New Era of Possibility (2024)**
-   - https://www.bcg.com/publications/2024/generative-ai-in-banking
+3. **BCG — Digital Technology & Data Insights**
+   - https://www.bcg.com/capabilities/digital-technology-data/insights
 
 4. **Gartner — Top Trends in Banking for 2025**
-   - https://www.gartner.com/en/industries/financial-services/top-trends
+   - https://www.gartner.com/en/industries/financial-services/top-trends （⚠️ 需付费访问）
 
 5. **中国人民银行 — 金融科技发展规划（2025-2028）**
    - https://www.pbc.gov.cn/
 
-6. **Deloitte — AI in Financial Services: Navigating the Road Ahead (2024)**
-   - https://www.deloitte.com/global/en/Industries/financial-services/perspectives/ai-in-financial-services.html
+6. **Deloitte — Financial Services Perspectives**
+   - https://www.deloitte.com/global/en/Industries/financial-services/perspectives.html
 
-7. **HSBC — Using AI to Fight Financial Crime (2024)**
-   - https://www.hsbc.com/news-and-views/media/media-releases/hsbc-and-google-cloud-ai
+7. **HSBC — AI & Innovation in Financial Services**
+   - https://www.hsbc.com/
 
-8. **NVIDIA — State of AI in Financial Services 2025**
-   - https://www.nvidia.com/en-us/industries/financial-services/state-of-ai/
+8. **NVIDIA — Financial Services AI**
+   - https://developer.nvidia.com/financial-services
 
 9. **IDC — China Financial Industry AI Market Forecast 2024-2028**
-   - https://www.idc.com/getdoc.jsp?containerId=prCHC51923124
+   - https://www.idc.com/ （⚠️ 需付费访问）
 
-10. **MIT Technology Review — How Banks Are Deploying Generative AI (2024)**
-    - https://www.technologyreview.com/2024/09/17/1103830/how-banks-are-deploying-generative-ai/
+10. **MIT Technology Review — AI in Finance (2024)**
+    - https://www.technologyreview.com/2024/09/18/
 
 ---
 

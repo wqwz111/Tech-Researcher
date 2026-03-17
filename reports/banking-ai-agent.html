@@ -3,15 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>移动端 AI 智能体应用 — 深度研究报告</title>
-<script>
-  function initMermaid(theme) {
-    mermaid.initialize({theme: theme === 'light' ? 'default' : 'dark', themeVariables: theme === 'light' ? {} : {primaryColor:'#312e81',primaryTextColor:'#e2e8f0',primaryBorderColor:'#4f46e5',lineColor:'#6366f1',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'}});
-  }
-</script>
+<title>AI 智能体在银行系统的应用</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.8; }
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
   :root, [data-theme="dark"] {
     --bg-primary:    #0f172a;
     --bg-secondary:  #1e293b;
@@ -40,16 +43,10 @@
 
     --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     --header-border: #334155;
-
-    --accent-text: #c7d2fe;
-    --accent-hover: #a5b4fc;
-    --code-text: #a78bfa;
-    --orange: #fb923c;
-    --green: #34d399;
-    --blue: #818cf8;
-    --pink: #f472b6;
   }
-    [data-theme="light"] {
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
     --bg-primary:    #ffffff;
     --bg-secondary:  #f8fafc;
     --bg-tertiary:   #f1f5f9;
@@ -78,105 +75,444 @@
     --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
     --header-border: #e2e8f0;
   }
-  .header { background: var(--header-bg); border-bottom: 1px solid var(--header-border); padding: 2.5rem 2rem; text-align: center; position: relative; }
-  .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
-  .header .meta { color: var(--text-muted); font-size: 0.9rem; }
-  .tag { display: inline-block; padding: 0.2rem 0.6rem; margin: 0.2rem; background: var(--tag-bg); color: var(--tag-text); border-radius: 4px; font-size: 0.8rem; }
-  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
-  .breadcrumb { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
-  .breadcrumb a { color: var(--link); text-decoration: none; }
-  .breadcrumb a:hover { text-decoration: underline; }
-  h2 { color: var(--accent-text); font-size: 1.4rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); }
-  h3 { color: var(--accent-hover); font-size: 1.15rem; margin: 1.8rem 0 0.8rem; }
-  p { margin-bottom: 1rem; color: var(--text-primary); }
-  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text-primary); }
-  li { margin-bottom: 0.4rem; }
-  code { background: var(--bg-code); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: var(--code-text); }
-  pre { background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; max-width: 100%; }
-  pre code { background: none; padding: 0; font-size: 0.85rem; max-width: 100%; }
-  .callout { background: var(--bg-callout); border-left: 3px solid var(--accent-primary); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
-  .callout strong { color: var(--accent-text); }
-  .callout.warn { border-left-color: var(--orange); }
-  .callout.warn strong { color: var(--orange); }
-  .callout.success { border-left-color: var(--green); }
-  .callout.success strong { color: var(--green); }
-  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-  th, td { text-align: left; padding: 0.6rem 0.8rem; border: 1px solid var(--border-color); }
-  th { background: var(--bg-code); color: var(--accent-text); }
-  td { color: var(--text-primary); }
-  .ref { color: var(--text-muted); font-size: 0.85rem; }
-  .ref a { color: var(--link); text-decoration: none; }
-  .ref a:hover { text-decoration: underline; }
-  .ref-grade { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600; margin-right: 0.3rem; }
-  .grade-a { background: rgba(52,211,153,0.15); color: var(--green); }
-  .grade-b { background: rgba(129,140,248,0.15); color: var(--accent-primary); }
-  .grade-c { background: rgba(251,146,60,0.15); color: var(--orange); }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1rem 0; }
-  .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.2rem; text-align: center; }
-  .stat-card .num { font-size: 2rem; font-weight: 800; color: var(--accent-primary); }
-  .stat-card .label { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.3rem; }
-  .footer { text-align: center; color: var(--text-muted); padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-light); font-size: 0.85rem; }
-  .theme-toggle { position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 24px; padding: 0.3rem 0.6rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s; }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
   .theme-toggle:hover { border-color: var(--accent-primary); }
   .theme-toggle .icon { font-size: 1.1rem; }
   .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
 </style>
 <script>
+  // Theme toggle — uses localStorage for persistence
   function toggleTheme() {
     const html = document.documentElement;
     const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
     html.setAttribute('data-theme', next);
     localStorage.setItem('probe-theme', next);
     updateToggleUI(next);
-    if (typeof initMermaid === 'function') { initMermaid(next); }
   }
+
   function updateToggleUI(theme) {
     const icon = document.getElementById('themeIcon');
     const label = document.getElementById('themeLabel');
     if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
     if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
   }
+
+  // Apply saved theme on load
   (function() {
     const saved = localStorage.getItem('probe-theme') || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
-    document.addEventListener('DOMContentLoaded', function() {
-      updateToggleUI(saved);
-      if (typeof initMermaid === 'function') { initMermaid(saved); }
-    });
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
   })();
 </script>
 </head>
 <body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
 <div class="header" style="position:relative">
-  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式"><span class="icon" id="themeIcon">☀️</span><span class="label" id="themeLabel">日间</span></button>
-  <h1>📱 移动端 AI 智能体应用</h1>
-  <div class="meta">2026-03-14 · 探针 (Probe)</div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>AI 智能体在银行系统的应用</h1>
+  <div class="meta">2026-03-17 · Tech-Researcher 探针</div>
   <div style="margin-top:0.8rem">
-    <span class="tag">Mobile AI</span><span class="tag">On-Device Agent</span><span class="tag">Edge Computing</span><span class="tag">LLM</span><span class="tag">GUI Agent</span>
+    <span class="tag">AI Agent</span>
+    <span class="tag">银行</span>
+    <span class="tag">LLM</span>
+    <span class="tag">金融科技</span>
   </div>
 </div>
+
 <div class="container">
-<h1>AI 智能体在银行系统的应用</h1>
-<blockquote>
-<p><strong>作者</strong>: Tech-Researcher 探针 | <strong>日期</strong>: 2026-03-17 | <strong>版本</strong>: v1.0</p>
-</blockquote>
-<hr>
-<h2>1. Executive Summary</h2>
-<ol>
-<li><p><strong>AI Agent 已从概念验证进入银行核心业务规模化落地阶段。</strong> 2024-2025 年，全球头部银行（摩根大通、汇丰、工行等）已将 AI Agent 部署至智能客服、反欺诈、信贷审批等场景，ROI 显著优于传统 RPA + 规则引擎方案。</p>
-</li>
-<li><p><strong>大模型驱动的 Agent 正在重塑银行的人机协作模式。</strong> 从&quot;人工为主、AI 辅助&quot;转向&quot;AI 主导、人工复核&quot;，客服领域平均减少 40-60% 人工介入，合规审查效率提升 3-5 倍。</p>
-</li>
-<li><p><strong>合规与可解释性是银行 AI Agent 落地的最大障碍。</strong> 监管机构要求可审计的决策链，黑箱模型在信贷和反洗钱领域面临严格审查，RAG + 结构化推理链成为主流解决方案。</p>
-</li>
-<li><p><strong>私有化部署 + 专有模型微调是大型银行的首选路径。</strong> 出于数据主权和监管合规考虑，大型银行普遍倾向于本地部署或混合云架构，而非纯 SaaS 方案。</p>
-</li>
-<li><p><strong>2025-2026 年将迎来银行 Agent 编排（Orchestration）平台竞争。</strong> 单点 Agent 不再是核心壁垒，能协调多个 Agent 协作完成复杂业务流程的平台层将成为差异化关键。</p>
-</li>
-</ol>
-<hr>
-<h2>2. 银行业为什么需要 AI Agent</h2>
-<h3>2.1 业务痛点分析</h3>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="./index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>1. **AI Agent 已从概念验证进入银行核心业务规模化落地阶段。** 2024-2025 年，全球头部银行（摩根大通、汇丰、工行等）已将 AI Agent 部署至智能客服、反欺诈、信贷审批等场景，ROI 显著优于传统 RPA + 规则引擎方案。...</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2 id="2-ai-agent">2. 银行业为什么需要 AI Agent</h2>
+<h3 id="21">2.1 业务痛点分析</h3>
 <table>
 <thead>
 <tr>
@@ -185,7 +521,8 @@
 <th>AI Agent 价值</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><strong>客服成本高</strong></td>
 <td>传统客服中心人员成本占运营支出比重显著，高峰期等待时间长</td>
 <td>7×24 自动响应，处理大部分常见问题，转人工时携带完整上下文</td>
@@ -215,17 +552,18 @@
 <td>人工投顾仅服务高净值客户，大众市场覆盖不足</td>
 <td>智能投顾 Agent 提供个性化资产配置建议，服务长尾客户</td>
 </tr>
-</tbody></table>
-<h3>2.2 驱动力</h3>
+</tbody>
+</table>
+<h3 id="22">2.2 驱动力</h3>
 <ul>
 <li><strong>竞争压力</strong>: 金融科技公司（如 Ant Group、Revolut）用 AI 打造极致体验，倒逼传统银行升级</li>
 <li><strong>成本压力</strong>: 利差收窄迫使银行降低运营成本，AI Agent 被视为 10 倍杠杆工具</li>
 <li><strong>监管推动</strong>: 中国银保监会、欧盟 DORA 等监管框架要求银行提升数字化风控能力</li>
 <li><strong>技术成熟</strong>: GPT-4 / Claude 3.5 / 文心一言等大模型在金融文本理解上达到商用水平</li>
 </ul>
-<hr>
-<h2>3. 典型应用场景</h2>
-<h3>3.1 智能客服与客户交互</h3>
+<hr />
+<h2 id="3">3. 典型应用场景</h2>
+<h3 id="31">3.1 智能客服与客户交互</h3>
 <p><strong>核心能力</strong>: 多轮对话理解、意图识别、业务办理、情感安抚</p>
 <ul>
 <li>账户查询、转账指导、产品咨询等高频场景完全自动化</li>
@@ -233,7 +571,7 @@
 <li>多语言支持覆盖国际化业务需求</li>
 </ul>
 <p><strong>代表产品</strong>: 招商银行 AI 小招、Bank of America Erica、印度 HDFC Bank EVA</p>
-<h3>3.2 信贷审批与风控</h3>
+<h3 id="32">3.2 信贷审批与风控</h3>
 <p><strong>核心能力</strong>: 多源数据聚合、风险评估、审批建议生成</p>
 <ul>
 <li>Agent 自动拉取征信、工商、税务、流水等数据</li>
@@ -241,7 +579,7 @@
 <li>生成结构化审批报告，供审批官参考或自动决断</li>
 </ul>
 <p><strong>关键指标</strong>: 审批效率提升 5-10 倍，逾期率与人工审批持平或更低</p>
-<h3>3.3 反洗钱（AML）/ 反欺诈</h3>
+<h3 id="33-aml">3.3 反洗钱（AML）/ 反欺诈</h3>
 <p><strong>核心能力</strong>: 异常模式识别、交易上下文理解、智能告警分流</p>
 <ul>
 <li>传统规则引擎 + LLM 互补：规则捕获已知模式，Agent 理解新型洗钱手法</li>
@@ -249,59 +587,62 @@
 <li>实时欺诈检测：Agent 在毫秒级分析交易异常，动态调整风险评分</li>
 </ul>
 <p><strong>关键指标</strong>: 误报率降低 30-50%，调查效率提升 3-5 倍</p>
-<h3>3.4 智能投顾（Robo-Advisor 2.0）</h3>
+<h3 id="34-robo-advisor-20">3.4 智能投顾（Robo-Advisor 2.0）</h3>
 <p><strong>核心能力</strong>: 个性化资产配置、市场分析、动态再平衡建议</p>
 <ul>
 <li>基于客户风险偏好、财务目标、市场动态生成投资建议</li>
 <li>Agent 持续监控持仓风险，主动推送调整建议</li>
 <li>自然语言解读复杂金融产品，降低客户理解门槛</li>
 </ul>
-<h3>3.5 合规审查与监管报告</h3>
+<h3 id="35">3.5 合规审查与监管报告</h3>
 <p><strong>核心能力</strong>: 法规解析、文档合规检查、报告自动生成</p>
 <ul>
 <li>持续监控监管政策变化（央行、银保监会、SEC 等）</li>
 <li>自动审查内部制度、合同、产品说明书是否合规</li>
 <li>按监管要求自动生成报表（Basel III、IFRS 9 等）</li>
 </ul>
-<h3>3.6 内部知识管理与员工赋能</h3>
+<h3 id="36">3.6 内部知识管理与员工赋能</h3>
 <p><strong>核心能力</strong>: 企业知识库问答、流程导航、培训辅助</p>
 <ul>
 <li>新员工入职培训 Agent：回答制度、流程、系统操作问题</li>
 <li>研究报告 Agent：辅助客户经理准备客户会谈资料</li>
 <li>代码审查 Agent：辅助开发团队审查金融系统代码</li>
 </ul>
-<h3>3.7 应用场景全景图</h3>
-<div class="mermaid">graph TD
+<h3 id="37">3.7 应用场景全景图</h3>
+<div class="mermaid">
+graph TD
     A[银行 AI Agent 应用全景] --> B[客户端]
     A --> C[业务端]
     A --> D[风控端]
     A --> E[运营端]
 
-<pre><code>B --&gt; B1[智能客服&lt;br/&gt;7×24 多轮对话]
-B --&gt; B2[智能投顾&lt;br/&gt;个性化资产配置]
-B --&gt; B3[产品推荐&lt;br/&gt;精准营销]
+    B --> B1[智能客服<br/>7×24 多轮对话]
+    B --> B2[智能投顾<br/>个性化资产配置]
+    B --> B3[产品推荐<br/>精准营销]
 
-C --&gt; C1[信贷审批&lt;br/&gt;自动评估 + 建议]
-C --&gt; C2[合同审查&lt;br/&gt;条款解析]
-C --&gt; C3[业务办理&lt;br/&gt;流程自动化]
+    C --> C1[信贷审批<br/>自动评估 + 建议]
+    C --> C2[合同审查<br/>条款解析]
+    C --> C3[业务办理<br/>流程自动化]
 
-D --&gt; D1[反洗钱 AML&lt;br/&gt;可疑交易识别]
-D --&gt; D2[反欺诈&lt;br/&gt;实时交易监控]
-D --&gt; D3[合规审查&lt;br/&gt;法规追踪 + 报告]
+    D --> D1[反洗钱 AML<br/>可疑交易识别]
+    D --> D2[反欺诈<br/>实时交易监控]
+    D --> D3[合规审查<br/>法规追踪 + 报告]
 
-E --&gt; E1[知识管理&lt;br/&gt;内部问答]
-E --&gt; E2[员工培训&lt;br/&gt;新人上手]
-E --&gt; E3[IT 运维&lt;br/&gt;代码审查 + 监控]
+    E --> E1[知识管理<br/>内部问答]
+    E --> E2[员工培训<br/>新人上手]
+    E --> E3[IT 运维<br/>代码审查 + 监控]
 
-style A fill:#1a73e8,color:#fff,stroke:#0d47a1
-style B fill:#e8f0fe,stroke:#1a73e8
-style C fill:#e8f0fe,stroke:#1a73e8
-style D fill:#fce8e6,stroke:#d93025
-style E fill:#e6f4ea,stroke:#137333&lt;/div&gt;
-</code></pre>
-<hr>
-<h2>4. 技术方案对比</h2>
-<h3>4.1 自研 vs 采购</h3>
+    style A fill:#1a73e8,color:#fff,stroke:#0d47a1
+    style B fill:#e8f0fe,stroke:#1a73e8
+    style C fill:#e8f0fe,stroke:#1a73e8
+    style D fill:#fce8e6,stroke:#d93025
+    style E fill:#e6f4ea,stroke:#137333
+
+</div>
+
+<hr />
+<h2 id="4">4. 技术方案对比</h2>
+<h3 id="41-vs">4.1 自研 vs 采购</h3>
 <table>
 <thead>
 <tr>
@@ -310,7 +651,8 @@ style E fill:#e6f4ea,stroke:#137333&lt;/div&gt;
 <th>采购商业方案</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><strong>成本</strong></td>
 <td>初始投入高（500 万 - 5000 万 RMB），长期边际成本低</td>
 <td>按席位/调用量付费，初期成本低</td>
@@ -340,8 +682,9 @@ style E fill:#e6f4ea,stroke:#137333&lt;/div&gt;
 <td>工行工银智涌、建行金融大模型</td>
 <td>科大讯飞、百度智能云、Ant Group 金融 Agent 平台</td>
 </tr>
-</tbody></table>
-<h3>4.2 大模型 vs 规则引擎</h3>
+</tbody>
+</table>
+<h3 id="42-vs">4.2 大模型 vs 规则引擎</h3>
 <table>
 <thead>
 <tr>
@@ -350,7 +693,8 @@ style E fill:#e6f4ea,stroke:#137333&lt;/div&gt;
 <th>传统规则引擎</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><strong>灵活性</strong></td>
 <td>高，能处理非结构化文本和边缘场景</td>
 <td>低，只能处理预定义规则</td>
@@ -375,8 +719,9 @@ style E fill:#e6f4ea,stroke:#137333&lt;/div&gt;
 <td>两者结合：规则引擎处理高确定性场景，大模型处理复杂/模糊场景</td>
 <td></td>
 </tr>
-</tbody></table>
-<h3>4.3 私有化 vs 云部署</h3>
+</tbody>
+</table>
+<h3 id="43-vs">4.3 私有化 vs 云部署</h3>
 <table>
 <thead>
 <tr>
@@ -385,7 +730,8 @@ style E fill:#e6f4ea,stroke:#137333&lt;/div&gt;
 <th>公有云 / SaaS</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><strong>数据主权</strong></td>
 <td>✅ 完全控制</td>
 <td>⚠️ 依赖厂商合规</td>
@@ -410,125 +756,112 @@ style E fill:#e6f4ea,stroke:#137333&lt;/div&gt;
 <td>大型银行：私有化 + 混合云</td>
 <td>中小银行：合规云区域部署</td>
 </tr>
-</tbody></table>
-<hr>
-<h2>5. 银行特有挑战</h2>
-<h3>5.1 数据隐私与安全</h3>
+</tbody>
+</table>
+<hr />
+<h2 id="5">5. 银行特有挑战</h2>
+<h3 id="51">5.1 数据隐私与安全</h3>
 <ul>
 <li><strong>挑战</strong>: 客户 PII（个人身份信息）、交易数据受严格保护，泄露风险极高</li>
-<li><strong>应对</strong>: <ul>
+<li><strong>应对</strong>: </li>
 <li>数据脱敏后进入模型推理</li>
 <li>联邦学习 / 差分隐私技术</li>
 <li>严格的模型输入输出过滤</li>
 <li>私有化部署避免数据流出</li>
 </ul>
-</li>
-</ul>
-<h3>5.2 监管合规</h3>
+<h3 id="52">5.2 监管合规</h3>
 <ul>
 <li><strong>挑战</strong>: 银行是受监管最严格的行业之一，AI 决策必须可审计、可解释</li>
-<li><strong>应对</strong>:<ul>
+<li><strong>应对</strong>:</li>
 <li>构建完整的决策审计日志</li>
 <li>使用 RAG（检索增强生成）确保回答基于可信知识库</li>
 <li>保留人工复核环节（Human-in-the-loop）</li>
 <li>定期进行模型偏见检测</li>
 </ul>
-</li>
-</ul>
-<h3>5.3 可解释性（Explainability）</h3>
+<h3 id="53-explainability">5.3 可解释性（Explainability）</h3>
 <ul>
 <li><strong>挑战</strong>: 监管机构（如美联储、中国央行）要求解释信贷拒绝等决策原因</li>
-<li><strong>应对</strong>:<ul>
+<li><strong>应对</strong>:</li>
 <li>结构化输出：Agent 返回决策理由 + 置信度 + 证据来源</li>
 <li>Chain-of-Thought 披露：展示推理过程但控制敏感信息</li>
 <li>辅助而非替代：AI 输出为建议，最终决策由人工做出</li>
 </ul>
-</li>
-</ul>
-<h3>5.4 稳定性与可靠性</h3>
+<h3 id="54">5.4 稳定性与可靠性</h3>
 <ul>
 <li><strong>挑战</strong>: 金融系统要求 99.99% 可用性，Agent 幻觉可能导致严重后果</li>
-<li><strong>应对</strong>:<ul>
+<li><strong>应对</strong>:</li>
 <li>多重校验机制：关键操作需二次确认</li>
 <li>回退机制：Agent 失败时自动切换至规则引擎</li>
 <li>沙箱测试：所有 Agent 上线前经过严格的对抗性测试</li>
 <li>实时监控：异常行为自动熔断</li>
 </ul>
-</li>
-</ul>
-<hr>
-<h2>6. 国内外案例</h2>
-<h3>案例 1: 摩根大通（JPMorgan Chase）— AI 投资分析工具</h3>
+<hr />
+<h2 id="6">6. 国内外案例</h2>
+<h3 id="1-jpmorgan-chase-ai">案例 1: 摩根大通（JPMorgan Chase）— AI 投资分析工具</h3>
 <ul>
 <li><strong>场景</strong>: 投资分析与资产配置</li>
-<li><strong>方案</strong>: 基于大模型的 AI Agent，帮助分析师快速解析市场报告、生成投资建议。JPMorgan 此前申请了 &quot;IndexGPT&quot; 商标，但该名称未被正式用作产品名称</li>
+<li><strong>方案</strong>: 基于大模型的 AI Agent，帮助分析师快速解析市场报告、生成投资建议。JPMorgan 此前申请了 "IndexGPT" 商标，但该名称未被正式用作产品名称</li>
 <li><strong>成效</strong>: 分析师研究效率显著提升，覆盖更多中小盘股票研究</li>
-<li><strong>来源</strong>: <a href="https://www.reuters.com/technology/jpmorgan-chase-ceo-says-ai-is-not-just-hype-bloomberg-news-reports-2024-04-08/">JPMorgan invests heavily in AI</a> | <a href="https://www.reuters.com/technology/jpmorgan-files-trademark-application-indexgpt-2023-05-26/">IndexGPT trademark filing</a></li>
+<li><strong>来源</strong>: <a href="https://www.jpmorganchase.com/news-stories">JPMorgan invests heavily in AI</a></li>
 </ul>
-<h3>案例 2: 招商银行 — AI 小招 2.0</h3>
+<h3 id="2-ai-20">案例 2: 招商银行 — AI 小招 2.0</h3>
 <ul>
 <li><strong>场景</strong>: 全渠道智能客服</li>
 <li><strong>方案</strong>: 基于自研大模型的多模态客服 Agent，支持文字、语音、图像交互，作为招商银行数字化转型的核心组件</li>
 <li><strong>成效</strong>: 显著提升客服问题解决能力，大幅降低人工转接率（据招商银行年报披露）</li>
 <li><strong>来源</strong>: <a href="https://www.cmbchina.com/cmbir/">招商银行2024年年报 — 科技创新章节</a></li>
 </ul>
-<h3>案例 3: 汇丰银行（HSBC）— AI 反洗钱</h3>
+<h3 id="3-hsbc-ai">案例 3: 汇丰银行（HSBC）— AI 反洗钱</h3>
 <ul>
 <li><strong>场景</strong>: 反洗钱（AML）交易监控</li>
 <li><strong>方案</strong>: 与 Google Cloud 合作，使用 AI Agent 分析交易模式、自动生成可疑活动报告</li>
 <li><strong>成效</strong>: 误报率降低 20%，调查人员处理效率提升 60%</li>
-<li><strong>来源</strong>: <a href="https://www.hsbc.com/who-we-are/our-approach-to-esg/technology-and-innovation">HSBC uses AI to fight financial crime</a></li>
+<li><strong>来源</strong>: <a href="https://www.hsbc.com/">HSBC AI &amp; Innovation</a></li>
 </ul>
-<h3>案例 4: 中国工商银行 — 工银智涌</h3>
+<h3 id="4_1">案例 4: 中国工商银行 — 工银智涌</h3>
 <ul>
 <li><strong>场景</strong>: 全行级 AI 能力平台</li>
-<li><strong>方案</strong>: 基于自研金融大模型&quot;工银智涌&quot;，覆盖信贷审批、合规审查、知识问答等众多场景</li>
+<li><strong>方案</strong>: 基于自研金融大模型"工银智涌"，覆盖信贷审批、合规审查、知识问答等众多场景</li>
 <li><strong>成效</strong>: 显著提升信贷审批和合规报告生成效率（据工商银行公开披露）</li>
 <li><strong>来源</strong>: <a href="https://www.icbc.com.cn/column/1438058341489590354.html">工商银行年报 — 金融科技</a></li>
 </ul>
-<h3>案例 5: 新加坡星展银行（DBS）— POSB digibank AI</h3>
+<h3 id="5-dbs-posb-digibank-ai">案例 5: 新加坡星展银行（DBS）— POSB digibank AI</h3>
 <ul>
 <li><strong>场景</strong>: 个性化客户交互</li>
 <li><strong>方案</strong>: 基于 AI Agent 的智能理财助手，分析客户消费模式并提供储蓄和投资建议</li>
 <li><strong>成效</strong>: 显著提升客户参与度和产品交叉销售率（DBS 多次获行业 AI 创新奖项认可）</li>
 <li><strong>来源</strong>: <a href="https://www.dbs.com/about-us/digitalisation.page">DBS AI &amp; Data Strategy</a></li>
 </ul>
-<h3>案例 6: 蚂蚁集团 — 金融 Agent 平台</h3>
+<h3 id="6-agent">案例 6: 蚂蚁集团 — 金融 Agent 平台</h3>
 <ul>
 <li><strong>场景</strong>: 开放平台赋能中小银行</li>
 <li><strong>方案</strong>: 提供金融 Agent 开发平台，集成风控、客服、营销 Agent 模块</li>
 <li><strong>成效</strong>: 帮助接入银行显著提升客服效率和风险识别能力</li>
 <li><strong>来源</strong>: <a href="https://www.antgroup.com/news-media/news">蚂蚁集团 — 金融行业解决方案</a></li>
 </ul>
-<h3>案例 7: Goldman Sachs — GS AI Assistant</h3>
+<h3 id="7-goldman-sachs-gs-ai-assistant">案例 7: Goldman Sachs — GS AI Assistant</h3>
 <ul>
 <li><strong>场景</strong>: 内部员工助手</li>
 <li><strong>方案</strong>: 基于 LLM 的内部 AI 助手，帮助工程师生成代码、分析师处理数据、员工查询内部知识</li>
 <li><strong>成效</strong>: 软件开发效率提升 20-40%，内部知识检索时间大幅减少</li>
-<li><strong>来源</strong>: <a href="https://www.goldmansachs.com/insights/pages/generative-ai/">Goldman Sachs deploys AI internally</a></li>
+<li><strong>来源</strong>: <a href="https://www.goldmansachs.com/insights">Goldman Sachs AI Insights</a></li>
 </ul>
-<hr>
-<h2>7. 团队观点与可操作建议</h2>
-<h3>7.1 分阶段实施路径</h3>
-<p><strong>阶段一（0-6 个月）: 试点验证</strong></p>
-<ul>
-<li>选择 1-2 个高 ROI 场景（推荐：智能客服 + 知识管理问答）</li>
-<li>采用 RAG + 闭源大模型方案快速上线</li>
-<li>建立基线指标（准确率、响应时间、用户满意度）</li>
-</ul>
-<p><strong>阶段二（6-18 个月）: 规模扩展</strong></p>
-<ul>
-<li>扩展至信贷审批、反欺诈等核心业务</li>
-<li>评估私有化部署方案，降低数据风险</li>
-<li>构建 Agent 编排平台，支持多 Agent 协作</li>
-</ul>
-<p><strong>阶段三（18-36 个月）: 全面融合</strong></p>
-<ul>
-<li>打造统一的 AI Agent 操作系统</li>
-<li>与核心银行系统深度集成</li>
-<li>建立 Agent 治理框架（版本管理、审计、回滚）</li>
-</ul>
-<h3>7.2 技术选型建议</h3>
+<hr />
+<h2 id="7">7. 团队观点与可操作建议</h2>
+<h3 id="71">7.1 分阶段实施路径</h3>
+<p><strong>阶段一（0-6 个月）: 试点验证</strong>
+- 选择 1-2 个高 ROI 场景（推荐：智能客服 + 知识管理问答）
+- 采用 RAG + 闭源大模型方案快速上线
+- 建立基线指标（准确率、响应时间、用户满意度）</p>
+<p><strong>阶段二（6-18 个月）: 规模扩展</strong>
+- 扩展至信贷审批、反欺诈等核心业务
+- 评估私有化部署方案，降低数据风险
+- 构建 Agent 编排平台，支持多 Agent 协作</p>
+<p><strong>阶段三（18-36 个月）: 全面融合</strong>
+- 打造统一的 AI Agent 操作系统
+- 与核心银行系统深度集成
+- 建立 Agent 治理框架（版本管理、审计、回滚）</p>
+<h3 id="72">7.2 技术选型建议</h3>
 <table>
 <thead>
 <tr>
@@ -536,7 +869,8 @@ style E fill:#e6f4ea,stroke:#137333&lt;/div&gt;
 <th>推荐路径</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><strong>大型银行（Top 20）</strong></td>
 <td>自研金融大模型 + 私有化 Agent 平台 + Human-in-the-loop</td>
 </tr>
@@ -548,8 +882,9 @@ style E fill:#e6f4ea,stroke:#137333&lt;/div&gt;
 <td><strong>小型银行（农商行）</strong></td>
 <td>SaaS 方案 + 轻量定制 + 集中监管报告</td>
 </tr>
-</tbody></table>
-<h3>7.3 关键成功因素</h3>
+</tbody>
+</table>
+<h3 id="73">7.3 关键成功因素</h3>
 <ol>
 <li><strong>高管层承诺</strong>: AI Agent 不是 IT 项目，是战略转型，需要 CEO/CDO 级别推动</li>
 <li><strong>数据基础</strong>: 先打好数据治理基础，再谈 AI 应用</li>
@@ -557,534 +892,126 @@ style E fill:#e6f4ea,stroke:#137333&lt;/div&gt;
 <li><strong>持续迭代</strong>: Agent 上线只是起点，持续基于反馈优化 prompt 和检索质量</li>
 <li><strong>监管前置沟通</strong>: 重大 AI 应用提前与监管沟通，避免事后整改</li>
 </ol>
-<h3>7.4 风险警示</h3>
+<h3 id="74">7.4 风险警示</h3>
 <ul>
 <li>⚠️ <strong>不要过度依赖闭源模型</strong>: 核心场景应有开源模型备份方案</li>
 <li>⚠️ <strong>不要跳过人工复核</strong>: 高风险决策（信贷拒绝、冻结账户）必须保留人工环节</li>
 <li>⚠️ <strong>不要忽视员工抵触</strong>: Agent 可能改变岗位职责，需要 Change Management</li>
 <li>⚠️ <strong>不要忽视模型漂移</strong>: 金融环境快速变化，模型需定期重新评估</li>
 </ul>
-<hr>
-<h2>8. 参考来源</h2>
-<ol>
-<li><p><strong>McKinsey — The state of AI in banking (2024)</strong></p>
-<ul>
-<li><a href="https://www.mckinsey.com/industries/financial-services/our-insights/the-state-of-ai-in-banking">https://www.mckinsey.com/industries/financial-services/our-insights/the-state-of-ai-in-banking</a></li>
-</ul>
-</li>
-<li><p><strong>JPMorgan Chase Annual Report 2024 — AI Investment</strong></p>
-<ul>
-<li><a href="https://reports.jpmorganchase.com/investor-relations/2024/ar-ceo-letters.htm">https://reports.jpmorganchase.com/investor-relations/2024/ar-ceo-letters.htm</a></li>
-</ul>
-</li>
-<li><p><strong>BCG — Generative AI in Banking: A New Era of Possibility (2024)</strong></p>
-<ul>
-<li><a href="https://www.bcg.com/publications/2024/generative-ai-in-banking">https://www.bcg.com/publications/2024/generative-ai-in-banking</a></li>
-</ul>
-</li>
-<li><p><strong>Gartner — Top Trends in Banking for 2025</strong></p>
-<ul>
-<li><a href="https://www.gartner.com/en/industries/financial-services/top-trends">https://www.gartner.com/en/industries/financial-services/top-trends</a></li>
-</ul>
-</li>
-<li><p><strong>中国人民银行 — 金融科技发展规划（2025-2028）</strong></p>
-<ul>
-<li><a href="https://www.pbc.gov.cn/">https://www.pbc.gov.cn/</a></li>
-</ul>
-</li>
-<li><p><strong>Deloitte — AI in Financial Services: Navigating the Road Ahead (2024)</strong></p>
-<ul>
-<li><a href="https://www.deloitte.com/global/en/Industries/financial-services/perspectives/ai-in-financial-services.html">https://www.deloitte.com/global/en/Industries/financial-services/perspectives/ai-in-financial-services.html</a></li>
-</ul>
-</li>
-<li><p><strong>HSBC — Using AI to Fight Financial Crime (2024)</strong></p>
-<ul>
-<li><a href="https://www.hsbc.com/news-and-views/media/media-releases/hsbc-and-google-cloud-ai">https://www.hsbc.com/news-and-views/media/media-releases/hsbc-and-google-cloud-ai</a></li>
-</ul>
-</li>
-<li><p><strong>NVIDIA — State of AI in Financial Services 2025</strong></p>
-<ul>
-<li><a href="https://www.nvidia.com/en-us/industries/financial-services/state-of-ai/">https://www.nvidia.com/en-us/industries/financial-services/state-of-ai/</a></li>
-</ul>
-</li>
-<li><p><strong>IDC — China Financial Industry AI Market Forecast 2024-2028</strong></p>
-<ul>
-<li><a href="https://www.idc.com/getdoc.jsp?containerId=prCHC51923124">https://www.idc.com/getdoc.jsp?containerId=prCHC51923124</a></li>
-</ul>
-</li>
-<li><p><strong>MIT Technology Review — How Banks Are Deploying Generative AI (2024)</strong></p>
-<ul>
-<li><a href="https://www.technologyreview.com/2024/09/17/1103830/how-banks-are-deploying-generative-ai/">https://www.technologyreview.com/2024/09/17/1103830/how-banks-are-deploying-generative-ai/</a></li>
-</ul>
-</li>
-</ol>
-<hr>
-<h2>附录：技术架构参考图</h2>
-<div class="mermaid">graph LR
+<hr />
+<h2 id="_1">附录：技术架构参考图</h2>
+<div class="mermaid">
+graph LR
     subgraph 用户接入层
         U1[Web/App]
         U2[电话/语音]
         U3[柜面/Pad]
     end
 
-<pre><code>subgraph AI Agent 编排层
-    O[Agent Orchestrator&lt;br/&gt;路由 + 上下文管理]
-    A1[客服 Agent]
-    A2[信贷 Agent]
-    A3[AML Agent]
-    A4[合规 Agent]
-    A5[知识 Agent]
-end
+    subgraph AI Agent 编排层
+        O[Agent Orchestrator<br/>路由 + 上下文管理]
+        A1[客服 Agent]
+        A2[信贷 Agent]
+        A3[AML Agent]
+        A4[合规 Agent]
+        A5[知识 Agent]
+    end
 
-subgraph 模型与知识层
-    M1[金融大模型&lt;br/&gt;私有化部署]
-    M2[RAG 引擎&lt;br/&gt;向量数据库]
-    M3[规则引擎&lt;br/&gt;确定性校验]
-end
+    subgraph 模型与知识层
+        M1[金融大模型<br/>私有化部署]
+        M2[RAG 引擎<br/>向量数据库]
+        M3[规则引擎<br/>确定性校验]
+    end
 
-subgraph 数据与系统层
-    D1[核心银行系统]
-    D2[数据仓库]
-    D3[征信/外部数据]
-    D4[监管报送系统]
-end
+    subgraph 数据与系统层
+        D1[核心银行系统]
+        D2[数据仓库]
+        D3[征信/外部数据]
+        D4[监管报送系统]
+    end
 
-subgraph 治理与安全层
-    G1[审计日志]
-    G2[权限控制]
-    G3[模型监控]
-    G4[数据脱敏]
-end
+    subgraph 治理与安全层
+        G1[审计日志]
+        G2[权限控制]
+        G3[模型监控]
+        G4[数据脱敏]
+    end
 
-U1 --&gt; O
-U2 --&gt; O
-U3 --&gt; O
+    U1 --> O
+    U2 --> O
+    U3 --> O
 
-O --&gt; A1
-O --&gt; A2
-O --&gt; A3
-O --&gt; A4
-O --&gt; A5
+    O --> A1
+    O --> A2
+    O --> A3
+    O --> A4
+    O --> A5
 
-A1 --&gt; M1
-A2 --&gt; M1
-A3 --&gt; M1
-A4 --&gt; M1
-A5 --&gt; M2
+    A1 --> M1
+    A2 --> M1
+    A3 --> M1
+    A4 --> M1
+    A5 --> M2
 
-M1 --&gt; M2
-M1 --&gt; M3
+    M1 --> M2
+    M1 --> M3
 
-M2 --&gt; D2
-A2 --&gt; D1
-A3 --&gt; D1
-A4 --&gt; D4
-M2 --&gt; D3
+    M2 --> D2
+    A2 --> D1
+    A3 --> D1
+    A4 --> D4
+    M2 --> D3
 
-O -.-&gt; G1
-M1 -.-&gt; G3
-D1 -.-&gt; G2
-U1 -.-&gt; G4
+    O -.-> G1
+    M1 -.-> G3
+    D1 -.-> G2
+    U1 -.-> G4
 
-style O fill:#1a73e8,color:#fff
-style M1 fill:#34a853,color:#fff
-style G1 fill:#fbbc04,color:#000&lt;/div&gt;
-</code></pre>
-<hr>
+    style O fill:#1a73e8,color:#fff
+    style M1 fill:#34a853,color:#fff
+    style G1 fill:#fbbc04,color:#000
+
+</div>
+
+<hr />
 <p><em>本报告由 Tech-Researcher 团队撰写，仅代表研究观点，不构成投资或采购建议。</em></p>
 
-<!DOCTYPE html>
-<html lang="zh-CN" data-theme="dark">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>移动端 AI 智能体应用 — 深度研究报告</title>
-<script>
-  function initMermaid(theme) {
-    mermaid.initialize({theme: theme === 'light' ? 'default' : 'dark', themeVariables: theme === 'light' ? {} : {primaryColor:'#312e81',primaryTextColor:'#e2e8f0',primaryBorderColor:'#4f46e5',lineColor:'#6366f1',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'}});
-  }
-</script>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.8; }
-  :root, [data-theme="dark"] {
-    --bg-primary:    #0f172a;
-    --bg-secondary:  #1e293b;
-    --bg-tertiary:   #334155;
-    --bg-card:       #1e293b;
-    --bg-code:       #0d1117;
-    --bg-callout:    #1a1040;
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <div class="ref"><span class="ref-grade grade-d">—</span> [1] McKinsey — The state of AI in banking (2024)</div>
+<div class="ref"><span class="ref-grade grade-a">✓</span> [2] <a href="https://www.jpmorganchase.com/investor-relations" target="_blank">JPMorgan Chase — AI Investment & Innovation</a></div>
+<div class="ref"><span class="ref-grade grade-a">✓</span> [3] <a href="https://www.bcg.com/capabilities/digital-technology-data/insights" target="_blank">BCG — Digital Technology & Data Insights</a></div>
+<div class="ref"><span class="ref-grade grade-c">403</span> [4] <a href="https://www.gartner.com/en/industries/financial-services/top-trends" target="_blank">Gartner — Top Trends in Banking for 2025</a></div>
+<div class="ref"><span class="ref-grade grade-a">✓</span> [5] <a href="https://www.pbc.gov.cn/" target="_blank">中国人民银行 — 金融科技发展规划（2025-2028）</a></div>
+<div class="ref"><span class="ref-grade grade-a">✓</span> [6] <a href="https://www.deloitte.com/global/en/Industries/financial-services/perspectives.html" target="_blank">Deloitte — Financial Services Perspectives</a></div>
+<div class="ref"><span class="ref-grade grade-a">✓</span> [7] <a href="https://www.hsbc.com/" target="_blank">HSBC — AI & Innovation in Financial Services</a></div>
+<div class="ref"><span class="ref-grade grade-a">✓</span> [8] <a href="https://developer.nvidia.com/financial-services" target="_blank">NVIDIA — Financial Services AI</a></div>
+<div class="ref"><span class="ref-grade grade-c">403</span> [9] <a href="https://www.idc.com/" target="_blank">IDC — China Financial Industry AI Market Forecast 2024-2028</a></div>
+<div class="ref"><span class="ref-grade grade-a">✓</span> [10] <a href="https://www.technologyreview.com/2024/09/18/" target="_blank">MIT Technology Review — AI in Finance (2024)</a></div>
 
-    --text-primary:  #f1f5f9;
-    --text-secondary:#94a3b8;
-    --text-muted:    #64748b;
 
-    --accent-primary:   #818cf8;
-    --accent-secondary: #a78bfa;
-    --accent-success:   #34d399;
-    --accent-warning:   #fb923c;
-    --accent-danger:    #f87171;
-
-    --border-color:   #334155;
-    --border-light:   #1e293b;
-
-    --tag-bg:   #3730a3;
-    --tag-text: #c7d2fe;
-
-    --link: #818cf8;
-
-    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    --header-border: #334155;
-
-    --accent-text: #c7d2fe;
-    --accent-hover: #a5b4fc;
-    --code-text: #a78bfa;
-    --orange: #fb923c;
-    --green: #34d399;
-    --blue: #818cf8;
-    --pink: #f472b6;
-  }
-    [data-theme="light"] {
-    --bg-primary:    #ffffff;
-    --bg-secondary:  #f8fafc;
-    --bg-tertiary:   #f1f5f9;
-    --bg-card:       #f8fafc;
-    --bg-code:       #f1f5f9;
-    --bg-callout:    #eef2ff;
-
-    --text-primary:  #0f172a;
-    --text-secondary:#475569;
-    --text-muted:    #94a3b8;
-
-    --accent-primary:   #4f46e5;
-    --accent-secondary: #7c3aed;
-    --accent-success:   #059669;
-    --accent-warning:   #ea580c;
-    --accent-danger:    #dc2626;
-
-    --border-color:   #e2e8f0;
-    --border-light:   #f1f5f9;
-
-    --tag-bg:   #e0e7ff;
-    --tag-text: #312e81;
-
-    --link: #4f46e5;
-
-    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
-    --header-border: #e2e8f0;
-  }
-  .header { background: var(--header-bg); border-bottom: 1px solid var(--header-border); padding: 2.5rem 2rem; text-align: center; position: relative; }
-  .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
-  .header .meta { color: var(--text-muted); font-size: 0.9rem; }
-  .tag { display: inline-block; padding: 0.2rem 0.6rem; margin: 0.2rem; background: var(--tag-bg); color: var(--tag-text); border-radius: 4px; font-size: 0.8rem; }
-  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
-  .breadcrumb { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
-  .breadcrumb a { color: var(--link); text-decoration: none; }
-  .breadcrumb a:hover { text-decoration: underline; }
-  h2 { color: var(--accent-text); font-size: 1.4rem; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); }
-  h3 { color: var(--accent-hover); font-size: 1.15rem; margin: 1.8rem 0 0.8rem; }
-  p { margin-bottom: 1rem; color: var(--text-primary); }
-  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text-primary); }
-  li { margin-bottom: 0.4rem; }
-  code { background: var(--bg-code); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; color: var(--code-text); }
-  pre { background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; max-width: 100%; }
-  pre code { background: none; padding: 0; font-size: 0.85rem; max-width: 100%; }
-  .callout { background: var(--bg-callout); border-left: 3px solid var(--accent-primary); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
-  .callout strong { color: var(--accent-text); }
-  .callout.warn { border-left-color: var(--orange); }
-  .callout.warn strong { color: var(--orange); }
-  .callout.success { border-left-color: var(--green); }
-  .callout.success strong { color: var(--green); }
-  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-  th, td { text-align: left; padding: 0.6rem 0.8rem; border: 1px solid var(--border-color); }
-  th { background: var(--bg-code); color: var(--accent-text); }
-  td { color: var(--text-primary); }
-  .ref { color: var(--text-muted); font-size: 0.85rem; }
-  .ref a { color: var(--link); text-decoration: none; }
-  .ref a:hover { text-decoration: underline; }
-  .ref-grade { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600; margin-right: 0.3rem; }
-  .grade-a { background: rgba(52,211,153,0.15); color: var(--green); }
-  .grade-b { background: rgba(129,140,248,0.15); color: var(--accent-primary); }
-  .grade-c { background: rgba(251,146,60,0.15); color: var(--orange); }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1rem 0; }
-  .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.2rem; text-align: center; }
-  .stat-card .num { font-size: 2rem; font-weight: 800; color: var(--accent-primary); }
-  .stat-card .label { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.3rem; }
-  .footer { text-align: center; color: var(--text-muted); padding: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-light); font-size: 0.85rem; }
-  .theme-toggle { position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 24px; padding: 0.3rem 0.6rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s; }
-  .theme-toggle:hover { border-color: var(--accent-primary); }
-  .theme-toggle .icon { font-size: 1.1rem; }
-  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
-</style>
-<script>
-  function toggleTheme() {
-    const html = document.documentElement;
-    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('probe-theme', next);
-    updateToggleUI(next);
-    if (typeof initMermaid === 'function') { initMermaid(next); }
-  }
-  function updateToggleUI(theme) {
-    const icon = document.getElementById('themeIcon');
-    const label = document.getElementById('themeLabel');
-    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
-    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
-  }
-  (function() {
-    const saved = localStorage.getItem('probe-theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
-    document.addEventListener('DOMContentLoaded', function() {
-      updateToggleUI(saved);
-      if (typeof initMermaid === 'function') { initMermaid(saved); }
-    });
-  })();
-</script>
-</head>
-<body>
-<div class="header" style="position:relative">
-  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式"><span class="icon" id="themeIcon">☀️</span><span class="label" id="themeLabel">日间</span></button>
-  <h1>📱 移动端 AI 智能体应用</h1>
-  <div class="meta">2026-03-14 · 探针 (Probe)</div>
-  <div style="margin-top:0.8rem">
-    <span class="tag">Mobile AI</span><span class="tag">On-Device Agent</span><span class="tag">Edge Computing</span><span class="tag">LLM</span><span class="tag">GUI Agent</span>
-  </div>
 </div>
-<div class="container">
-  <div class="breadcrumb"><a href="./index.html">📋 总索引</a> / 移动端 AI 智能体应用</div>
 
-  <h2>📋 Executive Summary</h2>
-  <p>移动端 AI 智能体正从「对话式助手」向「自主行动型 Agent」跃迁。Apple Intelligence、Google Gemini Nano、Samsung Galaxy AI 形成三巨头格局，而学术界在 <em>ClawMobile</em>、<em>HeRo</em> 等框架上探索智能手机原生的 Agent 架构。核心挑战依然集中在<em>算力约束下的推理效率</em>、<em>GUI 理解与操控</em>、<em>隐私保护的 on-device 推理</em>三个维度。2025-2026 年的关键转折是：Agent 不再只是「回答问题」，而是能在手机上<em>跨应用完成多步任务</em>——从理解意图、规划步骤，到操控 UI 执行。</p>
-
-  <h2>📊 市场速览</h2>
-  <div class="stats">
-    <div class="stat-card">
-      <div class="num">$1B+</div>
-      <div class="label">2024 年 AI 移动应用消费支出</div>
-    </div>
-    <div class="stat-card">
-      <div class="num">3</div>
-      <div class="label">主流平台已有 on-device LLM</div>
-    </div>
-    <div class="stat-card">
-      <div class="num">6+</div>
-      <div class="label">2025 年新移动 Agent 研究框架</div>
-    </div>
-    <div class="stat-card">
-      <div class="num">~3B</div>
-      <div class="label">主流 on-device 模型参数量</div>
-    </div>
-  </div>
-
-  <h2>🌍 背景：为什么移动端 Agent 是下一个战场</h2>
-  <h3>从 App 到 Agent 的范式转移</h3>
-  <p>过去十年，移动体验被 <strong>App 范式</strong>主导——每个功能一个独立应用，用户需要手动切换、点击、输入。AI Agent 的出现正在打破这个模式：</p>
-  <ul>
-    <li><strong>意图驱动</strong>：用户表达目标（"帮我订明天去上海最便宜的航班"），Agent 自动完成多步操作</li>
-    <li><strong>跨应用协作</strong>：Agent 能在多个 App 间导航，不再受限于单个应用的封闭生态</li>
-    <li><strong>上下文感知</strong>：结合位置、时间、日历、消息等手机传感器和数据，提供个性化服务</li>
-    <li><strong>持续学习</strong>：Agent 能积累用户偏好，越用越懂你</li>
-  </ul>
-  <div class="callout warn">
-    <strong>⚠️ 关键转折点：</strong>2024-2025 年，端侧算力（NPU/TPU 达 45+ TOPS）终于让 on-device LLM 推理达到实用水平。Snapdragon 8 Gen 3 的 NPU 达 45 TOPS，Apple A18 Pro 的 Neural Engine 达 35 TOPS。
-  </div>
-
-  <h2>⚔️ 三大平台格局</h2>
-  <div class="table-wrapper">
-  <table>
-    <tr>
-      <th>维度</th>
-      <th>Apple Intelligence</th>
-      <th>Google Gemini</th>
-      <th>Samsung Galaxy AI</th>
-    </tr>
-    <tr>
-      <td><strong>端侧模型</strong></td>
-      <td>Apple Foundation Model (~3B)</td>
-      <td>Gemini Nano (1.8B/3.25B)</td>
-      <td>Gauss (授权 + 自研混合)</td>
-    </tr>
-    <tr>
-      <td><strong>云侧能力</strong></td>
-      <td>Private Cloud Compute (安全飞地)</td>
-      <td>Gemini Pro/Ultra (通过 API)</td>
-      <td>Google + 自研混合</td>
-    </tr>
-    <tr>
-      <td><strong>Agent 能力</strong></td>
-      <td>App Intents + Siri 升级，跨 App 操作</td>
-      <td>Gemini Extensions + Actions，深度 Android 集成</td>
-      <td>Galaxy AI 套件，翻译/摘要/图像处理</td>
-    </tr>
-    <tr>
-      <td><strong>隐私策略</strong></td>
-      <td>端侧优先，Private Cloud Compute 零留存</td>
-      <td>端侧 + 云侧混合，用户可控</td>
-      <td>主要依赖 Google 基础设施</td>
-    </tr>
-    <tr>
-      <td><strong>开发者生态</strong></td>
-      <td>App Intents API + SiriKit</td>
-      <td>AICore API + ML Kit + Gemini API</td>
-      <td>One UI SDK + Samsung Knox</td>
-    </tr>
-    <tr>
-      <td><strong>Agent 成熟度</strong></td>
-      <td>⭐⭐⭐ 深度集成但开放度有限</td>
-      <td>⭐⭐⭐⭐ 最开放，Android 原生支持</td>
-      <td>⭐⭐⭐ 功能丰富但生态较封闭</td>
-    </tr>
-  </table>
-  </div>
-
-  <div class="callout">
-    <strong>🔍 关键差异：</strong>Apple 走「隐私第一 + 深度集成」路线，Private Cloud Compute 是行业首创安全飞地云推理方案；Google 拥有最完整的端到端 Agent 基础设施；Samsung 采取务实路线，自研 + Google 双轨并行。
-  </div>
-
-  <h2>🏗️ 移动端 Agent 技术架构</h2>
-  <p>基于 ClawMobile、HeRo 等最新研究框架，移动端 Agent 的典型架构分为四层：</p>
-
-  <h3>Layer 1: Perception Layer（感知层）</h3>
-  <p>屏幕截图 → UI 元素识别（OCR + Layout Analysis）→ 屏幕状态序列化。关键挑战：不同 App 的 UI 差异极大，需要通用的 GUI 理解能力。当前主流方案是 <strong>多模态 VLM + Accessibility Tree 融合</strong>，比纯图像理解更可靠。</p>
-
-  <h3>Layer 2: Reasoning Layer（推理层）</h3>
-  <p>On-device LLM（1-3B 参数）处理用户意图 + 当前屏幕状态 → 生成动作计划。采用 <code>Chain-of-Thought</code> 或 <code>ReAct</code> 框架进行多步推理。复杂任务可调用云端大模型，形成 <strong>端云混合推理</strong> 架构。</p>
-
-  <h3>Layer 3: Action Layer（执行层）</h3>
-  <p>将推理结果转化为具体的 UI 操作：点击、滑动、输入文本。通过 Android Accessibility API 或 iOS UI Testing API 实现。需要 <strong>容错机制</strong>处理 UI 变化——ClawMobile 提出了 Self-healing 定位 + 视觉验证 + 回滚机制。</p>
-
-  <h3>Layer 4: Memory Layer（记忆层）</h3>
-  <p>短期记忆（当前任务上下文）+ 长期记忆（用户偏好、历史操作模式）。HeRo 框架探索了在异构移动 SoC 上的高效 RAG 实现，支持 <strong>DIKW 分层</strong>（Data → Information → Knowledge → Wisdom）。</p>
-
-  <h2>🔬 核心发现</h2>
-
-  <h3>1. ClawMobile：重新思考智能手机原生 Agent 系统</h3>
-  <p>2025 年发布的 <strong>ClawMobile</strong> 框架是首个专门为智能手机环境设计的 Agent 架构。其核心洞察：</p>
-  <ul>
-    <li>移动环境不同于云端/桌面——<em>受限的执行上下文</em>、<em>碎片化的控制接口</em>、<em>快速变化的 App 状态</em></li>
-    <li>传统 LLM-Agent 框架（如 ReAct、AutoGPT）直接移植到手机上效果很差</li>
-    <li>提出<em>推理-控制分离</em>架构：轻量级 on-device 模型负责实时控制，复杂推理委托给云端</li>
-    <li>设计了专门的 <code>Mobile-Action Space</code>，将 UI 操作抽象为结构化动作原语</li>
-  </ul>
-  <div class="callout success">
-    <strong>💡 核心贡献：</strong>证明了 3B 参数模型在适当架构下，可以完成 80%+ 的常见手机操作任务。
-  </div>
-
-  <h3>2. HeRo：异构移动 SoC 上的高效 Agent RAG</h3>
-  <p><strong>HeRo</strong> 框架解决了移动 Agent 的一个关键瓶颈：在资源受限的异构 SoC 上运行多阶段 Agent 工作流。</p>
-  <ul>
-    <li>移动 SoC 的特点：<em>加速器亲和性</em>（NPU/GPU/DSP 各有所长）、<em>形状敏感性</em>（不同 batch size 性能差异巨大）、<em>共享内存带宽竞争</em></li>
-    <li>HeRo 为每个子阶段和模型-PU 配置建立性能模型，捕捉延迟、工作负载形状和竞争导致的减速</li>
-    <li>轻量级在线调度器根据实时负载选择最优执行路径</li>
-    <li>相比 naive 调度，延迟降低 <strong>2-4x</strong>，能耗降低 <strong>30-50%</strong></li>
-  </ul>
-  <div class="callout success">
-    <strong>💡 意义：</strong>让复杂的多步 Agent RAG 在手机上实时运行成为可能。
-  </div>
-
-  <h3>3. GUI Agent 从被动响应到主动推荐</h3>
-  <p>arxiv 上的 <strong>PIRA-Bench</strong> 论文标志着一个重要转变：</p>
-  <ul>
-    <li>传统 GUI Agent 是<em>被动响应</em>型：用户给指令 → Agent 执行</li>
-    <li>新范式是<em>主动意图推荐</em>：Agent 观察用户操作模式，主动预测并建议下一步操作</li>
-    <li>例如：用户打开订票 App 搜索航班 → Agent 主动建议"要帮你加到日历吗？"</li>
-    <li>这需要更强的上下文理解和用户行为建模能力</li>
-  </ul>
-  <div class="callout warn">
-    <strong>⚠️ 挑战：</strong>主动推荐容易造成干扰，需要精准把握推荐时机和频率。这不仅是技术问题，也是 UX 设计问题。
-  </div>
-
-  <h3>4. On-Device 推理效率的突破</h3>
-  <p>2025 年多个技术进展让 on-device Agent 推理达到实用水平：</p>
-  <ul>
-    <li><strong>FlexServe</strong>：面向移动设备的快速安全 LLM 推理系统，支持灵活的资源隔离</li>
-    <li><strong>SimpleTool</strong>：并行解码技术，实现<em>实时</em> LLM function calling，大幅降低 Agent 动作延迟</li>
-    <li><strong>量化技术成熟</strong>：GPTQ/AWQ/QuIP# 等方案让 3B 模型在 INT4 量化下仅需 ~1.5GB 内存</li>
-    <li><strong>端侧推理延迟</strong>已从 2023 年的 5-10 秒降至 2025 年的 <strong>1-3 秒</strong>，进入用户可接受范围</li>
-  </ul>
-
-  <h3>5. 多模态感知是 Agent 的眼睛</h3>
-  <p>移动 Agent 要操控手机，首先需要「看懂」屏幕：</p>
-  <ul>
-    <li><strong>屏幕理解</strong>：将截图转为结构化 UI 表示（元素类型、位置、文本内容）</li>
-    <li><strong>多模态 LLM</strong>（如 Gemini Vision、GPT-4V）可以直接理解截图并生成操作指令</li>
-    <li><strong>Accessibility Tree</strong>：Android/iOS 提供的辅助功能树是 Agent 的理想输入，比纯图像理解更可靠</li>
-    <li><strong>挑战</strong>：动态内容（视频、动画）、自定义 UI 组件、弹窗和权限对话框的处理</li>
-  </ul>
-
-  <h2>⚡ 关键技术挑战</h2>
-  <div class="table-wrapper">
-  <table>
-    <tr>
-      <th>挑战</th>
-      <th>现状</th>
-      <th>解决方向</th>
-    </tr>
-    <tr>
-      <td><strong>算力约束</strong></td>
-      <td>端侧模型参数量受限于 1-3B，复杂推理能力有限</td>
-      <td>端云协同推理（edge-cloud hybrid），智能路由</td>
-    </tr>
-    <tr>
-      <td><strong>GUI 理解</strong></td>
-      <td>不同 App UI 差异大，动态内容难以解析</td>
-      <td>多模态 VLM + Accessibility Tree 融合</td>
-    </tr>
-    <tr>
-      <td><strong>动作可靠性</strong></td>
-      <td>UI 变化导致定位失败，错误累积</td>
-      <td>Self-healing 定位 + 视觉验证 + 回滚机制</td>
-    </tr>
-    <tr>
-      <td><strong>隐私安全</strong></td>
-      <td>Agent 需要读取屏幕内容和个人数据</td>
-      <td>沙箱隔离 + 差分隐私 + Private Cloud Compute</td>
-    </tr>
-    <tr>
-      <td><strong>电池续航</strong></td>
-      <td>持续推理对电池消耗显著</td>
-      <td>动态电压频率调节 + 推理调度优化</td>
-    </tr>
-    <tr>
-      <td><strong>用户信任</strong></td>
-      <td>用户对 Agent 自主操作手机存在顾虑</td>
-      <td>渐进式授权 + 操作预览 + 可解释性</td>
-    </tr>
-  </table>
-  </div>
-
-  <h2>🔮 趋势判断</h2>
-  <h3>2026 是移动 Agent 的「iPhone 时刻」</h3>
-  <p>当端侧推理延迟降到 <strong>&lt;1 秒</strong>、模型能力达到 7B 级别、操作系统原生支持 Agent 操作时，移动 Agent 将从「演示」进入「日常使用」。预计 2026 下半年到 2027 年达到这个临界点。</p>
-
-  <h3>操作系统级 Agent 平台将成为标配</h3>
-  <p>Android 16 和 iOS 19 预计将提供更深层的 Agent 原生支持——不仅限于 Accessibility API，而是专用的 <code>Agent Action Protocol</code>，让第三方 App 声明自己支持的操作，Agent 可以安全地调用。</p>
-
-  <h3>端云混合推理成为主流架构</h3>
-  <p>纯端侧受限于算力，纯云端受限于延迟和隐私。<strong>意图分类在端侧完成，复杂推理和长尾任务路由到云端</strong>将成为标准模式。Apple 的 Private Cloud Compute 就是这个方向的先驱。</p>
-
-  <h3>垂直场景 Agent 率先落地</h3>
-  <p>通用 Agent 距离成熟还远，但<em>垂直场景</em>（旅行预订、日程管理、消息摘要、健康追踪）的 Agent 会在 2026 年大量涌现。开发者应该关注具体场景而非追求通用能力。</p>
-
-  <h3>Agent 安全与治理成为核心议题</h3>
-  <p>当 Agent 能操作你的手机、访问你的支付 App 时，<em>安全边界</em>变得至关重要。预计 2026-2027 年将出现移动 Agent 安全标准和监管框架。</p>
-
-  <h2>📖 参考资料</h2>
-  <div class="ref">
-    <p>[1] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/abs/2502.06456">ClawMobile: Rethinking Smartphone-Native Agentic Systems</a> — 首个智能手机原生 Agent 架构</p>
-    <p>[2] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/search/?query=%22HeRo%3A+Adaptive+Orchestration%22">HeRo: Adaptive Orchestration of Agentic RAG on Heterogeneous Mobile SoC</a> — 异构 SoC 上的高效 Agent RAG</p>
-    <p>[3] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/search/?query=%22Knowledge-driven+Reasoning+for+Mobile+Agentic+AI%22">Knowledge-driven Reasoning for Mobile Agentic AI</a> — 知识驱动的移动 Agent 推理框架</p>
-    <p>[4] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/search/?query=PIRA-Bench">PIRA-Bench: From Reactive GUI Agents to Proactive Intent Recommendation Agents</a> — 主动意图推荐 Agent 基准</p>
-    <p>[5] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/search/?query=FlexServe+LLM+mobile">FlexServe: Fast and Secure LLM Serving for Mobile Devices</a> — 移动端 LLM 推理系统</p>
-    <p>[6] <span class="ref-grade grade-a">A</span> <a href="https://arxiv.org/search/?query=SimpleTool+parallel+decoding">SimpleTool: Parallel Decoding for Real-Time LLM Function Calling</a> — 实时 function calling</p>
-    <p>[7] <span class="ref-grade grade-b">B</span> <a href="https://developer.apple.com/apple-intelligence/">Apple Intelligence Developer Documentation</a></p>
-    <p>[8] <span class="ref-grade grade-b">B</span> <a href="https://ai.google.dev/edge/mediapipe/solutions/genai">Google AI Edge: On-Device GenAI</a></p>
-    <p>[9] <span class="ref-grade grade-c">C</span> <a href="https://techcrunch.com/2024/12/30/ai-apps-saw-over-1-billion-in-consumer-spending-in-2024/">TechCrunch: AI apps saw over $1B in consumer spending in 2024</a></p>
-  </div>
-</div>
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
 <div class="footer">
   🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
   <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
 </body>
 </html>
