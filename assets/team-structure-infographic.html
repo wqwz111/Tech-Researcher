@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tech Researcher 团队结构信息图</title>
+<style>
+:root {
+  --bg:#1e293b;--bg2:#334155;--bg3:#0f172a;
+  --text:#e2e8f0;--text-muted:#94a3b8;
+  --accent:#38bdf8;--accent2:#7dd3fc;
+  --pink:#f472b6;--orange:#fb923c;--purple:#a78bfa;--green:#34d399;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans SC',sans-serif;background:var(--bg3);color:var(--text);display:flex;justify-content:center;padding:2rem 1rem;}
+.infographic{max-width:960px;width:100%;background:var(--bg);border-radius:16px;padding:2rem;position:relative;overflow:hidden;}
+.infographic::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0v40M0 20h40' stroke='rgba(255,255,255,.03)' stroke-width='1'/%3E%3C/svg%3E");pointer-events:none;}
+
+/* Layers */
+.layer{position:relative;z-index:1;margin-bottom:0;}
+.layer-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);margin-bottom:.5rem;padding-left:.2rem;}
+
+/* Cards */
+.role-row{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin:.4rem 0;}
+.role-card{background:var(--bg2);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:.8rem 1.2rem;text-align:center;min-width:130px;flex:0 1 auto;position:relative;transition:transform .2s,box-shadow .2s;}
+.role-card:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.role-card .emoji{font-size:1.8rem;display:block;margin-bottom:.3rem;}
+.role-card .name{font-size:.95rem;font-weight:700;}
+.role-card .sub{font-size:.75rem;color:var(--text-muted);margin-top:.2rem;}
+.role-card.chief{border-color:var(--accent);box-shadow:0 0 15px rgba(56,189,248,.15);}
+.role-card.probe{border-color:var(--accent2);}
+.role-card.palette{border-color:var(--pink);}
+.role-card.librarian{border-color:var(--orange);}
+.role-card.reader{border-color:var(--purple);}
+.role-card.user{border-color:var(--pink);background:linear-gradient(135deg,rgba(244,114,182,.1),rgba(56,189,248,.05));}
+.role-card .count{font-size:.65rem;background:rgba(255,255,255,.1);padding:.1rem .4rem;border-radius:8px;margin-left:.3rem;color:var(--text-muted);}
+
+/* Arrows */
+.arrow-col{display:flex;flex-direction:column;align-items:center;padding:.15rem 0;}
+.arrow-col .arrow{font-size:1.2rem;color:var(--accent);line-height:1;}
+.arrow-col .arrow-label{font-size:.65rem;color:var(--text-muted);margin:.1rem 0;text-align:center;max-width:120px;}
+
+/* Horizontal arrow between */
+.arrow-horiz{display:flex;align-items:center;justify-content:center;gap:.3rem;padding:.2rem 0;color:var(--accent);font-size:.85rem;}
+.arrow-horiz .arrow{font-size:1.1rem;}
+.arrow-horiz .label{font-size:.7rem;color:var(--text-muted);}
+
+/* Divider */
+.divider{display:flex;align-items:center;gap:.5rem;margin:.6rem 0;justify-content:center;}
+.divider .line{flex:1;max-width:200px;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,248,.3),transparent);}
+.divider .icon{font-size:.9rem;color:var(--text-muted);}
+
+/* Center chief highlight */
+.chief-row{display:flex;justify-content:center;margin:.3rem 0;}
+</style>
+</head>
+<body>
+<div class="infographic">
+
+  <!-- User Layer -->
+  <div class="layer">
+    <div class="layer-label">👤 需求来源</div>
+    <div class="role-row">
+      <div class="role-card user">
+        <span class="emoji">👤</span>
+        <span class="name">用户</span>
+        <span class="sub">提出需求 · 反馈</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow: User → Chief -->
+  <div class="arrow-col">
+    <div class="arrow-label">GitHub Issues</div>
+    <div class="arrow">↓</div>
+    <div class="arrow-label">↕ 双向互动</div>
+    <div class="arrow">↓</div>
+  </div>
+
+  <!-- Chief Layer -->
+  <div class="layer">
+    <div class="layer-label">📋 核心中枢</div>
+    <div class="chief-row">
+      <div class="role-card chief" style="min-width:220px;">
+        <span class="emoji">📋</span>
+        <span class="name">主编 Chief</span>
+        <span class="sub">选题 · 计划 · 质控 · 发布</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow: Chief → 三层 -->
+  <div class="arrow-col">
+    <div class="arrow">↓</div>
+  </div>
+
+  <!-- Three Parallel Layers -->
+  <div class="layer">
+    <div class="layer-label">⚡ 执行层（三层并行）</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:.4rem;">
+      <!-- Research Layer -->
+      <div style="background:rgba(125,211,252,.05);border:1px solid rgba(125,211,252,.15);border-radius:12px;padding:1rem;text-align:center;">
+        <div style="font-size:.7rem;color:var(--accent2);font-weight:600;margin-bottom:.5rem;letter-spacing:.08em;">🔬 研究层</div>
+        <div class="role-row" style="flex-direction:column;gap:.5rem;">
+          <div class="role-card probe" style="min-width:unset;width:100%;">
+            <span class="emoji" style="font-size:1.3rem;">🔬</span>
+            <span class="name">探针</span><span class="count">×N</span>
+            <span class="sub">AI/LLM · 架构 · 设计</span>
+          </div>
+        </div>
+        <div style="font-size:.65rem;color:var(--text-muted);margin-top:.4rem;">多源研究 · 深度报告</div>
+      </div>
+
+      <!-- Support Layer -->
+      <div style="background:rgba(244,114,182,.05);border:1px solid rgba(244,114,182,.15);border-radius:12px;padding:1rem;text-align:center;">
+        <div style="font-size:.7rem;color:var(--pink);font-weight:600;margin-bottom:.5rem;letter-spacing:.08em;">🎨 支撑层</div>
+        <div class="role-row" style="flex-direction:column;gap:.5rem;">
+          <div class="role-card palette" style="min-width:unset;width:100%;">
+            <span class="emoji" style="font-size:1.3rem;">🎨</span>
+            <span class="name">调色板</span><span class="count">×1</span>
+            <span class="sub">视觉设计 · 模板维护</span>
+          </div>
+          <div class="role-card librarian" style="min-width:unset;width:100%;">
+            <span class="emoji" style="font-size:1.3rem;">🗃️</span>
+            <span class="name">图书管理员</span><span class="count">×1</span>
+            <span class="sub">知识管理 · 索引</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review Layer -->
+      <div style="background:rgba(167,139,250,.05);border:1px solid rgba(167,139,250,.15);border-radius:12px;padding:1rem;text-align:center;">
+        <div style="font-size:.7rem;color:var(--purple);font-weight:600;margin-bottom:.5rem;letter-spacing:.08em;">💬 审稿层</div>
+        <div class="role-row" style="flex-direction:column;gap:.5rem;">
+          <div class="role-card reader" style="min-width:unset;width:100%;">
+            <span class="emoji" style="font-size:1.3rem;">💬</span>
+            <span class="name">读者</span><span class="count">×N</span>
+            <span class="sub">独立审稿 · 多角度审核</span>
+          </div>
+        </div>
+        <div style="font-size:.65rem;color:var(--text-muted);margin-top:.4rem;">准确性 · 可读性 · 完整性</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Collaboration arrows -->
+  <div class="divider" style="margin-top:.8rem;">
+    <div class="line"></div>
+    <div class="icon">🔄</div>
+    <div class="line"></div>
+  </div>
+  <div style="display:flex;justify-content:center;gap:.3rem;flex-wrap:wrap;font-size:.7rem;color:var(--text-muted);margin-bottom:.3rem;">
+    <span style="background:rgba(255,255,255,.05);padding:.15rem .5rem;border-radius:6px;">探针 → 报告草稿 → 读者</span>
+    <span style="color:var(--accent);">·</span>
+    <span style="background:rgba(255,255,255,.05);padding:.15rem .5rem;border-radius:6px;">读者 → 审稿意见 → 主编</span>
+    <span style="color:var(--accent);">·</span>
+    <span style="background:rgba(255,255,255,.05);padding:.15rem .5rem;border-radius:6px;">探针 → 定稿 → 调色板</span>
+    <span style="color:var(--accent);">·</span>
+    <span style="background:rgba(255,255,255,.05);padding:.15rem .5rem;border-radius:6px;">调色板 → 美化 → 主编</span>
+  </div>
+
+  <!-- Output Arrow -->
+  <div class="arrow-col">
+    <div class="arrow">↓</div>
+  </div>
+
+  <!-- Output Layer -->
+  <div class="layer">
+    <div class="layer-label">📤 输出</div>
+    <div class="role-row">
+      <div class="role-card" style="border-color:var(--green);min-width:160px;">
+        <span class="emoji">🚀</span>
+        <span class="name">发布</span>
+        <span class="sub">GitHub Pages · Release</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow: Output → User (feedback loop) -->
+  <div class="arrow-col">
+    <div class="arrow">↓</div>
+    <div class="arrow-label">反馈回路 ↻</div>
+  </div>
+
+  <!-- Feedback loop back to user -->
+  <div class="role-row">
+    <div class="role-card user" style="opacity:.7;">
+      <span class="emoji">👤</span>
+      <span class="name">用户</span>
+      <span class="sub">阅读 · 反馈 · 新需求</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
