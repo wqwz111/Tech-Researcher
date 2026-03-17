@@ -20,11 +20,11 @@ AI 驱动的技术研究报告仓库。由 **探针 (Probe)** 团队生成，覆
 
 - 🚀 [Releases — 最新报告发布](https://github.com/wqwz111/Tech-Researcher/releases)
 
-## 📂 报告目录 (32 篇)
+## 📂 报告目录 (33 篇)
 
 ```
 reports/
-├── methodology/       # 🔬 方法论 (8 篇)
+├── methodology/       # 🔬 方法论 (9 篇)
 │   ├── prompt-engineering
 │   ├── rag-patterns
 │   ├── agent-design-patterns
@@ -32,7 +32,8 @@ reports/
 │   ├── llm-evaluation
 │   ├── agent-memory
 │   ├── multi-agent-collaboration
-│   └── reasoning-enhancement
+│   ├── reasoning-enhancement
+│   └── ai-agent-stability
 ├── case-studies/      # 📊 案例实践 (8 篇)
 │   ├── openai-ecosystem
 │   ├── anthropic-enterprise
