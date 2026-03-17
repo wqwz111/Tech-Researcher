@@ -98,7 +98,6 @@ a:hover { color:#a5b4fc; }
 .team-card.chief .card-accent { background:var(--gradient); }
 .team-card.probe .card-accent { background:var(--accent); }
 .team-card.palette .card-accent { background:var(--pink); }
-.team-card.collector .card-accent { background:var(--green); }
 .team-card.librarian .card-accent { background:var(--orange); }
 .team-card.reader .card-accent { background:var(--purple); }
 
@@ -156,7 +155,6 @@ a:hover { color:#a5b4fc; }
  end
 subgraph SGSupport["支撑层"]
  Palette["调色板<br/>视觉设计"]
- Collector["采集员<br/>数据收集"]
  Librarian["图书管理员<br/>知识管理"]
  end
 subgraph SGReview["审稿层"]
@@ -167,7 +165,6 @@ subgraph SGReview["审稿层"]
 User <-->|"Issues"| Chief
     Chief -->|"分派任务"| Research
     Chief -->|"设计需求"| Palette
-    Chief -->|"采集任务"| Collector
     Chief -->|"索引更新"| Librarian
     Chief -->|"审稿安排"| Review
     Research -->|"报告草稿"| Review
@@ -178,10 +175,9 @@ User <-->|"Issues"| Chief
  style Chief fill:#38bdf8,color:#000,stroke:#0ea5e9
  style User fill:#f472b6,color:#000
  style Palette fill:#fb923c,color:#000
- style Collector fill:#34d399,color:#000
  style Librarian fill:#a78bfa,color:#000
 </div>
-    <div class="diagram-caption">图 1: Tech Researcher 团队结构与协作关系（1:N:1:1:1:N）</div>
+    <div class="diagram-caption">图 1: Tech Researcher 团队结构与协作关系（1:N:1:1:N）</div>
   </div>
 
   <!-- Team Members -->
@@ -216,16 +212,6 @@ User <-->|"Issues"| Chief
       </div>
       <div class="card-role">Palette · 美术设计师</div>
       <div class="card-desc">统一视觉设计，维护报告模板一致性。负责深色/浅色主题、排版规范、信息图表生成。</div>
-    </div>
-    <div class="team-card collector">
-      <div class="card-accent"></div>
-      <div class="card-header">
-        <span class="card-emoji">📊</span>
-        <span class="card-name">采集员</span>
-        <span class="card-count">×1</span>
-      </div>
-      <div class="card-role">Collector · 数据采集</div>
-      <div class="card-desc">论文检索、趋势数据采集、竞品情报收集。为探针提供高质量研究素材。</div>
     </div>
     <div class="team-card librarian">
       <div class="card-accent"></div>
