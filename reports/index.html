@@ -97,12 +97,6 @@
     .hero h1 { font-size:1.8rem; }
     .report-grid { grid-template-columns:1fr; }
   }
-
-  /* Search modal scrollbar */
-  #search::-webkit-scrollbar { width:6px; }
-  #search::-webkit-scrollbar-track { background:transparent; }
-  #search::-webkit-scrollbar-thumb { background:var(--text-dim); border-radius:3px; }
-  #search::-webkit-scrollbar-thumb:hover { background:var(--accent); }
 </style>
 <link href="./_pagefind/pagefind-ui.css" rel="stylesheet">
 </head>
@@ -129,10 +123,10 @@
 </div>
 
 <!-- Search Modal -->
-<div id="search-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);padding:80px 1rem 1rem;">
-  <div style="max-width:640px;margin:0 auto;display:flex;flex-direction:column;max-height:100%;">
-    <div id="search" style="background:var(--bg-card);border-radius:12px;box-shadow:0 25px 50px rgba(0,0,0,.5);flex:1;overflow-y:auto;min-height:0;"></div>
-    <p style="text-align:center;color:var(--text-dim);font-size:.8rem;margin-top:.8rem;flex-shrink:0;">ESC 关闭 · 由 Pagefind 驱动</p>
+<div id="search-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);">
+  <div style="max-width:640px;margin:80px auto 0;padding:0 1rem;">
+    <div id="search" style="background:var(--bg-card);border-radius:12px;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,.5);"></div>
+    <p style="text-align:center;color:var(--text-dim);font-size:.8rem;margin-top:.8rem;">ESC 关闭 · 由 Pagefind 驱动</p>
   </div>
 </div>
 
