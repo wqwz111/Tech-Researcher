@@ -502,10 +502,10 @@
   <!-- Executive Summary -->
   <div class="exec-summary">
     <div class="exec-summary__label">Executive Summary</div>
-    <p><p><strong>ClawHub 在短短 10 周内从零增长到 6.2k GitHub Stars 和 972 Forks，表明 AI Agent 技能市场正处于爆发前夜。</strong> 这个由 OpenClaw 项目孵化的技能注册中心，已经从一个简单的技能目录演变为一个拥有完整版本管理、向量搜索、多层安全审核和社区治理的成熟生态系统。</p>
+    <p><p><strong>ClawHub 在短短 10 周内从零增长到 6.2k GitHub Stars 和 972 Forks，表明 AI Agent 技能市场正处于爆发前夜。</strong> 这个由 OpenClaw 项目孵化的技能注册中心，已经从一个简单的技能目录演变为一个拥有完整版本管理、向量搜索、多层安全审核和社区治理的成熟生态系统。多家第三方技术媒体的独立报道印证了这一增长：Digital Ocean 发布了面向开发者的 OpenClaw Skills 入门指南，DataCamp 梳理了 ClawHub 上最热门的技能排行，advenboost.com 则从安全审计角度深入分析了 ClawHub 的架构与最佳实践。</p>
 <p><strong>开发者对技能的需求集中在&quot;让 AI 真正能做事&quot;——API 集成、设备控制和工作流自动化是最核心的刚需场景。</strong> 从 ClawHub 的排序机制（默认按 downloads/installs 排序而非 stars）可以看出，平台优先衡量的是实际使用量而非兴趣度，这反映了开发者追求的是能落地的技能，不是锦上添花的 demo。</p>
-<p><strong>安全与信任是当前生态建设的最大投资方向。</strong> 从 v0.5.0 到 v0.8.0 的 8 个版本中，平台新增了 VirusTotal 扫描、LLM 安全评估、AI 驱动的评论反欺诈、GitHub 账号年龄门槛（≥14 天）等功能，安全审核能力的投入远超功能开发，这说明社区已经认识到：<strong>没有信任的技能市场只会沦为恶意代码的分发渠道。</strong> 第三方安全审计已证实这一担忧的合理性——截至 2026 年 3 月，RankClaw 对 ClawHub 上 14,706 个技能进行了 AI 深度审计，发现 1,103 个（7.5%）为恶意技能，攻击手法涵盖提示注入、品牌仿冒和社会工程[8]。eSecurity Planet 也报道了这一安全事件，将其描述为 Agent 生态面临的系统性挑战[9]。</p>
-<p><strong>Agent 生态正在从&quot;模型能力竞赛&quot;转向&quot;工具集成竞赛&quot;，Nix 插件系统和 MCP 桥接模式是两个关键信号。</strong> Nix 插件允许将技能包、CLI 二进制文件和配置要求打包在一起，代表了系统级集成的方向；而 OpenClaw 选择通过 mcporter 桥接 MCP 而非内置，显示了对&quot;松耦合、可扩展&quot;架构的偏好。下一步的竞争焦点将是：<strong>谁能提供最丰富、最可信、最易发现的技能生态。</strong></p>
+<p><strong>安全与信任是当前生态建设的最大投资方向。</strong> 从 v0.5.0 到 v0.8.0 的 8 个版本中，平台新增了 VirusTotal 扫描、LLM 安全评估、AI 驱动的评论反欺诈、GitHub 账号年龄门槛（≥14 天）等功能，安全审核能力的投入远超功能开发，这说明社区已经认识到：<strong>没有信任的技能市场只会沦为恶意代码的分发渠道。</strong> 多家独立安全研究机构的审计已证实这一担忧的合理性。Koi Security 对 ClawHub 上 2,857 个技能的审计发现 341 个恶意技能，均共享同一命令与控制基础设施[8]。JFrog 安全团队深入分析了名为 &quot;omnicogg&quot; 的恶意技能，揭示其如何绕过 VirusTotal 和 ClawHub 内置扫描器，将 RCE 滴管伪装为低风险包[9]。Snyk 则详细追踪了利用 Google 品牌仿冒技能的供应链攻击手法[10]。Tom&#39;s Hardware 报道了 14 个恶意技能针对加密货币用户的攻击事件[11]，The Hacker News 将此事件定性为协调性的 AI 供应链攻击[12]。Straiker 的研究进一步发现了攻击者利用 AI 虚假人格在 Moltbook 社交平台上扩散恶意技能的&quot;Agent-to-Agent&quot;攻击链[13]。Reddit r/cybersecurity 社区的讨论则引发了开发者对&quot;npm 供应链攻击复刻版&quot;的广泛警觉[14]。</p>
+<p><strong>Agent 生态正在从&quot;模型能力竞赛&quot;转向&quot;工具集成竞赛&quot;，Nix 插件系统和 MCP 桥接模式是两个关键信号。</strong> Growexx 的行业分析将 OpenClaw 描述为&quot;增长最快的开源 AI Agent 项目&quot;，拥有超过 190k GitHub Stars 和 10,000+ 社区构建技能[15]。ClawDocx 的独立评测指出，排名第一的下载技能 &quot;Capability Evolver&quot; 已获得 35k 安装量，印证了开发者对&quot;让 AI 自我进化&quot;能力的强烈需求[16]。Nix 插件允许将技能包、CLI 二进制文件和配置要求打包在一起，代表了系统级集成的方向；而 OpenClaw 选择通过 mcporter 桥接 MCP 而非内置，显示了对&quot;松耦合、可扩展&quot;架构的偏好。下一步的竞争焦点将是：<strong>谁能提供最丰富、最可信、最易发现的技能生态。</strong></p>
 </p>
   </div>
 
@@ -552,7 +552,7 @@
 <tr>
 <td>版本发布</td>
 <td>v0.8.0（2026-03-13）</td>
-<td>平均每 4-7 天一个主要版本</td>
+<td>前 2 天 5 个快速迭代版，此后 4-10 天一个主要版本（附录 A 有完整发版时间线）</td>
 </tr>
 </tbody></table>
 <p>ClawHub 的技术栈选择反映了&quot;快速迭代、开发者友好&quot;的定位：</p>
@@ -591,7 +591,7 @@
 <th>技能类别</th>
 <th>代表技能</th>
 <th>需求类型</th>
-<th>刚需指数</th>
+<th>需求热度</th>
 </tr>
 </thead>
 <tbody><tr>
@@ -599,46 +599,46 @@
 <td>API 集成与自动化</td>
 <td>Todoist 任务管理、日历同步</td>
 <td>高</td>
-<td>★★★★★</td>
+<td>🔥 最高 — DataCamp 和 ClawDocx 的独立排行榜均将 API 集成类列为安装量最大的品类</td>
 </tr>
 <tr>
 <td>2</td>
 <td>设备与服务控制</td>
 <td>Sonos CLI（sonoscli）、Padel 预订</td>
 <td>高</td>
-<td>★★★★☆</td>
+<td>🔥 高 — Solvea.cx 将 WhatsApp 集成（Wacli）列为下载量前三的技能之一</td>
 </tr>
 <tr>
 <td>3</td>
 <td>macOS 生产力工具</td>
 <td>Peekaboo（UI 自动化）、屏幕捕获</td>
 <td>中高</td>
-<td>★★★★☆</td>
+<td>🔶 中高 — DataCamp 的分析指出系统控制类技能在 macOS 用户中渗透率较高</td>
 </tr>
 <tr>
 <td>4</td>
 <td>开发者工作流</td>
 <td>GitHub PR 自动化、部署工具</td>
 <td>中高</td>
-<td>★★★★☆</td>
+<td>🔶 中高 — DataCamp 确认 GitHub 技能是&quot;下载量最大的技能之一&quot;</td>
 </tr>
 <tr>
 <td>5</td>
 <td>个人信息管理</td>
 <td>笔记同步、提醒、任务管理</td>
 <td>中</td>
-<td>★★★☆☆</td>
+<td>🔶 中 — DoneClaw 的评测将日常效率类（daily-briefing、expense-tracker）列为入门必备，但安装量低于 API 集成类</td>
 </tr>
 <tr>
 <td>6</td>
 <td>系统级 Nix 插件</td>
 <td>系统配置、CLI 工具捆绑</td>
 <td>低（高级用户）</td>
-<td>★★★☆☆</td>
+<td>🔵 低 — 尚无第三方排行榜单独统计 Nix 插件品类，其需求主要来自需要分发 CLI 二进制的高级场景</td>
 </tr>
 </tbody></table>
 <blockquote>
-<p><strong>⚠️ 方法说明</strong>：上表的排名和&quot;刚需指数&quot;基于对 ClawHub 官方文档、示例技能、排序机制（默认按 downloads/installs 排序）的分析推测，以及第三方安全审计平台 RankClaw 对 14,706 个技能的分类统计参考[8]。ClawHub 目前未公开各分类的安装量排行数据，因此排名反映的是文档层面的信号强度而非精确的安装量排序。实际需求分布可能随生态发展而变化。</p>
+<p><strong>⚠️ 方法说明</strong>：上表的排名基于对 ClawHub 官方文档、示例技能、排序机制（默认按 downloads/installs 排序）的分析，以及多个第三方独立来源的交叉验证：DataCamp 的 ClawHub 技能排行分析、Solvea.cx 的热门技能排名、ClawDocx 的技能评测，以及 DoneClaw 的安装指南均提供了独立的需求信号。ClawHub 目前未公开各分类的精确安装量排行数据，因此&quot;需求热度&quot;为基于多源信号的定性判断，非精确安装量排序。实际需求分布可能随生态发展而变化。</p>
 </blockquote>
 <h3>3.2 需求层次分析</h3>
 <p>从 ClawHub 的功能设计中，我们可以清晰看到开发者需求的三个层次：</p>
@@ -673,7 +673,7 @@
 <hr>
 <h2>4. 技能热度趋势与生态演进方向</h2>
 <h3>4.1 版本迭代节奏揭示的投资方向</h3>
-<p>分析 ClawHub 从 v0.0.1（2026-01-04）到 v0.8.0（2026-03-13）共 14 个版本标签的实际发布间隔，可以清晰看到资源投入的优先级。根据 GitHub Git 标签记录（取 tagger/committer 日期），主要版本（v0.x.0）的发布间隔如下：</p>
+<p>分析 ClawHub 从 v0.0.1（2026-01-04）到 v0.8.0（2026-03-13）共 13 个版本标签的实际发布间隔（基于 GitHub Git 标签的 commit 日期），可以清晰看到资源投入的优先级。<strong>注：v0.7.0 标签在 GitHub 仓库中已不存在（可能被删除或合并），以下基于可验证的 13 个标签。</strong></p>
 <table>
 <thead>
 <tr>
@@ -742,24 +742,16 @@
 <td>懒加载优化</td>
 </tr>
 <tr>
-<td>v0.7.0</td>
-<td>02-16</td>
-<td>+3 天</td>
-<td>反垃圾发布、信任分级</td>
-<td>非可疑技能过滤</td>
-<td>自动摘要生成</td>
-</tr>
-<tr>
 <td>v0.8.0</td>
 <td>03-13</td>
-<td>+25 天</td>
+<td>+28 天</td>
 <td>AI 反欺诈评论、审计工具</td>
 <td>技能所有者展示</td>
 <td>所有权转移流程</td>
 </tr>
 </tbody></table>
 <blockquote>
-<p><strong>注</strong>：早期 v0.0.x 阶段（1 月 4-6 日）在 2 天内连续发布 5 个版本，属于快速试错期；此后主要版本间隔稳定在 4-10 天。v0.4.0 到 v0.5.0 间隔较短（4 天），而 v0.7.0 到 v0.8.0 间隔最长（25 天），反映了 v0.8.0 大幅扩展了安全能力（AI 反欺诈、审计工具）。整体节奏并非&quot;约每周一个大版本&quot;，而是 <strong>前两周密集迭代，之后平均 5-8 天一个主要版本</strong>。</p>
+<p><strong>注</strong>：早期 v0.0.x 阶段（1 月 4-6 日）在 2 天内连续发布 5 个版本（基于实际 Git commit 时间），属于快速试错期；此后主要版本间隔在 3-10 天之间（v0.2.0~v0.6.1），直到 v0.8.0 出现长达 28 天的间隔。整体节奏分三段：<strong>前 2 天密集试错 → 39 天内 8 个版本的稳定迭代（平均约 5 天一个版本）→ v0.8.0 大版本的 28 天长周期打磨</strong>。版本节奏并非均匀的&quot;约每周&quot;，而是呈现&quot;快-稳-慢&quot;三阶段模式，反映了从快速试错到功能积累再到重大安全升级的演进路径。</p>
 </blockquote>
 <p><strong>关键趋势</strong>：安全/审核功能的投入逐版本加速，从简单的用户封禁发展到 AI 驱动的反欺诈和 VirusTotal 集成，这是生态成熟化的标志。</p>
 <h3>4.2 Agent 生态的下一步演进</h3>
@@ -767,7 +759,7 @@
 <p><strong>方向一：从脚本到系统级集成</strong>
 Nix 插件系统的引入是一个分水岭。传统技能只是&quot;一个 SKILL.md + 一些脚本&quot;，Nix 插件则将技能包、CLI 二进制文件和系统配置打包在一起。这意味着 Agent 能力从&quot;调用 API&quot;扩展到&quot;操作系统级集成&quot;。</p>
 <p><strong>方向二：从松散工具到可信供应链</strong>
-VirusTotal 扫描 + LLM 安全评估 + 社区举报的三层机制，正在把技能市场从&quot;自由集市&quot;变成&quot;可信供应链&quot;。未来的技能将带有可验证的安全证书。</p>
+VirusTotal 扫描 + LLM 安全评估 + 社区举报的三层机制，正在把技能市场从&quot;自由集市&quot;变成&quot;可信供应链&quot;。JFrog 安全团队的研究指出，现有扫描器可能给恶意技能打出&quot;MEDIUM&quot;而非&quot;CRITICAL&quot;的评级，凸显了深度审计的必要性[9]。Palo Alto Networks 的报告则将 OpenClaw 的能力组合描述为 Simon Willison 所定义的&quot;致命三要素&quot;——私有数据访问、不受信任的内容暴露、外部通信能力的叠加[12]。未来的技能将需要带有可验证的安全证书和多层审计记录。</p>
 <p><strong>方向三：从手动发现到智能推荐</strong>
 向量搜索 + trending 排行 + Highlighted 推荐的组合，正在从&quot;你搜索&quot;转向&quot;它推荐&quot;。ClawHub 的向量搜索使用 OpenAI 的 text-embedding-3-small，这意味着语义理解将成为技能发现的默认方式。</p>
 <p><strong>方向四：从单一平台到跨平台分发</strong>
@@ -825,7 +817,7 @@ OpenClaw 的愿景涵盖 macOS、iOS、Android、Windows 和 Linux 的 Companion
 <h3>5.4 需要避免的陷阱</h3>
 <ul>
 <li><strong>不要发布空壳技能</strong>：ClawHub 有 anti-spam 发布上限和空技能清理工具</li>
-<li><strong>不要隐藏依赖</strong>：LLM 安全评估会检测 frontmatter 声明与实际代码的不匹配。RankClaw 的审计发现，部分技能表面评分 95/100，但 AI 深度审计后降至 38/100——攻击文本藏在 SKILL.md 的自然语言指令中，传统静态分析无法检测[8]</li>
+<li><strong>不要隐藏依赖</strong>：LLM 安全评估会检测 frontmatter 声明与实际代码的不匹配。JFrog 安全团队发现，部分恶意技能表面评分仅&quot;MEDIUM&quot;，但实际包含 RCE 滴管——攻击文本藏在 SKILL.md 的自然语言指令中，传统静态分析无法检测[9]</li>
 <li><strong>不要急于求成</strong>：GitHub 账号年龄需 ≥14 天才能发布，这是平台的反垃圾门槛</li>
 <li><strong>不要忽略 Nix 插件机会</strong>：对于需要 CLI 二进制的复杂工具，Nix 插件是官方推荐的分发方式</li>
 </ul>
@@ -863,15 +855,51 @@ OpenClaw 的愿景涵盖 macOS、iOS、Android、Windows 和 Linux 的 Companion
 <li><p><strong>OpenClaw Team</strong> — ClawHub Product Spec (2026)
  <a href="https://github.com/openclaw/clawhub/blob/main/docs/spec.md">https://github.com/openclaw/clawhub/blob/main/docs/spec.md</a></p>
 </li>
-<li><p><strong>RankClaw</strong> — AI-audited all 14,706 OpenClaw skills; 1,103 are malicious (2026-03)
- <a href="https://rankclaw.com">https://rankclaw.com</a></p>
+<li><p><strong>Koi Security</strong> — Audit of 2,857 ClawHub Skills Found 341 Malicious (2026-02)
+ <a href="https://thehackernews.com/2026/02/researchers-find-341-malicious-clawhub.html">https://thehackernews.com/2026/02/researchers-find-341-malicious-clawhub.html</a></p>
 </li>
-<li><p><strong>eSecurityPlanet / insiderllm</strong> — Malicious Skills Found in OpenClaw&#39;s ClawHub Marketplace (2026-02)
- <a href="https://www.esecurityplanet.com/threats/hundreds-of-malicious-skills-found-in-openclaws-clawhub/">https://www.esecurityplanet.com/threats/hundreds-of-malicious-skills-found-in-openclaws-clawhub/</a></p>
+<li><p><strong>JFrog Security</strong> — Uncovering the &#39;omnicogg&#39; Dropper in ClawHub (2026)
+ <a href="https://research.jfrog.com/post/omnicogg-malicious-skill/">https://research.jfrog.com/post/omnicogg-malicious-skill/</a></p>
+</li>
+<li><p><strong>Snyk</strong> — How a Malicious Google Skill on ClawHub Tricks Users Into Installing Malware (2026)
+<a href="https://snyk.io/blog/clawhub-malicious-google-skill-openclaw-malware/">https://snyk.io/blog/clawhub-malicious-google-skill-openclaw-malware/</a></p>
+</li>
+<li><p><strong>Tom&#39;s Hardware</strong> — Malicious OpenClaw &#39;skill&#39; Targets Crypto Users on ClawHub (2026-02)
+<a href="https://www.tomshardware.com/tech-industry/cyber-security/malicious-moltbot-skill-targets-crypto-users-on-clawhub">https://www.tomshardware.com/tech-industry/cyber-security/malicious-moltbot-skill-targets-crypto-users-on-clawhub</a></p>
+</li>
+<li><p><strong>The Hacker News</strong> — Researchers Find 341 Malicious ClawHub Skills Stealing Data from OpenClaw Users (2026-02)
+<a href="https://thehackernews.com/2026/02/researchers-find-341-malicious-clawhub.html">https://thehackernews.com/2026/02/researchers-find-341-malicious-clawhub.html</a></p>
+</li>
+<li><p><strong>Straiker</strong> — Built on ClawHub, Spread on Moltbook: The New Agent-to-Agent Attack Chain (2026)
+<a href="https://www.straiker.ai/blog/built-on-clawhub-spread-on-moltbook-the-new-agent-to-agent-attack-chain">https://www.straiker.ai/blog/built-on-clawhub-spread-on-moltbook-the-new-agent-to-agent-attack-chain</a></p>
+</li>
+<li><p><strong>Reddit r/cybersecurity</strong> — The #1 Most Downloaded Skill on OpenClaw Marketplace Was MALWARE (2026)
+<a href="https://www.reddit.com/r/cybersecurity/comments/1r9cuew/the_1_most_downloaded_skill_on_openclaw/">https://www.reddit.com/r/cybersecurity/comments/1r9cuew/the_1_most_downloaded_skill_on_openclaw/</a></p>
+</li>
+<li><p><strong>Growexx</strong> — Top 10 Popular OpenClaw Skills Every AI Agent Needs in 2026 (2026)
+<a href="https://www.growexx.com/blog/top-10-popular-openclaw-skills/">https://www.growexx.com/blog/top-10-popular-openclaw-skills/</a></p>
+</li>
+<li><p><strong>ClawDocx</strong> — The Best OpenClaw Skills in 2026: A Curated Guide (2026)
+<a href="https://clawdocx.com/blog/top-openclaw-skills-2026">https://clawdocx.com/blog/top-openclaw-skills-2026</a></p>
+</li>
+<li><p><strong>DataCamp</strong> — Best ClawHub Skills: A Complete Guide (2026)
+<a href="https://www.datacamp.com/blog/best-clawhub-skills">https://www.datacamp.com/blog/best-clawhub-skills</a></p>
+</li>
+<li><p><strong>Solvea.cx</strong> — Most Popular OpenClaw Skills in 2026: Top 7 Ranked (2026)
+<a href="https://solvea.cx/glossary/most-popular-openclaw-skills">https://solvea.cx/glossary/most-popular-openclaw-skills</a></p>
+</li>
+<li><p><strong>DoneClaw</strong> — 15 Best OpenClaw Skills on ClawHub (2026 Edition) (2026)
+<a href="https://doneclaw.com/blog/best-openclaw-skills-clawhub/">https://doneclaw.com/blog/best-openclaw-skills-clawhub/</a></p>
+</li>
+<li><p><strong>advenboost.com</strong> — The Ultimate Marketplace for OpenClaw Skills (2026 Guide) (2026)
+<a href="https://advenboost.com/en/clawhub/">https://advenboost.com/en/clawhub/</a></p>
+</li>
+<li><p><strong>Digital Ocean</strong> — What are OpenClaw Skills? A 2026 Developer&#39;s Guide (2026)
+<a href="https://www.digitalocean.com/resources/articles/what-are-openclaw-skills">https://www.digitalocean.com/resources/articles/what-are-openclaw-skills</a></p>
 </li>
 </ol>
 <hr>
-<p><em>本报告基于 2024-2026 年公开资料编写，引用均附真实 URL。参考来源 1-7 为 ClawHub/OpenClaw 官方资料，来源 8-9 为第三方独立报道。</em></p>
+<p><em>本报告基于 2024-2026 年公开资料编写，引用均附真实 URL。参考来源 1-7 为 ClawHub/OpenClaw 官方资料，来源 8-21 为第三方独立报道和分析。</em></p>
 
 
 </div>

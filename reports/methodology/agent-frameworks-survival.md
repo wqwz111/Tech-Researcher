@@ -66,7 +66,7 @@ LangGraph 在 2025 年的 Changelog 揭示了一条清晰的进化路径：
 | 2025-08 | Dynamic Tool Calling | 运行时动态添加/移除工具 |
 | 2025 | Streamable HTTP Transport | 通过 HTTP 连接远程 MCP 服务器 |
 
-LangChain/LangGraph 1.0 里程碑标志着框架成熟——LangChain 聚焦核心 Agent 循环和中间件，LangGraph 成为底层持久化运行时。Klarna、Replit、Uber、LinkedIn 等企业客户验证了其生产可用性（详见参考文献 #4 和 #5）。
+LangChain/LangGraph 1.0 里程碑标志着框架成熟——LangChain 聚焦核心 Agent 循环和中间件，LangGraph 成为底层持久化运行时。Klarna、Replit、Uber、LinkedIn 等企业客户验证了其生产可用性（详见参考文献 #4、#5 和 #21）。
 
 ### 2.3 为什么是 LangGraph 而不是其他？
 
@@ -225,7 +225,7 @@ graph TD
 
 2025-2026 年 Agent 框架生态最重要的变化是**标准化协议的崛起**：
 
-- **MCP（Model Context Protocol）**：Anthropic 发起，定义 Agent-工具通信标准。截至 2026 年初，[GitHub 官方仓库](https://github.com/modelcontextprotocol/servers) 记录已有 500+ MCP 服务器
+- **MCP（Model Context Protocol）**：Anthropic 发起，定义 Agent-工具通信标准。截至 2026 年初，[awesome-mcp-servers 列表](https://github.com/TensorBlock/awesome-mcp-servers) 已收录 7,260+ MCP 服务器，[MCP 官方规范](https://modelcontextprotocol.io/specification/2025-11-25) 已发布稳定版
 - **A2A（Agent-to-Agent Protocol）**：Google 发起，定义 Agent 间通信标准。CrewAI、LangGraph、Microsoft Agent Framework 已支持
 
 这意味着未来的竞争不再是谁的 API 更好用，而是**谁的互操作性更强**。率先支持 MCP + A2A 双协议的框架将获得生态优势。
@@ -272,8 +272,9 @@ CB Insights 的 2025 年市场地图显示，Agent 市场正在进入**基建期
 8. **LangChain Changelog** — "August 2025" (2025-08)
    https://changelog.langchain.com/?categories=cat_5UBL6DD8PcXXL&date=2025-08-01
 
-9. **CrewAI** — "2026 State of Agentic AI Survey Report"（2026 年发布，调研 500 名大型企业高管）
-   https://crewai.com/ai-agent-survey
+9. **CrewAI** — "2026 State of Agentic AI Survey Report"（2026-02 发布，调研 500 名 C-level 高管，覆盖年收入超 1 亿美元的企业；结果显示 65% 企业已在使用 AI Agent，100% 计划扩大使用）
+   https://crewai.com/blog/the-state-of-agentic-ai-in-2026
+   （新闻稿：[BusinessWire](https://www.businesswire.com/news/home/20260211693427/en/Agentic-AI-Reaches-Tipping-Point-100-of-Enterprises-Plan-to-Expand-Adoption-in-2026-New-CrewAI-Survey-Finds)）
 
 10. **DigitalOcean** — "CrewAI: A Practical Guide to Role-Based Agent Orchestration" (2025)
     https://www.digitalocean.com/community/tutorials/crewai-crash-course-role-based-agent-orchestration
@@ -307,6 +308,9 @@ CB Insights 的 2025 年市场地图显示，Agent 市场正在进入**基建期
 
 20. **Milvus** — "LangChain vs LangGraph" (2025)
     https://milvus.io/blog/langchain-vs-langgraph.md
+
+21. **LangChain Blog** — "Is LangGraph Used In Production?" (2025)
+    https://blog.langchain.com/is-langgraph-used-in-production/
 
 ---
 *本报告基于 2024-2026 年公开资料编写，引用均附真实 URL。*
