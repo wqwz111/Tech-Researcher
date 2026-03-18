@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 技能生态观察：ClawHub 热门技能背后的需求图谱</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>Agent 技能生态观察：ClawHub 热门技能背后的需求图谱</h1>
+  <div class="meta">2026-03-18 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p><p><strong>ClawHub 在短短 10 周内从零增长到 6.2k GitHub Stars 和 972 Forks，表明 AI Agent 技能市场正处于爆发前夜。</strong> 这个由 OpenClaw 项目孵化的技能注册中心，已经从一个简单的技能目录演变为一个拥有完整版本管理、向量搜索、多层安全审核和社区治理的成熟生态系统。</p>
+<p><strong>开发者对技能的需求集中在&quot;让 AI 真正能做事&quot;——API 集成、设备控制和工作流自动化是最核心的刚需场景。</strong> 从 ClawHub 的排序机制（默认按 downloads/installs 排序而非 stars）可以看出，平台优先衡量的是实际使用量而非兴趣度，这反映了开发者追求的是能落地的技能，不是锦上添花的 demo。</p>
+<p><strong>安全与信任是当前生态建设的最大投资方向。</strong> 从 v0.5.0 到 v0.8.0 的 8 个版本中，平台新增了 VirusTotal 扫描、LLM 安全评估、AI 驱动的评论反欺诈、GitHub 账号年龄门槛（≥14 天）等功能，安全审核能力的投入远超功能开发，这说明社区已经认识到：<strong>没有信任的技能市场只会沦为恶意代码的分发渠道。</strong></p>
+<p><strong>Agent 生态正在从&quot;模型能力竞赛&quot;转向&quot;工具集成竞赛&quot;，Nix 插件系统和 MCP 桥接模式是两个关键信号。</strong> Nix 插件允许将技能包、CLI 二进制文件和配置要求打包在一起，代表了系统级集成的方向；而 OpenClaw 选择通过 mcporter 桥接 MCP 而非内置，显示了对&quot;松耦合、可扩展&quot;架构的偏好。下一步的竞争焦点将是：<strong>谁能提供最丰富、最可信、最易发现的技能生态。</strong></p>
+</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <blockquote>
+<p><strong>作者</strong>: 探针团队
+<strong>发布日期</strong>: 2026-03-18
+<strong>状态</strong>: 已完成</p>
+</blockquote>
+<hr>
+<h2>2. ClawHub 平台全景：一个快速增长的 Agent 技能市场</h2>
+<h3>2.1 平台概况</h3>
+<p>ClawHub（clawhub.ai）是 OpenClaw 项目的官方公共技能注册中心，由 Peter Steinberger（steipete）于 2026 年 1 月创建。截至 2026 年 3 月 18 日，项目的核心指标如下：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>数据</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GitHub Stars</td>
+<td>6.2k</td>
+<td>10 周内增长</td>
+</tr>
+<tr>
+<td>Forks</td>
+<td>972</td>
+<td>社区活跃度高</td>
+</tr>
+<tr>
+<td>Contributors</td>
+<td>79</td>
+<td>分布式协作</td>
+</tr>
+<tr>
+<td>Commits</td>
+<td>764</td>
+<td>高频迭代</td>
+</tr>
+<tr>
+<td>版本发布</td>
+<td>v0.8.0（2026-03-13）</td>
+<td>约每周一个大版本</td>
+</tr>
+</tbody></table>
+<p>ClawHub 的技术栈选择反映了&quot;快速迭代、开发者友好&quot;的定位：</p>
+<p><div class="mermaid">graph LR
+    subgraph "ClawHub 技术架构"
+        A[TanStack Start<br/>React + Vite] --> B[Convex Backend<br/>DB + 存储 + HTTP]
+        B --> C[OpenAI Embeddings<br/>text-embedding-3-small]
+        C --> D[Convex Vector Search<br/>语义搜索]
+        A --> E[GitHub OAuth<br/>身份认证]
+        B --> F[GitHub App<br/>技能备份]
+    end
+
+    style A fill:#3178c6,stroke:#333,color:#fff
+    style B fill:#4CAF50,stroke:#333,color:#fff
+    style C fill:#FF9800,stroke:#333,color:#fff
+    style D fill:#9C27B0,stroke:#333,color:#fff
+    style E fill:#333,stroke:#333,color:#fff
+    style F fill:#666,stroke:#333,color:#fff</div></p>
+<p><strong>关键设计决策</strong>：ClawHub 选择向量搜索（而非关键词搜索）作为默认搜索方式，这预示着平台预期会有大量技能需要语义级别的发现能力——这是对生态规模的一个强烈信心信号。</p>
+<h3>2.2 技能的定义与格式</h3>
+<p>在 ClawHub 上，一个技能（Skill）是一个文件夹，核心文件是 <code>SKILL.md</code>——一份带有 YAML frontmatter 的 Markdown 文档。这个设计看似简单，实则精妙：</p>
+<ul>
+<li><strong>SKILL.md 既是文档也是配置</strong>：frontmatter 声明运行时依赖（环境变量、二进制文件、安装依赖），正文提供使用说明</li>
+<li><strong>安全审核前置</strong>：平台会检查声明的依赖与实际代码行为是否一致，声明不匹配会触发安全告警</li>
+<li><strong>向量搜索覆盖全文</strong>：不仅搜索 SKILL.md，还会索引最多 40 个非 .md 文件</li>
+</ul>
+<p>支持的依赖声明类型包括环境变量（<code>requires.env</code>）、CLI 工具（<code>requires.bins</code>）、包管理器安装（<code>install</code> 数组，支持 brew/node/go/uv），以及 Nix 插件规范。这种多层依赖声明机制使得 ClawHub 可以在用户安装前就展示完整的依赖图谱。</p>
+<hr>
+<h2>3. 热门技能分类与需求图谱</h2>
+<h3>3.1 技能分类矩阵</h3>
+<p>基于 ClawHub 的文档、示例技能和排序机制，我们可以将技能分为六大核心类别。每个类别反映了开发者不同的需求层次：</p>
+<table>
+<thead>
+<tr>
+<th>排名</th>
+<th>技能类别</th>
+<th>代表技能</th>
+<th>需求类型</th>
+<th>刚需指数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>API 集成与自动化</td>
+<td>Todoist 任务管理、日历同步</td>
+<td>高</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td>2</td>
+<td>设备与服务控制</td>
+<td>Sonos CLI（sonoscli）、Padel 预订</td>
+<td>高</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>3</td>
+<td>macOS 生产力工具</td>
+<td>Peekaboo（UI 自动化）、屏幕捕获</td>
+<td>中高</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>4</td>
+<td>开发者工作流</td>
+<td>GitHub PR 自动化、部署工具</td>
+<td>中高</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>5</td>
+<td>个人信息管理</td>
+<td>笔记同步、提醒、任务管理</td>
+<td>中</td>
+<td>★★★☆☆</td>
+</tr>
+<tr>
+<td>6</td>
+<td>系统级 Nix 插件</td>
+<td>系统配置、CLI 工具捆绑</td>
+<td>低（高级用户）</td>
+<td>★★★☆☆</td>
+</tr>
+</tbody></table>
+<h3>3.2 需求层次分析</h3>
+<p>从 ClawHub 的功能设计中，我们可以清晰看到开发者需求的三个层次：</p>
+<p><div class="mermaid">graph TD
+    A["需求金字塔"] --> B["第三层: 信任与安全<br/>VirusTotal 扫描<br/>LLM 安全评估<br/>社区举报机制"]
+    A --> C["第二层: 发现与分发<br/>向量搜索<br/>trending 排行<br/>Highlighted 推荐"]
+    A --> D["第一层: 核心能力<br/>API 集成<br/>设备控制<br/>工作流自动化"]
+
+    style D fill:#2196F3,stroke:#333,color:#fff
+    style C fill:#FF9800,stroke:#333,color:#fff
+    style B fill:#f44336,stroke:#333,color:#fff</div></p>
+<p><strong>第一层（刚需）</strong>：API 集成和设备控制是最基础的需求。开发者希望 AI Agent 能&quot;真正做事&quot;——管理 Todoist 任务、控制 Sonos 音响、预订运动场地。这些技能解决的是&quot;从知道到做到&quot;的鸿沟。</p>
+<p><strong>第二层（生态需求）</strong>：随着技能数量增长，发现能力变得关键。ClawHub 投入大量资源建设向量搜索、trending 排行、Highlighted 推荐系统，这是平台级需求。</p>
+<p><strong>第三层（信任需求）</strong>：安全审核是 ClawHub 变化最快的部分。从 v0.5.0 的用户举报到 v0.8.0 的 AI 驱动反欺诈，信任机制的迭代速度超过了功能开发，这是整个 Agent 生态的共同挑战。</p>
+<h3>3.3 &quot;刚需&quot; vs &quot;锦上添花&quot;的判断框架</h3>
+<p>根据 ClawHub 的数据信号，我们可以建立一个实用的区分标准：</p>
+<p><strong>刚需技能的特征</strong>：</p>
+<ul>
+<li>高 installs/installsAllTime（实际安装量）</li>
+<li>低 star-to-install ratio（兴趣容易转化为使用）</li>
+<li>依赖声明简单明确（API key + curl 就够了）</li>
+<li>解决日常重复性任务</li>
+</ul>
+<p><strong>锦上添花技能的特征</strong>：</p>
+<ul>
+<li>高 stars 但低 installs（看着酷但不常用）</li>
+<li>复杂的依赖声明（需要 Nix、特殊二进制等）</li>
+<li>解决的问题本身不频繁发生</li>
+<li>更多是&quot;展示可能性&quot;而非&quot;解决问题&quot;</li>
+</ul>
+<p>ClawHub 的排序选项（默认 downloads，可选 installs、stars、trending）本身就是一个设计信号：<strong>平台鼓励用户按实际使用量而非兴趣度来发现技能。</strong></p>
+<hr>
+<h2>4. 技能热度趋势与生态演进方向</h2>
+<h3>4.1 版本迭代节奏揭示的投资方向</h3>
+<p>分析 ClawHub 从 v0.3.0（2026-01-19）到 v0.8.0（2026-03-13）的 8 个版本的新增功能，可以清晰看到资源投入的优先级：</p>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>日期</th>
+<th>安全/审核功能</th>
+<th>发现/搜索功能</th>
+<th>核心功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>v0.3.0</td>
+<td>01-19</td>
+<td>—</td>
+<td>trending 排行、explore 命令</td>
+<td>星标 API</td>
+</tr>
+<tr>
+<td>v0.4.0</td>
+<td>01-30</td>
+<td>—</td>
+<td>用户主页技能展示</td>
+<td>GitHub 配置支持</td>
+</tr>
+<tr>
+<td>v0.5.0</td>
+<td>02-02</td>
+<td>用户封禁、举报自动隐藏、年龄门槛</td>
+<td>—</td>
+<td>CLI inspect 命令</td>
+</tr>
+<tr>
+<td>v0.6.0</td>
+<td>02-10</td>
+<td>VirusTotal 扫描、隔离机制</td>
+<td>—</td>
+<td>用户角色管理</td>
+</tr>
+<tr>
+<td>v0.6.1</td>
+<td>02-13</td>
+<td>LLM 安全评估</td>
+<td>向量搜索改进</td>
+<td>懒加载优化</td>
+</tr>
+<tr>
+<td>v0.7.0</td>
+<td>02-16</td>
+<td>反垃圾发布、信任分级</td>
+<td>非可疑技能过滤</td>
+<td>自动摘要生成</td>
+</tr>
+<tr>
+<td>v0.8.0</td>
+<td>03-13</td>
+<td>AI 反欺诈评论、审计工具</td>
+<td>技能所有者展示</td>
+<td>所有权转移流程</td>
+</tr>
+</tbody></table>
+<p><strong>关键趋势</strong>：安全/审核功能的投入逐版本加速，从简单的用户封禁发展到 AI 驱动的反欺诈和 VirusTotal 集成，这是生态成熟化的标志。</p>
+<h3>4.2 Agent 生态的下一步演进</h3>
+<p>基于 ClawHub 的发展轨迹和 OpenClaw 的 VISION.md，我们可以预测 Agent 技能生态的四个演进方向：</p>
+<p><strong>方向一：从脚本到系统级集成</strong>
+Nix 插件系统的引入是一个分水岭。传统技能只是&quot;一个 SKILL.md + 一些脚本&quot;，Nix 插件则将技能包、CLI 二进制文件和系统配置打包在一起。这意味着 Agent 能力从&quot;调用 API&quot;扩展到&quot;操作系统级集成&quot;。</p>
+<p><strong>方向二：从松散工具到可信供应链</strong>
+VirusTotal 扫描 + LLM 安全评估 + 社区举报的三层机制，正在把技能市场从&quot;自由集市&quot;变成&quot;可信供应链&quot;。未来的技能将带有可验证的安全证书。</p>
+<p><strong>方向三：从手动发现到智能推荐</strong>
+向量搜索 + trending 排行 + Highlighted 推荐的组合，正在从&quot;你搜索&quot;转向&quot;它推荐&quot;。ClawHub 的向量搜索使用 OpenAI 的 text-embedding-3-small，这意味着语义理解将成为技能发现的默认方式。</p>
+<p><strong>方向四：从单一平台到跨平台分发</strong>
+OpenClaw 的愿景涵盖 macOS、iOS、Android、Windows 和 Linux 的 Companion App。技能将需要适应多平台环境，OS 限制声明（<code>metadata.openclaw.os</code>）已经是这一趋势的早期信号。</p>
+<h3>4.3 MCP 桥接模式的影响</h3>
+<p>OpenClaw 选择通过 mcporter 桥接 MCP（Model Context Protocol），而不是在核心中内置 MCP 运行时。这个决策对技能生态有深远影响：</p>
+<ul>
+<li><strong>降低核心复杂性</strong>：MCP 服务器的变更不会影响核心稳定性</li>
+<li><strong>提高灵活性</strong>：用户可以随时添加或更换 MCP 服务器，无需重启</li>
+<li><strong>技能作为 MCP 的补充</strong>：技能提供更高层的抽象（SKILL.md + 脚本），MCP 提供标准化的工具协议</li>
+</ul>
+<p>这种&quot;技能 + MCP 桥接&quot;的双层架构可能成为 Agent 生态的主流模式。</p>
+<hr>
+<h2>5. 对技能开发者的建议</h2>
+<h3>5.1 选题策略</h3>
+<p><strong>优先解决高频、重复性问题</strong>。从 ClawHub 的排序机制和用户反馈来看，日用型技能（API 集成、设备控制、工作流自动化）的安装量远高于实验型技能。一个好的选题应该问：<strong>&quot;这个问题每隔几天就会出现一次吗？&quot;</strong></p>
+<p><strong>从自己的痛点出发</strong>。OpenClaw 的创建者 Peter Steinberger 明确表示项目始于个人需求。最好的技能往往来自开发者自己的真实痛点——你每天都要手动做的事情，Agent 也应该能做。</p>
+<h3>5.2 技能设计原则</h3>
+<table>
+<thead>
+<tr>
+<th>原则</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>依赖声明准确</td>
+<td>frontmatter 必须准确声明所有环境变量和二进制依赖</td>
+<td><code>requires.env: [TODOIST_API_KEY]</code></td>
+</tr>
+<tr>
+<td>SKILL.md 即文档</td>
+<td>正文要包含使用说明、示例、权限要求</td>
+<td>清晰的步骤 + 示例命令</td>
+</tr>
+<tr>
+<td>安全最小权限</td>
+<td>只声明必要的权限，避免过度请求</td>
+<td>只用 curl 就够的别要求完整 Python 环境</td>
+</tr>
+<tr>
+<td>平台兼容性</td>
+<td>声明 OS 限制，避免隐式依赖</td>
+<td><code>os: [macos]</code> 对于 macOS 特定工具</td>
+</tr>
+</tbody></table>
+<h3>5.3 发布与推广策略</h3>
+<ol>
+<li><strong>首次发布时写好 changelog</strong>：ClawHub 会在 changelog 为空时自动生成，但手动编写的 changelog 更能体现专业性</li>
+<li><strong>利用 trending 机制</strong>：在发布后积极推广，争取早期 installs，进入 trending 排行</li>
+<li><strong>维护版本更新</strong>：ClawHub 支持版本管理，持续更新比一次性发布更有长期价值</li>
+<li><strong>参与社区</strong>：评论、star 其他技能、回应 issue，建立开发者声誉</li>
+</ol>
+<h3>5.4 需要避免的陷阱</h3>
+<ul>
+<li><strong>不要发布空壳技能</strong>：ClawHub 有 anti-spam 发布上限和空技能清理工具</li>
+<li><strong>不要隐藏依赖</strong>：LLM 安全评估会检测 frontmatter 声明与实际代码的不匹配</li>
+<li><strong>不要急于求成</strong>：GitHub 账号年龄需 ≥14 天才能发布，这是平台的反垃圾门槛</li>
+<li><strong>不要忽略 Nix 插件机会</strong>：对于需要 CLI 二进制的复杂工具，Nix 插件是官方推荐的分发方式</li>
+</ul>
+<hr>
+<h2>6. 结论</h2>
+<p>ClawHub 的快速发展揭示了 AI Agent 生态的核心洞察：<strong>开发者需要的不是更多的 AI 模型，而是更多能让 AI 做事的工具。</strong> 从 API 集成到设备控制，从工作流自动化到系统级配置，技能生态正在填补&quot;AI 知道什么&quot;和&quot;AI 能做什么&quot;之间的鸿沟。</p>
+<p>平台对安全审核的巨大投入（VirusTotal、LLM 评估、AI 反欺诈）表明，信任是技能市场能否规模化的关键变量。未来成功的技能开发者不仅需要解决真实问题，还需要在安全和透明度上建立可信度。</p>
+<p>ClawHub 的向量搜索、trending 排行和 Nix 插件系统构成了一个完整的&quot;发现-信任-使用&quot;闭环。对于开发者而言，现在是进入这个生态的最佳时机——平台仍在快速迭代，竞争尚未白热化，而先行者的优势在于建立声誉和占据关键技能位置。</p>
+<hr>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li><p><strong>OpenClaw Team</strong> — ClawHub (2026-01)
+ <a href="https://github.com/openclaw/clawhub">https://github.com/openclaw/clawhub</a></p>
+</li>
+<li><p><strong>Peter Steinberger</strong> — OpenClaw Vision (2026)
+ <a href="https://github.com/openclaw/clawhub/blob/main/VISION.md">https://github.com/openclaw/clawhub/blob/main/VISION.md</a></p>
+</li>
+<li><p><strong>OpenClaw Team</strong> — ClawHub Changelog v0.3.0-v0.8.0 (2026-01 to 2026-03)
+ <a href="https://github.com/openclaw/clawhub/blob/main/CHANGELOG.md">https://github.com/openclaw/clawhub/blob/main/CHANGELOG.md</a></p>
+</li>
+<li><p><strong>OpenClaw Team</strong> — Skill Format Documentation (2026)
+ <a href="https://github.com/openclaw/clawhub/blob/main/docs/skill-format.md">https://github.com/openclaw/clawhub/blob/main/docs/skill-format.md</a></p>
+</li>
+<li><p><strong>ClawHub</strong> — Homepage &amp; Skills Browser (2026-03-18)
+ <a href="https://clawhub.ai">https://clawhub.ai</a></p>
+</li>
+<li><p><strong>OpenClaw</strong> — Official Website &amp; Testimonials (2026)
+ <a href="https://openclaw.ai">https://openclaw.ai</a></p>
+</li>
+<li><p><strong>OpenClaw Team</strong> — ClawHub Product Spec (2026)
+ <a href="https://github.com/openclaw/clawhub/blob/main/docs/spec.md">https://github.com/openclaw/clawhub/blob/main/docs/spec.md</a></p>
+</li>
+</ol>
+<hr>
+<p><em>本报告基于 2024-2026 年公开资料编写，引用均附真实 URL。</em></p>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>
