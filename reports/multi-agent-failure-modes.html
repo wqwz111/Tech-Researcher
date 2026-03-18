@@ -616,49 +616,48 @@
 </ul>
 <hr>
 <h2>故障模式全景图</h2>
-<div class="mermaid">graph TD
+<p><div class="mermaid">graph TD
     A["🚨 多 Agent 系统失败"] --> B["规格模糊<br/>Specification Ambiguity"]
     A --> C["错误级联<br/>Error Cascade"]
     A --> D["谄媚偏差<br/>Sycophancy Bias"]
     A --> E["协调死锁<br/>Coordination Deadlock"]
     A --> F["验证缺失<br/>Verification Gap"]
 
-<pre><code>B --&gt; B1[&quot;Disobey Task Spec&quot;]
-B --&gt; B2[&quot;Disobey Role Spec&quot;]
-B --&gt; B3[&quot;Loss of Conv. History&quot;]
+    B --> B1["Disobey Task Spec"]
+    B --> B2["Disobey Role Spec"]
+    B --> B3["Loss of Conv. History"]
 
-C --&gt; C1[&quot;确认偏差传播&quot;]
-C --&gt; C2[&quot;共识坍塌&quot;]
-C --&gt; C3[&quot;错误种子注入&quot;]
+    C --> C1["确认偏差传播"]
+    C --> C2["共识坍塌"]
+    C --> C3["错误种子注入"]
 
-D --&gt; D1[&quot;分歧坍塌&quot;]
-D --&gt; D2[&quot;裁判谄媚&quot;]
-D --&gt; D3[&quot;正确→错误退化&quot;]
+    D --> D1["分歧坍塌"]
+    D --> D2["裁判谄媚"]
+    D --> D3["正确→错误退化"]
 
-E --&gt; E1[&quot;环形依赖&quot;]
-E --&gt; E2[&quot;终止条件不明&quot;]
-E --&gt; E3[&quot;消息格式不统一&quot;]
+    E --> E1["环形依赖"]
+    E --> E2["终止条件不明"]
+    E --> E3["消息格式不统一"]
 
-F --&gt; F1[&quot;无验证层&quot;]
-F --&gt; F2[&quot;弱验证&quot;]
-F --&gt; F3[&quot;端到端追踪缺失&quot;]
+    F --> F1["无验证层"]
+    F --> F2["弱验证"]
+    F --> F3["端到端追踪缺失"]
 
-B -.-&gt;|&quot;占失败 41.77%&quot;| STATS1[&quot;📊 最高频&quot;]
-C -.-&gt;|&quot;级联放大&quot;| STATS2[&quot;⚡ 最危险&quot;]
-D -.-&gt;|&quot;削弱辩论价值&quot;| STATS3[&quot;📉 最反直觉&quot;]
-E -.-&gt;|&quot;占崩溃 37%&quot;| STATS4[&quot;🔒 最典型&quot;]
-F -.-&gt;|&quot;占失败 21.30%&quot;| STATS5[&quot;👁️ 最普遍&quot;]
+    B -.->|"占失败 41.77%"| STATS1["📊 最高频"]
+    C -.->|"级联放大"| STATS2["⚡ 最危险"]
+    D -.->|"削弱辩论价值"| STATS3["📉 最反直觉"]
+    E -.->|"占崩溃 37%"| STATS4["🔒 最典型"]
+    F -.->|"占失败 21.30%"| STATS5["👁️ 最普遍"]
 
-style A fill:#ff6b6b,color:#fff
-style STATS1 fill:#ffd93d,color:#333
-style STATS2 fill:#ff922b,color:#fff
-style STATS3 fill:#845ef7,color:#fff
-style STATS4 fill:#22b8cf,color:#fff
-style STATS5 fill:#51cf66,color:#333&lt;/div&gt;
-</code></pre>
+    style A fill:#ff6b6b,color:#fff
+    style STATS1 fill:#ffd93d,color:#333
+    style STATS2 fill:#ff922b,color:#fff
+    style STATS3 fill:#845ef7,color:#fff
+    style STATS4 fill:#22b8cf,color:#fff
+    style STATS5 fill:#51cf66,color:#333</div></p>
 <hr>
 <h2>各框架应对方案对比</h2>
-<div class="mermaid">graph LR
+<p><div class="mermaid">graph LR
     subgraph 问题域
         P1["规格模糊"]
         P2["错误级联"]
@@ -667,46 +666,45 @@ style STATS5 fill:#51cf66,color:#333&lt;/div&gt;
         P5["验证缺失"]
     end
 
-<pre><code>subgraph 框架
-    F1[&quot;ChatDev /&lt;br/&gt;MetaGPT&quot;]
-    F2[&quot;AutoGen /&lt;br/&gt;AG2&quot;]
-    F3[&quot;Magentic-One&quot;]
-    F4[&quot;OpenManus&quot;]
-    F5[&quot;自建 + MCP&quot;]
-end
+    subgraph 框架
+        F1["ChatDev /<br/>MetaGPT"]
+        F2["AutoGen /<br/>AG2"]
+        F3["Magentic-One"]
+        F4["OpenManus"]
+        F5["自建 + MCP"]
+    end
 
-P1 --&gt;|&quot;角色卡 + 流程规范&quot;| F1
-P1 --&gt;|&quot;GroupChat 规格&quot;| F2
-P2 --&gt;|&quot;有限缓解&quot;| F1
-P2 --&gt;|&quot;无原生机制&quot;| F2
-P2 --&gt;|&quot;Orchestrator 仲裁&quot;| F3
-P3 --&gt;|&quot;未涉及&quot;| F1
-P3 --&gt;|&quot;可配置但无专用方案&quot;| F2
-P3 --&gt;|&quot;多模型交叉验证&quot;| F3
-P4 --&gt;|&quot;顺序流程减少死锁&quot;| F1
-P4 --&gt;|&quot;Conversation Termination&quot;| F2
-P4 --&gt;|&quot;多工具并行协调&quot;| F3
-P5 --&gt;|&quot;代码执行验证&quot;| F1
-P5 --&gt;|&quot;无原生验证层&quot;| F2
-P5 --&gt;|&quot;Verifier Agent&quot;| F3
-P5 --&gt;|&quot;浏览器验证&quot;| F4
-P1 -.-&gt;|&quot;强制 Schema&quot;| F5
-P2 -.-&gt;|&quot;独立验证 Agent&quot;| F5
-P3 -.-&gt;|&quot;匿名轮次 + 反谄媚&quot;| F5
-P4 -.-&gt;|&quot;超时 + 编排层&quot;| F5
-P5 -.-&gt;|&quot;可观测性 + 断言&quot;| F5
+    P1 -->|"角色卡 + 流程规范"| F1
+    P1 -->|"GroupChat 规格"| F2
+    P2 -->|"有限缓解"| F1
+    P2 -->|"无原生机制"| F2
+    P2 -->|"Orchestrator 仲裁"| F3
+    P3 -->|"未涉及"| F1
+    P3 -->|"可配置但无专用方案"| F2
+    P3 -->|"多模型交叉验证"| F3
+    P4 -->|"顺序流程减少死锁"| F1
+    P4 -->|"Conversation Termination"| F2
+    P4 -->|"多工具并行协调"| F3
+    P5 -->|"代码执行验证"| F1
+    P5 -->|"无原生验证层"| F2
+    P5 -->|"Verifier Agent"| F3
+    P5 -->|"浏览器验证"| F4
+    P1 -.->|"强制 Schema"| F5
+    P2 -.->|"独立验证 Agent"| F5
+    P3 -.->|"匿名轮次 + 反谄媚"| F5
+    P4 -.->|"超时 + 编排层"| F5
+    P5 -.->|"可观测性 + 断言"| F5
 
-style F1 fill:#4dabf7,color:#fff
-style F2 fill:#51cf66,color:#333
-style F3 fill:#ffd93d,color:#333
-style F4 fill:#ff922b,color:#fff
-style F5 fill:#845ef7,color:#fff
-style P1 fill:#ff6b6b,color:#fff
-style P2 fill:#ff6b6b,color:#fff
-style P3 fill:#ff6b6b,color:#fff
-style P4 fill:#ff6b6b,color:#fff
-style P5 fill:#ff6b6b,color:#fff&lt;/div&gt;
-</code></pre>
+    style F1 fill:#4dabf7,color:#fff
+    style F2 fill:#51cf66,color:#333
+    style F3 fill:#ffd93d,color:#333
+    style F4 fill:#ff922b,color:#fff
+    style F5 fill:#845ef7,color:#fff
+    style P1 fill:#ff6b6b,color:#fff
+    style P2 fill:#ff6b6b,color:#fff
+    style P3 fill:#ff6b6b,color:#fff
+    style P4 fill:#ff6b6b,color:#fff
+    style P5 fill:#ff6b6b,color:#fff</div></p>
 <blockquote>
 <p><strong>解读</strong>：主流 MAS 框架对&quot;规格模糊&quot;和&quot;协调死锁&quot;有一定缓解，但对&quot;错误级联&quot;和&quot;谄媚偏差&quot;的应对普遍不足。自建方案配合 MCP 等标准化协议可以针对性解决所有 5 类问题，但需要较高的工程投入。</p>
 </blockquote>
