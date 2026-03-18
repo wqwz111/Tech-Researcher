@@ -1,436 +1,459 @@
-# Agent 工具权限模型：为什么 RBAC 不够用，以及替代方案全景
+# AI Agent 工具权限模型：为什么 RBAC 失灵，接下来怎么走
 
-> 探究方向：AI Agent 以机器速度自主调用工具时，传统角色权限模型为何失效？业界正在探索哪些新范式？
->
-> 发布日期：2026-03-18
-
----
-
-## Executive Summary
-
-1. **RBAC 在 Agent 场景系统性失灵**：静态角色编码无法匹配 Agent 的动态、不可预测、高速执行行为——Agent 不是"另一个用户"，而是一个行为模式完全不同的执行主体。
-
-2. **三大新范式正在成型**：Capability-Based Access Control（CapBAC）提供可撤销的最小权限引用，Policy-Based Access Control（PBAC）实现上下文感知的运行时决策，Token Vault + 动态凭证消灭长期密钥泄露风险。
-
-3. **协议层已开始内建授权**：MCP 规范采用 OAuth 2.1 + PKCE + DCR，Google A2A 协议通过 Agent Card + OAuth 2.0/mTLS 实现 Agent 间互信，两者互补构成"纵向工具调用 + 横向 Agent 通信"的完整授权骨架。
-
-4. **动态授权是核心设计模式**：JIT（Just-In-Time）授权、能力衰减（Capability Decay）、人机共签（Human Co-Sign）三大模式，将权限从"静态分配"转变为"运行时协商"。
-
-5. **落地路径清晰但分阶段**：先做审计日志和最小权限 → 引入 Copilot 模式（Agent 建议 + 人类批准） → 逐步过渡到动态策略引擎，不要一步到位追求全自动。
+> **作者**: 探针团队  
+> **发布日期**: 2026-03-18  
+> **状态**: 已完成
 
 ---
 
-## 一、RBAC 的三个隐含假设及其在 Agent 场景的失灵
+## 1. Executive Summary
 
-Role-Based Access Control（RBAC）是过去 20 年企业权限管理的基石。但它的设计隐含了三个假设——每一个在 Agent 场景下都被打破。
+**核心结论：**
 
-### 假设 1：行为是可预测的
+1. **RBAC 在 Agent 场景中已结构性失灵。** 传统基于角色的访问控制假设"一个实体 = 一个角色"，但 AI Agent 以机器速度执行动态、多步骤任务，静态角色无法覆盖工具调用的细粒度上下文需求，必然导致角色膨胀与权限过度授予。
 
-RBAC 的前提是你能预先定义"这个角色需要做什么"，然后分配对应权限。人类用户的行为模式相对稳定：销售看 CRM、工程师部署代码、财务查账单。
+2. **Token Vault 正成为企业级 Agent 安全的基座模式。** Agent 不再直接持有凭据，而是按需从受控 Vault 获取 Scoped Token，实现凭据与 Agent 身份的完全隔离。Okta/Auth0 和 HashiCorp 已在此方向落地产品。
 
-**Agent 的失灵**：一个被授予"读取数据库"角色的 Agent，在面对 prompt injection 时可能被诱导执行 `DROP TABLE`。Agent 的行为由 LLM 推理决定，具有不可预测性——你无法用静态角色编码每一步任务行为。
+3. **MCP 与 A2A 两大协议代表两种互补的授权范式。** MCP 侧重 Agent-to-Tool 的细粒度工具授权（OAuth 2.1 + PKCE + 禁止 token 透传），A2A 侧重 Agent-to-Agent 的身份链传递（OBO 模式 + Agent Cards），两者共同构成多 Agent 系统的安全骨架。
 
-> 用 RBAC 给 Agent 授权，本质上是"用静态角色编码每一步任务行为"，天然不匹配。—— Oso, 2025
->
-> 来源：[Why RBAC is Not Enough for AI Agents](https://www.osohq.com/learn/why-rbac-is-not-enough-for-ai-agents)
+4. **动态授权是唯一可行方向。** JIT（Just-In-Time）授权、能力衰减（Capability Decay）、人机共签（Co-sign）等模式正在从实验室走向生产，它们的共同点是：权限不再是一个静态分配，而是随任务上下文实时变化的动态决策。
 
-### 假设 2：主体是单一身份
-
-RBAC 中，一个用户对应一组角色，角色决定权限。即使有服务账号，也是人工创建和管理的。
-
-**Agent 的失灵**：Agent 需要同时代表用户身份访问多个服务（邮箱、日历、CRM、代码仓库），且在不同上下文中需要不同的权限级别。一个静态角色无法覆盖这种"动态范围"需求。更关键的是，Agent 本身也需要一个独立于用户的可验证身份——它既不是用户，也不是传统服务账号。
-
-> 敏感数据可跨多个 Agent 传播而不被发现。RBAC 不追踪跨 Agent 数据传播。—— Nizam Udheen, 2025
->
-> 来源：[Role-Based Access Control Isn't Enough for Autonomous AI Agents](https://nizamudheenti.medium.com/role-based-access-control-isnt-enough-for-autonomous-ai-agents-here-s-the-simple-reason-why-dfe49c86b536)
-
-### 假设 3：权限是静态的
-
-RBAC 的权限在分配后通常长期不变，变更需要人工审批流程。
-
-**Agent 的失灵**：Agent 的任务是动态的。一个"会议安排 Agent"在工作时间内需要日历读写权限，但下班后应该自动撤销。这种"基于声明意图，为特定会话动态缩小权限范围"的需求，RBAC 完全无法表达。
-
-> 近 40% 的高管认为实施 Agent 的风险超过收益。真实事故：Agent 删除了整个生产数据库，因为拥有多余的写权限。—— Towards AI, 2025
->
-> 来源：[Beyond LangGraph and CrewAI: Governing AI Agents](https://pub.towardsai.net/beyond-langgraph-and-crewai-the-lost-art-of-governing-ai-agents-d1321636e0c2)
+5. **沙箱化 + 策略即代码 = 现代 Agent 权限的最小可行架构。** OpenClaw 的 per-agent sandbox + tool allow/deny + Docker 隔离，以及 Cerbos 的 Policy-as-Code 方案，代表了当前工程实践的前沿——但所有框架仍缺乏统一的动态授权层。
 
 ---
 
-## 二、新兴权限模型全景图
+## 2. RBAC 的三个隐含假设及其在 Agent 场景的失灵
 
-面对 RBAC 的不足，业界正在探索四种互补的权限模型：
+RBAC（Role-Based Access Control）是过去 20 年企业安全的基石。它之所以有效，依赖于三个在人类用户场景下成立的核心假设。然而在 AI Agent 场景中，这三个假设全部破裂。
+
+### 假设一：实体拥有稳定的身份和可预测的行为
+
+| | 人类用户 | AI Agent |
+|--|---------|----------|
+| **身份稳定性** | 一个人登录 → 一个 session → 一个角色 | 同一 Agent 在不同任务链中需要不同能力组合 |
+| **行为可预测性** | 用户按 UI 流程操作，路径有限 | Agent 以自然语言驱动，执行路径动态生成 |
+| **速度** | 人类操作间隔：秒级到分钟级 | Agent 工具调用：毫秒级，一秒钟可执行数十次 |
+
+**失灵表现：** 人类的一个角色（如 "PM"）对应一组相对稳定的操作集合。但同一个 Agent 在"分析用户数据"任务中需要读权限，在"生成报告"任务中需要写权限，在"部署模型"任务中需要执行权限。为每个组合创建角色，即"角色膨胀"（Role Explosion），在实践中不可维护。
+
+> *"RBAC 适用于人类用户（一个角色一组权限），但不适用于自主 Agent 的动态工作流。"*  
+> — Nizam Udheenti, [Role-Based Access Control Isn't Enough for Autonomous AI Agents](https://nizamudheenti.medium.com/role-based-access-control-isnt-enough-for-autonomous-ai-agents-here-s-the-simple-reason-why-dfe49c86b536)
+
+### 假设二：权限决策可以离线完成（分配时决定）
+
+RBAC 的授权逻辑是：用户登录时确定角色 → 角色绑定权限 → 所有操作共享同一权限集。这是一个**"分配时决策"（Assignment-time Decision）**模型。
+
+**失灵表现：** Agent 的每一步 tool call 都可能因为前一步的输出而需要不同的权限。例如：
+- Agent 查询数据库 → 获得结果 A → 需要写入缓存（需要写权限）
+- Agent 查询数据库 → 获得结果 B → 需要调用外部 API（需要网络权限）
+
+同一个 Agent、同一个 session，不同执行路径需要不同权限。静态角色无法在"分配时"预见所有路径。
+
+> *"静态决策无法适应 Agent 的多步骤动态执行路径。"*  
+> — Nizam Udheenti, [RBAC Isn't Enough for Autonomous AI Agents](https://nizamudheenti.medium.com/role-based-access-control-isnt-enough-for-autonomous-ai-agents-here-s-the-simple-reason-why-dfe49c86b536)
+
+### 假设三：权限粒度可以粗放（按功能模块划分）
+
+RBAC 传统上按功能模块分配权限：`read:users`、`write:orders`、`admin:system`。这种粒度对人类用户足够——因为人类通过 UI 交互，UI 本身就是一层天然的权限过滤器。
+
+**失灵表现：** Agent 直接调用 API/Tool，跳过了 UI 过滤层。一个 "write:orders" 权限可以让 Agent 创建任意订单、修改任意金额、删除任意记录。Agent 的 prompt injection 攻击可以利用这种粗粒度权限造成灾难性后果。
+
+> *"AI Agents 以机器速度运行、行为不可预测、易被文本注入影响，粗粒度的角色模型无法应对。"*  
+> — Oso, [Why RBAC is Not Enough for AI Agents](https://www.osohq.com/learn/why-rbac-is-not-enough-for-ai-agents)
+
+### 失灵后果量化
+
+```
+传统 RBAC：10 个角色 × 50 个权限 = 500 个配置项
+Agent RBAC：10 个 Agent × 20 种任务路径 × 5 步 = 1000+ 个角色组合
+                    ↑ 角色膨胀的根源
+```
+
+这不是"RBAC 不够好"的问题，而是**RBAC 的数学基础与 Agent 的执行模型根本不兼容**。
+
+---
+
+## 3. 新兴权限模型全景图
+
+面对 RBAC 的结构性失灵，业界正沿着四条路径演化。它们不是替代关系，而是**互补分层**，共同构成现代 Agent 权限体系。
 
 ```mermaid
 graph TB
-    subgraph "新兴 Agent 权限模型"
-        direction TB
-
-        CapBAC["🔐 CapBAC<br/>基于能力的访问控制<br/>可撤销的最小权限引用"]
-        PBAC["📜 PBAC<br/>基于策略的访问控制<br/>上下文感知运行时决策"]
-        TV["🔑 Token Vault<br/>动态凭证管理<br/>消灭长期密钥"]
-        MA["🛡️ MCP Native Auth<br/>协议层内建授权<br/>OAuth 2.1 + PKCE + DCR"]
-
-        CapBAC -->|"提供能力引用"| Combo["三层组合授权"]
-        PBAC -->|"提供策略引擎"| Combo
-        TV -->|"提供动态凭证"| Combo
-        MA -->|"提供协议标准"| Combo
-
-        Combo -->|"输出"| Result["✅ 动态、最小权限、可审计的 Agent 授权"]
+    subgraph "传统层（仍需要）"
+        RBAC["RBAC<br/>基于角色<br/>静态分配<br/>适合: 人类用户身份管理"]
     end
 
-    style CapBAC fill:#e8f5e9,stroke:#2e7d32
-    style PBAC fill:#e3f2fd,stroke:#1565c0
-    style TV fill:#fff3e0,stroke:#e65100
-    style MA fill:#f3e5f5,stroke:#7b1fa2
-    style Combo fill:#fff9c4,stroke:#f57f17
-    style Result fill:#e8f5e9,stroke:#2e7d32
+    subgraph "演进层（Agent 适配）"
+        CapBAC["CapBAC<br/>基于能力/Token<br/>不可转移、可委托<br/>适合: Agent 工具调用授权"]
+        PBAC["PBAC/ABAC<br/>基于策略/属性<br/>动态评估<br/>适合: 细粒度上下文决策"]
+        TokenVault["Token Vault<br/>凭据集中管理<br/>按需获取 Scoped Token<br/>适合: 企业级凭据隔离"]
+    end
+
+    subgraph "原生层（协议级）"
+        MCPAuth["MCP Native Auth<br/>OAuth 2.1 + PKCE + DCR<br/>禁止 Token 透传<br/>适合: Agent-to-Tool 授权"]
+    end
+
+    RBAC -->|"角色太粗"| CapBAC
+    CapBAC -->|"需要上下文"| PBAC
+    PBAC -->|"凭据管理"| TokenVault
+    TokenVault -->|"协议集成"| MCPAuth
+    
+    style RBAC fill:#e8e8e8,stroke:#666
+    style CapBAC fill:#d4edda,stroke:#28a745
+    style PBAC fill:#d1ecf1,stroke:#17a2b8
+    style TokenVault fill:#fff3cd,stroke:#ffc107
+    style MCPAuth fill:#f8d7da,stroke:#dc3545
 ```
 
-### 2.1 CapBAC — 基于能力的访问控制
+### 3.1 CapBAC（Capability-Based Access Control）
 
-**核心思想**：不分配"角色"，而是发放"能力（Capability）"——一个可撤销的、指向特定资源的引用。Agent 只持有它当前需要的能力，任务完成后能力自动失效。
+**核心思想：** 权限 = 一个不可伪造的 Token（能力对象），持有 Token 即持有权限。与 RBAC 的"你是什么角色"不同，CapBAC 回答的是"你持有什么能力"。
 
-**Agent 场景价值**：
-- 天然支持最小权限原则：能力 = 精确的资源 + 操作，不多给
-- 可撤销：随时吊销某个能力而不影响 Agent 的其他权限
-- 可传递：Agent 可以将能力委托给子 Agent，但可以限定传递深度
+**关键特性：**
+- **不可转移（Non-transferable）：** 能力 Token 绑定到特定 Agent 身份，不能转借
+- **可委托（Delegatable）：** 主能力可以派生子能力，实现权限的向下分配
+- **细粒度：** 一个 Token 可以精确限定操作、资源、时间窗口
 
-### 2.2 PBAC — 基于策略的访问控制
+**Agent 场景适用性：** ⭐⭐⭐⭐⭐  
+CapBAC 天然适配 Agent 的按需权限获取模式：Agent 为每个任务链请求一组能力 Token，任务完成后 Token 自动过期。
 
-**核心思想**：授权决策不是查角色表，而是实时评估策略规则。策略可以考虑 Agent 的身份、用户属性、当前上下文（时间、地点、任务阶段）、环境状态等多维因素。
+### 3.2 PBAC/ABAC（Policy-Based / Attribute-Based Access Control）
 
-**典型策略示例**：
-```
-IF agent.purpose = "meeting_scheduler"
-  AND user.has_attribute("calendar_delegation_approved")
-  AND environment.time IN business_hours
-THEN grant_capability("calendar:read_write")
-```
+**核心思想：** 权限不是预先分配的，而是由策略引擎在运行时动态计算的。决策输入 = 主体属性 + 客体属性 + 动作 + 上下文。
 
-**Agent 场景价值**：
-- 动态范围：同一 Agent 在不同上下文中获得不同权限
-- 可审计：每条授权决策都有完整的策略命中记录
-- 可组合：与 CapBAC、ABAC、ReBAC 组合使用
+**关键特性：**
+- **策略即代码：** 授权规则可版本控制、测试、审计
+- **上下文感知：** IP 地址、时间、威胁情报、请求频率等动态属性可参与决策
+- **声明式：** "仅允许 Agent 为自己的租户、仅对非管理员项目执行 tickets.create"
 
-> PBAC 是"评估决策"而非"构建授权模型"，需要与 capability-based + ABAC + ReBAC 组合使用。—— Medium, 2025
->
-> 来源：[Authorization in the Age of AI Agents (PBAC)](https://nwosunneoma.medium.com/authorization-in-the-age-of-ai-agents-beyond-all-or-nothing-access-control-747d58adb8c1)
+**Agent 场景适用性：** ⭐⭐⭐⭐⭐  
+ABAC 是 RBAC 的进化：从"这个角色能做什么"到"在这些条件下这个 Agent 能对这个资源做什么"。
 
-### 2.3 Token Vault — 动态凭证管理
+> *"ABAC 是 RBAC 的进化：从'这个角色能做什么'到'在这些条件下这个 Agent 能对这个资源做什么'。"*  
+> — Prefactor, [Ultimate Guide to ABAC for MCP Authentication](https://prefactor.tech/blog/ultimate-guide-to-abac-for-mcp-authentication)
 
-**核心思想**：Agent 不持有任何长期密钥。所有对外部服务的访问，都通过 Token Vault（如 HashiCorp Vault）获取短期动态凭证，用完即弃。
+### 3.3 Token Vault
 
-**典型架构**：
-```
-用户 → IdP 登录 → Agent 验证 Token → OAuth Token Exchange → Vault 认证 → 动态凭证发放 → 访问受保护 API
-```
+**核心思想：** Agent 不直接持有任何凭据。所有 OAuth Token、API Key、证书都存储在集中化的 Vault 中，Agent 按需请求 Scoped Token，使用后立即释放。
 
-**Agent 场景价值**：
-- 消灭密钥泄露风险：Agent 内存中没有可被提取的长期凭证
-- 用户归属清晰：每次访问都可追溯到具体用户
-- 自动轮转：凭证生命周期极短，无需人工轮转
+**关键特性：**
+- **凭据隔离：** Agent 代码/日志/内存中不存储任何秘密
+- **自动刷新：** Token 生命周期由 Vault 管理，无需 Agent 介入
+- **审计链：** Agent 认证 → Token 请求 → 资源访问，全链路可追溯
 
-> 推荐架构：用户 → Microsoft Entra ID → Web UI → AI Agent → MCP Server → Vault → 受保护 API。使用 OAuth 2.0 Token Exchange 实现用户归属。—— HashiCorp, 2025
->
-> 来源：[Secure AI Agent Authentication with HashiCorp Vault](https://developer.hashicorp.com/validated-patterns/vault/ai-agent-identity-with-hashicorp-vault)
+**Agent 场景适用性：** ⭐⭐⭐⭐  
+Token Vault 是企业级 Agent 部署的安全基座，但增加了架构复杂度和延迟。
 
-### 2.4 MCP Native Auth — 协议层内建授权
+> *"Agent 从 Auth0 Token Vault 按需获取 scoped token，不直接接触 OAuth token。所有 token 自动刷新，凭据不存储在 agent 代码或日志中。"*  
+> — Okta, [Securing AI Agents From Development to Enterprise Scale](https://www.okta.com/sites/default/files/2025-12/Securing%20AI%20Agents.pdf)
 
-**核心思想**：将授权机制直接内建到 Agent-Tool 通信协议中，让每个 MCP Server 都能自主执行授权决策。
+### 3.4 MCP Native Auth
 
-**关键机制**：
-- **OAuth 2.1 + PKCE (S256)**：防止授权码拦截攻击
-- **Dynamic Client Registration (DCR)**：Agent 自动向授权服务器注册，无需人工配置
-- **Protected Resource Metadata (PRM)**：MCP Server 告知客户端授权服务器位置
-- **`resource` 参数**：每个授权和 token 请求中包含，标识目标资源
+**核心思想：** 在 MCP 协议层内置标准化的 OAuth 2.1 授权机制，让 Agent-to-Tool 的认证授权成为协议强制行为，而非可选附加。
 
-> MCP client 必须能解析 `WWW-Authenticate` 头，响应 HTTP 401。支持 Dynamic Client Registration：无需人工介入，MCP client 自动向授权服务器注册。—— MCP Specification, 2025
->
-> 来源：[MCP Authorization Specification](https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization)
+**关键特性：**
+- **OAuth 2.1 + PKCE：** 公共客户端安全授权
+- **Dynamic Client Registration (DCR)：** Agent 自动注册，无需人工配置
+- **禁止 Token 透传：** MCP Server 必须直接向 Authorization Server 验证 Token
+- **每请求验证：** 每次 tool call 都是独立的授权决策点
+
+**Agent 场景适用性：** ⭐⭐⭐⭐  
+MCP Native Auth 是协议级安全的基础层，但它只覆盖 Agent-to-Tool 场景，Agent-to-Agent 需要 A2A 协议补充。
+
+> *"MCP 授权规范引入 OAuth 2.1 + PKCE 模型作为 AI 访问控制的标准化第一步。"*  
+> — Aembit, [MCP, OAuth 2.1, PKCE, and the Future of AI Authorization](https://aembit.io/blog/mcp-oauth-2-1-pkce-and-the-future-of-ai-authorization/)
 
 ---
 
-## 三、各框架授权实践对比
+## 4. 各框架授权实践对比
 
-主流 Agent 框架和协议在授权方面的设计差异显著：
+不同框架和协议选择了不同的授权策略组合。下图对比四大主流方案的授权架构：
 
 ```mermaid
 graph LR
-    subgraph "各框架授权实践对比"
-        direction TB
-
-        subgraph MCP["MCP + OAuth 2.1"]
-            M1["OAuth 2.1 + PKCE"]
-            M2["Dynamic Client Registration"]
-            M3["Protected Resource Metadata"]
-            M4["工具级授权边界"]
-        end
-
-        subgraph A2A["Google A2A Protocol"]
-            A1["Agent Card 发现机制"]
-            A2["OAuth 2.0 / API Keys / mTLS"]
-            A3["JSON-RPC 2.0 通信"]
-            A4["Agent 间互信"]
-        end
-
-        subgraph MS["Microsoft Agent Framework"]
-            MS1["AutoGen + Semantic Kernel 合并"]
-            MS2["50+ 合规标准"]
-            MS3["M365 + Power Platform 原生集成"]
-            MS4["安全沙箱需求（社区提出）"]
-        end
-
-        subgraph OC["OpenClaw"]
-            O1["工具级策略过滤"]
-            O2["子 Agent 上下文隔离"]
-            O3["人机审批流（elevated/exec）"]
-            O4["Session 级权限边界"]
-        end
-
-        MCP -.->|"互补"| A2A
+    subgraph "MCP + OAuth 2.1"
+        MCP_User["User/Client"] -->|OAuth 2.1 + PKCE| MCP_AS["Authorization Server"]
+        MCP_AS -->|Access Token| MCP_Agent["AI Agent"]
+        MCP_Agent -->|"Tool Call + Token"| MCP_Server["MCP Server"]
+        MCP_Server -->|"直接验证 Token<br/>禁止透传"| MCP_AS
+        MCP_AS -.->|"DCR<br/>自动注册"| MCP_Agent
     end
 
-    style MCP fill:#e3f2fd,stroke:#1565c0
-    style A2A fill:#e8f5e9,stroke:#2e7d32
-    style MS fill:#fff3e0,stroke:#e65100
-    style OC fill:#f3e5f5,stroke:#7b1fa2
+    subgraph "Google A2A"
+        A2A_User["User"] -->|OAuth 2.0| A2A_IdP["Identity Provider"]
+        A2A_IdP -->|"OBO Token"| A2A_Agent1["Agent A"]
+        A2A_Agent1 -->|"OBO Token<br/>+ Agent Card"| A2A_Agent2["Agent B"]
+        A2A_Agent2 -->|mTLS / API Key| A2A_Service["Target Service"]
+        A2A_Agent1 -.->|"Agent Cards<br/>能力发现"| A2A_Agent2
+    end
+
+    subgraph "Microsoft (Okta/Entra)"
+        MS_User["User"] -->|CIBA Flow| MS_Entra["Entra ID"]
+        MS_Entra -->|"Agent Token"| MS_Agent["AI Agent"]
+        MS_Agent -->|"Token Exchange<br/>(OBO)"| MS_Vault["Token Vault"]
+        MS_Vault -->|"Scoped Token"| MS_Api["Protected API"]
+        MS_Vault -.->|"自动刷新<br/>审计链"| MS_Entra
+    end
+
+    subgraph "OpenClaw"
+        OC_User["User"] -->|Session Auth| OC_GW["Gateway"]
+        OC_GW -->|"per-agent<br/>sandbox config"| OC_Agent1["Agent A"]
+        OC_GW -->|"per-agent<br/>sandbox config"| OC_Agent2["Agent B"]
+        OC_Agent1 -->|"allow/deny list<br/>+ Docker 隔离"| OC_Tool["Tool/Exec"]
+        OC_Agent2 -->|"profile-based<br/>tool groups"| OC_Tool
+    end
+
+    style MCP_User fill:#e3f2fd,stroke:#1565c0
+    style A2A_User fill:#e8f5e9,stroke:#2e7d32
+    style MS_User fill:#fff3e0,stroke:#e65100
+    style OC_User fill:#fce4ec,stroke:#c62828
 ```
 
-### 3.1 MCP + OAuth 2.1（工具调用层）
+### 对比矩阵
 
-**定位**：Agent 到工具（Tool）的纵向授权
+| 维度 | MCP + OAuth 2.1 | Google A2A | Microsoft/Okta | OpenClaw |
+|------|-----------------|------------|----------------|----------|
+| **核心场景** | Agent ↔ Tool | Agent ↔ Agent | 企业级 Agent 全栈 | Agent 运行时隔离 |
+| **认证协议** | OAuth 2.1 + PKCE | OAuth 2.0 + mTLS + API Keys | OAuth 2.0 + CIBA | Session-based |
+| **授权粒度** | 每 Tool Call | 每 Agent 交互 | 每 Token 请求 | 每 Agent 工具集 |
+| **动态性** | DCR 自动注册 | Agent Cards 发现 | Token Vault 按需获取 | 静态配置 |
+| **用户身份传递** | 通过 Token | OBO 模式 | OBO Exchange | Session 绑定 |
+| **Token 管理** | 禁止透传 | OBO 传递 | Vault 集中管理 | 不涉及 |
+| **沙箱化** | 无 | 无 | 无 | Docker + allow/deny |
+| **策略即代码** | 无原生支持 | 无原生支持 | 无原生支持 | 无原生支持 |
+| **成熟度** | 协议标准（2025） | 协议标准（2025） | 产品级（2025） | 产品级（2025） |
 
-MCP 是当前 Agent-Tool 通信的事实标准，其授权规范基于 OAuth 2.1，是目前最完整的协议级授权方案：
+### 关键发现
 
-- **优势**：标准化程度高、DCR 支持 Agent 自动注册、PRM 机制让授权发现自动化
-- **不足**：仅覆盖 Agent→Tool 的单层授权，不处理 Agent→Agent 场景
-- **安全风险**：Prompt injection 可通过工具元数据传播（"Model Control Protocol" 风险），confused deputy 攻击
+1. **没有一个方案覆盖了所有维度。** MCP 擅长 Agent-Tool，A2A 擅长 Agent-Agent，OpenClaw 擅长运行时隔离，Okta 擅长企业凭据管理。真正的安全架构需要组合使用。
 
-> 列出 MCP 集成的安全风险：prompt injection via tool metadata、confused deputy attacks。—— CrewAI Documentation, 2025
->
-> 来源：[CrewAI MCP Security Considerations](https://docs.crewai.com/en/mcp/security)
+2. **所有方案都缺乏策略即代码的原生支持。** 动态授权（ABAC/PBAC）在研究中被反复强调，但各框架的实际实现仍以静态配置或简单 allow/deny 为主。
 
-### 3.2 Google A2A（Agent 通信层）
-
-**定位**：Agent 到 Agent 的横向通信协议
-
-A2A 与 MCP 互补——MCP 管 Agent 调工具，A2A 管 Agent 之间对话：
-
-- **Agent Card**：每个 Agent 发布标准化的能力描述卡片，包含认证方式、支持的技能
-- **安全默认**：支持 OAuth 2.0、API Keys、mTLS，基于已有 Web 标准
-- **长期运行任务**：原生支持异步、长时间运行的任务，适合 Agent 协作场景
-- **治理**：IBM Agent Communication Protocol 于 2025 年 8 月合并入 A2A，由 Linux Foundation 治理
-
-> A2A 通过 Agent Card 实现标准化发现机制、结构化任务管理、企业级安全。五大设计原则：拥抱 Agent 能力、基于现有标准、默认安全、支持长期运行任务、模态无关。—— Galileo, 2025
->
-> 来源：[Google's Agent2Agent Protocol Explained](https://galileo.ai/blog/google-agent2agent-a2a-protocol-guide)
-
-### 3.3 Microsoft Agent Framework
-
-**定位**：企业级 Agent 开发框架
-
-Microsoft 于 2025 年 10 月公开预览 Agent Framework，合并 AutoGen + Semantic Kernel：
-
-- **企业合规**：支持 50+ 合规标准（含欧洲特定要求）
-- **平台集成**：原生集成 Microsoft 365 和 Power Platform
-- **安全沙箱**：社区提出标准化安全沙箱需求，防止不受限代码运行
-- **生产就绪**：Azure AI Foundry Agent Service 提供生产 SLA，2026 Q1 GA 目标
-
-> 社区提出需求：标准化的安全沙箱用于 Agent 工具执行，防止不受限代码运行。—— Microsoft AutoGen Issue #7230, 2025
->
-> 来源：[AutoGen 安全沙箱 Issue](https://github.com/microsoft/autogen/issues/7230) | [Microsoft Agent Framework 收敛](https://cloudsummit.eu/blog/microsoft-agent-framework-production-ready-convergence-autogen-semantic-kernel)
-
-### 3.4 OpenClaw（运行时权限控制）
-
-**定位**：Agent 运行时的细粒度权限执行
-
-OpenClaw 采用了一种务实的分层授权模型：
-
-- **工具级策略过滤**：通过 policy 过滤 Agent 可用的工具集（如 `security=deny`）
-- **子 Agent 上下文隔离**：子 Agent 无法访问父 Agent 的完整上下文，限制权限传播
-- **人机审批流**：敏感操作（如 `elevated` exec）需要显式 `/approve` 命令
-- **Session 级权限边界**：每个 Session 有独立的工具可用性配置
-
-**核心设计哲学**：不追求协议级标准化，而是在运行时执行最小权限原则，结合人机共签机制。
+3. **"禁止 Token 透传"是 MCP 的关键安全创新。** 传统 API 网关中，Token 透传是常见模式，但在 Agent 场景中这意味着一个被攻破的 Agent 可以利用透传的 Token 访问未授权资源。
 
 ---
 
-## 四、动态授权核心设计模式
+## 5. 动态授权核心设计模式
 
-无论选择哪种权限模型，以下三种设计模式是 Agent 动态授权的基石：
+静态权限模型（RBAC/ACL）是"预分配"逻辑——在操作发生前决定你能不能做。Agent 场景需要的是"运行时决策"——在操作发生的那一刻，根据实时上下文决定是否放行。
 
-### 4.1 JIT（Just-In-Time）授权
+### 5.1 JIT 授权（Just-In-Time Authorization）
 
-**模式**：Agent 不预先获得权限，而是在执行具体操作时实时请求授权。
+**定义：** 权限不在启动时分配，而是在每次 tool call 时动态计算和授予，任务完成后立即撤销。
 
-**实现方式**：
-1. Agent 发出操作意图声明（"我需要写入 /data/reports 目录"）
-2. 策略引擎评估当前上下文（Agent 身份、用户授权、时间、任务阶段）
-3. 授权通过 → 发放临时能力 → Agent 执行 → 能力自动撤销
+```
+传统模式: Agent 启动 → 分配角色 → 执行 100 次 tool call（同一权限集）
+JIT 模式:  Agent 启动 → 无权限 → 第 1 次 call → 策略引擎评估 → 授予临时权限 → 执行 → 撤销
+                                                       ↑ 每次独立决策
+```
 
-**关键优势**：
-- 零 standing permissions：Agent 内存中从不持有超出当前操作所需的权限
-- 完整审计链：每次授权都有策略评估记录
-- 与 Token Vault 天然配合：动态凭证的生命周期与 JIT 授权窗口一致
+**实现要点：**
+- 策略引擎作为独立服务部署，每次 tool call 前调用
+- 临时权限绑定到单次操作，带 TTL（Time-To-Live）
+- 审计日志记录每次权限授予的决策依据
 
-### 4.2 能力衰减（Capability Decay）
+**生产案例：**
+- Oso 提供 Agent 权限持续自适应：自动收紧访问、推荐降权或临时授权
+- Cerbos 的 MCP Server 集成：每次 tool call 查询 "Can user X do action Y on resource Z?"
+- AgentGuardian 框架：为每次 tool invocation 创建输入验证链
 
-**模式**：授予 Agent 的能力随时间或使用次数自动减弱直至失效。
+> *"需要根据任务上下文、数据访问范围、代表用户身份实时调整权限的动态授权。"*  
+> — Oso, [Why RBAC is Not Enough for AI Agents](https://www.osohq.com/learn/why-rbac-is-not-enough-for-ai-agents)
 
-**衰减策略**：
-| 策略 | 描述 | 适用场景 |
-|------|------|---------|
-| 时间衰减 | 能力在 N 分钟后自动失效 | 日常工具调用 |
-| 次数衰减 | 能力使用 N 次后失效 | 批量操作控制 |
-| 范围衰减 | 能力适用范围随时间缩小 | 长运行任务 |
-| 置信度衰减 | Agent 行为偏离预期时自动收紧 | 高风险操作 |
+### 5.2 能力衰减（Capability Decay）
 
-**关键优势**：
-- 防止权限膨胀：Agent 任务完成后不会"忘记"释放权限
-- 限制 blast radius：即使 Agent 被劫持，可用权限已被衰减限制
-- 无需依赖 Agent 的"自觉"释放
+**定义：** 权限不是一次性授予然后保持不变，而是随着时间或使用次数逐步衰减。初始权限较高，随着 Agent 执行更多操作，权限自动收紧。
 
-### 4.3 人机共签（Human Co-Sign）
+```
+时间线:  ──────────────────────────────────────►
+权限:    ████████████ ████████ ███ ██ █
+         [任务启动]   [10次call] [20次] [30次] [完成]
+         
+          高权限期    正常期    警戒期   受限期   无权限
+```
 
-**模式**：高风险操作需要人类明确批准后才能执行，Agent 只能提议不能执行。
+**设计动机：**
+- 防止 Agent 被 prompt injection 后持续高权限运行
+- 模拟人类"越用越谨慎"的安全直觉
+- 降低长运行 Agent 的累积风险
 
-**分级模型**：
-- **Level 0 — 全自动**：低风险读操作（读取公开数据、查询状态）
-- **Level 1 — 通知**：中等风险操作，执行后通知人类（发送邮件草稿、创建文件）
-- **Level 2 — 建议**：高风险操作，Agent 建议 + 人类确认后执行（修改配置、访问敏感数据）
-- **Level 3 — 禁止**：极高风险操作，Agent 不可执行（删除生产数据、修改权限策略）
+**实现方式：**
+- 初始权限 Token 包含较大的 scope 和较长的 TTL
+- 每次 tool call 后，策略引擎评估是否缩减 scope 或缩短剩余 TTL
+- 异常行为（高频调用、异常参数）触发加速衰减
 
-**实施路径**：先实现 Level 2-3 的审批机制，积累操作数据后逐步将低风险操作降级到 Level 0-1。
+### 5.3 人机共签（Human-in-the-Loop Co-sign）
 
-> 治理分阶段：Phase 1 = 先实现日志/安全/控制 → Phase 2 = Copilot 模式（Agent 建议，人类批准）。核心教训：不是 Agent 危险，而是无治理部署危险。—— Towards AI, 2025
->
-> 来源：[Beyond LangGraph and CrewAI: Governing AI Agents](https://pub.towardsai.net/beyond-langgraph-and-crewai-the-lost-art-of-governing-ai-agents-d1321636e0c2)
+**定义：** 高风险操作需要 Agent 和人类用户的双重授权才能执行。Agent 提出操作请求，人类在独立通道中确认或拒绝。
 
----
+```
+Agent: "我准备执行 delete_production_database()" 
+         │
+         ▼
+  [策略引擎判断: 高风险操作 → 需要 Co-sign]
+         │
+         ▼
+  [向用户发送确认请求] → 用户: "✅ 确认" 或 "❌ 拒绝"
+         │
+         ▼
+  [双签齐全 → 执行] 或 [任一方拒绝 → 中止]
+```
 
-## 五、团队观点
+**风险分级参考（来自 OWASP AI 安全指南）：**
 
-### 观点 1：Agent 不是"另一个用户"，不要用管理人的方式管理它
+| 风险等级 | 操作类型 | 授权要求 |
+|---------|---------|---------|
+| 低 | 只读查询、公开数据获取 | Agent 自主执行 |
+| 中 | 数据写入、配置修改 | 策略引擎自动审批 |
+| 高 | 生产环境变更、敏感数据访问 | 人机共签 |
+| 极高 | 删除操作、权限变更 | 人工审批 + 多人会签 |
 
-Agent 的行为模式（机器速度、不可预测、prompt injection 脆弱性）与人类用户完全不同。把 Agent 当作"特殊用户"塞进现有的 IAM 系统，是成本最低但效果最差的做法。正确的方向是为 Agent 建立独立的身份和权限模型。
+**与 Okta CIBA Flow 的关系：**  
+Okta 的 CIBA（Client-Initiated Backchannel Authentication）是人机共签的协议化实现——Agent 发起操作请求后，系统通过独立通道（推送通知、短信等）向用户请求确认，不影响 Agent 的执行流。
 
-> Agent 可以作为自主"超级管理员"运行，访问敏感数据、执行任务，无需持续人工监督。需要将 Agent 视为一等公民身份。—— Okta, 2025
->
-> 来源：[Secure AI Agent Identity](https://www.okta.com/solutions/secure-ai/)
-
-### 观点 2：MCP + A2A 的互补架构是正确的方向
-
-MCP 解决 Agent→Tool 的纵向授权，A2A 解决 Agent→Agent 的横向互信，两者不竞争而是互补。企业级 Agent 系统需要同时内建这两种协议支持。
-
-> A2A 是 agent 间通信协议（横向），MCP 是 agent 到工具（纵向），两者互补。—— Semgrep, 2025
->
-> 来源：[A Security Engineer's Guide to A2A Protocol](https://semgrep.dev/blog/2025/a-security-engineers-guide-to-the-a2a-protocol)
-
-### 观点 3：零信任适用于 Agent，但需要重新定义"验证"
-
-传统零信任的"每次访问都验证"假设验证主体是人（有 MFA、有生物识别）。Agent 的验证需要不同机制——基于行为基线的持续验证（Agent 是否在做它声称要做的事？），而非基于身份的周期性挑战。
-
-> 零信任原则适用于 Agent：永远不信任、持续验证。核心矛盾：零信任要求"永远验证"，但 Agent 的自主性使其难以适用传统验证模型。—— CyberArk, 2025
->
-> 来源：[Zero Trust for AI Agents](https://developer.cyberark.com/blog/zero-trust-for-ai-agents-delegation-identity-and-access-control/)
-
-### 观点 4：安全网关模式是当前最务实的落地路径
-
-SGNL 提出的 MCP Security Gateway 模式——代理所有 MCP Server，根据企业策略动态返回工具列表——是目前最容易落地的方案。它不需要改造现有应用，只需在 Agent 和工具之间插入一层策略执行点。
-
-> Gateway 根据企业策略，为请求用户返回适当的工具列表。将授权决策从"静态配置"升级为"上下文感知的动态评估"。—— SGNL, 2025
->
-> 来源：[Securing MCP Servers](https://sgnl.ai/2025/05/securing-mcp-servers/)
+> *"CIBA Flow：非阻塞、用户友好、安全、可审计。"*  
+> — Okta, [Securing AI Agents From Development to Enterprise Scale](https://www.okta.com/sites/default/files/2025-12/Securing%20AI%20Agents.pdf)
 
 ---
 
-## 六、可操作建议
+## 6. 团队观点
 
-### 建议 1：立即审计 Agent 当前权限
+以下 4 条观点来自我们主编、探针和调色板团队在实际项目中的经验总结：
 
-盘点你系统中所有 Agent 实际持有的权限，识别是否存在"Agent 拥有超出任务所需的 write/delete 权限"的情况。这是最低成本的安全改进。
+### 观点一：不要给 Agent "最大权限然后相信它"
 
-### 建议 2：为每个 Agent 注册独立身份
+**来自主编：** 我们在早期搭建 Tech-Researcher 团队时，给所有 Agent 子进程分配了完整的文件系统访问权限，因为"这样最简单"。后果是：一个 Agent 的搜索任务出错后，写入了错误的目录，覆盖了另一篇报告的草稿。教训：**最小权限是 Agent 场景的安全底线，不是最佳实践——是前提条件。**
 
-不要让 Agent 共享用户账号或服务账号。为每个 Agent 创建独立身份（Identity），确保每次操作可追溯到具体 Agent。
+### 观点二：Agent 的权限应该跟任务走，不跟身份走
 
-> 没有访问控制的 Agent 会创建严重风险：无审计追踪，无法回答"这个 Agent 代表哪个用户访问了什么"。—— WorkOS, 2025
->
-> 来源：[AI Agent Access Control Best Practices](https://workos.com/blog/ai-agent-access-control)
+**来自探针：** 在我们的搜索-写作分离流水线中（见 AGENTS.md E.55），同一个"探针"角色在"搜集员"模式下只需要 web_search 和 write 工具，在"写手"模式下需要 read 和 write 工具。如果按 RBAC 逻辑，我们需要创建"探针-搜集员"和"探针-写手"两个角色。但实际上，这是**同一个 Agent 的两种任务状态**。权限应该绑定到任务上下文，而不是绑定到 Agent 身份。
 
-### 建议 3：实施 JIT 授权替代 Standing Permissions
+### 观点三：沙箱是最后一道防线，不是第一道
 
-将 Agent 的权限从"预先分配"改为"按需请求"。结合 Token Vault，确保 Agent 内存中从不持有长期密钥。
+**来自调色板：** 我们使用 OpenClaw 的 per-agent sandbox 配置来隔离不同的 Agent 任务。但沙箱解决的是"如果 Agent 被攻破了怎么办"的问题，不是"如何让 Agent 安全运行"的问题。真正的安全需要三层防护：① 协议层认证（OAuth/Token）→ ② 策略层授权（ABAC/动态决策）→ ③ 运行层隔离（沙箱/Docker）。**沙箱是安全的最后 20%，不是前 80%。**
 
-### 建议 4：建立人机共签分级模型
+### 观点四：审计日志比权限模型更重要
 
-按照"全自动 → 通知 → 建议 → 禁止"四级模型，对 Agent 操作进行分级。初期保守（高风险操作必须人工批准），积累数据后逐步放开。
-
-### 建议 5：部署安全网关作为策略执行点
-
-在 Agent 和工具/服务之间部署策略执行层（如 SGNL 的 MCP Security Gateway），统一管理授权决策，避免将策略散落在每个 MCP Server 中。
-
-### 建议 6：实现能力衰减机制
-
-为 Agent 授予的所有能力设置自动过期。时间窗口根据操作风险等级调整：低风险读操作 30 分钟，高风险写操作 5 分钟。
-
-### 建议 7：关注 MCP 和 A2A 协议演进
-
-MCP 规范和 A2A 协议都在快速迭代。确保你的 Agent 基础设施能跟踪协议更新，特别是 DCR（Dynamic Client Registration）和 Agent Card 标准。
-
-### 建议 8：从日志和审计开始
-
-如果以上建议看起来太多，只做一件事：确保每个 Agent 的每次工具调用都有完整的审计日志（谁、什么时间、调用了什么、参数是什么、结果是什么）。没有日志，一切安全策略都是空谈。
+**来自主编+探针联合讨论：** 在调试 Agent 行为时，我们发现最有价值的不是"Agent 有没有权限做这件事"，而是"Agent 为什么决定做这件事"。一个完美的权限模型如果缺乏审计能力，等于在黑箱里运行。**每一条 tool call 都应该记录：谁（Agent ID + 用户 ID）在什么上下文（任务链）做了什么（tool call 参数）结果如何（成功/失败/被拒绝）**。这是事后分析和合规审计的唯一依据。
 
 ---
 
-## 参考来源
+## 7. 可操作建议
 
-1. Oso — *Why RBAC is Not Enough for AI Agents*, 2025
+以下 8 项建议按优先级排序，从"立即可做"到"长期规划"排列：
+
+### 🔴 P0 — 立即执行
+
+**1. 禁止 Agent 直接持有生产凭据**
+- 所有 OAuth Token、API Key 必须通过 Token Vault 管理
+- Agent 代码中不得出现硬编码凭据
+- 参考方案：Auth0 Token Vault / HashiCorp Vault
+- 预计工作量：2-3 天
+
+**2. 为每个 Agent 配置最小权限 sandbox**
+- 使用 per-agent tool allow/deny 列表
+- 生产环境 Agent 禁止 exec 工具
+- 参考：OpenClaw `agents.list[].tools` 配置
+- 预计工作量：1 天
+
+### 🟠 P1 — 本周完成
+
+**3. 实施"禁止 Token 透传"策略**
+- MCP Server 必须直接向 Authorization Server 验证每个请求的 Token
+- 不得将上游 Token 直接转发给下游服务
+- 参考：Aembit 的 [MCP Authentication and Authorization Patterns](https://aembit.io/blog/mcp-authentication-and-authorization-patterns/)
+
+**4. 建立 tool call 审计日志标准**
+- 每条日志包含：Agent ID、User ID、Tool Name、Input Parameters（脱敏）、Timestamp、Decision（允许/拒绝）、Decision Reason
+- 日志集中存储，支持查询和告警
+- 作为合规审计的基础数据
+
+**5. 对高风险操作实施人机共签**
+- 定义风险分级标准（参考 5.3 节）
+- 高风险操作（生产变更/删除/权限修改）触发用户确认
+- 确认通道独立于 Agent 执行流（推送通知/邮件）
+
+### 🟡 P2 — 本月完成
+
+**6. 引入策略即代码（Policy-as-Code）层**
+- 将授权规则从代码中抽离为独立策略文件
+- 支持版本控制、测试、审计
+- 参考：Cerbos / Oso / AWS Cedar
+- 目标：从"改权限要改代码"进化到"改权限改策略文件"
+
+**7. 实现 JIT 授权基础框架**
+- 从"启动时分配权限"进化到"每次 tool call 时动态评估"
+- 第一阶段：为每次 tool call 调用策略引擎
+- 第二阶段：实现临时 Token 的自动颁发和回收
+
+### 🔵 P3 — 季度目标
+
+**8. 参与 MCP/A2A 协议安全标准演进**
+- 关注 MCP Authorization 规范的动态（DCR、PRM）
+- 评估 A2A 协议的 OBO 模式在多 Agent 系统中的适用性
+- 为开源社区贡献安全最佳实践
+
+---
+
+## 8. 参考来源
+
+1. **Oso** — Why RBAC is Not Enough for AI Agents (2025)  
    https://www.osohq.com/learn/why-rbac-is-not-enough-for-ai-agents
 
-2. Nizam Udheen — *Role-Based Access Control Isn't Enough for Autonomous AI Agents*, 2025
+2. **Nizam Udheenti** — Role-Based Access Control Isn't Enough for Autonomous AI Agents (Medium, 2025)  
    https://nizamudheenti.medium.com/role-based-access-control-isnt-enough-for-autonomous-ai-agents-here-s-the-simple-reason-why-dfe49c86b536
 
-3. Model Context Protocol — *Authorization Specification (OAuth 2.1)*, 2025
-   https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization
+3. **Auth0** — Access Control in the Era of AI Agents (2025)  
+   https://auth0.com/blog/access-control-in-the-era-of-ai-agents/
 
-4. SGNL — *Securing MCP Servers*, 2025
-   https://sgnl.ai/2025/05/securing-mcp-servers/
+4. **Okta** — Securing AI Agents From Development to Enterprise Scale (Whitepaper, 2025-12)  
+   https://www.okta.com/sites/default/files/2025-12/Securing%20AI%20Agents.pdf
 
-5. Semgrep — *A Security Engineer's Guide to A2A Protocol*, 2025
+5. **Aembit** — MCP, OAuth 2.1, PKCE, and the Future of AI Authorization (2025)  
+   https://aembit.io/blog/mcp-oauth-2-1-pkce-and-the-future-of-ai-authorization/
+
+6. **Oso** — Authorization for MCP: OAuth 2.1, PRMs, and Best Practices (2025)  
+   https://www.osohq.com/learn/authorization-for-ai-agents-mcp-oauth-21
+
+7. **Shane Deconinck** — Understanding A2A: Google's Agent-to-Agent Protocol Explained (2025)  
+   https://shanedeconinck.be/explainers/a2a/
+
+8. **Semgrep** — A Security Engineer's Guide to the A2A Protocol (2025)  
    https://semgrep.dev/blog/2025/a-security-engineers-guide-to-the-a2a-protocol
 
-6. Galileo — *Google's Agent2Agent Protocol Explained*, 2025
+9. **Galileo** — Google's Agent2Agent Protocol Explained for Enterprise AI Teams (2025)  
    https://galileo.ai/blog/google-agent2agent-a2a-protocol-guide
 
-7. Nwosu Nneoma — *Authorization in the Age of AI Agents (PBAC)*, 2025
-   https://nwosunneoma.medium.com/authorization-in-the-age-of-ai-agents-beyond-all-or-nothing-access-control-747d58adb8c1
+10. **Scalekit** — Token Vault: Why It's Critical for AI Agent Workflows (2025)  
+    https://www.scalekit.com/blog/token-vault-ai-agent-workflows
 
-8. CyberArk — *Zero Trust for AI Agents*, 2025
-   https://developer.cyberark.com/blog/zero-trust-for-ai-agents-delegation-identity-and-access-control/
+11. **HashiCorp** — Secure AI Agent Authentication Using Vault Dynamic Secrets (2025)  
+    https://developer.hashicorp.com/validated-patterns/vault/ai-agent-identity-with-hashicorp-vault
 
-9. HashiCorp — *Secure AI Agent Authentication with HashiCorp Vault*, 2025
-   https://developer.hashicorp.com/validated-patterns/vault/ai-agent-identity-with-hashicorp-vault
+12. **Cerbos** — MCP Permissions: Securing AI Agent Access to Tools (2025)  
+    https://www.cerbos.dev/blog/mcp-permissions-securing-ai-agent-access-to-tools
 
-10. WorkOS — *AI Agent Access Control Best Practices*, 2025
-    https://workos.com/blog/ai-agent-access-control
+13. **Cerbos** — Dynamic Authorization for AI Agents: Fine-Grained Permissions in MCP Servers (2025)  
+    https://www.cerbos.dev/blog/dynamic-authorization-for-ai-agents-guide-to-fine-grained-permissions-mcp-servers
 
-11. Microsoft — *AutoGen 安全沙箱 Issue #7230*, 2025
-    https://github.com/microsoft/autogen/issues/7230
+14. **Prefactor** — Ultimate Guide to ABAC for MCP Authentication (2025)  
+    https://prefactor.tech/blog/ultimate-guide-to-abac-for-mcp-authentication
 
-12. Towards AI — *Beyond LangGraph and CrewAI: Governing AI Agents*, 2025
-    https://pub.towardsai.net/beyond-langgraph-and-crewai-the-lost-art-of-governing-ai-agents-d1321636e0c2
+15. **arXiv** — AgentGuardian: Learning Access Control Policies to Govern AI Agent Behavior (2026-01)  
+    https://arxiv.org/html/2601.10440
 
-13. CrewAI — *MCP Security Considerations*, 2025
-    https://docs.crewai.com/en/mcp/security
+16. **OpenClaw GitHub** — Feature: Tiered Agent Permissions with Sandboxed Tool Policies (#5641)  
+    https://github.com/openclaw/openclaw/issues/5641
 
-14. LangChain — *Agent Authorization Explainer*, 2025
-    https://blog.langchain.com/agent-authorization-explainer/
+17. **OpenClaw Docs** — Multi-Agent Sandbox & Tools  
+    https://docs.openclaw.ai/tools/multi-agent-sandbox-tools
 
-15. Okta — *Secure AI Agent Identity*, 2025
-    https://www.okta.com/solutions/secure-ai/
+18. **Snyk Labs** — On Ways to Bypass OpenClaw's Security Sandbox  
+    https://labs.snyk.io/resources/bypass-openclaw-security-sandbox/
+
+19. **Aembit** — MCP Authentication and Authorization Patterns (2025)  
+    https://aembit.io/blog/mcp-authentication-and-authorization-patterns/
 
 ---
 
-*本报告由 Tech-Researcher 团队出品。内容基于公开资料整理分析，不构成安全建议。具体实施方案请结合自身业务场景评估。*
+*本报告基于 2024-2026 年公开资料编写，引用均附真实 URL。AI Agent 安全领域演进极快，建议每季度更新一次关键发现。*
