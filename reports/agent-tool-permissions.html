@@ -583,32 +583,31 @@ Agent RBAC：10 个 Agent × 20 种任务路径 × 5 步 = 1000+ 个角色组合
 <hr>
 <h2>3. 新兴权限模型全景图</h2>
 <p>面对 RBAC 的结构性失灵，业界正沿着四条路径演化。它们不是替代关系，而是<strong>互补分层</strong>，共同构成现代 Agent 权限体系。</p>
-<div class="mermaid">graph TB
+<p><div class="mermaid">graph TB
     subgraph "传统层（仍需要）"
         RBAC["RBAC<br/>基于角色<br/>静态分配<br/>适合: 人类用户身份管理"]
     end
 
-<pre><code>subgraph &quot;演进层（Agent 适配）&quot;
-    CapBAC[&quot;CapBAC&lt;br/&gt;基于能力/Token&lt;br/&gt;不可转移、可委托&lt;br/&gt;适合: Agent 工具调用授权&quot;]
-    PBAC[&quot;PBAC/ABAC&lt;br/&gt;基于策略/属性&lt;br/&gt;动态评估&lt;br/&gt;适合: 细粒度上下文决策&quot;]
-    TokenVault[&quot;Token Vault&lt;br/&gt;凭据集中管理&lt;br/&gt;按需获取 Scoped Token&lt;br/&gt;适合: 企业级凭据隔离&quot;]
-end
+    subgraph "演进层（Agent 适配）"
+        CapBAC["CapBAC<br/>基于能力/Token<br/>不可转移、可委托<br/>适合: Agent 工具调用授权"]
+        PBAC["PBAC/ABAC<br/>基于策略/属性<br/>动态评估<br/>适合: 细粒度上下文决策"]
+        TokenVault["Token Vault<br/>凭据集中管理<br/>按需获取 Scoped Token<br/>适合: 企业级凭据隔离"]
+    end
 
-subgraph &quot;原生层（协议级）&quot;
-    MCPAuth[&quot;MCP Native Auth&lt;br/&gt;OAuth 2.1 + PKCE + DCR&lt;br/&gt;禁止 Token 透传&lt;br/&gt;适合: Agent-to-Tool 授权&quot;]
-end
+    subgraph "原生层（协议级）"
+        MCPAuth["MCP Native Auth<br/>OAuth 2.1 + PKCE + DCR<br/>禁止 Token 透传<br/>适合: Agent-to-Tool 授权"]
+    end
 
-RBAC --&gt;|&quot;角色太粗&quot;| CapBAC
-CapBAC --&gt;|&quot;需要上下文&quot;| PBAC
-PBAC --&gt;|&quot;凭据管理&quot;| TokenVault
-TokenVault --&gt;|&quot;协议集成&quot;| MCPAuth
-
-style RBAC fill:#e8e8e8,stroke:#666
-style CapBAC fill:#d4edda,stroke:#28a745
-style PBAC fill:#d1ecf1,stroke:#17a2b8
-style TokenVault fill:#fff3cd,stroke:#ffc107
-style MCPAuth fill:#f8d7da,stroke:#dc3545&lt;/div&gt;
-</code></pre>
+    RBAC -->|"角色太粗"| CapBAC
+    CapBAC -->|"需要上下文"| PBAC
+    PBAC -->|"凭据管理"| TokenVault
+    TokenVault -->|"协议集成"| MCPAuth
+    
+    style RBAC fill:#e8e8e8,stroke:#666
+    style CapBAC fill:#d4edda,stroke:#28a745
+    style PBAC fill:#d1ecf1,stroke:#17a2b8
+    style TokenVault fill:#fff3cd,stroke:#ffc107
+    style MCPAuth fill:#f8d7da,stroke:#dc3545</div></p>
 <h3>3.1 CapBAC（Capability-Based Access Control）</h3>
 <p><strong>核心思想：</strong> 权限 = 一个不可伪造的 Token（能力对象），持有 Token 即持有权限。与 RBAC 的&quot;你是什么角色&quot;不同，CapBAC 回答的是&quot;你持有什么能力&quot;。</p>
 <p><strong>关键特性：</strong></p>
@@ -658,7 +657,7 @@ style MCPAuth fill:#f8d7da,stroke:#dc3545&lt;/div&gt;
 <hr>
 <h2>4. 各框架授权实践对比</h2>
 <p>不同框架和协议选择了不同的授权策略组合。下图对比四大主流方案的授权架构：</p>
-<div class="mermaid">graph LR
+<p><div class="mermaid">graph LR
     subgraph "MCP + OAuth 2.1"
         MCP_User["User/Client"] -->|OAuth 2.1 + PKCE| MCP_AS["Authorization Server"]
         MCP_AS -->|Access Token| MCP_Agent["AI Agent"]
@@ -667,35 +666,34 @@ style MCPAuth fill:#f8d7da,stroke:#dc3545&lt;/div&gt;
         MCP_AS -.->|"DCR<br/>自动注册"| MCP_Agent
     end
 
-<pre><code>subgraph &quot;Google A2A&quot;
-    A2A_User[&quot;User&quot;] --&gt;|OAuth 2.0| A2A_IdP[&quot;Identity Provider&quot;]
-    A2A_IdP --&gt;|&quot;OBO Token&quot;| A2A_Agent1[&quot;Agent A&quot;]
-    A2A_Agent1 --&gt;|&quot;OBO Token&lt;br/&gt;+ Agent Card&quot;| A2A_Agent2[&quot;Agent B&quot;]
-    A2A_Agent2 --&gt;|mTLS / API Key| A2A_Service[&quot;Target Service&quot;]
-    A2A_Agent1 -.-&gt;|&quot;Agent Cards&lt;br/&gt;能力发现&quot;| A2A_Agent2
-end
+    subgraph "Google A2A"
+        A2A_User["User"] -->|OAuth 2.0| A2A_IdP["Identity Provider"]
+        A2A_IdP -->|"OBO Token"| A2A_Agent1["Agent A"]
+        A2A_Agent1 -->|"OBO Token<br/>+ Agent Card"| A2A_Agent2["Agent B"]
+        A2A_Agent2 -->|mTLS / API Key| A2A_Service["Target Service"]
+        A2A_Agent1 -.->|"Agent Cards<br/>能力发现"| A2A_Agent2
+    end
 
-subgraph &quot;Microsoft (Okta/Entra)&quot;
-    MS_User[&quot;User&quot;] --&gt;|CIBA Flow| MS_Entra[&quot;Entra ID&quot;]
-    MS_Entra --&gt;|&quot;Agent Token&quot;| MS_Agent[&quot;AI Agent&quot;]
-    MS_Agent --&gt;|&quot;Token Exchange&lt;br/&gt;(OBO)&quot;| MS_Vault[&quot;Token Vault&quot;]
-    MS_Vault --&gt;|&quot;Scoped Token&quot;| MS_Api[&quot;Protected API&quot;]
-    MS_Vault -.-&gt;|&quot;自动刷新&lt;br/&gt;审计链&quot;| MS_Entra
-end
+    subgraph "Microsoft (Okta/Entra)"
+        MS_User["User"] -->|CIBA Flow| MS_Entra["Entra ID"]
+        MS_Entra -->|"Agent Token"| MS_Agent["AI Agent"]
+        MS_Agent -->|"Token Exchange<br/>(OBO)"| MS_Vault["Token Vault"]
+        MS_Vault -->|"Scoped Token"| MS_Api["Protected API"]
+        MS_Vault -.->|"自动刷新<br/>审计链"| MS_Entra
+    end
 
-subgraph &quot;OpenClaw&quot;
-    OC_User[&quot;User&quot;] --&gt;|Session Auth| OC_GW[&quot;Gateway&quot;]
-    OC_GW --&gt;|&quot;per-agent&lt;br/&gt;sandbox config&quot;| OC_Agent1[&quot;Agent A&quot;]
-    OC_GW --&gt;|&quot;per-agent&lt;br/&gt;sandbox config&quot;| OC_Agent2[&quot;Agent B&quot;]
-    OC_Agent1 --&gt;|&quot;allow/deny list&lt;br/&gt;+ Docker 隔离&quot;| OC_Tool[&quot;Tool/Exec&quot;]
-    OC_Agent2 --&gt;|&quot;profile-based&lt;br/&gt;tool groups&quot;| OC_Tool
-end
+    subgraph "OpenClaw"
+        OC_User["User"] -->|Session Auth| OC_GW["Gateway"]
+        OC_GW -->|"per-agent<br/>sandbox config"| OC_Agent1["Agent A"]
+        OC_GW -->|"per-agent<br/>sandbox config"| OC_Agent2["Agent B"]
+        OC_Agent1 -->|"allow/deny list<br/>+ Docker 隔离"| OC_Tool["Tool/Exec"]
+        OC_Agent2 -->|"profile-based<br/>tool groups"| OC_Tool
+    end
 
-style MCP_User fill:#e3f2fd,stroke:#1565c0
-style A2A_User fill:#e8f5e9,stroke:#2e7d32
-style MS_User fill:#fff3e0,stroke:#e65100
-style OC_User fill:#fce4ec,stroke:#c62828&lt;/div&gt;
-</code></pre>
+    style MCP_User fill:#e3f2fd,stroke:#1565c0
+    style A2A_User fill:#e8f5e9,stroke:#2e7d32
+    style MS_User fill:#fff3e0,stroke:#e65100
+    style OC_User fill:#fce4ec,stroke:#c62828</div></p>
 <h3>对比矩阵</h3>
 <table>
 <thead>
@@ -785,15 +783,14 @@ style OC_User fill:#fce4ec,stroke:#c62828&lt;/div&gt;
 <p>静态权限模型（RBAC/ACL）是&quot;预分配&quot;逻辑——在操作发生前决定你能不能做。Agent 场景需要的是&quot;运行时决策&quot;——在操作发生的那一刻，根据实时上下文决定是否放行。</p>
 <h3>5.1 JIT 授权（Just-In-Time Authorization）</h3>
 <p><strong>定义：</strong> 权限不在启动时分配，而是在每次 tool call 时动态计算和授予，任务完成后立即撤销。</p>
-<div class="mermaid">graph LR
+<p><div class="mermaid">graph LR
     subgraph 传统模式
         T1[Agent 启动] --> T2[分配角色] --> T3["执行 100 次 tool call（同一权限集）"]
     end
     subgraph JIT 模式
         J1[Agent 启动] --> J2[无权限] --> J3[第 1 次 call] --> J4[策略引擎评估] --> J5[授予临时权限] --> J6[执行] --> J7[撤销]
     end
-    J4 -.->|"每次独立决策"| J4</div>
-
+    J4 -.->|"每次独立决策"| J4</div></p>
 <p><strong>实现要点：</strong></p>
 <ul>
 <li>策略引擎作为独立服务部署，每次 tool call 前调用</li>
@@ -811,7 +808,7 @@ style OC_User fill:#fce4ec,stroke:#c62828&lt;/div&gt;
 </blockquote>
 <h3>5.2 能力衰减（Capability Decay）</h3>
 <p><strong>定义：</strong> 权限不是一次性授予然后保持不变，而是随着时间或使用次数逐步衰减。初始权限较高，随着 Agent 执行更多操作，权限自动收紧。</p>
-<div class="mermaid">graph LR
+<p><div class="mermaid">graph LR
     A[任务启动<br/>高权限期] -->|"10 次 call"| B[正常期<br/>权限开始衰减]
     B -->|"20 次 call"| C[警戒期<br/>权限大幅缩减]
     C -->|"30 次 call"| D[受限期<br/>仅保留核心权限]
@@ -820,8 +817,7 @@ style OC_User fill:#fce4ec,stroke:#c62828&lt;/div&gt;
     style B fill:#8bc34a,stroke:#558b2f,color:#fff
     style C fill:#ff9800,stroke:#e65100,color:#fff
     style D fill:#f44336,stroke:#b71c1c,color:#fff
-    style E fill:#9e9e9e,stroke:#616161,color:#fff</div>
-
+    style E fill:#9e9e9e,stroke:#616161,color:#fff</div></p>
 <p><strong>设计动机：</strong></p>
 <ul>
 <li>防止 Agent 被 prompt injection 后持续高权限运行</li>
@@ -836,7 +832,7 @@ style OC_User fill:#fce4ec,stroke:#c62828&lt;/div&gt;
 </ul>
 <h3>5.3 人机共签（Human-in-the-Loop Co-sign）</h3>
 <p><strong>定义：</strong> 高风险操作需要 Agent 和人类用户的双重授权才能执行。Agent 提出操作请求，人类在独立通道中确认或拒绝。</p>
-<div class="mermaid">graph TD
+<p><div class="mermaid">graph TD
     A[Agent: 准备执行 delete_production_database] --> B[策略引擎判断<br/>高风险操作 → 需要 Co-sign]
     B --> C[向用户发送确认请求]
     C --> D{用户响应}
@@ -846,8 +842,7 @@ style OC_User fill:#fce4ec,stroke:#c62828&lt;/div&gt;
     F --> H[中止操作]
     style B fill:#ff9800,stroke:#e65100,color:#fff
     style G fill:#4caf50,stroke:#2e7d32,color:#fff
-    style H fill:#f44336,stroke:#b71c1c,color:#fff</div>
-
+    style H fill:#f44336,stroke:#b71c1c,color:#fff</div></p>
 <p><strong>风险分级参考（来自 OWASP AI 安全指南）：</strong></p>
 <table>
 <thead>
