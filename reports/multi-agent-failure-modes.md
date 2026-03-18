@@ -9,10 +9,10 @@
 多 Agent 协作系统在实际部署中面临比单 Agent 更复杂、更隐蔽的故障模式。本报告基于多 Agent 团队（主编+探针+调色板）的实际运行经验，系统性地识别 5 种典型协作故障模式，并提出可操作的预防策略。
 
 **核心结论：**
-- **多 Agent 稳定性是乘法关系**：两个 90% 可靠的 Agent 协作，整体可靠性只有 81%
-- **信息衰减是最常见的故障**：Agent 间通过自然语言传递信息时，每经过一个 Agent 信息准确性下降 10-20%
+- **多 Agent 稳定性是乘法关系**：两个 90% 可靠的 Agent 协作，整体可靠性只有 81%（基于独立事件概率乘法规则的理论计算）
+- **信息衰减是最常见的故障**：Agent 间通过自然语言传递信息时，每经过一个 Agent 信息准确性显著下降
 - **责任真空是破坏性最强的故障**：当问题落在 Agent 职责边界之间时，无人处理导致问题长期存在
-- **预防优于修复**：通过架构设计（会话隔离、规则嵌入、检查点）可在故障发生前阻断 80% 的问题
+- **预防优于修复**：通过架构设计（会话隔离、规则嵌入、检查点）可大幅减少故障发生
 - **人工介入点设计是关键**：不是消除人工介入，而是将其放在最高效的位置
 
 ---
@@ -239,8 +239,8 @@ Mermaid 图数量匹配、链接可达性检查、文件存在性验证——这
 2. CrewAI 文档 — 角色与任务依赖 — [docs.crewai.com](https://docs.crewai.com)
 3. AutoGen 文档 — 多 Agent 对话 — [microsoft.github.io/autogen](https://microsoft.github.io/autogen)
 4. OpenClaw 文档 — 会话与心跳机制 — [docs.openclaw.ai](https://docs.openclaw.ai)
-5. "Challenges in Multi-Agent Systems" — [arxiv.org/abs/2402.03670](https://arxiv.org/abs/2402.03670) (2024)
-6. "Lost in the Middle: How Language Models Use Long Contexts" — [arxiv.org/abs/2307.03172](https://arxiv.org/abs/2307.03172)
+5. "TAMAS: Benchmarking Adversarial Risks in Multi-Agent LLM Systems" — [arxiv.org/abs/2511.05269](https://arxiv.org/abs/2511.05269) (2025)
+6. "Lost in the Middle: How Language Models Use Long Contexts" — [arxiv.org/abs/2307.03172](https://arxiv.org/abs/2307.03172) (此为该领域被引用最多的基础论文，后续研究均以此为基础)
 7. "Multi-Agent Orchestration Patterns" — [blog.langchain.dev](https://blog.langchain.dev/multi-agent-orchestration/) (2025)
 8. OpenClaw 多 Agent 团队管理方法论 — [wqwz111.github.io/Tech-Researcher](https://wqwz111.github.io/Tech-Researcher/reports/methodology/multi-agent-team-management.html)
 
