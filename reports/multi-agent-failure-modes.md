@@ -241,7 +241,7 @@ Mermaid 图数量匹配、链接可达性检查、文件存在性验证——这
 4. OpenClaw 文档 — 会话与心跳机制 — [docs.openclaw.ai](https://docs.openclaw.ai)
 5. "TAMAS: Benchmarking Adversarial Risks in Multi-Agent LLM Systems" — [arxiv.org/abs/2511.05269](https://arxiv.org/abs/2511.05269) (2025)
 6. "Lost in the Middle: How Language Models Use Long Contexts" — [arxiv.org/abs/2307.03172](https://arxiv.org/abs/2307.03172) (此为该领域被引用最多的基础论文，后续研究均以此为基础)
-7. "Multi-Agent Orchestration Patterns" — [blog.langchain.dev](https://blog.langchain.dev/multi-agent-orchestration/) (2025)
+7. "Multi-Agent Orchestration Patterns" — [blog.langchain.dev](https://blog.langchain.dev/langgraph-multi-agent-workflows/) (2025)
 8. OpenClaw 多 Agent 团队管理方法论 — [wqwz111.github.io/Tech-Researcher](https://wqwz111.github.io/Tech-Researcher/reports/methodology/multi-agent-team-management.html)
 
 ---
