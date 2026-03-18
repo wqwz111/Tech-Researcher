@@ -504,7 +504,7 @@
     <div class="exec-summary__label">Executive Summary</div>
     <p><p><strong>ClawHub 在短短 10 周内从零增长到 6.2k GitHub Stars 和 972 Forks，表明 AI Agent 技能市场正处于爆发前夜。</strong> 这个由 OpenClaw 项目孵化的技能注册中心，已经从一个简单的技能目录演变为一个拥有完整版本管理、向量搜索、多层安全审核和社区治理的成熟生态系统。</p>
 <p><strong>开发者对技能的需求集中在&quot;让 AI 真正能做事&quot;——API 集成、设备控制和工作流自动化是最核心的刚需场景。</strong> 从 ClawHub 的排序机制（默认按 downloads/installs 排序而非 stars）可以看出，平台优先衡量的是实际使用量而非兴趣度，这反映了开发者追求的是能落地的技能，不是锦上添花的 demo。</p>
-<p><strong>安全与信任是当前生态建设的最大投资方向。</strong> 从 v0.5.0 到 v0.8.0 的 8 个版本中，平台新增了 VirusTotal 扫描、LLM 安全评估、AI 驱动的评论反欺诈、GitHub 账号年龄门槛（≥14 天）等功能，安全审核能力的投入远超功能开发，这说明社区已经认识到：<strong>没有信任的技能市场只会沦为恶意代码的分发渠道。</strong></p>
+<p><strong>安全与信任是当前生态建设的最大投资方向。</strong> 从 v0.5.0 到 v0.8.0 的 8 个版本中，平台新增了 VirusTotal 扫描、LLM 安全评估、AI 驱动的评论反欺诈、GitHub 账号年龄门槛（≥14 天）等功能，安全审核能力的投入远超功能开发，这说明社区已经认识到：<strong>没有信任的技能市场只会沦为恶意代码的分发渠道。</strong> 第三方安全审计已证实这一担忧的合理性——截至 2026 年 3 月，RankClaw 对 ClawHub 上 14,706 个技能进行了 AI 深度审计，发现 1,103 个（7.5%）为恶意技能，攻击手法涵盖提示注入、品牌仿冒和社会工程[8]。eSecurity Planet 也报道了这一安全事件，将其描述为 Agent 生态面临的系统性挑战[9]。</p>
 <p><strong>Agent 生态正在从&quot;模型能力竞赛&quot;转向&quot;工具集成竞赛&quot;，Nix 插件系统和 MCP 桥接模式是两个关键信号。</strong> Nix 插件允许将技能包、CLI 二进制文件和配置要求打包在一起，代表了系统级集成的方向；而 OpenClaw 选择通过 mcporter 桥接 MCP 而非内置，显示了对&quot;松耦合、可扩展&quot;架构的偏好。下一步的竞争焦点将是：<strong>谁能提供最丰富、最可信、最易发现的技能生态。</strong></p>
 </p>
   </div>
@@ -552,7 +552,7 @@
 <tr>
 <td>版本发布</td>
 <td>v0.8.0（2026-03-13）</td>
-<td>约每周一个大版本</td>
+<td>平均每 4-7 天一个主要版本</td>
 </tr>
 </tbody></table>
 <p>ClawHub 的技术栈选择反映了&quot;快速迭代、开发者友好&quot;的定位：</p>
@@ -637,6 +637,9 @@
 <td>★★★☆☆</td>
 </tr>
 </tbody></table>
+<blockquote>
+<p><strong>⚠️ 方法说明</strong>：上表的排名和&quot;刚需指数&quot;基于对 ClawHub 官方文档、示例技能、排序机制（默认按 downloads/installs 排序）的分析推测，以及第三方安全审计平台 RankClaw 对 14,706 个技能的分类统计参考[8]。ClawHub 目前未公开各分类的安装量排行数据，因此排名反映的是文档层面的信号强度而非精确的安装量排序。实际需求分布可能随生态发展而变化。</p>
+</blockquote>
 <h3>3.2 需求层次分析</h3>
 <p>从 ClawHub 的功能设计中，我们可以清晰看到开发者需求的三个层次：</p>
 <p><div class="mermaid">graph TD
@@ -670,27 +673,46 @@
 <hr>
 <h2>4. 技能热度趋势与生态演进方向</h2>
 <h3>4.1 版本迭代节奏揭示的投资方向</h3>
-<p>分析 ClawHub 从 v0.3.0（2026-01-19）到 v0.8.0（2026-03-13）的 8 个版本的新增功能，可以清晰看到资源投入的优先级：</p>
+<p>分析 ClawHub 从 v0.0.1（2026-01-04）到 v0.8.0（2026-03-13）共 14 个版本标签的实际发布间隔，可以清晰看到资源投入的优先级。根据 GitHub Git 标签记录（取 tagger/committer 日期），主要版本（v0.x.0）的发布间隔如下：</p>
 <table>
 <thead>
 <tr>
 <th>版本</th>
 <th>日期</th>
+<th>距上一版本</th>
 <th>安全/审核功能</th>
 <th>发现/搜索功能</th>
 <th>核心功能</th>
 </tr>
 </thead>
 <tbody><tr>
+<td>v0.0.1-v0.1.0</td>
+<td>01-04 ~ 01-07</td>
+<td>0-1 天（快速试错期）</td>
+<td>—</td>
+<td>—</td>
+<td>基础框架搭建</td>
+</tr>
+<tr>
+<td>v0.2.0</td>
+<td>01-13</td>
+<td>+6 天</td>
+<td>—</td>
+<td>—</td>
+<td>核心迭代</td>
+</tr>
+<tr>
 <td>v0.3.0</td>
 <td>01-19</td>
+<td>+6 天</td>
 <td>—</td>
 <td>trending 排行、explore 命令</td>
 <td>星标 API</td>
 </tr>
 <tr>
 <td>v0.4.0</td>
-<td>01-30</td>
+<td>01-29</td>
+<td>+10 天</td>
 <td>—</td>
 <td>用户主页技能展示</td>
 <td>GitHub 配置支持</td>
@@ -698,6 +720,7 @@
 <tr>
 <td>v0.5.0</td>
 <td>02-02</td>
+<td>+4 天</td>
 <td>用户封禁、举报自动隐藏、年龄门槛</td>
 <td>—</td>
 <td>CLI inspect 命令</td>
@@ -705,6 +728,7 @@
 <tr>
 <td>v0.6.0</td>
 <td>02-10</td>
+<td>+8 天</td>
 <td>VirusTotal 扫描、隔离机制</td>
 <td>—</td>
 <td>用户角色管理</td>
@@ -712,6 +736,7 @@
 <tr>
 <td>v0.6.1</td>
 <td>02-13</td>
+<td>+3 天</td>
 <td>LLM 安全评估</td>
 <td>向量搜索改进</td>
 <td>懒加载优化</td>
@@ -719,6 +744,7 @@
 <tr>
 <td>v0.7.0</td>
 <td>02-16</td>
+<td>+3 天</td>
 <td>反垃圾发布、信任分级</td>
 <td>非可疑技能过滤</td>
 <td>自动摘要生成</td>
@@ -726,11 +752,15 @@
 <tr>
 <td>v0.8.0</td>
 <td>03-13</td>
+<td>+25 天</td>
 <td>AI 反欺诈评论、审计工具</td>
 <td>技能所有者展示</td>
 <td>所有权转移流程</td>
 </tr>
 </tbody></table>
+<blockquote>
+<p><strong>注</strong>：早期 v0.0.x 阶段（1 月 4-6 日）在 2 天内连续发布 5 个版本，属于快速试错期；此后主要版本间隔稳定在 4-10 天。v0.4.0 到 v0.5.0 间隔较短（4 天），而 v0.7.0 到 v0.8.0 间隔最长（25 天），反映了 v0.8.0 大幅扩展了安全能力（AI 反欺诈、审计工具）。整体节奏并非&quot;约每周一个大版本&quot;，而是 <strong>前两周密集迭代，之后平均 5-8 天一个主要版本</strong>。</p>
+</blockquote>
 <p><strong>关键趋势</strong>：安全/审核功能的投入逐版本加速，从简单的用户封禁发展到 AI 驱动的反欺诈和 VirusTotal 集成，这是生态成熟化的标志。</p>
 <h3>4.2 Agent 生态的下一步演进</h3>
 <p>基于 ClawHub 的发展轨迹和 OpenClaw 的 VISION.md，我们可以预测 Agent 技能生态的四个演进方向：</p>
@@ -795,7 +825,7 @@ OpenClaw 的愿景涵盖 macOS、iOS、Android、Windows 和 Linux 的 Companion
 <h3>5.4 需要避免的陷阱</h3>
 <ul>
 <li><strong>不要发布空壳技能</strong>：ClawHub 有 anti-spam 发布上限和空技能清理工具</li>
-<li><strong>不要隐藏依赖</strong>：LLM 安全评估会检测 frontmatter 声明与实际代码的不匹配</li>
+<li><strong>不要隐藏依赖</strong>：LLM 安全评估会检测 frontmatter 声明与实际代码的不匹配。RankClaw 的审计发现，部分技能表面评分 95/100，但 AI 深度审计后降至 38/100——攻击文本藏在 SKILL.md 的自然语言指令中，传统静态分析无法检测[8]</li>
 <li><strong>不要急于求成</strong>：GitHub 账号年龄需 ≥14 天才能发布，这是平台的反垃圾门槛</li>
 <li><strong>不要忽略 Nix 插件机会</strong>：对于需要 CLI 二进制的复杂工具，Nix 插件是官方推荐的分发方式</li>
 </ul>
@@ -833,9 +863,15 @@ OpenClaw 的愿景涵盖 macOS、iOS、Android、Windows 和 Linux 的 Companion
 <li><p><strong>OpenClaw Team</strong> — ClawHub Product Spec (2026)
  <a href="https://github.com/openclaw/clawhub/blob/main/docs/spec.md">https://github.com/openclaw/clawhub/blob/main/docs/spec.md</a></p>
 </li>
+<li><p><strong>RankClaw</strong> — AI-audited all 14,706 OpenClaw skills; 1,103 are malicious (2026-03)
+ <a href="https://rankclaw.com">https://rankclaw.com</a></p>
+</li>
+<li><p><strong>eSecurityPlanet / insiderllm</strong> — Malicious Skills Found in OpenClaw&#39;s ClawHub Marketplace (2026-02)
+ <a href="https://www.esecurityplanet.com/threats/hundreds-of-malicious-skills-found-in-openclaws-clawhub/">https://www.esecurityplanet.com/threats/hundreds-of-malicious-skills-found-in-openclaws-clawhub/</a></p>
+</li>
 </ol>
 <hr>
-<p><em>本报告基于 2024-2026 年公开资料编写，引用均附真实 URL。</em></p>
+<p><em>本报告基于 2024-2026 年公开资料编写，引用均附真实 URL。参考来源 1-7 为 ClawHub/OpenClaw 官方资料，来源 8-9 为第三方独立报道。</em></p>
 
 
 </div>
