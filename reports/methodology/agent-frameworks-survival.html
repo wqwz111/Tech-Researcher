@@ -496,13 +496,18 @@
 
   <!-- Breadcrumb -->
   <div class="breadcrumb">
-    <a href="./index.html">← 返回报告索引</a>
+    <a href="../index.html">← 返回报告索引</a>
   </div>
 
   <!-- Executive Summary -->
   <div class="exec-summary">
     <div class="exec-summary__label">Executive Summary</div>
-    <p></p>
+    <p><p><strong>LangGraph 在 2025 年爆发的根本原因是它解决了 Agent 开发中最核心的工程难题——状态管理与可控性</strong>，而 AutoGPT 因 Prompt 驱动的架构天然缺乏工程化能力，导致 182k GitHub stars 背后是&quot;僵尸项目&quot;的残酷现实。</p>
+<p><strong>Agent 框架市场在 2025 年完成了从&quot;概念验证&quot;到&quot;生产就绪&quot;的关键转变</strong>，CB Insights 数据显示 170+ 初创公司涌入，开发者平台成为最拥挤的细分赛道。</p>
+<p><strong>CrewAI、AutoGen、MetaGPT 三者形成了清晰的差异化定位</strong>——角色分工、对话协作、软件流水线——但 AutoGen 已于 2025 年 10 月与 Semantic Kernel 合并为 Microsoft Agent Framework，独立品牌终结。</p>
+<p><strong>框架选型的核心逻辑已从&quot;谁最火&quot;转向&quot;谁最适合你的场景&quot;</strong>，2026 年的成熟市场要求开发者根据工作流复杂度、企业生态、团队能力三维度做决策。</p>
+<p><strong>MCP（Model Context Protocol）和 A2A（Agent-to-Agent）标准化协议正在重塑整个生态</strong>，框架之间的竞争将从&quot;各自封闭&quot;转向&quot;互操作能力&quot;。</p>
+</p>
   </div>
 
   <!-- ═══════════════════════════════════════════
@@ -513,12 +518,6 @@
 <strong>发布日期</strong>: 2026-03-18
 <strong>状态</strong>: 已完成</p>
 </blockquote>
-<h2>1. Executive Summary</h2>
-<p><strong>LangGraph 在 2025 年爆发的根本原因是它解决了 Agent 开发中最核心的工程难题——状态管理与可控性</strong>，而 AutoGPT 因 Prompt 驱动的架构天然缺乏工程化能力，导致 182k GitHub stars 背后是&quot;僵尸项目&quot;的残酷现实。</p>
-<p><strong>Agent 框架市场在 2025 年完成了从&quot;概念验证&quot;到&quot;生产就绪&quot;的关键转变</strong>，CB Insights 数据显示 170+ 初创公司涌入，开发者平台成为最拥挤的细分赛道。</p>
-<p><strong>CrewAI、AutoGen、MetaGPT 三者形成了清晰的差异化定位</strong>——角色分工、对话协作、软件流水线——但 AutoGen 已于 2025 年 10 月与 Semantic Kernel 合并为 Microsoft Agent Framework，独立品牌终结。</p>
-<p><strong>框架选型的核心逻辑已从&quot;谁最火&quot;转向&quot;谁最适合你的场景&quot;</strong>，2026 年的成熟市场要求开发者根据工作流复杂度、企业生态、团队能力三维度做决策。</p>
-<p><strong>MCP（Model Context Protocol）和 A2A（Agent-to-Agent）标准化协议正在重塑整个生态</strong>，框架之间的竞争将从&quot;各自封闭&quot;转向&quot;互操作能力&quot;。</p>
 <hr>
 <h2>2. LangGraph 崛起：从链到图的范式跃迁</h2>
 <h3>2.1 LangChain 的困境与 LangGraph 的诞生</h3>
@@ -587,7 +586,7 @@
 <td>通过 HTTP 连接远程 MCP 服务器</td>
 </tr>
 </tbody></table>
-<p>LangChain/LangGraph 1.0 里程碑标志着框架成熟——LangChain 聚焦核心 Agent 循环和中间件，LangGraph 成为底层持久化运行时。Klarna、Replit、Elastic 等企业客户验证了其生产可用性。</p>
+<p>LangChain/LangGraph 1.0 里程碑标志着框架成熟——LangChain 聚焦核心 Agent 循环和中间件，LangGraph 成为底层持久化运行时。Klarna、Replit、Uber、LinkedIn 等企业客户验证了其生产可用性（详见参考文献 #4 和 #5）。</p>
 <h3>2.3 为什么是 LangGraph 而不是其他？</h3>
 <p>LangGraph 胜出的关键在于三个&quot;刚好&quot;：</p>
 <ol>
@@ -710,7 +709,7 @@
 <li><strong>Tools</strong>：Agent 可调用的工具（内置大量预置工具）</li>
 <li><strong>Crew</strong>：编排层，决定任务执行顺序（顺序/层级/共识）</li>
 </ul>
-<p>CrewAI 的企业级产品线（AMP Cloud）支持私有部署，10 万认证开发者。2025 年 AI Agent 调查数据显示 65% 组织已使用 Agent，但仅自动化 31% 工作流——CrewAI 瞄准的正是这个&quot;从 31% 到 100%&quot;的增量市场。</p>
+<p>CrewAI 的企业级产品线（AMP Cloud）支持私有部署，10 万认证开发者。CrewAI 的 &quot;2026 State of Agentic AI Survey&quot; 调查（500 名大型企业高管）显示 65% 组织已使用 Agent，但仅自动化 31% 工作流——CrewAI 瞄准的正是这个&quot;从 31% 到 100%&quot;的增量市场。</p>
 <h3>4.3 AutoGen：从实验到整合</h3>
 <p>AutoGen 经历了两个阶段：</p>
 <ul>
@@ -800,7 +799,7 @@
 <h3>6.1 标准化协议之战</h3>
 <p>2025-2026 年 Agent 框架生态最重要的变化是<strong>标准化协议的崛起</strong>：</p>
 <ul>
-<li><strong>MCP（Model Context Protocol）</strong>：Anthropic 发起，定义 Agent-工具通信标准。截至 2026 年初，已有 270+ MCP 服务器</li>
+<li><strong>MCP（Model Context Protocol）</strong>：Anthropic 发起，定义 Agent-工具通信标准。截至 2026 年初，<a href="https://github.com/modelcontextprotocol/servers">GitHub 官方仓库</a> 记录已有 500+ MCP 服务器</li>
 <li><strong>A2A（Agent-to-Agent Protocol）</strong>：Google 发起，定义 Agent 间通信标准。CrewAI、LangGraph、Microsoft Agent Framework 已支持</li>
 </ul>
 <p>这意味着未来的竞争不再是谁的 API 更好用，而是<strong>谁的互操作性更强</strong>。率先支持 MCP + A2A 双协议的框架将获得生态优势。</p>
@@ -849,7 +848,7 @@
 <li><p><strong>LangChain Changelog</strong> — &quot;August 2025&quot; (2025-08)
 <a href="https://changelog.langchain.com/?categories=cat_5UBL6DD8PcXXL&date=2025-08-01">https://changelog.langchain.com/?categories=cat_5UBL6DD8PcXXL&amp;date=2025-08-01</a></p>
 </li>
-<li><p><strong>CrewAI</strong> — &quot;AI Agent Survey&quot; (2025)
+<li><p><strong>CrewAI</strong> — &quot;2026 State of Agentic AI Survey Report&quot;（2026 年发布，调研 500 名大型企业高管）
 <a href="https://crewai.com/ai-agent-survey">https://crewai.com/ai-agent-survey</a></p>
 </li>
 <li><p><strong>DigitalOcean</strong> — &quot;CrewAI: A Practical Guide to Role-Based Agent Orchestration&quot; (2025)

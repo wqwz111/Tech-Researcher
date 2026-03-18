@@ -46,7 +46,7 @@
   }
 
   /* ── Light Theme ── */
-    [data-theme="light"] {
+  [data-theme="light"] {
     --bg-primary:    #ffffff;
     --bg-secondary:  #f8fafc;
     --bg-tertiary:   #f1f5f9;
@@ -238,7 +238,6 @@
     border-radius: 8px;
     padding: 1rem;
     overflow-x: auto;
-    max-width: 100%;
     margin: 1rem 0;
   }
 
@@ -286,7 +285,6 @@
      ═══════════════════════════════════════════ */
   .table-wrapper {
     overflow-x: auto;
-    max-width: 100%;
     margin: 1rem 0;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -412,17 +410,6 @@
   figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
   figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
 
-  blockquote {
-    border-left: 3px solid var(--accent-primary);
-    padding: 0.5rem 1rem;
-    margin: 1rem 0;
-    color: var(--text-muted);
-    background: var(--bg-callout);
-    border-radius: 0 8px 8px 0;
-  }
-
-  img { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
-
   hr {
     border: none;
     height: 1px;
@@ -489,232 +476,255 @@
 </script>
 </head>
 <body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
 <div class="header" style="position:relative">
-  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式"><span class="icon" id="themeIcon">☀️</span><span class="label" id="themeLabel">日间</span></button>
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
   <h1>AI Agent 框架横向对比</h1>
-  <div class="meta">2026-03-15 · 探针 (Probe)</div>
-  
+  <div class="meta">2026-03-18 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
 </div>
+
 <div class="container">
-  
-  
+
+  <!-- Breadcrumb -->
   <div class="breadcrumb">
-    <a href="./index.html">← 返回报告索引</a>
+    <a href="../index.html">← 返回报告索引</a>
   </div>
 
-<blockquote>
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p><p>AI Agent 框架是 2024-2025 年 AI 领域最活跃的方向之一。本报告对比分析五个主流 Agent 框架——LangGraph、CrewAI、AutoGen、MetaGPT 和 OpenClaw——从编程模型、状态管理、多 Agent 协作、生产就绪度等维度进行系统性评估。</p>
+<p><strong>核心结论：</strong></p>
+<ul>
+<li><strong>LangGraph</strong> 适合需要精细控制状态转换的复杂工作流，学习曲线较陡</li>
+<li><strong>CrewAI</strong> 以角色扮演范式著称，快速构建多 Agent 团队的最佳选择</li>
+<li><strong>AutoGen</strong> 微软力推，对话驱动的多 Agent 协作框架</li>
+<li><strong>MetaGPT</strong> 模拟软件公司组织架构，适合代码生成和软件开发</li>
+<li><strong>OpenClaw</strong> 以通信为中心的 Agent 框架，集成 Telegram 等实时通讯平台</li>
+</ul>
+</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <blockquote>
 <p>发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
 </blockquote>
-<hr />
-<h2 id="executive-summary">Executive Summary</h2>
-<p>AI Agent 框架是 2024-2025 年 AI 领域最活跃的方向之一。本报告对比分析五个主流 Agent 框架——LangGraph、CrewAI、AutoGen、MetaGPT 和 OpenClaw——从编程模型、状态管理、多 Agent 协作、生产就绪度等维度进行系统性评估。</p>
-<p><strong>核心结论：</strong>
-- <strong>LangGraph</strong> 适合需要精细控制状态转换的复杂工作流，学习曲线较陡
-- <strong>CrewAI</strong> 以角色扮演范式著称，快速构建多 Agent 团队的最佳选择
-- <strong>AutoGen</strong> 微软力推，对话驱动的多 Agent 协作框架
-- <strong>MetaGPT</strong> 模拟软件公司组织架构，适合代码生成和软件开发
-- <strong>OpenClaw</strong> 以通信为中心的 Agent 框架，集成 Telegram 等实时通讯平台</p>
-<hr />
-<h2 id="1">1. 框架概览</h2>
-<h3 id="11-langgraph">1.1 LangGraph</h3>
+<hr>
+<h2>1. 框架概览</h2>
+<h3>1.1 LangGraph</h3>
 <p><strong>项目地址</strong>：<a href="https://github.com/langchain-ai/langgraph">github.com/langchain-ai/langgraph</a>
 <strong>维护方</strong>：LangChain Inc.
 <strong>许可证</strong>：MIT</p>
 <p>LangGraph 是 LangChain 团队推出的图结构 Agent 框架，将 Agent 工作流建模为有向图。</p>
-<p><strong>核心特性：</strong>
-- 图结构工作流：Node（节点）+ Edge（边）
-- 状态管理：TypedDict 定义全局状态
-- 条件路由：基于状态动态选择下一步
-- 持久化：内置 checkpoint 机制
-- 人在环路（Human-in-the-loop）支持
-- 时间旅行调试：回溯到任意历史状态</p>
+<p><strong>核心特性：</strong></p>
+<ul>
+<li>图结构工作流：Node（节点）+ Edge（边）</li>
+<li>状态管理：TypedDict 定义全局状态</li>
+<li>条件路由：基于状态动态选择下一步</li>
+<li>持久化：内置 checkpoint 机制</li>
+<li>人在环路（Human-in-the-loop）支持</li>
+<li>时间旅行调试：回溯到任意历史状态</li>
+</ul>
 <p><strong>编程模型：</strong></p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langgraph.graph</span> <span class="kn">import</span> <span class="n">StateGraph</span><span class="p">,</span> <span class="n">END</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypedDict</span>
+<pre><code class="language-python">from langgraph.graph import StateGraph, END
+from typing import TypedDict
 
-<span class="k">class</span> <span class="nc">AgentState</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
-    <span class="n">messages</span><span class="p">:</span> <span class="nb">list</span>
-    <span class="n">current_step</span><span class="p">:</span> <span class="nb">str</span>
+class AgentState(TypedDict):
+    messages: list
+    current_step: str
 
-<span class="k">def</span> <span class="nf">research_node</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">AgentState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AgentState</span><span class="p">:</span>
-    <span class="c1"># 研究节点逻辑</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">research_result</span><span class="p">]}</span>
+def research_node(state: AgentState) -&gt; AgentState:
+    # 研究节点逻辑
+    return {&quot;messages&quot;: state[&quot;messages&quot;] + [research_result]}
 
-<span class="k">def</span> <span class="nf">write_node</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">AgentState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AgentState</span><span class="p">:</span>
-    <span class="c1"># 写作节点逻辑</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">write_result</span><span class="p">]}</span>
+def write_node(state: AgentState) -&gt; AgentState:
+    # 写作节点逻辑
+    return {&quot;messages&quot;: state[&quot;messages&quot;] + [write_result]}
 
-<span class="k">def</span> <span class="nf">route</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">AgentState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="k">return</span> <span class="s2">&quot;write&quot;</span> <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;current_step&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;research_done&quot;</span> <span class="k">else</span> <span class="s2">&quot;research&quot;</span>
+def route(state: AgentState) -&gt; str:
+    return &quot;write&quot; if state[&quot;current_step&quot;] == &quot;research_done&quot; else &quot;research&quot;
 
-<span class="n">graph</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">AgentState</span><span class="p">)</span>
-<span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;research&quot;</span><span class="p">,</span> <span class="n">research_node</span><span class="p">)</span>
-<span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;write&quot;</span><span class="p">,</span> <span class="n">write_node</span><span class="p">)</span>
-<span class="n">graph</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span><span class="s2">&quot;research&quot;</span><span class="p">,</span> <span class="n">route</span><span class="p">)</span>
-<span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;write&quot;</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span>
-<span class="n">app</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
-</code></pre></div>
-
-<h3 id="12-crewai">1.2 CrewAI</h3>
+graph = StateGraph(AgentState)
+graph.add_node(&quot;research&quot;, research_node)
+graph.add_node(&quot;write&quot;, write_node)
+graph.add_conditional_edges(&quot;research&quot;, route)
+graph.add_edge(&quot;write&quot;, END)
+app = graph.compile()
+</code></pre>
+<h3>1.2 CrewAI</h3>
 <p><strong>项目地址</strong>：<a href="https://github.com/crewAIInc/crewAI">github.com/crewAIInc/crewAI</a>
 <strong>维护方</strong>：CrewAI Inc.
 <strong>许可证</strong>：MIT</p>
 <p>CrewAI 采用「团队协作」的隐喻，通过定义角色（Agent）、任务（Task）和流程（Process）来构建多 Agent 系统。</p>
-<p><strong>核心特性：</strong>
-- 角色扮演：每个 Agent 有明确的角色、目标和背景故事
-- 任务委派：Agent 之间自动分配和协作
-- 流程编排：Sequential（顺序）和 Hierarchical（层级）
-- 工具集成：内置工具 + 自定义工具
-- 记忆系统：短期、长期、实体记忆</p>
+<p><strong>核心特性：</strong></p>
+<ul>
+<li>角色扮演：每个 Agent 有明确的角色、目标和背景故事</li>
+<li>任务委派：Agent 之间自动分配和协作</li>
+<li>流程编排：Sequential（顺序）和 Hierarchical（层级）</li>
+<li>工具集成：内置工具 + 自定义工具</li>
+<li>记忆系统：短期、长期、实体记忆</li>
+</ul>
 <p><strong>编程模型：</strong></p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">crewai</span> <span class="kn">import</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">Task</span><span class="p">,</span> <span class="n">Crew</span><span class="p">,</span> <span class="n">Process</span>
+<pre><code class="language-python">from crewai import Agent, Task, Crew, Process
 
-<span class="n">researcher</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
-    <span class="n">role</span><span class="o">=</span><span class="s2">&quot;资深技术研究员&quot;</span><span class="p">,</span>
-    <span class="n">goal</span><span class="o">=</span><span class="s2">&quot;深入分析指定技术领域的最新进展&quot;</span><span class="p">,</span>
-    <span class="n">backstory</span><span class="o">=</span><span class="s2">&quot;你拥有10年技术研究经验，擅长文献综述和趋势分析&quot;</span><span class="p">,</span>
-    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">search_tool</span><span class="p">,</span> <span class="n">scraper_tool</span><span class="p">]</span>
-<span class="p">)</span>
+researcher = Agent(
+    role=&quot;资深技术研究员&quot;,
+    goal=&quot;深入分析指定技术领域的最新进展&quot;,
+    backstory=&quot;你拥有10年技术研究经验，擅长文献综述和趋势分析&quot;,
+    tools=[search_tool, scraper_tool]
+)
 
-<span class="n">writer</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
-    <span class="n">role</span><span class="o">=</span><span class="s2">&quot;技术写作者&quot;</span><span class="p">,</span>
-    <span class="n">goal</span><span class="o">=</span><span class="s2">&quot;将研究发现转化为清晰易懂的技术文档&quot;</span><span class="p">,</span>
-    <span class="n">backstory</span><span class="o">=</span><span class="s2">&quot;你是知名科技媒体的专栏作者，以深入浅出著称&quot;</span>
-<span class="p">)</span>
+writer = Agent(
+    role=&quot;技术写作者&quot;,
+    goal=&quot;将研究发现转化为清晰易懂的技术文档&quot;,
+    backstory=&quot;你是知名科技媒体的专栏作者，以深入浅出著称&quot;
+)
 
-<span class="n">research_task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span>
-    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;调研 2025 年 AI Agent 框架的最新发展&quot;</span><span class="p">,</span>
-    <span class="n">expected_output</span><span class="o">=</span><span class="s2">&quot;详细的调研报告，包含5个主要框架的对比&quot;</span><span class="p">,</span>
-    <span class="n">agent</span><span class="o">=</span><span class="n">researcher</span>
-<span class="p">)</span>
+research_task = Task(
+    description=&quot;调研 2025 年 AI Agent 框架的最新发展&quot;,
+    expected_output=&quot;详细的调研报告，包含5个主要框架的对比&quot;,
+    agent=researcher
+)
 
-<span class="n">write_task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span>
-    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;基于调研结果撰写一篇 3000 字的技术报告&quot;</span><span class="p">,</span>
-    <span class="n">expected_output</span><span class="o">=</span><span class="s2">&quot;结构清晰的技术报告&quot;</span><span class="p">,</span>
-    <span class="n">agent</span><span class="o">=</span><span class="n">writer</span><span class="p">,</span>
-    <span class="n">context</span><span class="o">=</span><span class="p">[</span><span class="n">research_task</span><span class="p">]</span>
-<span class="p">)</span>
+write_task = Task(
+    description=&quot;基于调研结果撰写一篇 3000 字的技术报告&quot;,
+    expected_output=&quot;结构清晰的技术报告&quot;,
+    agent=writer,
+    context=[research_task]
+)
 
-<span class="n">crew</span> <span class="o">=</span> <span class="n">Crew</span><span class="p">(</span>
-    <span class="n">agents</span><span class="o">=</span><span class="p">[</span><span class="n">researcher</span><span class="p">,</span> <span class="n">writer</span><span class="p">],</span>
-    <span class="n">tasks</span><span class="o">=</span><span class="p">[</span><span class="n">research_task</span><span class="p">,</span> <span class="n">write_task</span><span class="p">],</span>
-    <span class="n">process</span><span class="o">=</span><span class="n">Process</span><span class="o">.</span><span class="n">sequential</span>
-<span class="p">)</span>
+crew = Crew(
+    agents=[researcher, writer],
+    tasks=[research_task, write_task],
+    process=Process.sequential
+)
 
-<span class="n">result</span> <span class="o">=</span> <span class="n">crew</span><span class="o">.</span><span class="n">kickoff</span><span class="p">()</span>
-</code></pre></div>
-
-<h3 id="13-autogen">1.3 AutoGen</h3>
+result = crew.kickoff()
+</code></pre>
+<h3>1.3 AutoGen</h3>
 <p><strong>项目地址</strong>：<a href="https://github.com/microsoft/autogen">github.com/microsoft/autogen</a>
 <strong>维护方</strong>：Microsoft
 <strong>许可证</strong>：MIT（0.4 版本）</p>
 <p>AutoGen 是微软推出的多 Agent 对话框架，核心理念是通过 Agent 之间的对话来解决问题。</p>
-<p><strong>核心特性：</strong>
-- 对话驱动：Agent 通过消息传递协作
-- 灵活的对话模式：两两对话、群聊、嵌套对话
-- 代码执行：内置安全的代码执行沙箱
-- 人类参与：灵活的人类输入模式
-- 0.4 版本重构：更模块化的架构</p>
+<p><strong>核心特性：</strong></p>
+<ul>
+<li>对话驱动：Agent 通过消息传递协作</li>
+<li>灵活的对话模式：两两对话、群聊、嵌套对话</li>
+<li>代码执行：内置安全的代码执行沙箱</li>
+<li>人类参与：灵活的人类输入模式</li>
+<li>0.4 版本重构：更模块化的架构</li>
+</ul>
 <p><strong>编程模型：</strong></p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">autogen</span> <span class="kn">import</span> <span class="n">AssistantAgent</span><span class="p">,</span> <span class="n">UserProxyAgent</span><span class="p">,</span> <span class="n">GroupChat</span><span class="p">,</span> <span class="n">GroupChatManager</span>
+<pre><code class="language-python">from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
 
-<span class="n">llm_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span> <span class="s2">&quot;api_key&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">}</span>
+llm_config = {&quot;model&quot;: &quot;gpt-4o&quot;, &quot;api_key&quot;: &quot;...&quot;}
 
-<span class="n">researcher</span> <span class="o">=</span> <span class="n">AssistantAgent</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Researcher&quot;</span><span class="p">,</span>
-    <span class="n">system_message</span><span class="o">=</span><span class="s2">&quot;你是一个技术研究员，负责收集和分析信息。&quot;</span><span class="p">,</span>
-    <span class="n">llm_config</span><span class="o">=</span><span class="n">llm_config</span>
-<span class="p">)</span>
+researcher = AssistantAgent(
+    name=&quot;Researcher&quot;,
+    system_message=&quot;你是一个技术研究员，负责收集和分析信息。&quot;,
+    llm_config=llm_config
+)
 
-<span class="n">writer</span> <span class="o">=</span> <span class="n">AssistantAgent</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Writer&quot;</span><span class="p">,</span>
-    <span class="n">system_message</span><span class="o">=</span><span class="s2">&quot;你是一个技术写作者，负责将研究发现转化为文档。&quot;</span><span class="p">,</span>
-    <span class="n">llm_config</span><span class="o">=</span><span class="n">llm_config</span>
-<span class="p">)</span>
+writer = AssistantAgent(
+    name=&quot;Writer&quot;,
+    system_message=&quot;你是一个技术写作者，负责将研究发现转化为文档。&quot;,
+    llm_config=llm_config
+)
 
-<span class="n">reviewer</span> <span class="o">=</span> <span class="n">AssistantAgent</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Reviewer&quot;</span><span class="p">,</span>
-    <span class="n">system_message</span><span class="o">=</span><span class="s2">&quot;你是一个审稿人，负责审查文档质量并提供反馈。&quot;</span><span class="p">,</span>
-    <span class="n">llm_config</span><span class="o">=</span><span class="n">llm_config</span>
-<span class="p">)</span>
+reviewer = AssistantAgent(
+    name=&quot;Reviewer&quot;,
+    system_message=&quot;你是一个审稿人，负责审查文档质量并提供反馈。&quot;,
+    llm_config=llm_config
+)
 
-<span class="n">user_proxy</span> <span class="o">=</span> <span class="n">UserProxyAgent</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;User&quot;</span><span class="p">,</span>
-    <span class="n">human_input_mode</span><span class="o">=</span><span class="s2">&quot;TERMINATE&quot;</span><span class="p">,</span>
-    <span class="n">code_execution_config</span><span class="o">=</span><span class="kc">False</span>
-<span class="p">)</span>
+user_proxy = UserProxyAgent(
+    name=&quot;User&quot;,
+    human_input_mode=&quot;TERMINATE&quot;,
+    code_execution_config=False
+)
 
-<span class="n">group_chat</span> <span class="o">=</span> <span class="n">GroupChat</span><span class="p">(</span>
-    <span class="n">agents</span><span class="o">=</span><span class="p">[</span><span class="n">user_proxy</span><span class="p">,</span> <span class="n">researcher</span><span class="p">,</span> <span class="n">writer</span><span class="p">,</span> <span class="n">reviewer</span><span class="p">],</span>
-    <span class="n">messages</span><span class="o">=</span><span class="p">[],</span>
-    <span class="n">max_round</span><span class="o">=</span><span class="mi">20</span>
-<span class="p">)</span>
+group_chat = GroupChat(
+    agents=[user_proxy, researcher, writer, reviewer],
+    messages=[],
+    max_round=20
+)
 
-<span class="n">manager</span> <span class="o">=</span> <span class="n">GroupChatManager</span><span class="p">(</span><span class="n">groupchat</span><span class="o">=</span><span class="n">group_chat</span><span class="p">,</span> <span class="n">llm_config</span><span class="o">=</span><span class="n">llm_config</span><span class="p">)</span>
-<span class="n">user_proxy</span><span class="o">.</span><span class="n">initiate_chat</span><span class="p">(</span><span class="n">manager</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;请写一篇关于 AI Agent 的技术报告&quot;</span><span class="p">)</span>
-</code></pre></div>
-
-<h3 id="14-metagpt">1.4 MetaGPT</h3>
+manager = GroupChatManager(groupchat=group_chat, llm_config=llm_config)
+user_proxy.initiate_chat(manager, message=&quot;请写一篇关于 AI Agent 的技术报告&quot;)
+</code></pre>
+<h3>1.4 MetaGPT</h3>
 <p><strong>项目地址</strong>：<a href="https://github.com/geekan/MetaGPT">github.com/geekan/MetaGPT</a>
 <strong>维护方</strong>：DeepWisdom
 <strong>许可证</strong>：MIT</p>
 <p>MetaGPT 独创「软件公司」范式，模拟产品经理、架构师、工程师等角色协作完成软件开发。</p>
-<p><strong>核心特性：</strong>
-- SOP 驱动：标准化操作流程
-- 角色专业化：产品经理、架构师、工程师、QA
-- 结构化输出：每个角色产生标准化文档
-- 代码生成：端到端的软件开发流程
-- 环境共享：Agent 共享黑板（消息池）</p>
+<p><strong>核心特性：</strong></p>
+<ul>
+<li>SOP 驱动：标准化操作流程</li>
+<li>角色专业化：产品经理、架构师、工程师、QA</li>
+<li>结构化输出：每个角色产生标准化文档</li>
+<li>代码生成：端到端的软件开发流程</li>
+<li>环境共享：Agent 共享黑板（消息池）</li>
+</ul>
 <p><strong>编程模型：</strong></p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">metagpt.software_company</span> <span class="kn">import</span> <span class="n">SoftwareCompany</span>
-<span class="kn">from</span> <span class="nn">metagpt.roles</span> <span class="kn">import</span> <span class="n">ProjectManager</span><span class="p">,</span> <span class="n">Architect</span><span class="p">,</span> <span class="n">Engineer</span>
+<pre><code class="language-python">from metagpt.software_company import SoftwareCompany
+from metagpt.roles import ProjectManager, Architect, Engineer
 
-<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="n">company</span> <span class="o">=</span> <span class="n">SoftwareCompany</span><span class="p">()</span>
-    <span class="n">company</span><span class="o">.</span><span class="n">hire</span><span class="p">([</span>
-        <span class="n">ProjectManager</span><span class="p">(),</span>
-        <span class="n">Architect</span><span class="p">(),</span>
-        <span class="n">Engineer</span><span class="p">()</span>
-    <span class="p">])</span>
-    <span class="n">company</span><span class="o">.</span><span class="n">invest</span><span class="p">(</span><span class="n">investment</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
-    <span class="n">company</span><span class="o">.</span><span class="n">start_project</span><span class="p">(</span><span class="s2">&quot;开发一个简单的 Todo App&quot;</span><span class="p">)</span>
-    <span class="k">await</span> <span class="n">company</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">n_round</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-</code></pre></div>
-
-<h3 id="15-openclaw">1.5 OpenClaw</h3>
+async def main():
+    company = SoftwareCompany()
+    company.hire([
+        ProjectManager(),
+        Architect(),
+        Engineer()
+    ])
+    company.invest(investment=3.0)
+    company.start_project(&quot;开发一个简单的 Todo App&quot;)
+    await company.run(n_round=5)
+</code></pre>
+<h3>1.5 OpenClaw</h3>
 <p><strong>项目地址</strong>：<a href="https://github.com/openclaw/openclaw">github.com/openclaw/openclaw</a>
 <strong>维护方</strong>：OpenClaw 社区
 <strong>许可证</strong>：Apache 2.0</p>
 <p>OpenClaw 是一个以通信为中心的 Agent 框架，强调 Agent 与人类通过即时通讯平台（Telegram、Discord 等）的实时交互。</p>
-<p><strong>核心特性：</strong>
-- 通信原生：内置 Telegram/Discord/WhatsApp 适配
-- 技能系统：可组合的 Agent 技能（Skills）
-- 工具集成：MCP（Model Context Protocol）工具接入
-- 会话管理：多会话并行，上下文隔离
-- 自主编排：Agent 可创建和管理子 Agent</p>
+<p><strong>核心特性：</strong></p>
+<ul>
+<li>通信原生：内置 Telegram/Discord/WhatsApp 适配</li>
+<li>技能系统：可组合的 Agent 技能（Skills）</li>
+<li>工具集成：MCP（Model Context Protocol）工具接入</li>
+<li>会话管理：多会话并行，上下文隔离</li>
+<li>自主编排：Agent 可创建和管理子 Agent</li>
+</ul>
 <p><strong>编程模型：</strong>
 OpenClaw 更多通过配置驱动：</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># AGENTS.md 配置示例</span>
-<span class="nt">agent</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tech-researcher</span>
-<span class="w">  </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gpt-4o</span>
-<span class="w">  </span><span class="nt">channel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">telegram</span>
-
-<span class="nt">skills</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">github</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">web-search</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">report-generator</span>
-
-<span class="nt">tools</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exec</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span>
-</code></pre></div>
-
-<hr />
-<h2 id="2">2. 编程模型对比</h2>
-<h3 id="21">2.1 设计范式</h3>
-<div class="table-wrapper">
+<pre><code class="language-yaml"># AGENTS.md 配置示例
+agent:
+  name: tech-researcher
+  model: gpt-4o
+  channel: telegram
+  
+skills:
+  - github
+  - web-search
+  - report-generator
+  
+tools:
+  - exec
+  - read
+  - write
+</code></pre>
+<hr>
+<h2>2. 编程模型对比</h2>
+<h3>2.1 设计范式</h3>
 <table>
 <thead>
 <tr>
@@ -723,8 +733,7 @@ OpenClaw 更多通过配置驱动：</p>
 <th>抽象层级</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>LangGraph</td>
 <td>图（Graph）工作流</td>
 <td>中等 — 需要定义节点和边</td>
@@ -749,12 +758,9 @@ OpenClaw 更多通过配置驱动：</p>
 <td>通信驱动（Messaging）</td>
 <td>中等 — 配置 + 技能</td>
 </tr>
-</tbody>
-</table>
-</div>
-<h3 id="22-vs">2.2 灵活性 vs 易用性</h3>
-<div class="mermaid">
-    graph LR
+</tbody></table>
+<h3>2.2 灵活性 vs 易用性</h3>
+<p><div class="mermaid">graph LR
     LG["LangGraph<br/>高灵活性"]
     AG["AutoGen"]
     OC["OpenClaw"]
@@ -763,11 +769,8 @@ OpenClaw 更多通过配置驱动：</p>
     LG --> AG
     AG --> OC
     OC --> CREW
-    CREW --> MG
-</div>
-
-<h3 id="23">2.3 学习曲线</h3>
-<div class="table-wrapper">
+    CREW --> MG</div></p>
+<h3>2.3 学习曲线</h3>
 <table>
 <thead>
 <tr>
@@ -777,8 +780,7 @@ OpenClaw 更多通过配置驱动：</p>
 <th>说明</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>LangGraph</td>
 <td>2-3 天</td>
 <td>2-3 周</td>
@@ -808,13 +810,10 @@ OpenClaw 更多通过配置驱动：</p>
 <td>1-2 周</td>
 <td>配置驱动，需理解架构</td>
 </tr>
-</tbody>
-</table>
-</div>
-<hr />
-<h2 id="3">3. 状态管理与持久化</h2>
-<h3 id="31">3.1 状态管理对比</h3>
-<div class="table-wrapper">
+</tbody></table>
+<hr>
+<h2>3. 状态管理与持久化</h2>
+<h3>3.1 状态管理对比</h3>
 <table>
 <thead>
 <tr>
@@ -824,8 +823,7 @@ OpenClaw 更多通过配置驱动：</p>
 <th>时间旅行</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>LangGraph</td>
 <td>TypedDict 全局状态</td>
 <td>✅ Checkpointer</td>
@@ -855,28 +853,24 @@ OpenClaw 更多通过配置驱动：</p>
 <td>✅ 内置</td>
 <td>❌</td>
 </tr>
-</tbody>
-</table>
-</div>
-<h3 id="32-langgraph-checkpoint">3.2 LangGraph 的 Checkpoint 机制</h3>
+</tbody></table>
+<h3>3.2 LangGraph 的 Checkpoint 机制</h3>
 <p>LangGraph 的持久化能力最为成熟：</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langgraph.checkpoint.sqlite</span> <span class="kn">import</span> <span class="n">SqliteSaver</span>
+<pre><code class="language-python">from langgraph.checkpoint.sqlite import SqliteSaver
 
-<span class="n">checkpointer</span> <span class="o">=</span> <span class="n">SqliteSaver</span><span class="o">.</span><span class="n">from_conn_string</span><span class="p">(</span><span class="s2">&quot;:memory:&quot;</span><span class="p">)</span>
-<span class="n">app</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">checkpointer</span><span class="o">=</span><span class="n">checkpointer</span><span class="p">)</span>
+checkpointer = SqliteSaver.from_conn_string(&quot;:memory:&quot;)
+app = graph.compile(checkpointer=checkpointer)
 
-<span class="c1"># 运行并自动保存 checkpoint</span>
-<span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;configurable&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;thread_id&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">}}</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">invoke</span><span class="p">({</span><span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]},</span> <span class="n">config</span><span class="p">)</span>
+# 运行并自动保存 checkpoint
+config = {&quot;configurable&quot;: {&quot;thread_id&quot;: &quot;1&quot;}}
+result = app.invoke({&quot;messages&quot;: [...]}, config)
 
-<span class="c1"># 恢复到特定 checkpoint</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>  <span class="c1"># 继续之前的执行</span>
-</code></pre></div>
-
-<hr />
-<h2 id="4-agent">4. 多 Agent 协作能力</h2>
-<h3 id="41">4.1 协作模式对比</h3>
-<div class="table-wrapper">
+# 恢复到特定 checkpoint
+result = app.invoke(None, config)  # 继续之前的执行
+</code></pre>
+<hr>
+<h2>4. 多 Agent 协作能力</h2>
+<h3>4.1 协作模式对比</h3>
 <table>
 <thead>
 <tr>
@@ -887,8 +881,7 @@ OpenClaw 更多通过配置驱动：</p>
 <th>动态路由</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>LangGraph</td>
 <td>✅</td>
 <td>✅</td>
@@ -923,11 +916,8 @@ OpenClaw 更多通过配置驱动：</p>
 <td>有限</td>
 <td>✅</td>
 </tr>
-</tbody>
-</table>
-</div>
-<h3 id="42">4.2 通信机制</h3>
-<div class="table-wrapper">
+</tbody></table>
+<h3>4.2 通信机制</h3>
 <table>
 <thead>
 <tr>
@@ -937,8 +927,7 @@ OpenClaw 更多通过配置驱动：</p>
 <th>并行执行</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>LangGraph</td>
 <td>状态传递</td>
 <td>TypedDict</td>
@@ -968,13 +957,10 @@ OpenClaw 更多通过配置驱动：</p>
 <td>多格式</td>
 <td>✅</td>
 </tr>
-</tbody>
-</table>
-</div>
-<hr />
-<h2 id="5">5. 生产就绪度评估</h2>
-<h3 id="51">5.1 综合评分</h3>
-<div class="table-wrapper">
+</tbody></table>
+<hr>
+<h2>5. 生产就绪度评估</h2>
+<h3>5.1 综合评分</h3>
 <table>
 <thead>
 <tr>
@@ -986,8 +972,7 @@ OpenClaw 更多通过配置驱动：</p>
 <th>OpenClaw</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>文档质量</td>
 <td>⭐⭐⭐⭐⭐</td>
 <td>⭐⭐⭐⭐</td>
@@ -1043,12 +1028,9 @@ OpenClaw 更多通过配置驱动：</p>
 <td>少</td>
 <td>增长中</td>
 </tr>
-</tbody>
-</table>
-</div>
-<h3 id="52">5.2 框架选型决策树</h3>
-<div class="mermaid">
-    flowchart TD
+</tbody></table>
+<h3>5.2 框架选型决策树</h3>
+<p><div class="mermaid">flowchart TD
     START["🎯 选择 Agent 框架"] --> Q1{"主要用途?"}
     Q1 -->|"复杂工作流编排"| LANGGRAPH["✅ LangGraph"]
     Q1 -->|"快速原型/MVP"| Q2{"单Agent还是多Agent?"}
@@ -1060,6 +1042,7 @@ OpenClaw 更多通过配置驱动：</p>
     Q1 -->|"生产级关键系统"| Q3{"需要状态持久化?"}
     Q3 -->|"是"| LANGGRAPH2["✅ LangGraph"]
     Q3 -->|"否"| CREWAI2["✅ CrewAI"]
+
     style START fill:#4f46e5,stroke:#818cf8,color:#fff
     style LANGGRAPH fill:#059669,stroke:#34d399,color:#fff
     style LANGGRAPH2 fill:#059669,stroke:#34d399,color:#fff
@@ -1067,11 +1050,8 @@ OpenClaw 更多通过配置驱动：</p>
     style CREWAI2 fill:#7c3aed,stroke:#a78bfa,color:#fff
     style AUTOGEN fill:#7c3aed,stroke:#a78bfa,color:#fff
     style METAGPT fill:#7c3aed,stroke:#a78bfa,color:#fff
-    style OPENCLAW fill:#7c3aed,stroke:#a78bfa,color:#fff
-</div>
-
+    style OPENCLAW fill:#7c3aed,stroke:#a78bfa,color:#fff</div></p>
 <p><strong>快速参考</strong>：</p>
-<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -1080,8 +1060,7 @@ OpenClaw 更多通过配置驱动：</p>
 <th>理由</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>复杂工作流编排</td>
 <td><strong>LangGraph</strong></td>
 <td>图结构最灵活，状态管理最强</td>
@@ -1111,39 +1090,51 @@ OpenClaw 更多通过配置驱动：</p>
 <td><strong>LangGraph</strong></td>
 <td>持久化、时间旅行、可观测性最好</td>
 </tr>
-</tbody>
-</table>
-</div>
-<h3 id="53">5.3 风险提示</h3>
+</tbody></table>
+<h3>5.3 风险提示</h3>
 <ol>
 <li><strong>Agent 框架变化快</strong>：各框架 API 迭代频繁，锁定效应需考虑</li>
 <li><strong>成本不可预测</strong>：多 Agent 协作的 token 消耗可能指数级增长</li>
 <li><strong>调试困难</strong>：多 Agent 交互的非确定性增加调试难度</li>
 <li><strong>安全边界</strong>：Agent 自主行为的安全控制需要额外设计</li>
 </ol>
-<hr />
-<h2 id="_1">参考来源</h2>
-<ol>
+<hr>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
 <li>LangGraph 文档 — <a href="https://langchain-ai.github.io/langgraph">langchain-ai.github.io/langgraph</a></li>
 <li>CrewAI 文档 — <a href="https://docs.crewai.com">docs.crewai.com</a></li>
 <li>AutoGen 文档 — <a href="https://microsoft.github.io/autogen">microsoft.github.io/autogen</a></li>
-<li>MetaGPT 论文 — Hong et al., &ldquo;MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework&rdquo;, ICLR 2024</li>
+<li>MetaGPT 论文 — Hong et al., &quot;MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework&quot;, ICLR 2024</li>
 <li>OpenClaw 文档 — <a href="https://docs.openclaw.ai">docs.openclaw.ai</a></li>
-<li>AgentBench 基准 — Liu et al., &ldquo;AgentBench: Evaluating LLMs as Agents&rdquo;, ICLR 2024 — <a href="https://arxiv.org/abs/2308.03688">arXiv:2308.03688</a></li>
-<li>SWE-bench 基准 — Jimenez et al., &ldquo;SWE-bench: Can Language Models Resolve Real-World GitHub Issues?&rdquo;, 2024 — <a href="https://arxiv.org/abs/2310.06770">arXiv:2310.06770</a></li>
+<li>AgentBench 基准 — Liu et al., &quot;AgentBench: Evaluating LLMs as Agents&quot;, ICLR 2024 — <a href="https://arxiv.org/abs/2308.03688">arXiv:2308.03688</a></li>
+<li>SWE-bench 基准 — Jimenez et al., &quot;SWE-bench: Can Language Models Resolve Real-World GitHub Issues?&quot;, 2024 — <a href="https://arxiv.org/abs/2310.06770">arXiv:2310.06770</a></li>
 </ol>
 <p><em>本报告基于 2025 年初各框架版本撰写，Agent 框架领域发展极为迅速，建议关注各项目 GitHub 获取最新状态。</em></p>
+
+
 </div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
 <div class="footer">
   🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
   <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
 
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
-  mermaid.initialize({startOnLoad: false, theme: theme});
-  mermaid.run();
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
 </script>
 
 </body>

@@ -496,23 +496,13 @@
 
   <!-- Breadcrumb -->
   <div class="breadcrumb">
-    <a href="./index.html">← 返回报告索引</a>
+    <a href="../index.html">← 返回报告索引</a>
   </div>
 
   <!-- Executive Summary -->
   <div class="exec-summary">
     <div class="exec-summary__label">Executive Summary</div>
-    <p></p>
-  </div>
-
-  <!-- ═══════════════════════════════════════════
-       CONTENT
-       ═══════════════════════════════════════════ -->
-  <blockquote>
-<p><strong>作者</strong>: 探针团队<br><strong>发布日期</strong>: 2026-03-18<br><strong>状态</strong>: 已完成</p>
-</blockquote>
-<h2>1. Executive Summary</h2>
-<p><strong>核心结论：</strong></p>
+    <p><p><strong>核心结论：</strong></p>
 <ol>
 <li><p><strong>RBAC 在 Agent 场景中已结构性失灵。</strong> 传统基于角色的访问控制假设&quot;一个实体 = 一个角色&quot;，但 AI Agent 以机器速度执行动态、多步骤任务，静态角色无法覆盖工具调用的细粒度上下文需求，必然导致角色膨胀与权限过度授予。</p>
 </li>
@@ -525,6 +515,15 @@
 <li><p><strong>沙箱化 + 策略即代码 = 现代 Agent 权限的最小可行架构。</strong> OpenClaw 的 per-agent sandbox + tool allow/deny + Docker 隔离，以及 Cerbos 的 Policy-as-Code 方案，代表了当前工程实践的前沿——但所有框架仍缺乏统一的动态授权层。</p>
 </li>
 </ol>
+</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <blockquote>
+<p><strong>作者</strong>: 探针团队<br><strong>发布日期</strong>: 2026-03-18<br><strong>状态</strong>: 已完成</p>
+</blockquote>
 <hr>
 <h2>2. RBAC 的三个隐含假设及其在 Agent 场景的失灵</h2>
 <p>RBAC（Role-Based Access Control）是过去 20 年企业安全的基石。它之所以有效，依赖于三个在人类用户场景下成立的核心假设。然而在 AI Agent 场景中，这三个假设全部破裂。</p>

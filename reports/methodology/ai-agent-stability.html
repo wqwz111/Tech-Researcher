@@ -4,99 +4,505 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Agent 工作稳定性研究</title>
-<script>
-  function initMermaid(theme) {
-    mermaid.initialize({theme: theme === 'light' ? 'default' : 'dark', themeVariables: theme === 'light' ? {} : {primaryColor:'#312e81',primaryTextColor:'#e2e8f0',primaryBorderColor:'#4f46e5',lineColor:'#6366f1',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'}});
-  }
-</script>
 <style>
-    :root, [data-theme="dark"] {
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
     --bg-primary:    #0f172a;
     --bg-secondary:  #1e293b;
     --bg-tertiary:   #334155;
     --bg-card:       #1e293b;
     --bg-code:       #0d1117;
     --bg-callout:    #1a1040;
+
     --text-primary:  #f1f5f9;
     --text-secondary:#94a3b8;
     --text-muted:    #64748b;
+
     --accent-primary:   #818cf8;
     --accent-secondary: #a78bfa;
     --accent-success:   #34d399;
     --accent-warning:   #fb923c;
     --accent-danger:    #f87171;
+
     --border-color:   #334155;
     --border-light:   #1e293b;
+
     --tag-bg:   #3730a3;
     --tag-text: #c7d2fe;
+
     --link: #818cf8;
+
     --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     --header-border: #334155;
   }
-    [data-theme="light"] {
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
     --bg-primary:    #ffffff;
     --bg-secondary:  #f8fafc;
     --bg-tertiary:   #f1f5f9;
     --bg-card:       #f8fafc;
     --bg-code:       #f1f5f9;
     --bg-callout:    #eef2ff;
+
     --text-primary:  #0f172a;
     --text-secondary:#475569;
     --text-muted:    #94a3b8;
+
     --accent-primary:   #4f46e5;
     --accent-secondary: #7c3aed;
     --accent-success:   #059669;
     --accent-warning:   #ea580c;
     --accent-danger:    #dc2626;
+
     --border-color:   #e2e8f0;
     --border-light:   #f1f5f9;
+
     --tag-bg:   #e0e7ff;
     --tag-text: #312e81;
+
     --link: #4f46e5;
+
     --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
     --header-border: #e2e8f0;
   }
-  * { margin:0;padding:0;box-sizing:border-box; }
-  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.8;transition:background .3s,color .3s; }
-  .header { background:var(--bg-card);border-bottom:1px solid var(--border-color);padding:2.5rem 2rem;text-align:center;position:relative; }
-  .header h1 { font-size:1.8rem;margin-bottom:.5rem;color:var(--text-primary); }
-  .header .meta { color:var(--text-muted);font-size:.9rem; }
-  .tag { display:inline-block;padding:.2rem .6rem;margin:.2rem;background:var(--tag-bg);color:var(--tag-text);border-radius:4px;font-size:.8rem; }
-  .container { max-width:860px;margin:0 auto;padding:2rem 1.5rem; }
-  .breadcrumb { color:var(--text-muted);font-size:.85rem;margin-bottom:1.5rem; }
-  .breadcrumb a { color:var(--link);text-decoration:none; }
-  h2 { color:var(--accent-secondary);font-size:1.4rem;margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border-light); }
-  h3 { color:var(--accent-primary);font-size:1.15rem;margin:1.8rem 0 .8rem; }
-  p { margin-bottom:1rem;color:var(--text-primary); }
-  ul,ol { margin:.5rem 0 1rem 1.5rem;color:var(--text-primary); }
-  li { margin-bottom:.4rem; }
-  code { background:var(--bg-code);padding:.15rem .4rem;border-radius:4px;font-size:.9em;color:var(--accent-secondary); }
-  pre { background:var(--bg-code);border:1px solid var(--border-color);border-radius:8px;padding:1rem;overflow-x:auto;margin:1rem 0;max-width:100%; }
-  pre code { background:none;padding:0;font-size:0.85rem;max-width:100%; }
-  .callout { background:var(--bg-callout);border-left:3px solid var(--accent-primary);padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin:1rem 0; }
-  .callout strong { color:var(--accent-secondary); }
-  table { width:100%;border-collapse:collapse;margin:1rem 0; }
-  th,td { text-align:left;padding:.6rem .8rem;border:1px solid var(--border-color); }
-  th { background:var(--bg-code);color:var(--accent-secondary); }
-  .mermaid { background:var(--bg-code);border-radius:12px;padding:1.5rem;margin:1.5rem 0;text-align:center;overflow-x:auto; }
-  .ref { color:var(--text-muted);font-size:.85rem; } .ref a { color:var(--link);text-decoration:none; }
-  .footer { text-align:center;color:var(--text-muted);padding:2rem;margin-top:3rem;border-top:1px solid var(--border-light);font-size:.85rem; }
-  .theme-toggle { position:absolute;top:1rem;right:1.5rem;background:var(--bg-code);border:1px solid var(--border-color);border-radius:24px;padding:.3rem .6rem;cursor:pointer;display:flex;align-items:center;gap:.4rem;transition:all .3s; }
-  .theme-toggle:hover { border-color:var(--accent-primary); }
-  .theme-toggle .icon { font-size:1.1rem; }
-  .theme-toggle .label { font-size:.75rem;color:var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
 </head>
 <body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>AI Agent 工作稳定性研究</h1>
+  <div class="meta">2026-03-18 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
 <div class="container">
-<h1>AI Agent 工作稳定性研究</h1>
-<blockquote>
-<p>发布日期：2026-03-16 | 分类：Agent | 作者：探针</p>
-</blockquote>
-<hr>
-<h2>Executive Summary</h2>
-<p>AI Agent 在从实验原型走向生产部署的过程中，稳定性问题已成为核心瓶颈。本报告系统性地分析了 AI Agent 在长期运行、多轮交互、复杂任务中出现的稳定性问题，涵盖幻觉累积、上下文丢失、指令偏离、工具调用失败等典型故障模式。</p>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p><p>AI Agent 在从实验原型走向生产部署的过程中，稳定性问题已成为核心瓶颈。本报告系统性地分析了 AI Agent 在长期运行、多轮交互、复杂任务中出现的稳定性问题，涵盖幻觉累积、上下文丢失、指令偏离、工具调用失败等典型故障模式。</p>
 <p><strong>核心结论：</strong></p>
 <ul>
 <li><strong>稳定性是多维问题</strong>：不存在单一&quot;稳定性&quot;指标，需要从幻觉控制、上下文保真度、指令遵从度、工具可靠性四个维度分别评估</li>
@@ -104,6 +510,15 @@
 <li><strong>框架层面的解决方案差异显著</strong>：LangGraph 以状态机和检查点机制见长，CrewAI 依赖任务级容错，OpenClaw 通过会话隔离降低故障传播范围</li>
 <li><strong>实际生产部署仍处于&quot;高人工介入&quot;阶段</strong>：关键任务 Agent 需要人在环路（Human-in-the-loop）保障，完全自主的 Agent 在高可靠性场景中尚未成熟</li>
 </ul>
+</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <blockquote>
+<p>发布日期：2026-03-16 | 分类：Agent | 作者：探针</p>
+</blockquote>
 <hr>
 <h2>1. Agent 稳定性的定义维度</h2>
 <h3>1.1 稳定性不是单一指标</h3>
@@ -160,42 +575,41 @@
 <hr>
 <h2>2. 常见故障模式分类</h2>
 <h3>2.1 故障模式全景图</h3>
-<div class="mermaid">graph TD
+<p><div class="mermaid">graph TD
     ROOT["AI Agent 故障模式"]
     
-<pre><code>ROOT --&gt; HALL[&quot;🔴 幻觉类故障&quot;]
-ROOT --&gt; CTX[&quot;🟡 上下文类故障&quot;]
-ROOT --&gt; INST[&quot;🟠 指令类故障&quot;]
-ROOT --&gt; TOOL[&quot;🔵 工具类故障&quot;]
-ROOT --&gt; STATE[&quot;🟣 状态类故障&quot;]
+    ROOT --> HALL["🔴 幻觉类故障"]
+    ROOT --> CTX["🟡 上下文类故障"]
+    ROOT --> INST["🟠 指令类故障"]
+    ROOT --> TOOL["🔵 工具类故障"]
+    ROOT --> STATE["🟣 状态类故障"]
+    
+    HALL --> H1["事实性幻觉<br/>编造不存在的信息"]
+    HALL --> H2["来源幻觉<br/>引用不存在的 URL/文献"]
+    HALL --> H3["能力幻觉<br/>声称能执行实际无法完成的操作"]
+    
+    CTX --> C1["上下文溢出<br/>超过 context window 导致信息截断"]
+    CTX --> C2["上下文遗忘<br/>多轮对话中丢失早期关键信息"]
+    CTX --> C3["上下文混淆<br/>混合不同任务/用户的信息"]
+    
+    INST --> I1["指令偏离<br/>偏离原始任务目标"]
+    INST --> I2["过度执行<br/>执行用户未请求的额外操作"]
+    INST --> I3["指令矛盾<br/>多条指令之间产生冲突"]
+    
+    TOOL --> T1["工具选择错误<br/>调用了错误的工具"]
+    TOOL --> T2["参数错误<br/>工具参数格式/值不正确"]
+    TOOL --> T3["工具链断裂<br/>前一步工具输出未正确传递"]
+    
+    STATE --> S1["状态漂移<br/>Agent 内部状态与实际不一致"]
+    STATE --> S2["死循环<br/>Agent 陷入重复执行循环"]
+    STATE --> S3["级联故障<br/>单点错误引发连锁反应"]
 
-HALL --&gt; H1[&quot;事实性幻觉&lt;br/&gt;编造不存在的信息&quot;]
-HALL --&gt; H2[&quot;来源幻觉&lt;br/&gt;引用不存在的 URL/文献&quot;]
-HALL --&gt; H3[&quot;能力幻觉&lt;br/&gt;声称能执行实际无法完成的操作&quot;]
-
-CTX --&gt; C1[&quot;上下文溢出&lt;br/&gt;超过 context window 导致信息截断&quot;]
-CTX --&gt; C2[&quot;上下文遗忘&lt;br/&gt;多轮对话中丢失早期关键信息&quot;]
-CTX --&gt; C3[&quot;上下文混淆&lt;br/&gt;混合不同任务/用户的信息&quot;]
-
-INST --&gt; I1[&quot;指令偏离&lt;br/&gt;偏离原始任务目标&quot;]
-INST --&gt; I2[&quot;过度执行&lt;br/&gt;执行用户未请求的额外操作&quot;]
-INST --&gt; I3[&quot;指令矛盾&lt;br/&gt;多条指令之间产生冲突&quot;]
-
-TOOL --&gt; T1[&quot;工具选择错误&lt;br/&gt;调用了错误的工具&quot;]
-TOOL --&gt; T2[&quot;参数错误&lt;br/&gt;工具参数格式/值不正确&quot;]
-TOOL --&gt; T3[&quot;工具链断裂&lt;br/&gt;前一步工具输出未正确传递&quot;]
-
-STATE --&gt; S1[&quot;状态漂移&lt;br/&gt;Agent 内部状态与实际不一致&quot;]
-STATE --&gt; S2[&quot;死循环&lt;br/&gt;Agent 陷入重复执行循环&quot;]
-STATE --&gt; S3[&quot;级联故障&lt;br/&gt;单点错误引发连锁反应&quot;]
-
-style ROOT fill:#1e293b,stroke:#475569,color:#fff
-style HALL fill:#dc2626,stroke:#ef4444,color:#fff
-style CTX fill:#d97706,stroke:#f59e0b,color:#fff
-style INST fill:#ea580c,stroke:#fb923c,color:#fff
-style TOOL fill:#2563eb,stroke:#3b82f6,color:#fff
-style STATE fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
-</code></pre>
+    style ROOT fill:#1e293b,stroke:#475569,color:#fff
+    style HALL fill:#dc2626,stroke:#ef4444,color:#fff
+    style CTX fill:#d97706,stroke:#f59e0b,color:#fff
+    style INST fill:#ea580c,stroke:#fb923c,color:#fff
+    style TOOL fill:#2563eb,stroke:#3b82f6,color:#fff
+    style STATE fill:#7c3aed,stroke:#a78bfa,color:#fff</div></p>
 <h3>2.2 各故障模式详细分析</h3>
 <h4>2.2.1 幻觉类故障</h4>
 <p>幻觉是 LLM Agent 最广为人知的稳定性问题。在 Agent 场景中，幻觉的危害被进一步放大：</p>
@@ -299,7 +713,7 @@ style STATE fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
 <hr>
 <h2>4. 主流框架的稳定性解决方案对比</h2>
 <h3>4.1 框架方案对比总览</h3>
-<div class="mermaid">graph LR
+<p><div class="mermaid">graph LR
     subgraph "稳定性问题"
         H["幻觉累积"]
         C["上下文丢失"]
@@ -308,58 +722,57 @@ style STATE fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
         S["状态不一致"]
     end
     
-<pre><code>subgraph &quot;LangGraph&quot;
-    LG1[&quot;✅ 状态机&lt;br/&gt;+ 检查点&quot;]
-    LG2[&quot;✅ 持久化&lt;br/&gt;+ 时间旅行&quot;]
-    LG3[&quot;⚠️ 条件路由&lt;br/&gt;需手动设计&quot;]
-    LG4[&quot;✅ 重试机制&lt;br/&gt;+ 错误处理&quot;]
-    LG5[&quot;✅ 全局状态&lt;br/&gt;+ 持久化&quot;]
-end
+    subgraph "LangGraph"
+        LG1["✅ 状态机<br/>+ 检查点"]
+        LG2["✅ 持久化<br/>+ 时间旅行"]
+        LG3["⚠️ 条件路由<br/>需手动设计"]
+        LG4["✅ 重试机制<br/>+ 错误处理"]
+        LG5["✅ 全局状态<br/>+ 持久化"]
+    end
+    
+    subgraph "CrewAI"
+        CR1["⚠️ 依赖<br/>模型能力"]
+        CR2["⚠️ 任务上下文<br/>传递"]
+        CR3["✅ 角色定义<br/>+ 目标约束"]
+        CR4["⚠️ 基础<br/>错误处理"]
+        CR5["⚠️ 任务链<br/>状态管理"]
+    end
+    
+    subgraph "AutoGen"
+        AU1["⚠️ 依赖<br/>模型能力"]
+        AU2["⚠️ 对话历史<br/>管理"]
+        AU3["✅ 多轮对话<br/>+ 审查机制"]
+        AU4["⚠️ 有限的<br/>重试机制"]
+        AU5["⚠️ 对话状态<br/>隐式管理"]
+    end
+    
+    subgraph "OpenClaw"
+        OC1["⚠️ 依赖<br/>模型能力"]
+        OC2["✅ 会话隔离<br/>+ 上下文窗口管理"]
+        OC3["✅ SOUL.md<br/>+ 规则嵌入"]
+        OC4["✅ 工具重试<br/>+ 错误恢复"]
+        OC5["✅ 会话状态<br/>+ 心跳检查"]
+    end
+    
+    subgraph "Dify"
+        DI1["⚠️ 依赖<br/>模型能力"]
+        DI2["✅ 工作流<br/>上下文传递"]
+        DI3["✅ 节点级<br/>指令定义"]
+        DI4["✅ 可视化<br/>错误处理"]
+        DI5["✅ 工作流<br/>状态管理"]
+    end
+    
+    H -.-> LG1 & CR1 & AU1 & OC1 & DI1
+    C -.-> LG2 & CR2 & AU2 & OC2 & DI2
+    I -.-> LG3 & CR3 & AU3 & OC3 & DI3
+    T -.-> LG4 & CR4 & AU4 & OC4 & DI4
+    S -.-> LG5 & CR5 & AU5 & OC5 & DI5
 
-subgraph &quot;CrewAI&quot;
-    CR1[&quot;⚠️ 依赖&lt;br/&gt;模型能力&quot;]
-    CR2[&quot;⚠️ 任务上下文&lt;br/&gt;传递&quot;]
-    CR3[&quot;✅ 角色定义&lt;br/&gt;+ 目标约束&quot;]
-    CR4[&quot;⚠️ 基础&lt;br/&gt;错误处理&quot;]
-    CR5[&quot;⚠️ 任务链&lt;br/&gt;状态管理&quot;]
-end
-
-subgraph &quot;AutoGen&quot;
-    AU1[&quot;⚠️ 依赖&lt;br/&gt;模型能力&quot;]
-    AU2[&quot;⚠️ 对话历史&lt;br/&gt;管理&quot;]
-    AU3[&quot;✅ 多轮对话&lt;br/&gt;+ 审查机制&quot;]
-    AU4[&quot;⚠️ 有限的&lt;br/&gt;重试机制&quot;]
-    AU5[&quot;⚠️ 对话状态&lt;br/&gt;隐式管理&quot;]
-end
-
-subgraph &quot;OpenClaw&quot;
-    OC1[&quot;⚠️ 依赖&lt;br/&gt;模型能力&quot;]
-    OC2[&quot;✅ 会话隔离&lt;br/&gt;+ 上下文窗口管理&quot;]
-    OC3[&quot;✅ SOUL.md&lt;br/&gt;+ 规则嵌入&quot;]
-    OC4[&quot;✅ 工具重试&lt;br/&gt;+ 错误恢复&quot;]
-    OC5[&quot;✅ 会话状态&lt;br/&gt;+ 心跳检查&quot;]
-end
-
-subgraph &quot;Dify&quot;
-    DI1[&quot;⚠️ 依赖&lt;br/&gt;模型能力&quot;]
-    DI2[&quot;✅ 工作流&lt;br/&gt;上下文传递&quot;]
-    DI3[&quot;✅ 节点级&lt;br/&gt;指令定义&quot;]
-    DI4[&quot;✅ 可视化&lt;br/&gt;错误处理&quot;]
-    DI5[&quot;✅ 工作流&lt;br/&gt;状态管理&quot;]
-end
-
-H -.-&gt; LG1 &amp; CR1 &amp; AU1 &amp; OC1 &amp; DI1
-C -.-&gt; LG2 &amp; CR2 &amp; AU2 &amp; OC2 &amp; DI2
-I -.-&gt; LG3 &amp; CR3 &amp; AU3 &amp; OC3 &amp; DI3
-T -.-&gt; LG4 &amp; CR4 &amp; AU4 &amp; OC4 &amp; DI4
-S -.-&gt; LG5 &amp; CR5 &amp; AU5 &amp; OC5 &amp; DI5
-
-style H fill:#dc2626,stroke:#ef4444,color:#fff
-style C fill:#d97706,stroke:#f59e0b,color:#fff
-style I fill:#ea580c,stroke:#fb923c,color:#fff
-style T fill:#2563eb,stroke:#3b82f6,color:#fff
-style S fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
-</code></pre>
+    style H fill:#dc2626,stroke:#ef4444,color:#fff
+    style C fill:#d97706,stroke:#f59e0b,color:#fff
+    style I fill:#ea580c,stroke:#fb923c,color:#fff
+    style T fill:#2563eb,stroke:#3b82f6,color:#fff
+    style S fill:#7c3aed,stroke:#a78bfa,color:#fff</div></p>
 <h3>4.2 LangGraph：状态机范式</h3>
 <p><strong>核心策略</strong>：将 Agent 行为建模为有向图，通过状态机保证执行的确定性和可追溯性。</p>
 <p><strong>稳定性机制</strong>：</p>
@@ -530,8 +943,13 @@ style S fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
 <li><strong>2028 年</strong>：形式化验证方法在 Agent 安全领域开始应用</li>
 </ul>
 <hr>
-<h2>参考来源</h2>
-<ol>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
 <li>LangGraph 文档 — <a href="https://langchain-ai.github.io/langgraph">langchain-ai.github.io/langgraph</a></li>
 <li>CrewAI 文档 — <a href="https://docs.crewai.com">docs.crewai.com</a></li>
 <li>AutoGen 文档 — <a href="https://microsoft.github.io/autogen">microsoft.github.io/autogen</a></li>
@@ -541,10 +959,26 @@ style S fill:#7c3aed,stroke:#a78bfa,color:#fff&lt;/div&gt;
 <li>AutoGPT GitHub Issues — <a href="https://github.com/Significant-Gravitas/AutoGPT/issues">github.com/Significant-Gravitas/AutoGPT/issues</a></li>
 </ol>
 
+
 </div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
 <div class="footer">
   🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
   <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
 </body>
 </html>
