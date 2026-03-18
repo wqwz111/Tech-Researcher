@@ -1,4 +1,10 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>AI Agent 工具权限模型：为什么 RBAC 失灵，接下来怎么走</title><style>
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent 工具权限模型：为什么 RBAC 失灵，接下来怎么走</title>
+<style>
   /* ═══════════════════════════════════════════
      🎨 THEME SYSTEM — GitHub Pages Compatible
      Single file, no external deps, theme toggle
@@ -442,11 +448,69 @@
     .theme-toggle { display: none; }
     a { color: #2563eb; }
   }
-</style></head><body><div class="container"><h1>AI Agent 工具权限模型：为什么 RBAC 失灵，接下来怎么走</h1>
-<blockquote>
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>AI Agent 工具权限模型：为什么 RBAC 失灵，接下来怎么走</h1>
+  <div class="meta">2026-03-18 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="./index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p></p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <blockquote>
 <p><strong>作者</strong>: 探针团队<br><strong>发布日期</strong>: 2026-03-18<br><strong>状态</strong>: 已完成</p>
 </blockquote>
-<hr>
 <h2>1. Executive Summary</h2>
 <p><strong>核心结论：</strong></p>
 <ol>
@@ -888,8 +952,13 @@ style OC_User fill:#fce4ec,stroke:#c62828&lt;/div&gt;
 <li>为开源社区贡献安全最佳实践</li>
 </ul>
 <hr>
-<h2>8. 参考来源</h2>
-<ol>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
 <li><p><strong>Oso</strong> — Why RBAC is Not Enough for AI Agents (2025)<br><a href="https://www.osohq.com/learn/why-rbac-is-not-enough-for-ai-agents">https://www.osohq.com/learn/why-rbac-is-not-enough-for-ai-agents</a></p>
 </li>
 <li><p><strong>Nizam Udheenti</strong> — Role-Based Access Control Isn&#39;t Enough for Autonomous AI Agents (Medium, 2025)<br><a href="https://nizamudheenti.medium.com/role-based-access-control-isnt-enough-for-autonomous-ai-agents-here-s-the-simple-reason-why-dfe49c86b536">https://nizamudheenti.medium.com/role-based-access-control-isnt-enough-for-autonomous-ai-agents-here-s-the-simple-reason-why-dfe49c86b536</a></p>
@@ -931,7 +1000,14 @@ style OC_User fill:#fce4ec,stroke:#c62828&lt;/div&gt;
 </ol>
 <hr>
 <p><em>本报告基于 2024-2026 年公开资料编写，引用均附真实 URL。AI Agent 安全领域演进极快，建议每季度更新一次关键发现。</em></p>
-</div><div class="footer">
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
   🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
   <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>

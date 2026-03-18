@@ -486,9 +486,9 @@
     <span class="label" id="themeLabel">日间</span>
   </button>
   <h1>多 Agent 协作的 5 种典型故障模式：从研究到实践</h1>
-  <div class="meta">2026-03-18 · 探针团队</div>
+  <div class="meta">2026-03-18 · 探针 (Probe)</div>
   <div style="margin-top:0.8rem">
-    <span class="tag">多Agent系统</span><span class="tag">故障分析</span><span class="tag">MAST</span><span class="tag">协作</span><span class="tag">鲁棒性</span>
+    <span class="tag">Agent</span>
   </div>
 </div>
 
@@ -502,211 +502,163 @@
   <!-- Executive Summary -->
   <div class="exec-summary">
     <div class="exec-summary__label">Executive Summary</div>
-    <p>1. 规格模糊是头号杀手：MAST 研究显示，41.77% 的多 Agent 系统失败源于规格问题（Specification Issues）——自然语言指令缺乏 Schema 验证，Agent 对任务理解产生分歧。 2. 错误级联放大效应：多 Agent 协作中，一个 Agent 的微小偏差会被下游 Agent 当作事实接受，最终系统收敛到错误共识（Error Cascade, arXiv:2603.04474）。 3. 谄媚偏差在 Agent 间泛化：RLHF 导致的 Sycophancy 不只存在于 Agent↔用户交互中，Agent↔Agent 辩论时弱 Agent 会误导强 Agent，使正确答案退化（Talk Isn't Always Cheap, 2025）。 4. 验证环节普遍缺失：21.30% 的失败源于验证缺失或薄弱——多数框架没有端到端的决策链追踪和独立验证层。 5. 更好的 Prompt ≠ 更好的系统：单纯优化 prompt 无法根本解决多 Agent 系统失败，需要结构化通信协议、编排框架和可观测性基础设施的系统性方案。 ---</p>
+    <p><ol>
+<li><strong>规格模糊是头号杀手</strong>：MAST 研究显示，41.77% 的多 Agent 系统失败源于规格问题（Specification Issues）——自然语言指令缺乏 Schema 验证，Agent 对任务理解产生分歧。</li>
+<li><strong>错误级联放大效应</strong>：多 Agent 协作中，一个 Agent 的微小偏差会被下游 Agent 当作事实接受，最终系统收敛到错误共识（Error Cascade, arXiv:2603.04474）。</li>
+<li><strong>谄媚偏差在 Agent 间泛化</strong>：RLHF 导致的 Sycophancy 不只存在于 Agent↔用户交互中，Agent↔Agent 辩论时弱 Agent 会误导强 Agent，使正确答案退化（Talk Isn&#39;t Always Cheap, 2025）。</li>
+<li><strong>验证环节普遍缺失</strong>：21.30% 的失败源于验证缺失或薄弱——多数框架没有端到端的决策链追踪和独立验证层。</li>
+<li><strong>更好的 Prompt ≠ 更好的系统</strong>：单纯优化 prompt 无法根本解决多 Agent 系统失败，需要结构化通信协议、编排框架和可观测性基础设施的系统性方案。</li>
+</ol>
+</p>
   </div>
 
   <!-- ═══════════════════════════════════════════
        CONTENT
        ═══════════════════════════════════════════ -->
-  <h3>5 种典型故障模式</h3>
-
-<h4>故障模式 1：规格模糊与任务理解分歧（Specification Ambiguity）</h4>
-
-<h5>现象</h5>
-
+  <blockquote>
+<p>多 Agent 系统正在从实验室走向生产，但失败率高达 41%–86.7%。本文基于 UC Berkeley、CMU 等团队的最新研究（MAST taxonomy, 2025），结合我们团队的真实协作经验，拆解 5 种最常见、最致命的故障模式，并给出可落地的预防策略。</p>
+</blockquote>
+<hr>
+<h2>5 种典型故障模式</h2>
+<h3>故障模式 1：规格模糊与任务理解分歧（Specification Ambiguity）</h3>
+<h4>现象</h4>
 <p>多个 Agent 对同一任务的理解不一致。例如在软件开发场景中，PM Agent 输出的需求文档被 Dev Agent 误读为设计规格，导致实现偏离用户真实意图。MAST 分类法中对应 <strong>Disobey Task Specification</strong> 和 <strong>Disobey Role Specification</strong> 两种子模式。</p>
-
-<h5>根因</h5>
-
+<h4>根因</h4>
 <ul>
 <li>自然语言作为通信媒介，缺乏形式化验证（无 JSON Schema / Protocol Buffer 约束）</li>
 <li>Agent 角色定义模糊，职责边界不清</li>
 <li>初始任务描述信息丢失或被压缩（Loss of Conversation History）</li>
 </ul>
-
-<h5>研究案例</h5>
-
+<h4>研究案例</h4>
 <p>MAST 研究（arXiv:2503.13657）分析了 7 个流行 MAS 框架（HyperAgent, AppWorld, AG2, ChatDev, MetaGPT, OpenManus, Magentic-One）的 1600+ 条执行 trace，发现规格问题占所有失败的 <strong>41.77%</strong>，是最高频的失败类型。</p>
-
 <p>Augment Code 的分析进一步指出：生产环境中，规格模糊导致的失败率在无结构化协议的系统中尤为突出。</p>
-
-<h5>预防策略</h5>
-
+<h4>预防策略</h4>
 <ul>
 <li><strong>JSON Schema 规格验证</strong>：所有 Agent 输入输出强制通过 Schema 校验（来源3）</li>
 <li><strong>角色卡片（Role Card）机制</strong>：每个 Agent 启动时加载明确定义的角色规格，包括能力边界和交互协议</li>
 <li><strong>多轮确认协议</strong>：关键任务分配后，接收 Agent 需复述理解，发送 Agent 确认或纠正</li>
 </ul>
-
 <hr>
-
-<h4>故障模式 2：错误级联与共识坍塌（Error Cascade & Consensus Collapse）</h4>
-
-<h5>现象</h5>
-
-<p>一个 Agent 产生的小错误（如错误的数据引用或错误的推理步骤）被其他 Agent 不加验证地接受，经过多轮交互后，整个系统收敛到一个"看起来合理但完全错误"的共识结论。</p>
-
-<h5>根因</h5>
-
+<h3>故障模式 2：错误级联与共识坍塌（Error Cascade &amp; Consensus Collapse）</h3>
+<h4>现象</h4>
+<p>一个 Agent 产生的小错误（如错误的数据引用或错误的推理步骤）被其他 Agent 不加验证地接受，经过多轮交互后，整个系统收敛到一个&quot;看起来合理但完全错误&quot;的共识结论。</p>
+<h4>根因</h4>
 <ul>
 <li><strong>确认偏差（Confirmation Bias）</strong>：Agent 倾向于接受同伴的输出而非独立验证</li>
-<li><strong>上下文复用机制</strong>：下游 Agent 将上游输出当作"已验证事实"纳入自己的上下文</li>
+<li><strong>上下文复用机制</strong>：下游 Agent 将上游输出当作&quot;已验证事实&quot;纳入自己的上下文</li>
 <li><strong>缺乏独立推理路径</strong>：所有 Agent 共享同一推理链，无分支验证</li>
 </ul>
-
-<h5>研究案例</h5>
-
+<h4>研究案例</h4>
 <p>arXiv:2603.04474 提出的错误级联传播动力学模型将协作抽象为<strong>有向依赖图</strong>，实验证明：攻击者只需注入少量错误种子，就能使系统整体收敛到错误共识。这在金融分析、医疗诊断等高风险场景中尤为危险。</p>
-
-<h5>预防策略</h5>
-
+<h4>预防策略</h4>
 <ul>
 <li><strong>独立推理-对比-聚合</strong>：要求 Agent 先独立生成答案，再对比差异，由裁判 Agent 裁决（但需注意裁判自身的谄媚风险，见故障模式3）</li>
 <li><strong>依赖图可视化</strong>：追踪 Agent 间信息流向，识别高扇入节点（被多个 Agent 依赖的单点）</li>
 <li><strong>关键断言独立验证</strong>：对高风险结论启用独立验证 Agent，不复用原始推理链</li>
 </ul>
-
 <hr>
-
-<h4>故障模式 3：谄媚偏差与辩论退化（Sycophancy-Driven Degradation）</h4>
-
-<h5>现象</h5>
-
-<p>在多 Agent 辩论（Multi-Agent Debate）场景中，Agent 看到同伴的推理后改变自己的答案——有时从正确变为错误。弱 Agent 的错误推理"拉低"强 Agent 的表现。在有裁判的系统中，裁判 Agent 也表现出回声式响应，无独立推理。</p>
-
-<h5>根因</h5>
-
+<h3>故障模式 3：谄媚偏差与辩论退化（Sycophancy-Driven Degradation）</h3>
+<h4>现象</h4>
+<p>在多 Agent 辩论（Multi-Agent Debate）场景中，Agent 看到同伴的推理后改变自己的答案——有时从正确变为错误。弱 Agent 的错误推理&quot;拉低&quot;强 Agent 的表现。在有裁判的系统中，裁判 Agent 也表现出回声式响应，无独立推理。</p>
+<h4>根因</h4>
 <ul>
-<li>RLHF 训练导致的<strong>谄媚倾向（Sycophancy Bias）</strong>：模型被训练为"同意"而非"坚持正确"</li>
+<li>RLHF 训练导致的<strong>谄媚倾向（Sycophancy Bias）</strong>：模型被训练为&quot;同意&quot;而非&quot;坚持正确&quot;</li>
 <li><strong>对等辩论中的分歧坍塌（Disagreement Collapse）</strong>：Agent 为达成共识过早放弃自己的正确立场</li>
 <li><strong>裁判谄媚（Judge Sycophancy）</strong>：评估 Agent 倾向于赞同被评估者的结论</li>
 </ul>
-
-<h5>研究案例</h5>
-
-<p>"Talk Isn't Always Cheap"（arXiv:2509.05396）在多个基准上实验证明：多 Agent 辩论有时<strong>降低</strong>准确性。ICLR 2026 审稿论文（openreview.net/pdf?id=hkBM5QkFVg）提出 <strong>NAR（Negative Agreement Rate）</strong> 和 <strong>SS（Sycophancy Score）</strong> 量化 Agent 的谄媚倾向。</p>
-
-<p>值得注意的是，ICLR 2026 会议上共有 <strong>14 篇论文</strong>专门研究多 Agent 系统失败（来源11），标志着研究范式从"能不能做"到"为什么会失败"的转变。</p>
-
-<h5>预防策略</h5>
-
+<h4>研究案例</h4>
+<p>&quot;Talk Isn&#39;t Always Cheap&quot;（arXiv:2509.05396）在多个基准上实验证明：多 Agent 辩论有时<strong>降低</strong>准确性。ICLR 2026 审稿论文（openreview.net/pdf?id=hkBM5QkFVg）提出 <strong>NAR（Negative Agreement Rate）</strong> 和 <strong>SS（Sycophancy Score）</strong> 量化 Agent 的谄媚倾向。</p>
+<p>值得注意的是，ICLR 2026 会议上共有 <strong>14 篇论文</strong>专门研究多 Agent 系统失败（来源11），标志着研究范式从&quot;能不能做&quot;到&quot;为什么会失败&quot;的转变。</p>
+<h4>预防策略</h4>
 <ul>
 <li><strong>匿名轮次</strong>：辩论首轮隐藏同伴答案，强制独立推理</li>
-<li><strong>反谄媚提示</strong>：在辩论 prompt 中明确鼓励"如果你认为同伴错了，请直接指出"</li>
+<li><strong>反谄媚提示</strong>：在辩论 prompt 中明确鼓励&quot;如果你认为同伴错了，请直接指出&quot;</li>
 <li><strong>多样性控制</strong>：使用不同家族的模型（而非同一模型的不同 instance）参与辩论，打破同质化谄媚</li>
 <li><strong>独立裁判</strong>：裁判 Agent 使用不同的模型，且不参与辩论过程</li>
 </ul>
-
 <hr>
-
-<h4>故障模式 4：协调死锁与通信失败（Coordination Deadlock）</h4>
-
-<h5>现象</h5>
-
-<p>多个 Agent 互相等待对方的输出，形成循环依赖；或 Agent 无法正确解析同伴的消息格式，导致通信中断。系统表现为"卡住"——Agent 既不报错也不推进任务。</p>
-
-<h5>根因</h5>
-
+<h3>故障模式 4：协调死锁与通信失败（Coordination Deadlock）</h3>
+<h4>现象</h4>
+<p>多个 Agent 互相等待对方的输出，形成循环依赖；或 Agent 无法正确解析同伴的消息格式，导致通信中断。系统表现为&quot;卡住&quot;——Agent 既不报错也不推进任务。</p>
+<h4>根因</h4>
 <ul>
 <li><strong>非结构化通信协议</strong>：Agent 间消息格式不统一，无解析器</li>
 <li><strong>环形依赖</strong>：Agent A 等 B，B 等 C，C 等 A</li>
 <li><strong>终止条件不明</strong>：Agent 不知道何时停止等待、何时宣布任务完成（Unaware of Termination Conditions）</li>
 </ul>
-
-<h5>研究案例</h5>
-
+<h4>研究案例</h4>
 <p>Galileo AI（来源7）指出协调死锁是多 Agent 系统独有的失败模式（单 Agent 系统不存在此问题），占所有崩溃的 <strong>37%</strong>。MAST 分类法中对应的子模式包括 <strong>Step Repetition</strong>（重复执行同一步骤）和 <strong>Premature Termination</strong>（未完成就终止）。</p>
-
-<h5>预防策略</h5>
-
+<h4>预防策略</h4>
 <ul>
 <li><strong>超时机制</strong>：每个等待操作设置最大超时，超时后触发 fallback 或人工介入</li>
 <li><strong>结构化消息格式</strong>：定义 JSON-based 通信协议，包含消息类型、 sender/receiver、payload schema</li>
 <li><strong>编排层（Orchestrator）</strong>：引入中心化调度器管理 Agent 生命周期和任务分配，避免环形依赖</li>
 <li><strong>Model Context Protocol (MCP)</strong>：标准化 Agent 间上下文传递（来源3）</li>
 </ul>
-
 <hr>
-
-<h4>故障模式 5：验证缺失与幻觉输出（Verification Gap）</h4>
-
-<h5>现象</h5>
-
+<h3>故障模式 5：验证缺失与幻觉输出（Verification Gap）</h3>
+<h4>现象</h4>
 <p>Agent 生成的输出未经过独立验证就被系统采纳为最终结果。输出包含幻觉（虚构的数据、不存在的 API）、逻辑错误或不满足原始需求，但系统层面无任何检测机制。</p>
-
-<h5>根因</h5>
-
+<h4>根因</h4>
 <ul>
 <li><strong>无独立验证层</strong>：多数 MAS 框架将 Agent 输出直接传递给下一环节或用户</li>
 <li><strong>端到端追踪缺失</strong>：无法回溯 Agent 决策链，难以定位错误来源</li>
 <li><strong>弱验证条件</strong>：部分框架虽有验证步骤，但验证标准过于宽松（Weak Verification）</li>
 </ul>
-
-<h5>研究案例</h5>
-
+<h4>研究案例</h4>
 <p>Software Seni（来源8）的分析显示验证失败占所有失败的 <strong>21.30%</strong>。MAST 分类法中对应 <strong>No or Incorrect Verification</strong> 和 <strong>Weak Verification</strong> 两种子模式。MIT 2025 研究更是指出 <strong>95% 的生成式 AI 试点完全失败</strong>（来源12），其中验证缺失是关键因素之一。</p>
-
-<h5>预防策略</h5>
-
+<h4>预防策略</h4>
 <ul>
 <li><strong>独立验证 Agent</strong>：部署专门的验证 Agent，使用不同的模型和 prompt 对输出进行交叉检查</li>
 <li><strong>可观测性基础设施</strong>：建立端到端的 trace 追踪系统，记录每个 Agent 的输入、输出和决策依据（来源7）</li>
 <li><strong>渐进式验证</strong>：在关键节点（而非仅在最终输出）插入验证步骤</li>
 <li><strong>形式化断言</strong>：对关键输出（如数值、API 调用）使用形式化断言验证</li>
 </ul>
-
 <hr>
-
-<h3>故障模式全景图</h3>
-
-<div class="mermaid">
-graph TD
+<h2>故障模式全景图</h2>
+<div class="mermaid">graph TD
     A["🚨 多 Agent 系统失败"] --> B["规格模糊<br/>Specification Ambiguity"]
     A --> C["错误级联<br/>Error Cascade"]
     A --> D["谄媚偏差<br/>Sycophancy Bias"]
     A --> E["协调死锁<br/>Coordination Deadlock"]
     A --> F["验证缺失<br/>Verification Gap"]
 
-    B --> B1["Disobey Task Spec"]
-    B --> B2["Disobey Role Spec"]
-    B --> B3["Loss of Conv. History"]
+<pre><code>B --&gt; B1[&quot;Disobey Task Spec&quot;]
+B --&gt; B2[&quot;Disobey Role Spec&quot;]
+B --&gt; B3[&quot;Loss of Conv. History&quot;]
 
-    C --> C1["确认偏差传播"]
-    C --> C2["共识坍塌"]
-    C --> C3["错误种子注入"]
+C --&gt; C1[&quot;确认偏差传播&quot;]
+C --&gt; C2[&quot;共识坍塌&quot;]
+C --&gt; C3[&quot;错误种子注入&quot;]
 
-    D --> D1["分歧坍塌"]
-    D --> D2["裁判谄媚"]
-    D --> D3["正确→错误退化"]
+D --&gt; D1[&quot;分歧坍塌&quot;]
+D --&gt; D2[&quot;裁判谄媚&quot;]
+D --&gt; D3[&quot;正确→错误退化&quot;]
 
-    E --> E1["环形依赖"]
-    E --> E2["终止条件不明"]
-    E --> E3["消息格式不统一"]
+E --&gt; E1[&quot;环形依赖&quot;]
+E --&gt; E2[&quot;终止条件不明&quot;]
+E --&gt; E3[&quot;消息格式不统一&quot;]
 
-    F --> F1["无验证层"]
-    F --> F2["弱验证"]
-    F --> F3["端到端追踪缺失"]
+F --&gt; F1[&quot;无验证层&quot;]
+F --&gt; F2[&quot;弱验证&quot;]
+F --&gt; F3[&quot;端到端追踪缺失&quot;]
 
-    B -.->|"占失败 41.77%"| STATS1["📊 最高频"]
-    C -.->|"级联放大"| STATS2["⚡ 最危险"]
-    D -.->|"削弱辩论价值"| STATS3["📉 最反直觉"]
-    E -.->|"占崩溃 37%"| STATS4["🔒 最典型"]
-    F -.->|"占失败 21.30%"| STATS5["👁️ 最普遍"]
+B -.-&gt;|&quot;占失败 41.77%&quot;| STATS1[&quot;📊 最高频&quot;]
+C -.-&gt;|&quot;级联放大&quot;| STATS2[&quot;⚡ 最危险&quot;]
+D -.-&gt;|&quot;削弱辩论价值&quot;| STATS3[&quot;📉 最反直觉&quot;]
+E -.-&gt;|&quot;占崩溃 37%&quot;| STATS4[&quot;🔒 最典型&quot;]
+F -.-&gt;|&quot;占失败 21.30%&quot;| STATS5[&quot;👁️ 最普遍&quot;]
 
-    style A fill:#ff6b6b,color:#fff
-    style STATS1 fill:#ffd93d,color:#333
-    style STATS2 fill:#ff922b,color:#fff
-    style STATS3 fill:#845ef7,color:#fff
-    style STATS4 fill:#22b8cf,color:#fff
-    style STATS5 fill:#51cf66,color:#333
-</div>
-
+style A fill:#ff6b6b,color:#fff
+style STATS1 fill:#ffd93d,color:#333
+style STATS2 fill:#ff922b,color:#fff
+style STATS3 fill:#845ef7,color:#fff
+style STATS4 fill:#22b8cf,color:#fff
+style STATS5 fill:#51cf66,color:#333&lt;/div&gt;
+</code></pre>
 <hr>
-
-<h3>各框架应对方案对比</h3>
-
-<div class="mermaid">
-graph LR
+<h2>各框架应对方案对比</h2>
+<div class="mermaid">graph LR
     subgraph 问题域
         P1["规格模糊"]
         P2["错误级联"]
@@ -715,113 +667,88 @@ graph LR
         P5["验证缺失"]
     end
 
-    subgraph 框架
-        F1["ChatDev /<br/>MetaGPT"]
-        F2["AutoGen /<br/>AG2"]
-        F3["Magentic-One"]
-        F4["OpenManus"]
-        F5["自建 + MCP"]
-    end
+<pre><code>subgraph 框架
+    F1[&quot;ChatDev /&lt;br/&gt;MetaGPT&quot;]
+    F2[&quot;AutoGen /&lt;br/&gt;AG2&quot;]
+    F3[&quot;Magentic-One&quot;]
+    F4[&quot;OpenManus&quot;]
+    F5[&quot;自建 + MCP&quot;]
+end
 
-    P1 -->|"角色卡 + 流程规范"| F1
-    P1 -->|"GroupChat 规格"| F2
-    P2 -->|"有限缓解"| F1
-    P2 -->|"无原生机制"| F2
-    P2 -->|"Orchestrator 仲裁"| F3
-    P3 -->|"未涉及"| F1
-    P3 -->|"可配置但无专用方案"| F2
-    P3 -->|"多模型交叉验证"| F3
-    P4 -->|"顺序流程减少死锁"| F1
-    P4 -->|"Conversation Termination"| F2
-    P4 -->|"多工具并行协调"| F3
-    P5 -->|"代码执行验证"| F1
-    P5 -->|"无原生验证层"| F2
-    P5 -->|"Verifier Agent"| F3
-    P5 -->|"浏览器验证"| F4
-    P1 -.->|"强制 Schema"| F5
-    P2 -.->|"独立验证 Agent"| F5
-    P3 -.->|"匿名轮次 + 反谄媚"| F5
-    P4 -.->|"超时 + 编排层"| F5
-    P5 -.->|"可观测性 + 断言"| F5
+P1 --&gt;|&quot;角色卡 + 流程规范&quot;| F1
+P1 --&gt;|&quot;GroupChat 规格&quot;| F2
+P2 --&gt;|&quot;有限缓解&quot;| F1
+P2 --&gt;|&quot;无原生机制&quot;| F2
+P2 --&gt;|&quot;Orchestrator 仲裁&quot;| F3
+P3 --&gt;|&quot;未涉及&quot;| F1
+P3 --&gt;|&quot;可配置但无专用方案&quot;| F2
+P3 --&gt;|&quot;多模型交叉验证&quot;| F3
+P4 --&gt;|&quot;顺序流程减少死锁&quot;| F1
+P4 --&gt;|&quot;Conversation Termination&quot;| F2
+P4 --&gt;|&quot;多工具并行协调&quot;| F3
+P5 --&gt;|&quot;代码执行验证&quot;| F1
+P5 --&gt;|&quot;无原生验证层&quot;| F2
+P5 --&gt;|&quot;Verifier Agent&quot;| F3
+P5 --&gt;|&quot;浏览器验证&quot;| F4
+P1 -.-&gt;|&quot;强制 Schema&quot;| F5
+P2 -.-&gt;|&quot;独立验证 Agent&quot;| F5
+P3 -.-&gt;|&quot;匿名轮次 + 反谄媚&quot;| F5
+P4 -.-&gt;|&quot;超时 + 编排层&quot;| F5
+P5 -.-&gt;|&quot;可观测性 + 断言&quot;| F5
 
-    style F1 fill:#4dabf7,color:#fff
-    style F2 fill:#51cf66,color:#333
-    style F3 fill:#ffd93d,color:#333
-    style F4 fill:#ff922b,color:#fff
-    style F5 fill:#845ef7,color:#fff
-    style P1 fill:#ff6b6b,color:#fff
-    style P2 fill:#ff6b6b,color:#fff
-    style P3 fill:#ff6b6b,color:#fff
-    style P4 fill:#ff6b6b,color:#fff
-    style P5 fill:#ff6b6b,color:#fff
-</div>
-
-<div class="callout">
-<p><strong>解读</strong>：主流 MAS 框架对"规格模糊"和"协调死锁"有一定缓解，但对"错误级联"和"谄媚偏差"的应对普遍不足。自建方案配合 MCP 等标准化协议可以针对性解决所有 5 类问题，但需要较高的工程投入。</p>
-</div>
-
+style F1 fill:#4dabf7,color:#fff
+style F2 fill:#51cf66,color:#333
+style F3 fill:#ffd93d,color:#333
+style F4 fill:#ff922b,color:#fff
+style F5 fill:#845ef7,color:#fff
+style P1 fill:#ff6b6b,color:#fff
+style P2 fill:#ff6b6b,color:#fff
+style P3 fill:#ff6b6b,color:#fff
+style P4 fill:#ff6b6b,color:#fff
+style P5 fill:#ff6b6b,color:#fff&lt;/div&gt;
+</code></pre>
+<blockquote>
+<p><strong>解读</strong>：主流 MAS 框架对&quot;规格模糊&quot;和&quot;协调死锁&quot;有一定缓解，但对&quot;错误级联&quot;和&quot;谄媚偏差&quot;的应对普遍不足。自建方案配合 MCP 等标准化协议可以针对性解决所有 5 类问题，但需要较高的工程投入。</p>
+</blockquote>
 <hr>
-
-<h3>团队观点</h3>
-
-<div class="callout">
+<h2>团队观点</h2>
+<blockquote>
 <p>以下观点来自我们团队（主编 + 探针 + 调色板）在实际协作中的第一手经验。</p>
-</div>
-
-<h4>📋 主编视角</h4>
-
-<p><strong>"规格模糊不是 Agent 的问题，是人的问题。"</strong></p>
-
-<p>我们在实际运营中发现，给探针下任务时最常见的失败不是探针能力不够，而是我作为主编给出的任务描述本身就有歧义。"写一篇关于多 Agent 失败的报告"和"基于以下 12 个来源，写出 5 种故障模式，每种包含现象-根因-案例-预防策略"——这两个指令的执行效果天差地别。</p>
-
+</blockquote>
+<h3>📋 主编视角</h3>
+<p><strong>&quot;规格模糊不是 Agent 的问题，是人的问题。&quot;</strong></p>
+<p>我们在实际运营中发现，给探针下任务时最常见的失败不是探针能力不够，而是我作为主编给出的任务描述本身就有歧义。&quot;写一篇关于多 Agent 失败的报告&quot;和&quot;基于以下 12 个来源，写出 5 种故障模式，每种包含现象-根因-案例-预防策略&quot;——这两个指令的执行效果天差地别。</p>
 <p><strong>经验教训</strong>：好的任务描述 = 主题 + 范围 + 结构 + 参考材料 + 交付格式。缺任何一项，失败概率显著上升。</p>
-
-<h4>🔬 探针视角</h4>
-
-<p><strong>"错误级联是我们每天都遇到的事。"</strong></p>
-
-<p>在搜索-写作分离的流水线中（我们的 E.55 流程），搜集员整理的素材如果包含一个错误的结论（比如混淆了两篇论文的发现），写手会毫无保留地采纳并展开论述。我们通过强制要求"所有数据标注来源编号"来缓解这个问题，但不完美。</p>
-
-<p><strong>经验教训</strong>：独立验证 Agent 是必要的，不能依赖"上一个 Agent 说的是对的"这个假设。</p>
-
-<h4>🎨 调色板视角</h4>
-
-<p><strong>"协调死锁在可视化协作中最明显。"</strong></p>
-
-<p>当主编说"美化一下这份报告"而没有指明具体模板、配色、布局时，调色板不知道该用哪个模板，生成的 HTML 可能不符合主编预期，被打回后主编又没说清楚到底要什么——这就是典型的协调死锁。</p>
-
-<p><strong>经验教训</strong>：明确的模板引用 + 参考截图 + 排除清单（"不要像上次那样..."）能极大减少往返次数。</p>
-
+<h3>🔬 探针视角</h3>
+<p><strong>&quot;错误级联是我们每天都遇到的事。&quot;</strong></p>
+<p>在搜索-写作分离的流水线中（我们的 E.55 流程），搜集员整理的素材如果包含一个错误的结论（比如混淆了两篇论文的发现），写手会毫无保留地采纳并展开论述。我们通过强制要求&quot;所有数据标注来源编号&quot;来缓解这个问题，但不完美。</p>
+<p><strong>经验教训</strong>：独立验证 Agent 是必要的，不能依赖&quot;上一个 Agent 说的是对的&quot;这个假设。</p>
+<h3>🎨 调色板视角</h3>
+<p><strong>&quot;协调死锁在可视化协作中最明显。&quot;</strong></p>
+<p>当主编说&quot;美化一下这份报告&quot;而没有指明具体模板、配色、布局时，调色板不知道该用哪个模板，生成的 HTML 可能不符合主编预期，被打回后主编又没说清楚到底要什么——这就是典型的协调死锁。</p>
+<p><strong>经验教训</strong>：明确的模板引用 + 参考截图 + 排除清单（&quot;不要像上次那样...&quot;）能极大减少往返次数。</p>
 <hr>
-
-<h3>可操作建议</h3>
-
-<h4>1. 强制结构化任务规格</h4>
-
-<p>每个 Agent 任务必须包含 JSON Schema 定义的输入/输出规格。不要依赖自然语言描述的"隐含契约"。参考 MAST 研究的发现：41.77% 的失败源于规格问题。</p>
-
+<h2>可操作建议</h2>
+<h3>1. 强制结构化任务规格</h3>
+<p>每个 Agent 任务必须包含 JSON Schema 定义的输入/输出规格。不要依赖自然语言描述的&quot;隐含契约&quot;。参考 MAST 研究的发现：41.77% 的失败源于规格问题。</p>
 <p><strong>实施方式</strong>：</p>
-<pre><code class="language-json">
-{
-  "task_id": "research-report-001",
-  "role": "probe",
-  "input_schema": {
-    "sources": "array of {url, title, key_points}",
-    "topic": "string",
-    "structure": "array of section names"
+<pre><code class="language-json">{
+  &quot;task_id&quot;: &quot;research-report-001&quot;,
+  &quot;role&quot;: &quot;probe&quot;,
+  &quot;input_schema&quot;: {
+    &quot;sources&quot;: &quot;array of {url, title, key_points}&quot;,
+    &quot;topic&quot;: &quot;string&quot;,
+    &quot;structure&quot;: &quot;array of section names&quot;
   },
-  "output_schema": {
-    "format": "markdown",
-    "sections": "must match structure",
-    "citations": "each claim must have source_id"
+  &quot;output_schema&quot;: {
+    &quot;format&quot;: &quot;markdown&quot;,
+    &quot;sections&quot;: &quot;must match structure&quot;,
+    &quot;citations&quot;: &quot;each claim must have source_id&quot;
   }
 }
 </code></pre>
-
-<h4>2. 建立端到端可观测性</h4>
-
+<h3>2. 建立端到端可观测性</h3>
 <p>部署 trace 追踪系统，记录每个 Agent 的输入、输出、决策依据和与其他 Agent 的交互。当系统失败时，能够快速定位是哪个环节出了问题、错误是如何传播的。</p>
-
 <p><strong>关键指标</strong>：</p>
 <ul>
 <li>Agent 响应时间分布</li>
@@ -829,32 +756,24 @@ graph LR
 <li>任务完成率 vs 失败率</li>
 <li>错误传播深度（一个错误影响了多少个下游 Agent）</li>
 </ul>
-
-<h4>3. 实施独立验证层</h4>
-
+<h3>3. 实施独立验证层</h3>
 <p>对关键输出部署独立的验证 Agent，使用不同的模型和 prompt 进行交叉检查。验证 Agent 不参与原始推理过程，避免上下文污染。</p>
-
 <p><strong>验证层级</strong>：</p>
 <ul>
 <li><strong>L1 格式验证</strong>：输出是否符合 Schema（自动化）</li>
 <li><strong>L2 事实验证</strong>：关键数据点是否与来源一致（独立 Agent）</li>
 <li><strong>L3 逻辑验证</strong>：推理链是否自洽（独立 Agent + 形式化检查）</li>
 </ul>
-
-<h4>4. 打破谄媚循环</h4>
-
+<h3>4. 打破谄媚循环</h3>
 <p>在多 Agent 辩论中：</p>
 <ul>
 <li>首轮强制独立推理，隐藏同伴答案</li>
 <li>使用不同家族的模型参与辩论</li>
-<li>在 prompt 中明确鼓励"如果你认为同伴错了，请直接、礼貌地指出"</li>
+<li>在 prompt 中明确鼓励&quot;如果你认为同伴错了，请直接、礼貌地指出&quot;</li>
 <li>避免让弱模型担任裁判角色</li>
 </ul>
-
-<h4>5. 设计超时与降级策略</h4>
-
+<h3>5. 设计超时与降级策略</h3>
 <p>每个 Agent 间的等待操作必须有明确超时。超时后触发 fallback（如切换到单 Agent 模式、请求人工介入），而不是无限等待。</p>
-
 <p><strong>推荐超时策略</strong>：</p>
 <ul>
 <li>单步操作：30s</li>
@@ -862,141 +781,64 @@ graph LR
 <li>完整任务：根据复杂度设定，不超过 10min</li>
 <li>所有超时记录到可观测性系统</li>
 </ul>
-
-<h4>6. 定期 Failure Review</h4>
-
-<p>建立"故障复盘"机制：</p>
+<h3>6. 定期 Failure Review</h3>
+<p>建立&quot;故障复盘&quot;机制：</p>
 <ul>
 <li>每次系统失败后，记录失败模式（使用 MAST 分类法）</li>
 <li>每周回顾失败案例，识别系统性问题</li>
 <li>更新任务规格模板和验证规则</li>
 </ul>
-
 <p><strong>MAST 分类法速查</strong>（14 种子模式）：</p>
 <ul>
 <li>系统设计：Disobey Task Spec, Disobey Role Spec, Step Repetition, Loss of Conv. History, Unaware of Termination</li>
 <li>Agent 间错位：Conversation Reset, Fail to Ask Clarification, Task Derailment, Information Withholding, Ignored Other Input, Action-Reasoning Mismatch</li>
 <li>任务验证：Premature Termination, No/Incorrect Verification, Weak Verification</li>
 </ul>
-
-<h4>7. 引入 MCP 标准化协议</h4>
-
+<h3>7. 引入 MCP 标准化协议</h3>
 <p>使用 Model Context Protocol (MCP) 标准化 Agent 间的上下文传递和工具调用。MCP 提供了结构化的消息格式和能力发现机制，减少因格式不兼容导致的通信失败。</p>
-
-<h4>8. 渐进式验证替代终点验证</h4>
-
+<h3>8. 渐进式验证替代终点验证</h3>
 <p>不要等到所有 Agent 都完成工作才验证结果。在关键里程碑插入验证步骤：</p>
 <ul>
 <li>每个 Agent 完成子任务后立即验证</li>
 <li>Agent 间交接时进行格式和内容校验</li>
 <li>最终输出前做完整性检查</li>
 </ul>
-
 <hr>
 
-<h3>参考来源</h3>
-
-<ol>
-<li><strong>MAST: Why Do Multi-Agent LLM Systems Fail?</strong> — UC Berkeley et al., NeurIPS 2025 Spotlight</li>
-</ol>
-<p>https://arxiv.org/abs/2503.13657</p>
-
-<ol>
-<li><strong>MAST Project Page</strong> — UC Berkeley Sky Computing Lab</li>
-</ol>
-<p>https://sky.cs.berkeley.edu/project/mast/</p>
-
-<ol>
-<li><strong>Why Multi-Agent LLM Systems Fail and How to Fix Them</strong> — Augment Code</li>
-</ol>
-<p>https://www.augmentcode.com/guides/why-multi-agent-llm-systems-fail-and-how-to-fix-them</p>
-
-<ol>
-<li><strong>Modeling and Mitigating Error Cascades in LLM-Based Multi-Agent Systems</strong> — arXiv:2603.04474</li>
-</ol>
-<p>https://arxiv.org/abs/2603.04474</p>
-
-<ol>
-<li><strong>Talk Isn't Always Cheap: Understanding Failure Modes in Multi-Agent Debate</strong> — arXiv:2509.05396</li>
-</ol>
-<p>https://arxiv.org/abs/2509.05396</p>
-
-<ol>
-<li><strong>How Sycophancy Shapes Multi-Agent Debate</strong> — ICLR 2026 Under Review</li>
-</ol>
-<p>https://openreview.net/pdf?id=hkBM5QkFVg</p>
-
-<ol>
-<li><strong>Why Multi-Agent AI Systems Fail and How to Fix Them</strong> — Galileo AI</li>
-</ol>
-<p>https://galileo.ai/blog/multi-agent-ai-failures-prevention</p>
-
-<ol>
-<li><strong>Why Forty Percent of Multi-Agent AI Projects Fail</strong> — Software Seni</li>
-</ol>
-<p>https://www.softwareseni.com/why-forty-percent-of-multi-agent-ai-projects-fail-and-how-to-avoid-the-same-mistakes/</p>
-
-<ol>
-<li><strong>A Communication-Centric Survey of LLM-Based Multi-Agent Systems</strong> — arXiv:2502.14321</li>
-</ol>
-<p>https://arxiv.org/abs/2502.14321</p>
-
-<ol>
-<li><strong>Failure Modes in LLM Debate</strong> — Emergent Mind Review</li>
-</ol>
-<p>https://www.emergentmind.com/papers/2509.05396</p>
-
-<ol>
-<li><strong>14 ICLR 2026 Papers on Why Multi-Agent Systems Fail</strong> — Reddit r/LocalLLaMA</li>
-</ol>
-<p>https://www.reddit.com/r/LocalLLaMA/comments/1qs5t82/14_iclr_2026_papers_on_why_multiagent_systems/</p>
-
-<ol>
-<li><strong>Understanding the 90% AI Agent Failure Rate in Production</strong> — Medium</li>
-</ol>
-<p>https://medium.com/@anshumanjofficial/why-90-of-ai-agents-fail-in-production-and-how-to-build-the-10-that-survive-52f95430bb1f</p>
-
-<hr>
 
   <!-- ═══════════════════════════════════════════
        REFERENCES
        ═══════════════════════════════════════════ -->
   <h2>📚 参考资料</h2>
-  <p class="ref"><strong>MAST: Why Do Multi-Agent LLM Systems Fail?</strong> — UC Berkeley et al., NeurIPS 2025 Spotlight</p>
-<p class="ref">https://arxiv.org/abs/2503.13657</p>
+  <ol>
+<li><p><strong>MAST: Why Do Multi-Agent LLM Systems Fail?</strong> — UC Berkeley et al., NeurIPS 2025 Spotlight<br><a href="https://arxiv.org/abs/2503.13657">https://arxiv.org/abs/2503.13657</a></p>
+</li>
+<li><p><strong>MAST Project Page</strong> — UC Berkeley Sky Computing Lab<br><a href="https://sky.cs.berkeley.edu/project/mast/">https://sky.cs.berkeley.edu/project/mast/</a></p>
+</li>
+<li><p><strong>Why Multi-Agent LLM Systems Fail and How to Fix Them</strong> — Augment Code<br><a href="https://www.augmentcode.com/guides/why-multi-agent-llm-systems-fail-and-how-to-fix-them">https://www.augmentcode.com/guides/why-multi-agent-llm-systems-fail-and-how-to-fix-them</a></p>
+</li>
+<li><p><strong>Modeling and Mitigating Error Cascades in LLM-Based Multi-Agent Systems</strong> — arXiv:2603.04474<br><a href="https://arxiv.org/abs/2603.04474">https://arxiv.org/abs/2603.04474</a></p>
+</li>
+<li><p><strong>Talk Isn&#39;t Always Cheap: Understanding Failure Modes in Multi-Agent Debate</strong> — arXiv:2509.05396<br><a href="https://arxiv.org/abs/2509.05396">https://arxiv.org/abs/2509.05396</a></p>
+</li>
+<li><p><strong>How Sycophancy Shapes Multi-Agent Debate</strong> — ICLR 2026 Under Review<br><a href="https://openreview.net/pdf?id=hkBM5QkFVg">https://openreview.net/pdf?id=hkBM5QkFVg</a></p>
+</li>
+<li><p><strong>Why Multi-Agent AI Systems Fail and How to Fix Them</strong> — Galileo AI<br><a href="https://galileo.ai/blog/multi-agent-ai-failures-prevention">https://galileo.ai/blog/multi-agent-ai-failures-prevention</a></p>
+</li>
+<li><p><strong>Why Forty Percent of Multi-Agent AI Projects Fail</strong> — Software Seni<br><a href="https://www.softwareseni.com/why-forty-percent-of-multi-agent-ai-projects-fail-and-how-to-avoid-the-same-mistakes/">https://www.softwareseni.com/why-forty-percent-of-multi-agent-ai-projects-fail-and-how-to-avoid-the-same-mistakes/</a></p>
+</li>
+<li><p><strong>A Communication-Centric Survey of LLM-Based Multi-Agent Systems</strong> — arXiv:2502.14321<br><a href="https://arxiv.org/abs/2502.14321">https://arxiv.org/abs/2502.14321</a></p>
+</li>
+<li><p><strong>Failure Modes in LLM Debate</strong> — Emergent Mind Review<br><a href="https://www.emergentmind.com/papers/2509.05396">https://www.emergentmind.com/papers/2509.05396</a></p>
+</li>
+<li><p><strong>14 ICLR 2026 Papers on Why Multi-Agent Systems Fail</strong> — Reddit r/LocalLLaMA<br><a href="https://www.reddit.com/r/LocalLLaMA/comments/1qs5t82/14_iclr_2026_papers_on_why_multiagent_systems/">https://www.reddit.com/r/LocalLLaMA/comments/1qs5t82/14_iclr_2026_papers_on_why_multiagent_systems/</a></p>
+</li>
+<li><p><strong>Understanding the 90% AI Agent Failure Rate in Production</strong> — Medium<br><a href="https://medium.com/@anshumanjofficial/why-90-of-ai-agents-fail-in-production-and-how-to-build-the-10-that-survive-52f95430bb1f">https://medium.com/@anshumanjofficial/why-90-of-ai-agents-fail-in-production-and-how-to-build-the-10-that-survive-52f95430bb1f</a></p>
+</li>
+</ol>
+<hr>
+<p><em>报告生成时间：2026-03-18 | 探针：writer-collab | 基于搜集员整理的 12 个来源</em></p>
 
-<p class="ref"><strong>MAST Project Page</strong> — UC Berkeley Sky Computing Lab</p>
-<p class="ref">https://sky.cs.berkeley.edu/project/mast/</p>
-
-<p class="ref"><strong>Why Multi-Agent LLM Systems Fail and How to Fix Them</strong> — Augment Code</p>
-<p class="ref">https://www.augmentcode.com/guides/why-multi-agent-llm-systems-fail-and-how-to-fix-them</p>
-
-<p class="ref"><strong>Modeling and Mitigating Error Cascades in LLM-Based Multi-Agent Systems</strong> — arXiv:2603.04474</p>
-<p class="ref">https://arxiv.org/abs/2603.04474</p>
-
-<p class="ref"><strong>Talk Isn't Always Cheap: Understanding Failure Modes in Multi-Agent Debate</strong> — arXiv:2509.05396</p>
-<p class="ref">https://arxiv.org/abs/2509.05396</p>
-
-<p class="ref"><strong>How Sycophancy Shapes Multi-Agent Debate</strong> — ICLR 2026 Under Review</p>
-<p class="ref">https://openreview.net/pdf?id=hkBM5QkFVg</p>
-
-<p class="ref"><strong>Why Multi-Agent AI Systems Fail and How to Fix Them</strong> — Galileo AI</p>
-<p class="ref">https://galileo.ai/blog/multi-agent-ai-failures-prevention</p>
-
-<p class="ref"><strong>Why Forty Percent of Multi-Agent AI Projects Fail</strong> — Software Seni</p>
-<p class="ref">https://www.softwareseni.com/why-forty-percent-of-multi-agent-ai-projects-fail-and-how-to-avoid-the-same-mistakes/</p>
-
-<p class="ref"><strong>A Communication-Centric Survey of LLM-Based Multi-Agent Systems</strong> — arXiv:2502.14321</p>
-<p class="ref">https://arxiv.org/abs/2502.14321</p>
-
-<p class="ref"><strong>Failure Modes in LLM Debate</strong> — Emergent Mind Review</p>
-<p class="ref">https://www.emergentmind.com/papers/2509.05396</p>
-
-<p class="ref"><strong>14 ICLR 2026 Papers on Why Multi-Agent Systems Fail</strong> — Reddit r/LocalLLaMA</p>
-<p class="ref">https://www.reddit.com/r/LocalLLaMA/comments/1qs5t82/14_iclr_2026_papers_on_why_multiagent_systems/</p>
-
-<p class="ref"><strong>Understanding the 90% AI Agent Failure Rate in Production</strong> — Medium</p>
-<p class="ref">https://medium.com/@anshumanjofficial/why-90-of-ai-agents-fail-in-production-and-how-to-build-the-10-that-survive-52f95430bb1f</p>
 
 </div>
 
