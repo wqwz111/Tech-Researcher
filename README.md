@@ -76,7 +76,7 @@ reports/
 
 ## 🔄 工作流
 
-![工作流程](assets/workflow-infographic.png)
+![工作流程](assets/workflow-infographic-clear.png)
 
 *图：报告生产全流程 — 从选题到发布的完整链路*
 
