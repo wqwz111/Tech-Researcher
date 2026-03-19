@@ -22,19 +22,25 @@
     --bg-card:       #1e293b;
     --bg-code:       #0d1117;
     --bg-callout:    #1a1040;
+
     --text-primary:  #f1f5f9;
     --text-secondary:#94a3b8;
     --text-muted:    #64748b;
+
     --accent-primary:   #818cf8;
     --accent-secondary: #a78bfa;
     --accent-success:   #34d399;
     --accent-warning:   #fb923c;
     --accent-danger:    #f87171;
+
     --border-color:   #334155;
     --border-light:   #1e293b;
+
     --tag-bg:   #3730a3;
     --tag-text: #c7d2fe;
+
     --link: #818cf8;
+
     --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     --header-border: #334155;
   }
@@ -47,110 +53,396 @@
     --bg-card:       #f8fafc;
     --bg-code:       #f1f5f9;
     --bg-callout:    #eef2ff;
+
     --text-primary:  #0f172a;
     --text-secondary:#475569;
     --text-muted:    #94a3b8;
+
     --accent-primary:   #4f46e5;
     --accent-secondary: #7c3aed;
     --accent-success:   #059669;
     --accent-warning:   #ea580c;
     --accent-danger:    #dc2626;
+
     --border-color:   #e2e8f0;
     --border-light:   #f1f5f9;
+
     --tag-bg:   #e0e7ff;
     --tag-text: #312e81;
+
     --link: #4f46e5;
+
     --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
     --header-border: #e2e8f0;
   }
 
-  /* ═══════════════════════════════════════════ BASE ═══════════════════════════════════════════ */
-  html { font-size: 16px; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    font-size: 1rem; line-height: 1.8; color: var(--text-primary); background: var(--bg-primary); transition: background 0.3s, color 0.3s;
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* ═══════════════════════════════════════════ HEADER ═══════════════════════════════════════════ */
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
   .header {
-    background: var(--header-bg); border-bottom: 1px solid var(--header-border);
-    padding: 2.5rem 2rem; text-align: center; position: relative;
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
   }
-  .header h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary); }
-  .header .meta { color: var(--text-muted); font-size: 0.9rem; }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
   .theme-toggle {
-    position: absolute; top: 1rem; right: 1.5rem; background: var(--bg-code);
-    border: 1px solid var(--border-color); border-radius: 24px; padding: 0.3rem 0.6rem;
-    cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.3s;
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
   }
+
   .theme-toggle:hover { border-color: var(--accent-primary); }
   .theme-toggle .icon { font-size: 1.1rem; }
   .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
 
-  /* ═══════════════════════════════════════════ LAYOUT ═══════════════════════════════════════════ */
-  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
-  .breadcrumb { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
-  .breadcrumb a { color: var(--link); text-decoration: none; }
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
   .breadcrumb a:hover { text-decoration: underline; }
 
-  /* ═══════════════════════════════════════════ TAGS ═══════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
   .tag {
-    display: inline-block; padding: 0.2rem 0.6rem; margin: 0.2rem;
-    background: var(--tag-bg); color: var(--tag-text); border-radius: 4px; font-size: 0.8rem;
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
   }
 
-  /* ═══════════════════════════════════════════ TYPOGRAPHY ═══════════════════════════════════════════ */
-  h2 { color: var(--accent-primary); font-size: 1.4rem; font-weight: 600; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light); }
-  h3 { color: var(--accent-secondary); font-size: 1.15rem; font-weight: 600; margin: 1.8rem 0 0.8rem; }
-  h4 { font-size: 1.05rem; font-weight: 600; margin: 1.4rem 0 0.6rem; color: var(--text-primary); }
-  p { margin-bottom: 1rem; color: var(--text-primary); }
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
   strong { color: var(--text-primary); }
-  a { color: var(--link); text-decoration: none; }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
   a:hover { text-decoration: underline; }
-  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text-primary); }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
   li { margin-bottom: 0.4rem; }
 
-  /* ═══════════════════════════════════════════ CODE ═══════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
   code {
-    background: var(--bg-code); padding: 0.15rem 0.4rem; border-radius: 4px;
-    font-size: 0.9em; color: var(--accent-secondary); font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
   }
-  pre { background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
-  pre code { background: none; padding: 0; color: var(--text-primary); font-size: 0.85rem; line-height: 1.6; }
 
-  /* ═══════════════════════════════════════════ TABLE ═══════════════════════════════════════════ */
-  .table-wrapper { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border-color); border-radius: 8px; }
-  table { width: 100%; border-collapse: collapse; }
-  th, td { text-align: left; padding: 0.6rem 0.8rem; border: 1px solid var(--border-color); }
-  th { background: var(--bg-code); color: var(--accent-primary); font-weight: 600; font-size: 0.9rem; }
-  td { color: var(--text-primary); font-size: 0.9rem; }
-  tr:hover td { background: rgba(129, 140, 248, 0.03); }
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
 
-  /* ═══════════════════════════════════════════ EXEC SUMMARY ═══════════════════════════════════════════ */
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
   .exec-summary {
-    background: var(--bg-callout); border: 1px solid rgba(129, 140, 248, 0.2);
-    border-left: 3px solid var(--accent-primary); border-radius: 0 8px 8px 0; padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
   }
-  .exec-summary__label { font-size: 0.75rem; font-weight: 600; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
-  .exec-summary p { color: var(--text-primary); margin-bottom: 0; }
 
-  hr { border: none; height: 1px; background: var(--border-color); margin: 2rem 0; }
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
 
-  /* ═══════════════════════════════════════════ FOOTER ═══════════════════════════════════════════ */
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
   .footer {
-    text-align: center; color: var(--text-muted); padding: 2rem; margin-top: 3rem;
-    border-top: 1px solid var(--border-light); font-size: 0.85rem;
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
   }
 
-  /* ═══════════════════════════════════════════ RESPONSIVE ═══════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
   @media (max-width: 640px) {
     .header h1 { font-size: 1.4rem; }
     .header { padding: 1.5rem 1rem; }
     .container { padding: 1.5rem 1rem; }
     h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
   }
 
-  /* ═══════════════════════════════════════════ PRINT ═══════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
   @media print {
     body { background: white; color: #1a1a1a; }
     .theme-toggle { display: none; }
@@ -158,6 +450,7 @@
   }
 </style>
 <script>
+  // Theme toggle — uses localStorage for persistence
   function toggleTheme() {
     const html = document.documentElement;
     const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
@@ -165,42 +458,51 @@
     localStorage.setItem('probe-theme', next);
     updateToggleUI(next);
   }
+
   function updateToggleUI(theme) {
     const icon = document.getElementById('themeIcon');
     const label = document.getElementById('themeLabel');
     if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
     if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
   }
+
+  // Apply saved theme on load
   (function() {
     const saved = localStorage.getItem('probe-theme') || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
     document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
   })();
 </script>
 </head>
 <body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
 <div class="header" style="position:relative">
   <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
     <span class="icon" id="themeIcon">☀️</span>
     <span class="label" id="themeLabel">日间</span>
   </button>
   <h1>多 Agent 团队管理方法论</h1>
-  <div class="meta">2026-03-16 · 探针 (Probe) · **日期**: 2026-03-16</div>
+  <div class="meta">2026-03-19 · 探针 (Probe)</div>
   <div style="margin-top:0.8rem">
-    <span class="tag">方法论</span><span class="tag">多Agent</span><span class="tag">团队协作</span><span class="tag">OpenClaw</span>
+    <span class="tag">Agent</span>
   </div>
 </div>
+
 <div class="container">
+
+  <!-- Breadcrumb -->
   <div class="breadcrumb">
     <a href="../index.html">← 返回报告索引</a>
   </div>
-<h1>多 Agent 团队管理方法论</h1>
-<blockquote>
-<p><strong>标签</strong>: <code>方法论</code> <code>多Agent</code> <code>团队协作</code> <code>OpenClaw</code></p>
-<p><strong>作者</strong>: 探针 (Probe) · <strong>日期</strong>: 2026-03-16</p>
-</blockquote>
-<h2>Executive Summary</h2>
-<p>随着大模型 Agent 能力的快速提升，单一 Agent 已无法满足复杂任务需求。<strong>多 Agent 团队管理</strong>已从实验探索进入工程实践阶段。2025-2026 年间，Google A2A 协议、MCP 标准化、LangGraph 和 CrewAI 等框架的成熟，标志着行业正在形成统一的多 Agent 协作范式。</p>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p><p>随着大模型 Agent 能力的快速提升，单一 Agent 已无法满足复杂任务需求。<strong>多 Agent 团队管理</strong>已从实验探索进入工程实践阶段。2025-2026 年间，Google A2A 协议、MCP 标准化、LangGraph 和 CrewAI 等框架的成熟，标志着行业正在形成统一的多 Agent 协作范式。</p>
 <p>本报告以 OpenClaw 平台的 <strong>1:N:1:1:1:N</strong> 团队结构（主编 + 探针 + 调色板 + 图书管理员 + 读者）为核心案例，系统分析多 Agent 团队的组织模式、角色定义、任务分派、跨角色通信协议和冲突解决机制，并提供选型决策树，帮助读者为自己的场景选择合适的团队架构。</p>
 <p><strong>核心结论</strong>:</p>
 <ul>
@@ -209,11 +511,20 @@
 <li>角色设计遵循单一职责、接口最小化、能力互补三大原则</li>
 <li>2025-2026 年通信协议标准化（A2A/MCP）正在改变多 Agent 系统的互操作性格局</li>
 </ul>
-<hr>
+</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <blockquote>
+<p><strong>标签</strong>: <code>方法论</code> <code>多Agent</code> <code>团队协作</code> <code>OpenClaw</code></p>
+<p><strong>作者</strong>: 探针 (Probe) · <strong>日期</strong>: 2026-03-16</p>
+</blockquote>
 <h2>1. 多 Agent 团队组织模式</h2>
 <h3>1.1 四种核心组织模式</h3>
 <p>当前多 Agent 系统的组织模式可归纳为四类：<strong>层级式（Hierarchical）</strong>、<strong>扁平式（Flat）</strong>、<strong>市场式（Market-Based）<strong>和</strong>混合式（Hybrid）</strong>。每种模式在通信效率、可扩展性和容错能力上各有优劣。</p>
-<pre><code class="language-mermaid">flowchart TD
+<p><div class="mermaid">flowchart TD
     subgraph MODELS
         direction LR
         H[层级式]
@@ -221,15 +532,14 @@
         M[市场式]
         HY[混合式]
     end
-    H --&gt; H_DESC[树状结构, 上级指令下级执行]
-    F --&gt; F_DESC[Agent 对等, 共识机制协作]
-    M --&gt; M_DESC[任务商品化, Agent 竞标分配]
-    HY --&gt; HY_DESC[组合多种模式, 分层分域]
+    H --> H_DESC[树状结构, 上级指令下级执行]
+    F --> F_DESC[Agent 对等, 共识机制协作]
+    M --> M_DESC[任务商品化, Agent 竞标分配]
+    HY --> HY_DESC[组合多种模式, 分层分域]
     style H fill:#4f46e5,color:#fff
     style F fill:#059669,color:#fff
     style M fill:#ea580c,color:#fff
-    style HY fill:#7c3aed,color:#fff
-</code></pre>
+    style HY fill:#7c3aed,color:#fff</div></p>
 <h4>1.1.1 层级式（Hierarchical）</h4>
 <p><strong>核心特征</strong>: 树状结构，存在明确的上下级关系。上层 Agent 负责规划和决策，下层 Agent 负责执行和反馈。</p>
 <p><strong>典型架构</strong>: Manager → Worker → Reporter</p>
@@ -335,24 +645,23 @@
 </ol>
 <h3>2.2 OpenClaw 角色体系</h3>
 <p>OpenClaw 采用 <strong>1:N:1:1:1:N</strong> 角色体系，覆盖从选题到发布的完整工作流：</p>
-<pre><code class="language-mermaid">flowchart TB
+<p><div class="mermaid">flowchart TB
     CHIEF[主编 Chief x1]
     PROBES[探针池 Probe xN]
     PALETTE[调色板 Palette x1]
     LIBRARIAN[图书管理员 Librarian x1]
     READERS[读者池 Reader xN]
-    CHIEF --&gt; |分派任务, 审核报告| PROBES
-    CHIEF --&gt; |设计需求| PALETTE
-    CHIEF --&gt; |索引管理| LIBRARIAN
-    CHIEF --&gt; |审稿任务| READERS
-    PROBES --&gt; |报告草稿| CHIEF
-    PALETTE --&gt; |美化设计| CHIEF
-    LIBRARIAN --&gt; |索引更新| CHIEF
-    READERS --&gt; |审稿意见| CHIEF
+    CHIEF --> |分派任务, 审核报告| PROBES
+    CHIEF --> |设计需求| PALETTE
+    CHIEF --> |索引管理| LIBRARIAN
+    CHIEF --> |审稿任务| READERS
+    PROBES --> |报告草稿| CHIEF
+    PALETTE --> |美化设计| CHIEF
+    LIBRARIAN --> |索引更新| CHIEF
+    READERS --> |审稿意见| CHIEF
     style CHIEF fill:#4f46e5,color:#fff
     style PALETTE fill:#059669,color:#fff
-    style LIBRARIAN fill:#7c3aed,color:#fff
-</code></pre>
+    style LIBRARIAN fill:#7c3aed,color:#fff</div></p>
 <h4>角色职责矩阵</h4>
 <div class="table-wrapper">
 <table>
@@ -467,22 +776,21 @@
 <li>依赖关系（被其他报告引用的报告优先级提升）</li>
 </ul>
 <h3>3.3 进度跟踪与状态管理</h3>
-<pre><code class="language-mermaid">flowchart LR
-    BACKLOG[待分派] --&gt; |主编下达| ASSIGNED[已分派]
-    ASSIGNED --&gt; |探针接受| IN_PROGRESS[进行中]
-    IN_PROGRESS --&gt; |探针提交| REVIEW[审核中]
-    REVIEW --&gt; |主编通过| PUBLISHED[已发布]
-    REVIEW --&gt; |主编驳回| IN_PROGRESS
-    PUBLISHED --&gt; |触发评审| UNDER_REVIEW[读者审稿]
-    UNDER_REVIEW --&gt; |审稿通过| DONE[已完成]
-    UNDER_REVIEW --&gt; |需修改| IN_PROGRESS
+<p><div class="mermaid">flowchart LR
+    BACKLOG[待分派] --> |主编下达| ASSIGNED[已分派]
+    ASSIGNED --> |探针接受| IN_PROGRESS[进行中]
+    IN_PROGRESS --> |探针提交| REVIEW[审核中]
+    REVIEW --> |主编通过| PUBLISHED[已发布]
+    REVIEW --> |主编驳回| IN_PROGRESS
+    PUBLISHED --> |触发评审| UNDER_REVIEW[读者审稿]
+    UNDER_REVIEW --> |审稿通过| DONE[已完成]
+    UNDER_REVIEW --> |需修改| IN_PROGRESS
     style BACKLOG fill:#64748b,color:#fff
     style ASSIGNED fill:#4f46e5,color:#fff
     style IN_PROGRESS fill:#ea580c,color:#fff
     style REVIEW fill:#7c3aed,color:#fff
     style PUBLISHED fill:#059669,color:#fff
-    style DONE fill:#059669,color:#fff
-</code></pre>
+    style DONE fill:#059669,color:#fff</div></p>
 <p><strong>状态流转规则</strong>:</p>
 <ol>
 <li>主编在 <code>memory/YYYY-MM-DD.md</code> 记录每次分派</li>
@@ -509,17 +817,16 @@
 </ol>
 <h3>4.2 OpenClaw 消息协议</h3>
 <p>OpenClaw 平台通过 <strong>subagent 机制</strong> 实现跨角色通信：</p>
-<pre><code class="language-mermaid">sequenceDiagram
+<p><div class="mermaid">sequenceDiagram
     participant Chief as 主编
     participant Session as Subagent Session
     participant Probe as 探针
-    Chief-&gt;&gt;Session: sessions_spawn(label, task)
-    Session-&gt;&gt;Probe: 启动隔离上下文
+    Chief->>Session: sessions_spawn(label, task)
+    Session->>Probe: 启动隔离上下文
     Note over Probe: 执行研究任务
-    Probe-&gt;&gt;Session: sessions_yield()
-    Session--&gt;&gt;Chief: 自动推送结果
-    Note over Chief: 审核结果，继续下一步
-</code></pre>
+    Probe->>Session: sessions_yield()
+    Session-->>Chief: 自动推送结果
+    Note over Chief: 审核结果，继续下一步</div></p>
 <p><strong>协议特征</strong>:</p>
 <ul>
 <li><strong>Push-based completion</strong>: 探针完成后自动推送结果，主编无需轮询</li>
@@ -559,23 +866,22 @@
 <p>这些协议解决的核心问题是<strong>跨平台 Agent 互操作</strong>——让不同框架（AutoGen、CrewAI、LangGraph、OpenClaw）的 Agent 能够协作。</p>
 <h3>4.4 审稿意见处理协议</h3>
 <p>当收到审稿意见时，主编组织团队按以下协议处理：</p>
-<pre><code class="language-mermaid">flowchart TD
-    A[收到审稿意见] --&gt; B[主编分发意见]
-    B --&gt; C[探针评估: 内容类]
-    B --&gt; D[调色板评估: 设计类]
-    C --&gt; E[各自独立投票]
-    D --&gt; E
-    E --&gt; F{投票结果}
-    F --&gt;|一致| G[按多数执行]
-    F --&gt;|分歧| H[主编权衡裁决]
-    G --&gt; I[执行决定]
-    H --&gt; I
-    I --&gt; J[GitHub Issue 回复]
+<p><div class="mermaid">flowchart TD
+    A[收到审稿意见] --> B[主编分发意见]
+    B --> C[探针评估: 内容类]
+    B --> D[调色板评估: 设计类]
+    C --> E[各自独立投票]
+    D --> E
+    E --> F{投票结果}
+    F -->|一致| G[按多数执行]
+    F -->|分歧| H[主编权衡裁决]
+    G --> I[执行决定]
+    H --> I
+    I --> J[GitHub Issue 回复]
     style A fill:#4f46e5,color:#fff
     style F fill:#ea580c,color:#fff
     style G fill:#059669,color:#fff
-    style H fill:#7c3aed,color:#fff
-</code></pre>
+    style H fill:#7c3aed,color:#fff</div></p>
 <p><strong>投票选项</strong>:</p>
 <ul>
 <li><strong>A) 跟进改进</strong> — 列入计划，分配任务</li>
@@ -652,14 +958,13 @@
 <li>主编当天裁决，不拖延</li>
 </ul>
 <h3>5.4 冲突升级路径</h3>
-<pre><code class="language-mermaid">flowchart TD
-    A[角色内自治] --&gt; B[主编协调]
-    B --&gt; C[用户决策]
-    C -.-&gt;|可回落| A
+<p><div class="mermaid">flowchart TD
+    A[角色内自治] --> B[主编协调]
+    B --> C[用户决策]
+    C -.->|可回落| A
     style A fill:#059669,color:#fff
     style B fill:#4f46e5,color:#fff
-    style C fill:#ea580c,color:#fff
-</code></pre>
+    style C fill:#ea580c,color:#fff</div></p>
 <ul>
 <li>大多数冲突在角色内或主编层面解决</li>
 <li>仅重大方向性决策需要用户介入</li>
@@ -678,7 +983,7 @@
 <li><strong>审稿</strong>: GitHub Issue 标签系统</li>
 </ul>
 <h3>6.2 团队工作流架构</h3>
-<pre><code class="language-mermaid">flowchart TB
+<p><div class="mermaid">flowchart TB
     USER[用户: 提出需求/反馈]
     ISSUES[GitHub Issues: 选题池]
     CHIEF[主编: 选题策划与分派]
@@ -686,23 +991,22 @@
     PALETTE[调色板: 视觉美化]
     READER[读者: 独立审稿]
     RELEASE[发布: GitHub Pages + Release]
-    USER --&gt; ISSUES
-    ISSUES --&gt; |扫描| CHIEF
-    CHIEF --&gt; |任务分派| PROBE
-    PROBE --&gt; |Markdown 草稿| CHIEF
-    CHIEF --&gt; |审核通过| PALETTE
-    PALETTE --&gt; |HTML 报告| CHIEF
-    CHIEF --&gt; |发布| RELEASE
-    RELEASE --&gt; |创建评审 Issue| READER
-    READER --&gt; |审稿意见| CHIEF
-    CHIEF --&gt; |修改任务| PROBE
+    USER --> ISSUES
+    ISSUES --> |扫描| CHIEF
+    CHIEF --> |任务分派| PROBE
+    PROBE --> |Markdown 草稿| CHIEF
+    CHIEF --> |审核通过| PALETTE
+    PALETTE --> |HTML 报告| CHIEF
+    CHIEF --> |发布| RELEASE
+    RELEASE --> |创建评审 Issue| READER
+    READER --> |审稿意见| CHIEF
+    CHIEF --> |修改任务| PROBE
     style USER fill:#64748b,color:#fff
     style CHIEF fill:#4f46e5,color:#fff
     style PROBE fill:#ea580c,color:#fff
     style PALETTE fill:#059669,color:#fff
     style READER fill:#7c3aed,color:#fff
-    style RELEASE fill:#0ea5e9,color:#fff
-</code></pre>
+    style RELEASE fill:#0ea5e9,color:#fff</div></p>
 <h3>6.3 报告生命周期</h3>
 <p>一份报告从选题到发布的完整生命周期：</p>
 <ol>
@@ -774,23 +1078,22 @@
 <hr>
 <h2>7. 选型决策树</h2>
 <h3>7.1 组织模式选择</h3>
-<pre><code class="language-mermaid">flowchart TD
-    START[选择多 Agent 组织模式] --&gt; Q1{团队规模?}
-    Q1 --&gt;|2-5 个| Q2{任务类型?}
-    Q1 --&gt;|6-20 个| Q4{是否需要容错?}
-    Q1 --&gt;|20+ 个| Q3{Agent 是否异构?}
-    Q2 --&gt;|创意讨论| FLAT[扁平式]
-    Q2 --&gt;|执行生产| HIER[层级式]
-    Q3 --&gt;|同构| HIER
-    Q3 --&gt;|异构| MARKET[市场式]
-    Q4 --&gt;|是| HYBRID[混合式]
-    Q4 --&gt;|否| HIER
+<p><div class="mermaid">flowchart TD
+    START[选择多 Agent 组织模式] --> Q1{团队规模?}
+    Q1 -->|2-5 个| Q2{任务类型?}
+    Q1 -->|6-20 个| Q4{是否需要容错?}
+    Q1 -->|20+ 个| Q3{Agent 是否异构?}
+    Q2 -->|创意讨论| FLAT[扁平式]
+    Q2 -->|执行生产| HIER[层级式]
+    Q3 -->|同构| HIER
+    Q3 -->|异构| MARKET[市场式]
+    Q4 -->|是| HYBRID[混合式]
+    Q4 -->|否| HIER
     style START fill:#4f46e5,color:#fff
     style HIER fill:#059669,color:#fff
     style FLAT fill:#ea580c,color:#fff
     style MARKET fill:#7c3aed,color:#fff
-    style HYBRID fill:#0ea5e9,color:#fff
-</code></pre>
+    style HYBRID fill:#0ea5e9,color:#fff</div></p>
 <h3>7.2 角色配置建议</h3>
 <p>根据项目类型推荐角色配置：</p>
 <div class="table-wrapper">
@@ -885,8 +1188,13 @@
 <li><strong>迭代优化</strong>: 从简单配置开始，根据实际运行情况逐步调整</li>
 </ul>
 <hr>
-<h2>参考资料</h2>
-<ul>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ul>
 <li>[1] <a href="https://microsoft.github.io/autogen/">AutoGen - Multi-Agent Conversation Framework (Microsoft)</a> (2024-2025)</li>
 <li>[2] <a href="https://docs.crewai.com/">CrewAI - Multi-Agent Framework</a> (2024-2025)</li>
 <li>[3] <a href="https://github.com/openai/swarm">Swarm - OpenAI Multi-Agent Framework</a> (2024)</li>
@@ -900,16 +1208,26 @@
 <li>[11] <a href="https://arxiv.org/abs/2405.15554">A Survey on LLM-based Multi-Agent Systems - arXiv</a> (2024)</li>
 </ul>
 
+
 </div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
 <div class="footer">
   🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
   <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
-  mermaid.initialize({startOnLoad: false, theme: theme});
-  mermaid.run();
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
 </script>
+
 </body>
 </html>
