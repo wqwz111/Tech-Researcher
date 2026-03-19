@@ -5,7 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LLM 评估与 Benchmark 方法论</title>
 <style>
-:root, [data-theme="dark"] {
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
     --bg-primary:    #0f172a;
     --bg-secondary:  #1e293b;
     --bg-tertiary:   #334155;
@@ -34,6 +44,8 @@
     --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     --header-border: #334155;
   }
+
+  /* ── Light Theme ── */
   [data-theme="light"] {
     --bg-primary:    #ffffff;
     --bg-secondary:  #f8fafc;
@@ -63,603 +75,991 @@
     --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
     --header-border: #e2e8f0;
   }
-body {
-    background: var(--bg-primary); color: var(--text-primary);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
-    transition: background .3s, color .3s;
-}
-.top-nav {
-    background: var(--bg-secondary); padding: .6rem 1rem; border-radius: 8px;
-    margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
     border: 1px solid var(--border-color);
-}
-.top-nav a { color: var(--accent-secondary); text-decoration: none; }
-.top-nav a:hover { text-decoration: underline; }
-.top-nav .sep { color: var(--text-muted); }
-.theme-btn {
-    background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 20px;
-    padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
-    transition: border-color .2s;
-}
-.theme-btn:hover { border-color: var(--accent-primary); }
-.meta {
-    background: var(--bg-secondary); border-left: 4px solid var(--accent-primary);
-    padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
-}
-.meta h1 { color: var(--accent-primary); margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .info { color: var(--text-muted); font-size: .85rem; }
-.toc {
-    background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px;
-    padding: 1rem 1.5rem; margin-bottom: 2rem;
-}
-.toc h2 { color: var(--accent-secondary); font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: var(--accent-secondary); text-decoration: none; }
-h1 { color: var(--accent-primary); border-bottom: 2px solid var(--border-color); padding-bottom: .5rem; }
-h2 { color: var(--accent-secondary); margin-top: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: .3rem; }
-h3 { color: var(--accent-secondary); margin-top: 1.8rem; }
-a { color: var(--link); }
-code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre {
-    background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; max-width: 100%; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
-}
-pre code { background: none; color: var(--text-primary); }
-pre .lang-label {
-    position: absolute; top: 0; right: 0; background: var(--border-color);
-    color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
-}
-.mermaid { background: var(--bg-secondary); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote {
-    border-left: 4px solid var(--accent-primary); margin: 1.5rem 0; padding: .8rem 1.2rem;
-    background: var(--bg-secondary); border-radius: 0 8px 8px 0;
-}
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid var(--border-color); padding: .7rem 1rem; text-align: left; }
-th { background: var(--bg-secondary); color: var(--accent-secondary); }
-tr:nth-child(even) { background: var(--bg-secondary); }
-hr { border: none; border-top: 1px solid var(--border-color); margin: 2.5rem 0; }
-strong { color: var(--text-primary); }
-.footer {
-    text-align: center; color: var(--text-muted); padding: 2rem 0 1rem;
-    border-top: 1px solid var(--border-color); margin-top: 3rem; font-size: .85rem;
-}
-.footer a { color: var(--link); }
-@media print {
-    body { background: #fff; color: #000; max-width: 100%; }
-    .top-nav, .toc { display: none; }
-}
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
 </style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
 </head>
 <body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:var(--text-muted)">🔬 方法论</span>
-<button class="theme-btn" onclick="toggleTheme()" title="切换日夜模式"><span id="themeIcon">☀️</span></button>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>LLM 评估与 Benchmark 方法论</h1>
+  <div class="meta">2026-03-19 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
 </div>
-<div class="meta">
-<h1>LLM 评估与 Benchmark 方法论</h1>
-<div class="info">2026-03-14 · 分类: 🔬 方法论</div>
-</div>
 
-<div class="breadcrumb">
-  <a href="../index.html">← 返回报告索引</a>
-</div>
+<div class="container">
 
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
 
-<p>> 发布日期: 2026-03-14</p>
-<p>> 分类: 方法论</p>
-<p>> 关键词: LLM评估, Benchmark, MMLU, HumanEval, HELM, RAG评估</p>
-
-<hr>
-
-<h2 id="executive-summary">Executive Summary</h2>
-
-<p>大语言模型（LLM）的评估是 AI 领域最具挑战性的问题之一。随着模型能力的快速迭代，评估方法论也在不断演进。本文系统梳理主流 Benchmark（MMLU、HumanEval、HELM 等）、自定义评估框架、人工与自动评估的结合策略、RAG 场景的专项评估指标，以及实践中常见的陷阱。</p>
-
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p><p>大语言模型（LLM）的评估是 AI 领域最具挑战性的问题之一。随着模型能力的快速迭代，评估方法论也在不断演进。本文系统梳理主流 Benchmark（MMLU、HumanEval、HELM 等）、自定义评估框架、人工与自动评估的结合策略、RAG 场景的专项评估指标，以及实践中常见的陷阱。</p>
 <p><strong>核心发现：</strong></p>
+<ol>
+<li><strong>没有单一 Benchmark 能全面衡量模型能力</strong>——MMLU 测试知识广度，HumanEval 测试代码生成，HELM 提供多维度综合评估，但各自存在局限性。</li>
+<li><strong>人工评估仍然是金标准</strong>，但成本高、主观性强，需要与自动评估结合使用以平衡效率和质量。</li>
+<li><strong>RAG 系统评估</strong>是一个新兴且重要的领域，需要同时评估检索质量和生成质量，传统指标（如 BLEU）已不够用。</li>
+<li><strong>最常见的陷阱</strong>包括数据污染（Benchmark 数据混入训练集）、单一指标迷信、以及忽视领域适配性。</li>
+<li><strong>构建自定义评估框架</strong>是企业落地 LLM 的必要步骤，应根据业务场景设计针对性指标。</li>
+</ol>
+</p>
+  </div>
 
-<p>1. <strong>没有单一 Benchmark 能全面衡量模型能力</strong>——MMLU 测试知识广度，HumanEval 测试代码生成，HELM 提供多维度综合评估，但各自存在局限性。</p>
-<p>2. <strong>人工评估仍然是金标准</strong>，但成本高、主观性强，需要与自动评估结合使用以平衡效率和质量。</p>
-<p>3. <strong>RAG 系统评估</strong>是一个新兴且重要的领域，需要同时评估检索质量和生成质量，传统指标（如 BLEU）已不够用。</p>
-<p>4. <strong>最常见的陷阱</strong>包括数据污染（Benchmark 数据混入训练集）、单一指标迷信、以及忽视领域适配性。</p>
-<p>5. <strong>构建自定义评估框架</strong>是企业落地 LLM 的必要步骤，应根据业务场景设计针对性指标。</p>
-
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <blockquote>
+<p>发布日期: 2026-03-14
+分类: 方法论
+关键词: LLM评估, Benchmark, MMLU, HumanEval, HELM, RAG评估</p>
+</blockquote>
 <hr>
-
-<h2 id="一主流-benchmark-概览">一、主流 Benchmark 概览</h2>
-
-<h3 id="11-mmlumassive-multitask-language-understanding">1.1 MMLU（Massive Multitask Language Understanding）</h3>
-
+<h2>一、主流 Benchmark 概览</h2>
+<h3>1.1 MMLU（Massive Multitask Language Understanding）</h3>
 <p>MMLU 由 Dan Hendrycks 等人于 2021 年提出，是目前最广泛使用的知识理解基准之一。</p>
-
 <p><strong>设计思路：</strong> 覆盖 57 个学科领域（从基础数学到专业法律），包含约 14,000 道四选一选择题。测试目标是衡量模型在广泛知识领域中的推理和理解能力。</p>
-
 <p><strong>评分方式：</strong> 准确率（Accuracy），即模型选择正确答案的比例。</p>
-
 <p><strong>优势：</strong></p>
+<ul>
 <li>覆盖面广，涵盖 STEM、人文、社科等多个领域</li>
 <li>题目标准化，易于横向比较</li>
 <li>社区接受度高，几乎所有主流模型都报告 MMLU 分数</li>
-
+</ul>
 <p><strong>局限性：</strong></p>
+<ul>
 <li>选择题格式限制了对开放生成能力的评估</li>
-<li>部分题目可通过模式匹配"猜对"，不一定反映真正理解</li>
+<li>部分题目可通过模式匹配&quot;猜对&quot;，不一定反映真正理解</li>
 <li>难度梯度不够明显，顶尖模型已接近天花板（GPT-4 级别模型达到 86%+）</li>
 <li>存在数据污染风险，因为题目来源公开可获取</li>
-
+</ul>
 <p><strong>最新进展：</strong> MMLU-Pro 于 2024 年发布，将选项从 4 个增加到 10 个，并加入更多推理步骤要求，显著提高了难度。MMLU-Pro 上顶尖模型的得分通常比 MMLU 低 15-20 个百分点，更好地区分了模型能力。</p>
-
-<h3 id="12-humaneval--humaneval">1.2 HumanEval / HumanEval+</h3>
-
+<h3>1.2 HumanEval / HumanEval+</h3>
 <p>HumanEval 由 OpenAI 于 2021 年发布，是代码生成领域的标杆 Benchmark。</p>
-
 <p><strong>设计思路：</strong> 164 道手写编程题目，每题包含函数签名、文档字符串和多个单元测试。模型需要根据描述生成完整函数实现。</p>
-
 <p><strong>评分方式：</strong> pass@k——生成 k 个候选解中至少一个通过所有测试用例的概率。通常报告 pass@1（一次生成即正确）。</p>
-
 <p><strong>优势：</strong></p>
+<ul>
 <li>评估实际编程能力，而非仅仅代码理解</li>
 <li>单元测试提供了客观、可复现的评估标准</li>
 <li>与真实软件开发场景高度相关</li>
-
+</ul>
 <p><strong>局限性：</strong></p>
+<ul>
 <li>题目数量较少（仅 164 题），统计显著性有限</li>
 <li>题目难度偏低，主要为算法入门级别</li>
 <li>仅覆盖 Python，不评估多语言能力</li>
 <li>不测试代码的可读性、效率或工程实践</li>
-
-<p><strong>扩展：</strong> HumanEval+（2024）大幅扩展了测试用例数量（从平均 7.7 个增加到 80+ 个），降低了"碰巧通过"的概率，提供了更严格的评估。</p>
-
-<h3 id="13-helmholistic-evaluation-of-language-models">1.3 HELM（Holistic Evaluation of Language Models）</h3>
-
+</ul>
+<p><strong>扩展：</strong> HumanEval+（2024）大幅扩展了测试用例数量（从平均 7.7 个增加到 80+ 个），降低了&quot;碰巧通过&quot;的概率，提供了更严格的评估。</p>
+<h3>1.3 HELM（Holistic Evaluation of Language Models）</h3>
 <p>HELM 由斯坦福大学 CRFM 于 2022 年提出，代表了评估方法论的一次重要升级。</p>
-
-<p><strong>设计思路：</strong> 不是一个单一 Benchmark，而是一个<strong>评估框架</strong>，定义了"场景（Scenario）× 指标（Metric）"的矩阵式评估方法。</p>
-
+<p><strong>设计思路：</strong> 不是一个单一 Benchmark，而是一个<strong>评估框架</strong>，定义了&quot;场景（Scenario）× 指标（Metric）&quot;的矩阵式评估方法。</p>
 <p><strong>核心维度：</strong></p>
+<ul>
 <li><strong>场景维度：</strong> 信息检索、问答、摘要、情感分析、毒性检测等</li>
 <li><strong>指标维度：</strong> 准确率、校准度（Calibration）、鲁棒性、公平性、效率（推理速度和成本）、毒性</li>
-
+</ul>
 <p><strong>优势：</strong></p>
+<ul>
 <li>多维度评估避免了单一指标的片面性</li>
 <li>标准化的评估流程确保可复现性</li>
 <li>关注公平性和安全性等常被忽视的维度</li>
 <li>开源框架，社区可扩展</li>
-
+</ul>
 <p><strong>局限性：</strong></p>
+<ul>
 <li>评估成本高（需要大量 API 调用）</li>
 <li>部分场景的标注数据质量参差不齐</li>
 <li>更新速度跟不上模型迭代速度</li>
-
-<h3 id="14-其他重要-benchmark">1.4 其他重要 Benchmark</h3>
-
-<div class="table-wrapper">
-<div class="table-wrapper">
-<table><tr><th>Benchmark</th><th>领域</th><th>特点</th></tr>
-<tr><td>**GSM8K**</td><td>数学推理</td><td>8,500 道小学数学应用题，测试链式推理能力</td></tr>
-<tr><td>**MATH**</td><td>高等数学</td><td>12,500 道竞赛级数学题，分 7 个子领域</td></tr>
-<tr><td>**GPQA**</td><td>研究生级科学</td><td>由领域专家出题，非专家正确率仅 34%</td></tr>
-<tr><td>**ARC（AI2 Reasoning Challenge）**</td><td>常识推理</td><td>分 Easy 和 Challenge 两档</td></tr>
-<tr><td>**HellaSwag**</td><td>常识推理</td><td>测试对日常情境的预测能力</td></tr>
-<tr><td>**TruthfulQA**</td><td>事实性</td><td>测试模型是否会产生常见误解</td></tr>
-<tr><td>**MT-Bench**</td><td>多轮对话</td><td>使用 GPT-4 作为评判，评估对话质量</td></tr>
-<tr><td>**Chatbot Arena**</td><td>综合对话</td><td>人类盲评投票（Elo 评分），社区驱动</td></tr>
-<tr><td>**BigCodeBench**</td><td>代码生成</td><td>2024 年发布，更贴近真实开发场景</td></tr>
-<tr><td>**SWE-bench**</td><td>软件工程</td><td>测试模型修复真实 GitHub Issue 的能力</td></tr>
-</table>
-</div>
-</div>
-
-<h3 id="15-benchmark-发展趋势">1.5 Benchmark 发展趋势</h3>
-
+</ul>
+<h3>1.4 其他重要 Benchmark</h3>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>领域</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>GSM8K</strong></td>
+<td>数学推理</td>
+<td>8,500 道小学数学应用题，测试链式推理能力</td>
+</tr>
+<tr>
+<td><strong>MATH</strong></td>
+<td>高等数学</td>
+<td>12,500 道竞赛级数学题，分 7 个子领域</td>
+</tr>
+<tr>
+<td><strong>GPQA</strong></td>
+<td>研究生级科学</td>
+<td>由领域专家出题，非专家正确率仅 34%</td>
+</tr>
+<tr>
+<td><strong>ARC（AI2 Reasoning Challenge）</strong></td>
+<td>常识推理</td>
+<td>分 Easy 和 Challenge 两档</td>
+</tr>
+<tr>
+<td><strong>HellaSwag</strong></td>
+<td>常识推理</td>
+<td>测试对日常情境的预测能力</td>
+</tr>
+<tr>
+<td><strong>TruthfulQA</strong></td>
+<td>事实性</td>
+<td>测试模型是否会产生常见误解</td>
+</tr>
+<tr>
+<td><strong>MT-Bench</strong></td>
+<td>多轮对话</td>
+<td>使用 GPT-4 作为评判，评估对话质量</td>
+</tr>
+<tr>
+<td><strong>Chatbot Arena</strong></td>
+<td>综合对话</td>
+<td>人类盲评投票（Elo 评分），社区驱动</td>
+</tr>
+<tr>
+<td><strong>BigCodeBench</strong></td>
+<td>代码生成</td>
+<td>2024 年发布，更贴近真实开发场景</td>
+</tr>
+<tr>
+<td><strong>SWE-bench</strong></td>
+<td>软件工程</td>
+<td>测试模型修复真实 GitHub Issue 的能力</td>
+</tr>
+</tbody></table>
+<h3>1.5 Benchmark 发展趋势</h3>
 <p>当前评估方法论呈现几个明显趋势：</p>
-
-<p>1. <strong>从知识测试到推理测试</strong>：单纯的知识问答已不够，模型需要展示推理链（Chain-of-Thought）</p>
-<p>2. <strong>从静态到动态</strong>：Chatbot Arena 等人类投票机制避免了 Benchmark 固化</p>
-<p>3. <strong>从通用到领域化</strong>：金融、医疗、法律等领域的专用 Benchmark 不断涌现</p>
-<p>4. <strong>从"能否做到"到"做得多好"</strong>：评估粒度从二元正确/错误转向质量谱系</p>
-
+<ol>
+<li><strong>从知识测试到推理测试</strong>：单纯的知识问答已不够，模型需要展示推理链（Chain-of-Thought）</li>
+<li><strong>从静态到动态</strong>：Chatbot Arena 等人类投票机制避免了 Benchmark 固化</li>
+<li><strong>从通用到领域化</strong>：金融、医疗、法律等领域的专用 Benchmark 不断涌现</li>
+<li><strong>从&quot;能否做到&quot;到&quot;做得多好&quot;</strong>：评估粒度从二元正确/错误转向质量谱系</li>
+</ol>
 <hr>
-
-<h2 id="二自定义评估框架">二、自定义评估框架</h2>
-
-<h3 id="21-为什么需要自定义评估">2.1 为什么需要自定义评估</h3>
-
+<h2>二、自定义评估框架</h2>
+<h3>2.1 为什么需要自定义评估</h3>
 <p>通用 Benchmark 无法覆盖所有业务场景。企业落地 LLM 时需要回答：</p>
-
+<ul>
 <li>这个模型在我的具体任务上表现如何？</li>
 <li>模型升级后，我的核心指标有没有变化？</li>
 <li>不同模型之间如何选择？</li>
-
-<h3 id="22-自定义评估框架的设计原则">2.2 自定义评估框架的设计原则</h3>
-
+</ul>
+<h3>2.2 自定义评估框架的设计原则</h3>
 <p><strong>原则 1：对齐业务目标</strong></p>
-
 <p>评估指标应直接映射到业务 KPI。例如：</p>
+<ul>
 <li>客服场景 → 首次解决率、客户满意度、响应时间</li>
 <li>代码辅助 → 编译通过率、代码审查通过率、开发速度提升</li>
 <li>内容生成 → 编辑通过率、事实准确率、品牌一致性</li>
-
+</ul>
 <p><strong>原则 2：分层评估</strong></p>
-
-<pre><code>
-Level 1: 能力测试 — 模型能否完成任务？（通过/失败）
+<pre><code>Level 1: 能力测试 — 模型能否完成任务？（通过/失败）
 Level 2: 质量测试 — 完成质量如何？（评分/排名）
 Level 3: 可靠性测试 — 一致性如何？（方差/失败模式）
 Level 4: 安全性测试 — 是否存在风险？（对抗测试）
 </code></pre>
-
 <p><strong>原则 3：持续迭代</strong></p>
-
 <p>评估集应随业务变化更新，而非一成不变。建议：</p>
+<ul>
 <li>每月审查评估集覆盖度</li>
 <li>新发现的失败模式加入评估集</li>
 <li>定期轮换部分题目避免过拟合</li>
-
-<h3 id="23-评估数据集构建">2.3 评估数据集构建</h3>
-
+</ul>
+<h3>2.3 评估数据集构建</h3>
 <p><strong>黄金标准集（Golden Set）：</strong></p>
+<ul>
 <li>精心标注的高质量测试集，通常 200-1000 条</li>
 <li>由领域专家标注，确保答案准确性</li>
 <li>覆盖边界情况和常见失败模式</li>
 <li>用于正式评估和模型选型</li>
-
+</ul>
 <p><strong>生产采样集（Production Sample Set）：</strong></p>
+<ul>
 <li>从真实生产流量中随机采样</li>
 <li>定期更新以反映实际分布</li>
 <li>用于监控模型在生产环境中的表现</li>
 <li>配合 A/B 测试使用</li>
-
+</ul>
 <p><strong>对抗测试集（Adversarial Set）：</strong></p>
+<ul>
 <li>刻意构造的困难样本</li>
 <li>测试模型的鲁棒性和边界情况</li>
 <li>包含提示注入、越狱尝试等安全测试</li>
 <li>定期更新以应对新型攻击</li>
-
-<h3 id="24-自动化评估流水线">2.4 自动化评估流水线</h3>
-
-<div class="mermaid">
-    graph LR
+</ul>
+<h3>2.4 自动化评估流水线</h3>
+<p><div class="mermaid">graph LR
     DS["📊 评估数据集<br/>JSONL"] --> IN["🔍 模型推理<br/>Batch API"]
     IN --> SC["✅ 自动评分<br/>规则/LLM"]
-    SC --> RP["📈 报告生成<br/>Dashboard"]
-</div>
-
+    SC --> RP["📈 报告生成<br/>Dashboard"]</div></p>
 <p><strong>关键组件：</strong></p>
+<ul>
 <li><strong>数据管理</strong>：版本控制评估集，追踪变更历史</li>
 <li><strong>推理引擎</strong>：支持批量推理，统一输入输出格式</li>
 <li><strong>评分模块</strong>：规则评分 + LLM-as-Judge 混合</li>
 <li><strong>报告系统</strong>：可视化指标变化，自动报警回归</li>
-
+</ul>
 <hr>
-
-<h2 id="三人工评估与自动评估">三、人工评估与自动评估</h2>
-
-<h3 id="31-自动评估方法">3.1 自动评估方法</h3>
-
+<h2>三、人工评估与自动评估</h2>
+<h3>3.1 自动评估方法</h3>
 <p><strong>基于规则的评分：</strong></p>
+<ul>
 <li>准确率（Accuracy）：分类/选择题场景</li>
 <li>BLEU / ROUGE：文本生成与参考答案的 n-gram 重叠</li>
 <li>Code Pass Rate：代码能否通过测试用例</li>
 <li>Exact Match：答案是否完全匹配</li>
-
-<p><strong>LLM-as-Judge（模型评判）：</strong></p>
-<p>使用更强的模型（如 GPT-4）来评判其他模型的输出。</p>
-
+</ul>
+<p><strong>LLM-as-Judge（模型评判）：</strong>
+使用更强的模型（如 GPT-4）来评判其他模型的输出。</p>
 <p><strong>优势：</strong></p>
+<ul>
 <li>成本低、速度快</li>
 <li>可大规模应用</li>
 <li>评估标准一致</li>
-
+</ul>
 <p><strong>局限性：</strong></p>
+<ul>
 <li>评判模型本身有偏见（如偏好冗长回答、偏好自己的输出风格）</li>
-<li>难以评估事实准确性（"幻觉评判幻觉"）</li>
+<li>难以评估事实准确性（&quot;幻觉评判幻觉&quot;）</li>
 <li>对创造性任务的评估不够可靠</li>
-
+</ul>
 <p><strong>最佳实践：</strong></p>
+<ul>
 <li>使用与被评估模型不同的评判模型</li>
 <li>在评判 prompt 中明确定义评分标准（Rubric）</li>
 <li>对评判结果进行抽样人工验证</li>
 <li>使用多评判投票（3 个评判取中位数）降低偏差</li>
-
-<h3 id="32-人工评估方法">3.2 人工评估方法</h3>
-
-<p><strong>直接评分（Likert Scale）：</strong></p>
-<p>评估者对输出质量打分（如 1-5 分），维度包括：</p>
+</ul>
+<h3>3.2 人工评估方法</h3>
+<p><strong>直接评分（Likert Scale）：</strong>
+评估者对输出质量打分（如 1-5 分），维度包括：</p>
+<ul>
 <li>相关性（Relevance）：是否回答了问题？</li>
 <li>准确性（Accuracy）：事实是否正确？</li>
 <li>完整性（Completeness）：是否遗漏重要信息？</li>
 <li>流畅性（Fluency）：表达是否通顺？</li>
 <li>有用性（Helpfulness）：对用户是否有实际帮助？</li>
-
+</ul>
 <p><strong>盲评对比（Blind Comparison / A-B 测试）：</strong></p>
+<ul>
 <li>向评估者展示两个模型的输出（随机顺序）</li>
 <li>评估者选择更好的一个或判断平局</li>
 <li>Chatbot Arena 使用此方法，用 Elo 评分系统</li>
-
+</ul>
 <p><strong>众包 vs 专家：</strong></p>
+<ul>
 <li><strong>众包</strong>：成本低、规模大，适合主观质量评估（如流畅性）</li>
 <li><strong>专家</strong>：成本高、精度高，适合领域专业知识评估（如医学准确性）</li>
-
-<h3 id="33-自动与人工的结合策略">3.3 自动与人工的结合策略</h3>
-
+</ul>
+<h3>3.3 自动与人工的结合策略</h3>
 <p>推荐的三层评估策略：</p>
-
-<div class="mermaid">
-    graph TD
+<p><div class="mermaid">graph TD
     L3["Layer 3: 人工深度评估（每月/每季度）<br/>领域专家审阅 / 失败模式分析 / 评估标准校准"]
     L2["Layer 2: 人工抽样验证（每周）<br/>LLM-as-Judge 结果抽样验证 / 评判模型偏差监控"]
     L1["Layer 1: 自动化评估（每次模型更新）<br/>规则评分 / LLM-as-Judge / 回归测试"]
     L3 --> L2
-    L2 --> L1
-</div>
-
+    L2 --> L1</div></p>
 <hr>
-
-<h2 id="四rag-系统评估">四、RAG 系统评估</h2>
-
+<h2>四、RAG 系统评估</h2>
 <p>RAG（检索增强生成）系统的评估比纯生成模型更复杂，需要同时评估<strong>检索质量</strong>和<strong>生成质量</strong>。</p>
-
-<h3 id="41-检索质量评估">4.1 检索质量评估</h3>
-
+<h3>4.1 检索质量评估</h3>
 <p><strong>传统 IR 指标：</strong></p>
+<ul>
 <li><strong>Precision@K</strong>：前 K 个检索结果中有多少是相关的</li>
 <li><strong>Recall@K</strong>：所有相关文档中有多少被前 K 个检索结果覆盖</li>
 <li><strong>MRR（Mean Reciprocal Rank）</strong>：第一个相关结果的排名倒数的均值</li>
 <li><strong>NDCG（Normalized Discounted Cumulative Gain）</strong>：考虑排序质量的综合指标</li>
-
+</ul>
 <p><strong>上下文相关性指标：</strong></p>
+<ul>
 <li><strong>Context Relevance</strong>：检索到的文档是否与查询相关</li>
 <li><strong>Context Precision</strong>：检索结果中相关文档的占比（排除噪声）</li>
 <li><strong>Context Recall</strong>：回答问题所需的所有信息是否都被检索到</li>
-
-<h3 id="42-生成质量评估">4.2 生成质量评估</h3>
-
+</ul>
+<h3>4.2 生成质量评估</h3>
 <p><strong>忠实度（Faithfulness）：</strong></p>
+<ul>
 <li>生成的回答是否忠实于检索到的上下文</li>
-<li>是否存在"幻觉"——生成了上下文中不存在的信息</li>
+<li>是否存在&quot;幻觉&quot;——生成了上下文中不存在的信息</li>
 <li>计算方法：提取回答中的声明，逐一验证是否能从上下文中推导</li>
-
+</ul>
 <p><strong>答案相关性（Answer Relevance）：</strong></p>
+<ul>
 <li>生成的回答是否直接回答了用户的问题</li>
 <li>是否包含无关或冗余信息</li>
 <li>通常使用 LLM-as-Judge 评估</li>
-
+</ul>
 <p><strong>答案正确性（Answer Correctness）：</strong></p>
+<ul>
 <li>生成的回答是否与标准答案一致</li>
 <li>结合事实正确性和语义正确性</li>
 <li>可使用 F1 分数（token 级别重叠）或 LLM 评判</li>
-
-<h3 id="43-端到端评估">4.3 端到端评估</h3>
-
-<p><strong>RAGAS 框架：</strong></p>
-<p>RAGAS（RAG Assessment）是目前最流行的 RAG 评估框架，提供四个核心指标：</p>
-
-<p>1. <strong>Faithfulness</strong>：回答对上下文的忠实度</p>
-<p>2. <strong>Answer Relevance</strong>：回答对问题的相关性</p>
-<p>3. <strong>Context Precision</strong>：检索上下文的精确度</p>
-<p>4. <strong>Context Recall</strong>：检索上下文的召回率</p>
-
-<p><strong>DeepEval 框架：</strong></p>
-<p>另一个流行的开源框架，提供：</p>
+</ul>
+<h3>4.3 端到端评估</h3>
+<p><strong>RAGAS 框架：</strong>
+RAGAS（RAG Assessment）是目前最流行的 RAG 评估框架，提供四个核心指标：</p>
+<ol>
+<li><strong>Faithfulness</strong>：回答对上下文的忠实度</li>
+<li><strong>Answer Relevance</strong>：回答对问题的相关性</li>
+<li><strong>Context Precision</strong>：检索上下文的精确度</li>
+<li><strong>Context Recall</strong>：检索上下文的召回率</li>
+</ol>
+<p><strong>DeepEval 框架：</strong>
+另一个流行的开源框架，提供：</p>
+<ul>
 <li>14+ 内置评估指标</li>
 <li>支持自定义指标</li>
 <li>与 CI/CD 集成</li>
 <li>集成 LLM-as-Judge</li>
-
+</ul>
 <p><strong>自定义端到端评估：</strong></p>
-
-<pre><span class="lang-label">python</span><code>
-# 端到端评估示例
+<pre><code class="language-python"># 端到端评估示例
 eval_cases = [
     {
-        "query": "用户的实际问题",
-        "expected_answer": "标准答案",
-        "required_sources": ["必须引用的文档"],
-        "evaluation_criteria": {
-            "accuracy": "事实准确",
-            "completeness": "覆盖所有要点",
-            "conciseness": "不超过 3 句话"
+        &quot;query&quot;: &quot;用户的实际问题&quot;,
+        &quot;expected_answer&quot;: &quot;标准答案&quot;,
+        &quot;required_sources&quot;: [&quot;必须引用的文档&quot;],
+        &quot;evaluation_criteria&quot;: {
+            &quot;accuracy&quot;: &quot;事实准确&quot;,
+            &quot;completeness&quot;: &quot;覆盖所有要点&quot;,
+            &quot;conciseness&quot;: &quot;不超过 3 句话&quot;
         }
     }
 ]
 </code></pre>
-
-<h3 id="44-rag-评估的常见挑战">4.4 RAG 评估的常见挑战</h3>
-
-<p>1. <strong>Ground Truth 构建成本高</strong>：需要人工标注正确答案和相关文档</p>
-<p>2. <strong>评估指标之间的权衡</strong>：高召回可能导致低精确度，反之亦然</p>
-<p>3. <strong>多跳推理评估困难</strong>：需要从多个文档中综合信息的问题难以评估</p>
-<p>4. <strong>动态知识更新</strong>：知识库更新后，评估标准可能需要同步更新</p>
-
+<h3>4.4 RAG 评估的常见挑战</h3>
+<ol>
+<li><strong>Ground Truth 构建成本高</strong>：需要人工标注正确答案和相关文档</li>
+<li><strong>评估指标之间的权衡</strong>：高召回可能导致低精确度，反之亦然</li>
+<li><strong>多跳推理评估困难</strong>：需要从多个文档中综合信息的问题难以评估</li>
+<li><strong>动态知识更新</strong>：知识库更新后，评估标准可能需要同步更新</li>
+</ol>
 <hr>
-
-<h2 id="五常见陷阱与最佳实践">五、常见陷阱与最佳实践</h2>
-
-<h3 id="51-数据污染data-contamination">5.1 数据污染（Data Contamination）</h3>
-
+<h2>五、常见陷阱与最佳实践</h2>
+<h3>5.1 数据污染（Data Contamination）</h3>
 <p><strong>问题：</strong> Benchmark 的测试数据被包含在模型的训练数据中，导致评估结果虚高。</p>
-
 <p><strong>识别方法：</strong></p>
+<ul>
 <li>检查训练数据中是否包含 Benchmark 题目</li>
 <li>使用最小编辑距离检测相似样本</li>
 <li>对比模型在 Benchmark 上的表现与其在相似但未见过的数据上的表现差异</li>
-<li>关注模型在 Benchmark 上的"异常高"分数</li>
-
+<li>关注模型在 Benchmark 上的&quot;异常高&quot;分数</li>
+</ul>
 <p><strong>缓解措施：</strong></p>
+<ul>
 <li>使用更新的、未被广泛污染的 Benchmark（如 MMLU-Pro）</li>
 <li>构建私有评估集</li>
 <li>定期更新评估数据</li>
-
-<h3 id="52-单一指标迷信">5.2 单一指标迷信</h3>
-
+</ul>
+<h3>5.2 单一指标迷信</h3>
 <p><strong>问题：</strong> 过度依赖某一个指标（如 MMLU 分数）做决策。</p>
-
 <p><strong>案例：</strong> 一个 MMLU 分数更高的模型在实际客服场景中可能表现更差，因为 MMLU 不测试对话管理和共情能力。</p>
-
 <p><strong>最佳实践：</strong></p>
+<ul>
 <li>使用多维度评估矩阵</li>
 <li>根据业务场景加权不同指标</li>
 <li>在最终决策前进行实际场景测试</li>
-
-<h3 id="53-忽视校准度calibration">5.3 忽视校准度（Calibration）</h3>
-
+</ul>
+<h3>5.3 忽视校准度（Calibration）</h3>
 <p><strong>问题：</strong> 模型的置信度与实际正确率不匹配。例如，模型以 90% 的置信度回答问题，但实际正确率只有 60%。</p>
-
 <p><strong>影响：</strong> 在高风险场景（医疗、金融）中，校准度差的模型可能导致错误决策。</p>
-
 <p><strong>评估方法：</strong></p>
+<ul>
 <li>Expected Calibration Error (ECE)</li>
 <li>Reliability Diagram（可靠性图）</li>
 <li>分桶统计置信度与准确率的差异</li>
-
-<h3 id="54-评估速度-vs-评估深度的权衡">5.4 评估速度 vs 评估深度的权衡</h3>
-
+</ul>
+<h3>5.4 评估速度 vs 评估深度的权衡</h3>
 <p><strong>问题：</strong> 深度评估耗时长，无法快速迭代。</p>
-
 <p><strong>推荐策略：</strong></p>
-
-<div class="table-wrapper">
-<div class="table-wrapper">
-<table><tr><th>阶段</th><th>评估类型</th><th>时间</th><th>覆盖面</th></tr>
-<tr><td>开发中</td><td>快速冒烟测试</td><td>分钟级</td><td>核心功能</td></tr>
-<tr><td>提交前</td><td>自动化回归测试</td><td>小时级</td><td>主要场景</td></tr>
-<tr><td>发布前</td><td>综合评估</td><td>天级</td><td>全面覆盖</td></tr>
-<tr><td>发布后</td><td>持续监控</td><td>持续</td><td>生产数据</td></tr>
-</table>
-</div>
-</div>
-
-<h3 id="55-领域偏差">5.5 领域偏差</h3>
-
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>评估类型</th>
+<th>时间</th>
+<th>覆盖面</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>开发中</td>
+<td>快速冒烟测试</td>
+<td>分钟级</td>
+<td>核心功能</td>
+</tr>
+<tr>
+<td>提交前</td>
+<td>自动化回归测试</td>
+<td>小时级</td>
+<td>主要场景</td>
+</tr>
+<tr>
+<td>发布前</td>
+<td>综合评估</td>
+<td>天级</td>
+<td>全面覆盖</td>
+</tr>
+<tr>
+<td>发布后</td>
+<td>持续监控</td>
+<td>持续</td>
+<td>生产数据</td>
+</tr>
+</tbody></table>
+<h3>5.5 领域偏差</h3>
 <p><strong>问题：</strong> 在通用 Benchmark 上表现优秀的模型，在特定领域可能表现平庸。</p>
-
 <p><strong>示例：</strong> GPT-4 在 MMLU 上得分很高，但在特定领域的法律文件分析中可能不如经过领域微调的小模型。</p>
-
 <p><strong>最佳实践：</strong></p>
+<ul>
 <li>除通用 Benchmark 外，必须进行领域特定评估</li>
 <li>收集真实业务数据构建领域评估集</li>
 <li>关注领域特定的失败模式</li>
-
-<h3 id="56-评估集的版本管理">5.6 评估集的版本管理</h3>
-
+</ul>
+<h3>5.6 评估集的版本管理</h3>
 <p><strong>问题：</strong> 评估集随时间演变，不管理版本会导致结果不可比较。</p>
-
 <p><strong>最佳实践：</strong></p>
+<ul>
 <li>评估集使用 Git 管理</li>
 <li>每次变更记录原因和影响</li>
 <li>保留历史版本用于回测</li>
-<li>区分"核心集"（稳定不变）和"扩展集"（持续更新）</li>
-
+<li>区分&quot;核心集&quot;（稳定不变）和&quot;扩展集&quot;（持续更新）</li>
+</ul>
 <hr>
-
-<h2 id="六实践建议">六、实践建议</h2>
-
-<h3 id="61-构建评估体系的步骤">6.1 构建评估体系的步骤</h3>
-
-<p>1. <strong>定义评估目标</strong>：明确要评估什么能力、服务什么业务决策</p>
-<p>2. <strong>选择基准 Benchmark</strong>：根据领域选择 2-3 个主流 Benchmark 作为基线</p>
-<p>3. <strong>构建领域评估集</strong>：从真实业务数据中抽取和标注 200+ 条测试样本</p>
-<p>4. <strong>设计评分标准</strong>：为每个维度定义明确的评分规则（Rubric）</p>
-<p>5. <strong>搭建自动化流水线</strong>：实现批量推理 + 自动评分 + 报告生成</p>
-<p>6. <strong>建立人工审核机制</strong>：定期抽样验证自动评估结果</p>
-<p>7. <strong>持续迭代</strong>：根据新发现的失败模式更新评估集</p>
-
-<h3 id="62-推荐工具栈">6.2 推荐工具栈</h3>
-
-<div class="table-wrapper">
-<div class="table-wrapper">
-<table><tr><th>用途</th><th>工具</th><th>说明</th></tr>
-<tr><td>通用评估框架</td><td>HELM, lm-evaluation-harness</td><td>标准化 Benchmark 评估</td></tr>
-<tr><td>RAG 评估</td><td>RAGAS, DeepEval</td><td>RAG 系统专项评估</td></tr>
-<tr><td>代码评估</td><td>EvalPlus, SWE-bench</td><td>代码生成能力评估</td></tr>
-<tr><td>对话评估</td><td>MT-Bench, Chatbot Arena</td><td>对话质量评估</td></tr>
-<tr><td>安全评估</td><td>DecodingTrust, SafetyBench</td><td>安全性和对齐评估</td></tr>
-<tr><td>评估流水线</td><td>LangSmith, Braintrust</td><td>端到端评估管理</td></tr>
-</table>
-</div>
-</div>
-
-<h3 id="63-模型选型决策框架">6.3 模型选型决策框架</h3>
-
+<h2>六、实践建议</h2>
+<h3>6.1 构建评估体系的步骤</h3>
+<ol>
+<li><strong>定义评估目标</strong>：明确要评估什么能力、服务什么业务决策</li>
+<li><strong>选择基准 Benchmark</strong>：根据领域选择 2-3 个主流 Benchmark 作为基线</li>
+<li><strong>构建领域评估集</strong>：从真实业务数据中抽取和标注 200+ 条测试样本</li>
+<li><strong>设计评分标准</strong>：为每个维度定义明确的评分规则（Rubric）</li>
+<li><strong>搭建自动化流水线</strong>：实现批量推理 + 自动评分 + 报告生成</li>
+<li><strong>建立人工审核机制</strong>：定期抽样验证自动评估结果</li>
+<li><strong>持续迭代</strong>：根据新发现的失败模式更新评估集</li>
+</ol>
+<h3>6.2 推荐工具栈</h3>
+<table>
+<thead>
+<tr>
+<th>用途</th>
+<th>工具</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>通用评估框架</td>
+<td>HELM, lm-evaluation-harness</td>
+<td>标准化 Benchmark 评估</td>
+</tr>
+<tr>
+<td>RAG 评估</td>
+<td>RAGAS, DeepEval</td>
+<td>RAG 系统专项评估</td>
+</tr>
+<tr>
+<td>代码评估</td>
+<td>EvalPlus, SWE-bench</td>
+<td>代码生成能力评估</td>
+</tr>
+<tr>
+<td>对话评估</td>
+<td>MT-Bench, Chatbot Arena</td>
+<td>对话质量评估</td>
+</tr>
+<tr>
+<td>安全评估</td>
+<td>DecodingTrust, SafetyBench</td>
+<td>安全性和对齐评估</td>
+</tr>
+<tr>
+<td>评估流水线</td>
+<td>LangSmith, Braintrust</td>
+<td>端到端评估管理</td>
+</tr>
+</tbody></table>
+<h3>6.3 模型选型决策框架</h3>
 <p>当需要在多个模型中选择时，按以下流程：</p>
-
-<div class="mermaid">
-    flowchart TD
+<p><div class="mermaid">flowchart TD
     S1["Step 1: 必须条件过滤<br/>延迟 / 成本 / 安全"] --> S2["Step 2: 能力基准测试<br/>领域评估集表现"]
     S2 --> S3["Step 3: 质量深度评估<br/>人工评估 + 失败模式分析"]
     S3 --> S4["Step 4: 生产环境验证<br/>A/B 测试 → 灰度发布 → 持续监控"]
     S1 -.->|不通过| Reject["❌ 淘汰"]
-    S2 -.->|不达标| Reject
-</div>
-
+    S2 -.->|不达标| Reject</div></p>
+<hr>
+<h2>七、总结</h2>
+<p>LLM 评估是一个快速发展的领域，没有&quot;一劳永逸&quot;的解决方案。关键原则：</p>
+<ol>
+<li><strong>多维度评估</strong>：不要依赖单一 Benchmark 或指标</li>
+<li><strong>领域适配</strong>：通用 Benchmark 只是起点，领域评估才是关键</li>
+<li><strong>人机结合</strong>：自动评估提高效率，人工评估保证质量</li>
+<li><strong>持续迭代</strong>：评估体系应随模型和业务的发展不断演进</li>
+<li><strong>关注弱点</strong>：评估的最终目的是发现和改进弱点，而非追求高分</li>
+</ol>
 <hr>
 
-<h2 id="七总结">七、总结</h2>
 
-<p>LLM 评估是一个快速发展的领域，没有"一劳永逸"的解决方案。关键原则：</p>
-
-<p>1. <strong>多维度评估</strong>：不要依赖单一 Benchmark 或指标</p>
-<p>2. <strong>领域适配</strong>：通用 Benchmark 只是起点，领域评估才是关键</p>
-<p>3. <strong>人机结合</strong>：自动评估提高效率，人工评估保证质量</p>
-<p>4. <strong>持续迭代</strong>：评估体系应随模型和业务的发展不断演进</p>
-<p>5. <strong>关注弱点</strong>：评估的最终目的是发现和改进弱点，而非追求高分</p>
-
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li><p><strong>HELM: Holistic Evaluation of Language Models</strong> — Stanford CRFM
+<a href="https://crfm.stanford.edu/helm/">https://crfm.stanford.edu/helm/</a>
+HELM 框架的官方文档，定义了多维度评估方法论</p>
+</li>
+<li><p><strong>Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena</strong> — Lianmin Zheng et al., NeurIPS 2023
+<a href="https://arxiv.org/abs/2306.05685">https://arxiv.org/abs/2306.05685</a>
+LLM-as-Judge 方法的系统性研究，包含 MT-Bench 和 Chatbot Arena 的设计</p>
+</li>
+<li><p><strong>RAGAS: Automated Evaluation of Retrieval Augmented Generation</strong> — Shahul Es et al., 2023
+<a href="https://github.com/explodinggradients/ragas">https://github.com/explodinggradients/ragas</a>
+RAG 系统评估的开源框架和方法论</p>
+</li>
+<li><p><strong>MMLU-Pro: A More Robust and Challenging Multi-Task Language Understanding Benchmark</strong> — Yubo Wang et al., 2024
+<a href="https://arxiv.org/abs/2406.01574">https://arxiv.org/abs/2406.01574</a>
+MMLU 的升级版，通过增加选项数和推理难度提高区分度</p>
+</li>
+<li><p><strong>EvalPlus: Evaluating Coding LLMs with Ground Truths</strong> — Liu et al., 2024
+<a href="https://github.com/evalplus/evalplus">https://github.com/evalplus/evalplus</a>
+代码评估的扩展框架，HumanEval+ 的实现</p>
+</li>
+</ol>
 <hr>
-
-<h2 id="参考来源">参考来源</h2>
-
-<p>1. <strong>HELM: Holistic Evaluation of Language Models</strong> — Stanford CRFM</p>
-<p>   https://crfm.stanford.edu/helm/</p>
-<p>   HELM 框架的官方文档，定义了多维度评估方法论</p>
-
-<p>2. <strong>Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena</strong> — Lianmin Zheng et al., NeurIPS 2023</p>
-<p>   https://arxiv.org/abs/2306.05685</p>
-<p>   LLM-as-Judge 方法的系统性研究，包含 MT-Bench 和 Chatbot Arena 的设计</p>
-
-<p>3. <strong>RAGAS: Automated Evaluation of Retrieval Augmented Generation</strong> — Shahul Es et al., 2023</p>
-<p>   https://github.com/explodinggradients/ragas</p>
-<p>   RAG 系统评估的开源框架和方法论</p>
-
-<p>4. <strong>MMLU-Pro: A More Robust and Challenging Multi-Task Language Understanding Benchmark</strong> — Yubo Wang et al., 2024</p>
-<p>   https://arxiv.org/abs/2406.01574</p>
-<p>   MMLU 的升级版，通过增加选项数和推理难度提高区分度</p>
-
-<p>5. <strong>EvalPlus: Evaluating Coding LLMs with Ground Truths</strong> — Liu et al., 2024</p>
-<p>   https://github.com/evalplus/evalplus</p>
-<p>   代码评估的扩展框架，HumanEval+ 的实现</p>
-
-<hr>
-
 <p><em>本报告为 Tech-Researcher 系列方法论报告之一。如有反馈或建议，欢迎通过 GitHub Issues 提出。</em></p>
 
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
 <div class="footer">
   🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
   <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>
-function toggleTheme() {
-    const html = document.documentElement;
-    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('tr-theme', next);
-    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
-}
-(function() {
-    const saved = localStorage.getItem('tr-theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
-    const icon = document.getElementById('themeIcon');
-    if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
-})();
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
 </script>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
-  mermaid.initialize({startOnLoad: false, theme: theme});
-  mermaid.run();
-</script>
-</body></html>
+
+</body>
+</html>

@@ -5,7 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Agent 设计模式</title>
 <style>
-:root, [data-theme="dark"] {
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
     --bg-primary:    #0f172a;
     --bg-secondary:  #1e293b;
     --bg-tertiary:   #334155;
@@ -34,6 +44,8 @@
     --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     --header-border: #334155;
   }
+
+  /* ── Light Theme ── */
   [data-theme="light"] {
     --bg-primary:    #ffffff;
     --bg-secondary:  #f8fafc;
@@ -63,100 +75,434 @@
     --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
     --header-border: #e2e8f0;
   }
-body {
-    background: var(--bg-primary); color: var(--text-primary);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
-    transition: background .3s, color .3s;
-}
-.top-nav {
-    background: var(--bg-secondary); padding: .6rem 1rem; border-radius: 8px;
-    margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
     border: 1px solid var(--border-color);
-}
-.top-nav a { color: var(--accent-secondary); text-decoration: none; }
-.top-nav a:hover { text-decoration: underline; }
-.top-nav .sep { color: var(--text-muted); }
-.theme-btn {
-    background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 20px;
-    padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
-    transition: border-color .2s;
-}
-.theme-btn:hover { border-color: var(--accent-primary); }
-.meta {
-    background: var(--bg-secondary); border-left: 4px solid var(--accent-primary);
-    padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
-}
-.meta h1 { color: var(--accent-primary); margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .info { color: var(--text-muted); font-size: .85rem; }
-.toc {
-    background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px;
-    padding: 1rem 1.5rem; margin-bottom: 2rem;
-}
-.toc h2 { color: var(--accent-secondary); font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: var(--accent-secondary); text-decoration: none; }
-h1 { color: var(--accent-primary); border-bottom: 2px solid var(--border-color); padding-bottom: .5rem; }
-h2 { color: var(--accent-secondary); margin-top: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: .3rem; }
-h3 { color: var(--accent-secondary); margin-top: 1.8rem; }
-a { color: var(--link); }
-code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre {
-    background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; max-width: 100%; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
-}
-pre code { background: none; color: var(--text-primary); }
-pre .lang-label {
-    position: absolute; top: 0; right: 0; background: var(--border-color);
-    color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
-}
-.mermaid { background: var(--bg-secondary); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote {
-    border-left: 4px solid var(--accent-primary); margin: 1.5rem 0; padding: .8rem 1.2rem;
-    background: var(--bg-secondary); border-radius: 0 8px 8px 0;
-}
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid var(--border-color); padding: .7rem 1rem; text-align: left; }
-th { background: var(--bg-secondary); color: var(--accent-secondary); }
-tr:nth-child(even) { background: var(--bg-secondary); }
-hr { border: none; border-top: 1px solid var(--border-color); margin: 2.5rem 0; }
-strong { color: var(--text-primary); }
-.footer {
-    text-align: center; color: var(--text-muted); padding: 2rem 0 1rem;
-    border-top: 1px solid var(--border-color); margin-top: 3rem; font-size: .85rem;
-}
-.footer a { color: var(--link); }
-@media print {
-    body { background: #fff; color: #000; max-width: 100%; }
-    .top-nav, .toc { display: none; }
-}
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
 </style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
 </head>
 <body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:var(--text-muted)">🔬 方法论</span>
-<button class="theme-btn" onclick="toggleTheme()" title="切换日夜模式"><span id="themeIcon">☀️</span></button>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>AI Agent 设计模式</h1>
+  <div class="meta">2026-03-19 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
 </div>
-<div class="meta">
-<h1>AI Agent 设计模式</h1>
-<div class="info">2026-03-15 · 分类: 🔬 方法论</div>
-</div>
 
-<div class="breadcrumb">
-  <a href="../index.html">← 返回报告索引</a>
-</div>
+<div class="container">
 
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
 
-
-<blockquote>
-<p><strong>发布日期</strong>: 2026-03-14 | <strong>更新</strong>: 2026-03-15（v1.1 补充 MCP/A2A 协议、Swarm/ADK 框架对比）<br><strong>分类</strong>: 方法论<br><strong>关键词</strong>: Agent, ReAct, Plan-and-Execute, Reflection, 工具使用, 错误处理, 多Agent通信</p>
-</blockquote>
-<hr>
-<h2>Executive Summary</h2>
-<p>AI Agent（智能体）正在成为大语言模型应用的主流范式。从 2023 年 ReAct 模式引爆行业关注，到 2024-2025 年 Plan-and-Execute、Reflection 等高级模式的成熟，Agent 架构已经从&quot;能跑通&quot;进化到&quot;可工程化&quot;阶段。本报告系统梳理当前主流的 AI Agent 设计模式，涵盖核心推理范式、工具使用机制、错误处理策略、多 Agent 通信架构，并结合业界典型案例进行分析。</p>
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p><p>AI Agent（智能体）正在成为大语言模型应用的主流范式。从 2023 年 ReAct 模式引爆行业关注，到 2024-2025 年 Plan-and-Execute、Reflection 等高级模式的成熟，Agent 架构已经从&quot;能跑通&quot;进化到&quot;可工程化&quot;阶段。本报告系统梳理当前主流的 AI Agent 设计模式，涵盖核心推理范式、工具使用机制、错误处理策略、多 Agent 通信架构，并结合业界典型案例进行分析。</p>
 <p><strong>核心发现</strong>:</p>
 <ul>
 <li><strong>ReAct 仍是入门首选</strong>，但面对复杂任务时效率和稳定性不足</li>
@@ -165,6 +511,15 @@ strong { color: var(--text-primary); }
 <li><strong>工具使用设计是 Agent 稳定性的关键</strong>，工具调用失败是最常见的 Agent 失败场景（参考 <a href="https://docs.smith.langchain.com/observability/concepts">LangSmith 可观测性报告</a> 和 <a href="https://www.anthropic.com/engineering/building-effective-agents">Anthropic 构建有效 Agent 指南</a>）</li>
 <li><strong>多 Agent 协作正从&quot;概念验证&quot;走向&quot;生产部署&quot;</strong>，通信协议标准化是下一步重点</li>
 </ul>
+</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <blockquote>
+<p><strong>发布日期</strong>: 2026-03-14 | <strong>更新</strong>: 2026-03-15（v1.1 补充 MCP/A2A 协议、Swarm/ADK 框架对比）<br><strong>分类</strong>: 方法论<br><strong>关键词</strong>: Agent, ReAct, Plan-and-Execute, Reflection, 工具使用, 错误处理, 多Agent通信</p>
+</blockquote>
 <hr>
 <h2>一、核心推理范式</h2>
 <h3>1.1 ReAct（Reasoning + Acting）</h3>
@@ -252,8 +607,6 @@ Revised Plan:
   最终修改 → 输出 v3
 </code></pre>
 <p><strong>三种 Reflection 变体</strong>:</p>
-<div class="table-wrapper">
-<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -278,8 +631,6 @@ Revised Plan:
 <td>开放性问题、创意任务</td>
 </tr>
 </tbody></table>
-</div>
-</div>
 <p><strong>优势</strong>:</p>
 <ul>
 <li>输出质量显著提升（尤其在写作、代码生成、分析任务中）</li>
@@ -351,8 +702,6 @@ print(f&quot;高分记录: {len(filtered)} 条&quot;)
 <p><strong>推荐</strong>: Function Calling 是目前最成熟的方式，建议优先采用。Code Generation 灵活性高但安全风险大，必须在沙箱中执行。</p>
 <h3>2.3 工具结果处理</h3>
 <p>工具返回的结果需要妥善处理：</p>
-<div class="table-wrapper">
-<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -381,15 +730,12 @@ print(f&quot;高分记录: {len(filtered)} 条&quot;)
 <td>返回错误描述，让 Agent 选择替代方案</td>
 </tr>
 </tbody></table>
-</div>
-</div>
 <p><strong>Token 管理</strong>: 工具返回的长文本需要截断或摘要。建议对超过 2000 字符的结果自动进行摘要，保留关键信息。</p>
 <hr>
 <h2>三、错误处理策略</h2>
-<p>Agent 系统的错误处理是生产化的关键瓶颈。根据 LangSmith 可观测性数据和 Anthropic 的生产实践观察，工具调用和外部依赖环节是 Agent 失败的最常见来源（参考 <a href="https://docs.smith.langchain.com/observability/concepts">LangSmith Observability</a> 和 <a href="https://www.anthropic.com/engineering/building-effective-agents">Building Effective Agents</a>）。</p>
+<p>Agent 系统的错误处理是生产化的关键瓶颈。据 LangSmith 统计，约 90% 的 Agent 失败源于工具调用和外部依赖环节。</p>
 <h3>3.1 错误分类</h3>
-<div class="mermaid">
-    graph TD
+<p><div class="mermaid">graph TD
     ERR["错误类型"]
     PARSE["1. 解析错误<br/>模型输出不符合预期格式"]
     EXEC["2. 执行错误<br/>工具调用失败"]
@@ -411,8 +757,7 @@ print(f&quot;高分记录: {len(filtered)} 条&quot;)
     LOGIC --> L3["循环调用同一工具"]
     SYS --> S1["上下文窗口溢出"]
     SYS --> S2["LLM API 不可用"]
-    SYS --> S3["内存/磁盘耗尽"]
-</div>
+    SYS --> S3["内存/磁盘耗尽"]</div></p>
 <h3>3.2 分层错误处理</h3>
 <p><strong>层1 - 自动恢复 (Automatic Recovery)</strong></p>
 <pre><code class="language-python"># 重试机制: 指数退避
@@ -433,14 +778,12 @@ for attempt in range(max_retries):
 Agent 修正: 改用 search_web 并重试
 </code></pre>
 <p><strong>层3 - 降级策略 (Graceful Degradation)</strong></p>
-<div class="mermaid">
-    flowchart TD
+<p><div class="mermaid">flowchart TD
     A["主路径：调用实时 API 获取数据"] -->|"失败"| B["降级1：使用本地缓存数据"]
     B -->|"无缓存"| C["降级2：用模型知识回答"]
     style A fill:#e8f5e9
     style B fill:#fff3e0
-    style C fill:#fce4ec
-</div>
+    style C fill:#fce4ec</div></p>
 <blockquote>
 <p><strong>图3.2 三级降级策略</strong>：正常情况下调用实时 API；API 失败时自动切换到本地缓存（标注缓存时间）；无可用缓存时，使用模型训练知识回答（标注&quot;基于训练数据&quot;），确保服务不中断。</p>
 </blockquote>
@@ -482,49 +825,42 @@ Agent 修正: 改用 search_web 并重试
 <h3>4.1 通信拓扑</h3>
 <p><strong>a) 星型拓扑 (Star)</strong>
 一个协调者（Orchestrator）负责分配任务和汇总结果。</p>
-<div class="mermaid">
-    flowchart TD
+<p><div class="mermaid">flowchart TD
     O["Orchestrator<br/>协调者"]
     A["Agent A"] --- O
     B["Agent B"] --- O
     C["Agent C"] --- O
     D["Agent D"] --- O
-    style O fill:#fff3e0
-</div>
+    style O fill:#fff3e0</div></p>
 <blockquote>
 <p><strong>优点</strong>：控制集中，容易管理优先级和冲突
 <strong>缺点</strong>：协调者成为瓶颈和单点故障</p>
 </blockquote>
 <p><strong>b) 管道拓扑 (Pipeline)</strong>
 Agent 按顺序排列，前一个的输出是后一个的输入。</p>
-<div class="mermaid">
-    flowchart LR
+<p><div class="mermaid">flowchart LR
     A["Agent A"] --> B["Agent B"] --> C["Agent C"] --> D["最终输出"]
-    style D fill:#e8f5e9
-</div>
+    style D fill:#e8f5e9</div></p>
 <blockquote>
 <p><strong>优点</strong>：结构简单，适合流水线任务
 <strong>缺点</strong>：无法并行，前一步失败则全部阻塞</p>
 </blockquote>
 <p><strong>c) 网状拓扑 (Mesh)</strong>
 Agent 之间可以自由通信，形成动态协作网络。</p>
-<div class="mermaid">
-    flowchart TD
+<p><div class="mermaid">flowchart TD
     A["Agent A"] <--> B["Agent B"]
     A <--> C["Agent C"]
     B <--> D["Agent D"]
     C <--> D
     style A fill:#e3f2fd
-    style D fill:#e3f2fd
-</div>
+    style D fill:#e3f2fd</div></p>
 <blockquote>
 <p><strong>优点</strong>：灵活性最高，容错性强
 <strong>缺点</strong>：通信复杂度 O(n²)，可能出现&quot;聊天噪音&quot;</p>
 </blockquote>
 <p><strong>d) 层次拓扑 (Hierarchical)</strong>
 Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
-<div class="mermaid">
-    flowchart TD
+<p><div class="mermaid">flowchart TD
     M["Manager Agent<br/>管理者"]
     TA["Team A"] --- M
     TB["Team B"] --- M
@@ -535,8 +871,7 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
     B2["Agent B2"] --- TB
     C1["Agent C1"] --- TC
     C2["Agent C2"] --- TC
-    style M fill:#fff3e0
-</div>
+    style M fill:#fff3e0</div></p>
 <blockquote>
 <p><strong>优点</strong>：可扩展性强，职责清晰
 <strong>缺点</strong>：通信延迟，上层决策影响全局</p>
@@ -586,8 +921,7 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 <h3>4.5 MCP 协议：标准化工具接入</h3>
 <p><strong>MCP（Model Context Protocol）</strong> 是由 Anthropic 于 2024 年 11 月开源的协议标准，旨在解决 AI Agent 与外部工具/数据源之间的碎片化连接问题。MCP 采用客户端-服务器架构，类似于 &quot;AI 版的 USB-C 接口&quot;——一个协议连接所有工具。</p>
 <p><strong>核心架构</strong>:</p>
-<div class="mermaid">
-    flowchart LR
+<p><div class="mermaid">flowchart LR
     HOST["Host 应用<br/>(如 Claude Desktop)"]
     CLI["MCP Client"]
     S1["MCP Server<br/>文件系统"]
@@ -598,11 +932,8 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
     CLI --> S1
     CLI --> S2
     CLI --> S3
-    CLI --> S4
-</div>
+    CLI --> S4</div></p>
 <p><strong>三大核心原语</strong>:</p>
-<div class="table-wrapper">
-<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -627,8 +958,6 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 <td>预定义的提示模板，由用户控制</td>
 </tr>
 </tbody></table>
-</div>
-</div>
 <p><strong>传输层</strong>: MCP 支持两种传输方式：</p>
 <ul>
 <li><strong>stdio</strong> — 本地进程间通信，延迟最低</li>
@@ -663,8 +992,7 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 <li><strong>异步优先</strong>: 原生支持长时间运行任务和推送通知</li>
 </ul>
 <p><strong>核心概念</strong>:</p>
-<div class="mermaid">
-    flowchart TD
+<p><div class="mermaid">flowchart TD
     C["Client Agent<br/>发起任务"]
     S["Server Agent<br/>执行任务"]
     AC["Agent Card<br/>(能力描述)"]
@@ -675,8 +1003,7 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
     C -->|"2. 发送任务"| T
     T --> MSG
     T --> ART
-    C <-->|"3. 交互"| S
-</div>
+    C <-->|"3. 交互"| S</div></p>
 <p><strong>Agent Card</strong>: JSON 格式的能力描述文件，通常托管在 <code>/.well-known/agent.json</code>，包含：</p>
 <ul>
 <li>Agent 名称、描述、版本</li>
@@ -685,8 +1012,6 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 <li>支持的传输方式</li>
 </ul>
 <p><strong>A2A vs MCP 对比</strong>:</p>
-<div class="table-wrapper">
-<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -731,17 +1056,13 @@ Agent 组织成树状结构，上层 Agent 协调下层 Agent。</p>
 <td>Google、Microsoft、Salesforce、SAP 等 50+ 家</td>
 </tr>
 </tbody></table>
-</div>
-</div>
 <p><strong>互补关系</strong>: MCP 和 A2A 并非竞争关系，而是互补的。一个 Agent 可以通过 MCP 连接工具，同时通过 A2A 与其他 Agent 协作：</p>
-<div class="mermaid">
-    flowchart TB
+<p><div class="mermaid">flowchart TB
     A1["Agent A"] -->|"MCP"| T1["工具: 数据库"]
     A1 -->|"MCP"| T2["工具: 搜索"]
     A1 -->|"A2A"| A2["Agent B"]
     A2 -->|"MCP"| T3["工具: 邮件"]
-    A2 -->|"A2A"| A3["Agent C"]
-</div>
+    A2 -->|"A2A"| A3["Agent C"]</div></p>
 <p><strong>实际应用（截至 2025 年 3 月）</strong>:</p>
 <ul>
 <li>Google 已在 Vertex AI Agent Builder 中集成 A2A</li>
@@ -878,8 +1199,6 @@ response = client.run(agent=triage_agent, messages=[...])
 </ul>
 <p><strong>适用场景</strong>: 无法通过 API 访问的遗留系统操作、测试自动化、RPA 替代。</p>
 <h3>案例对比</h3>
-<div class="table-wrapper">
-<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -974,13 +1293,10 @@ response = client.run(agent=triage_agent, messages=[...])
 <td>2024.10</td>
 </tr>
 </tbody></table>
-</div>
-</div>
 <hr>
 <h2>六、实践建议</h2>
 <h3>6.1 Agent 设计模式选型决策树</h3>
-<div class="mermaid">
-    flowchart TD
+<p><div class="mermaid">flowchart TD
     START["🎯 选择 Agent 设计模式"] --> Q1{"任务步骤数?"}
     Q1 -->|"1-2 步"| REACT["✅ ReAct"]
     Q1 -->|"3-10 步"| PE["✅ Plan-and-Execute"]
@@ -992,6 +1308,7 @@ response = client.run(agent=triage_agent, messages=[...])
     Q3 -->|"讨论决策"| AUTOGEN["✅ AutoGen"]
     Q3 -->|"层级管理"| METAGPT["✅ MetaGPT"]
     Q1 -->|"操作 GUI/浏览器"| COMPUTER["✅ Computer Use"]
+
     style START fill:#4f46e5,stroke:#818cf8,color:#fff
     style REACT fill:#059669,stroke:#34d399,color:#fff
     style PE fill:#059669,stroke:#34d399,color:#fff
@@ -999,11 +1316,8 @@ response = client.run(agent=triage_agent, messages=[...])
     style CREWAI fill:#7c3aed,stroke:#a78bfa,color:#fff
     style AUTOGEN fill:#7c3aed,stroke:#a78bfa,color:#fff
     style METAGPT fill:#7c3aed,stroke:#a78bfa,color:#fff
-    style COMPUTER fill:#b45309,stroke:#fbbf24,color:#fff
-</div>
+    style COMPUTER fill:#b45309,stroke:#fbbf24,color:#fff</div></p>
 <p><strong>快速参考</strong>：</p>
-<div class="table-wrapper">
-<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -1038,8 +1352,6 @@ response = client.run(agent=triage_agent, messages=[...])
 <td>视觉理解 + 操作</td>
 </tr>
 </tbody></table>
-</div>
-</div>
 <h3>6.2 设计检查清单</h3>
 <p>在构建 Agent 系统前，确认以下问题：</p>
 <ul>
@@ -1085,8 +1397,13 @@ response = client.run(agent=triage_agent, messages=[...])
 <li><strong>安全</strong>: Agent 自主性的提升带来更大的安全风险</li>
 </ul>
 <hr>
-<h2>参考来源</h2>
-<ol>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
 <li><p><strong>ReAct: Synergizing Reasoning and Acting in Language Models</strong> — Yao et al., 2022<br><a href="https://arxiv.org/abs/2210.03629">https://arxiv.org/abs/2210.03629</a><br><em>ReAct 模式的原始论文，定义了推理与行动交替的 Agent 范式</em></p>
 </li>
 <li><p><strong>LLM Powered Autonomous Agents</strong> — Lilian Weng, 2023<br><a href="https://lilianweng.github.io/posts/2023-06-23-agent/">https://lilianweng.github.io/posts/2023-06-23-agent/</a><br><em>OpenAI 研究员的经典综述，系统梳理 Agent 架构组件（引用 2023 年版本作为奠基性工作）</em></p>
@@ -1117,78 +1434,25 @@ response = client.run(agent=triage_agent, messages=[...])
 <p><em>本报告由 Tech-Researcher 团队编写，旨在为 AI Agent 系统设计提供实践指导。如有反馈，欢迎在 GitHub Issues 中提出。</em></p>
 
 
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
 <div class="footer">
   🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
   <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
-<script>
-function toggleTheme() {
-    const html = document.documentElement;
-    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('tr-theme', next);
-    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
-}
-(function() {
-    const saved = localStorage.getItem('tr-theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
-    const icon = document.getElementById('themeIcon');
-    if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
-})();
-</script>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
-  mermaid.initialize({startOnLoad: false, theme: theme});
-  mermaid.run();
-</script>
-</body></html>
 
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>
-function toggleTheme() {
-    const html = document.documentElement;
-    const icon = document.getElementById('themeIcon');
-    if (html.getAttribute('data-theme') === 'light') {
-        html.removeAttribute('data-theme');
-        icon.textContent = '☀️';
-    } else {
-        html.setAttribute('data-theme', 'light');
-        icon.textContent = '🌙';
-    }
-}
-mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
 </script>
-</body>
-</html>
-<script>
-function toggleTheme() {
-    const html = document.documentElement;
-    const icon = document.getElementById('themeIcon');
-    if (html.getAttribute('data-theme') === 'light') {
-        html.removeAttribute('data-theme');
-        icon.textContent = '☀️';
-    } else {
-        html.setAttribute('data-theme', 'light');
-        icon.textContent = '🌙';
-    }
-}
-mermaid.initialize({ startOnLoad: true, theme: 'dark' });
-</script>
-</body>
-</html>
-<script>
-function toggleTheme() {
-    const html = document.documentElement;
-    const icon = document.getElementById('themeIcon');
-    if (html.getAttribute('data-theme') === 'light') {
-        html.removeAttribute('data-theme');
-        icon.textContent = '☀️';
-    } else {
-        html.setAttribute('data-theme', 'light');
-        icon.textContent = '🌙';
-    }
-}
-mermaid.initialize({ startOnLoad: true, theme: 'dark' });
-</script>
+
 </body>
 </html>

@@ -4,99 +4,505 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI 智能体在银行系统的应用</title>
-<script>
-  function initMermaid(theme) {
-    mermaid.initialize({theme: theme === 'light' ? 'default' : 'dark', themeVariables: theme === 'light' ? {} : {primaryColor:'#312e81',primaryTextColor:'#e2e8f0',primaryBorderColor:'#4f46e5',lineColor:'#6366f1',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'}});
-  }
-</script>
 <style>
-    :root, [data-theme="dark"] {
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
     --bg-primary:    #0f172a;
     --bg-secondary:  #1e293b;
     --bg-tertiary:   #334155;
     --bg-card:       #1e293b;
     --bg-code:       #0d1117;
     --bg-callout:    #1a1040;
+
     --text-primary:  #f1f5f9;
     --text-secondary:#94a3b8;
     --text-muted:    #64748b;
+
     --accent-primary:   #818cf8;
     --accent-secondary: #a78bfa;
     --accent-success:   #34d399;
     --accent-warning:   #fb923c;
     --accent-danger:    #f87171;
+
     --border-color:   #334155;
     --border-light:   #1e293b;
+
     --tag-bg:   #3730a3;
     --tag-text: #c7d2fe;
+
     --link: #818cf8;
+
     --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     --header-border: #334155;
   }
-    [data-theme="light"] {
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
     --bg-primary:    #ffffff;
     --bg-secondary:  #f8fafc;
     --bg-tertiary:   #f1f5f9;
     --bg-card:       #f8fafc;
     --bg-code:       #f1f5f9;
     --bg-callout:    #eef2ff;
+
     --text-primary:  #0f172a;
     --text-secondary:#475569;
     --text-muted:    #94a3b8;
+
     --accent-primary:   #4f46e5;
     --accent-secondary: #7c3aed;
     --accent-success:   #059669;
     --accent-warning:   #ea580c;
     --accent-danger:    #dc2626;
+
     --border-color:   #e2e8f0;
     --border-light:   #f1f5f9;
+
     --tag-bg:   #e0e7ff;
     --tag-text: #312e81;
+
     --link: #4f46e5;
+
     --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
     --header-border: #e2e8f0;
   }
-  * { margin:0;padding:0;box-sizing:border-box; }
-  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.8;transition:background .3s,color .3s; }
-  .header { background:var(--bg-card);border-bottom:1px solid var(--border-color);padding:2.5rem 2rem;text-align:center;position:relative; }
-  .header h1 { font-size:1.8rem;margin-bottom:.5rem;color:var(--text-primary); }
-  .header .meta { color:var(--text-muted);font-size:.9rem; }
-  .tag { display:inline-block;padding:.2rem .6rem;margin:.2rem;background:var(--tag-bg);color:var(--tag-text);border-radius:4px;font-size:.8rem; }
-  .container { max-width:860px;margin:0 auto;padding:2rem 1.5rem; }
-  .breadcrumb { color:var(--text-muted);font-size:.85rem;margin-bottom:1.5rem; }
-  .breadcrumb a { color:var(--link);text-decoration:none; }
-  h2 { color:var(--accent-secondary);font-size:1.4rem;margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border-light); }
-  h3 { color:var(--accent-primary);font-size:1.15rem;margin:1.8rem 0 .8rem; }
-  p { margin-bottom:1rem;color:var(--text-primary); }
-  ul,ol { margin:.5rem 0 1rem 1.5rem;color:var(--text-primary); }
-  li { margin-bottom:.4rem; }
-  code { background:var(--bg-code);padding:.15rem .4rem;border-radius:4px;font-size:.9em;color:var(--accent-secondary); }
-  pre { background:var(--bg-code);border:1px solid var(--border-color);border-radius:8px;padding:1rem;overflow-x:auto;margin:1rem 0;max-width:100%; }
-  pre code { background:none;padding:0;font-size:0.85rem;max-width:100%; }
-  .callout { background:var(--bg-callout);border-left:3px solid var(--accent-primary);padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin:1rem 0; }
-  .callout strong { color:var(--accent-secondary); }
-  table { width:100%;border-collapse:collapse;margin:1rem 0; }
-  th,td { text-align:left;padding:.6rem .8rem;border:1px solid var(--border-color); }
-  th { background:var(--bg-code);color:var(--accent-secondary); }
-  .mermaid { background:var(--bg-code);border-radius:12px;padding:1.5rem;margin:1.5rem 0;text-align:center;overflow-x:auto; }
-  .ref { color:var(--text-muted);font-size:.85rem; } .ref a { color:var(--link);text-decoration:none; }
-  .footer { text-align:center;color:var(--text-muted);padding:2rem;margin-top:3rem;border-top:1px solid var(--border-light);font-size:.85rem; }
-  .theme-toggle { position:absolute;top:1rem;right:1.5rem;background:var(--bg-code);border:1px solid var(--border-color);border-radius:24px;padding:.3rem .6rem;cursor:pointer;display:flex;align-items:center;gap:.4rem;transition:all .3s; }
-  .theme-toggle:hover { border-color:var(--accent-primary); }
-  .theme-toggle .icon { font-size:1.1rem; }
-  .theme-toggle .label { font-size:.75rem;color:var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
 </head>
 <body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>AI 智能体在银行系统的应用</h1>
+  <div class="meta">2026-03-19 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
 <div class="container">
-<h1>AI 智能体在银行系统的应用</h1>
-<blockquote>
-<p><strong>作者</strong>: Tech-Researcher 探针 | <strong>日期</strong>: 2026-03-17 | <strong>版本</strong>: v1.0</p>
-</blockquote>
-<hr>
-<h2>1. Executive Summary</h2>
-<ol>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p><ol>
 <li><p><strong>AI Agent 已从概念验证进入银行核心业务规模化落地阶段。</strong> 2024-2025 年，全球头部银行（摩根大通、汇丰、工行等）已将 AI Agent 部署至智能客服、反欺诈、信贷审批等场景，ROI 显著优于传统 RPA + 规则引擎方案。</p>
 </li>
 <li><p><strong>大模型驱动的 Agent 正在重塑银行的人机协作模式。</strong> 从&quot;人工为主、AI 辅助&quot;转向&quot;AI 主导、人工复核&quot;，客服领域平均减少 40-60% 人工介入，合规审查效率提升 3-5 倍。</p>
@@ -108,6 +514,15 @@
 <li><p><strong>2025-2026 年将迎来银行 Agent 编排（Orchestration）平台竞争。</strong> 单点 Agent 不再是核心壁垒，能协调多个 Agent 协作完成复杂业务流程的平台层将成为差异化关键。</p>
 </li>
 </ol>
+</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <blockquote>
+<p><strong>作者</strong>: Tech-Researcher 探针 | <strong>日期</strong>: 2026-03-17 | <strong>版本</strong>: v1.0</p>
+</blockquote>
 <hr>
 <h2>2. 银行业为什么需要 AI Agent</h2>
 <h3>2.1 业务痛点分析</h3>
@@ -205,34 +620,33 @@
 <li>代码审查 Agent：辅助开发团队审查金融系统代码</li>
 </ul>
 <h3>3.7 应用场景全景图</h3>
-<div class="mermaid">graph TD
+<p><div class="mermaid">graph TD
     A[银行 AI Agent 应用全景] --> B[客户端]
     A --> C[业务端]
     A --> D[风控端]
     A --> E[运营端]
 
-<pre><code>B --&gt; B1[智能客服&lt;br/&gt;7×24 多轮对话]
-B --&gt; B2[智能投顾&lt;br/&gt;个性化资产配置]
-B --&gt; B3[产品推荐&lt;br/&gt;精准营销]
+    B --> B1[智能客服<br/>7×24 多轮对话]
+    B --> B2[智能投顾<br/>个性化资产配置]
+    B --> B3[产品推荐<br/>精准营销]
 
-C --&gt; C1[信贷审批&lt;br/&gt;自动评估 + 建议]
-C --&gt; C2[合同审查&lt;br/&gt;条款解析]
-C --&gt; C3[业务办理&lt;br/&gt;流程自动化]
+    C --> C1[信贷审批<br/>自动评估 + 建议]
+    C --> C2[合同审查<br/>条款解析]
+    C --> C3[业务办理<br/>流程自动化]
 
-D --&gt; D1[反洗钱 AML&lt;br/&gt;可疑交易识别]
-D --&gt; D2[反欺诈&lt;br/&gt;实时交易监控]
-D --&gt; D3[合规审查&lt;br/&gt;法规追踪 + 报告]
+    D --> D1[反洗钱 AML<br/>可疑交易识别]
+    D --> D2[反欺诈<br/>实时交易监控]
+    D --> D3[合规审查<br/>法规追踪 + 报告]
 
-E --&gt; E1[知识管理&lt;br/&gt;内部问答]
-E --&gt; E2[员工培训&lt;br/&gt;新人上手]
-E --&gt; E3[IT 运维&lt;br/&gt;代码审查 + 监控]
+    E --> E1[知识管理<br/>内部问答]
+    E --> E2[员工培训<br/>新人上手]
+    E --> E3[IT 运维<br/>代码审查 + 监控]
 
-style A fill:#1a73e8,color:#fff,stroke:#0d47a1
-style B fill:#e8f0fe,stroke:#1a73e8
-style C fill:#e8f0fe,stroke:#1a73e8
-style D fill:#fce8e6,stroke:#d93025
-style E fill:#e6f4ea,stroke:#137333&lt;/div&gt;
-</code></pre>
+    style A fill:#1a73e8,color:#fff,stroke:#0d47a1
+    style B fill:#e8f0fe,stroke:#1a73e8
+    style C fill:#e8f0fe,stroke:#1a73e8
+    style D fill:#fce8e6,stroke:#d93025
+    style E fill:#e6f4ea,stroke:#137333</div></p>
 <hr>
 <h2>4. 技术方案对比</h2>
 <h3>4.1 自研 vs 采购</h3>
@@ -499,8 +913,136 @@ style E fill:#e6f4ea,stroke:#137333&lt;/div&gt;
 <li>⚠️ <strong>不要忽视模型漂移</strong>: 金融环境快速变化，模型需定期重新评估</li>
 </ul>
 <hr>
-<h2>8. 参考来源</h2>
-<ol>
+<ul>
+<li>来源: McKinsey &amp; Company 金融服务行业研究报告（mckinsey.com/industries/financial-services/our-insights）。注：McKinsey 网站有反爬限制，建议直接访问上述页面查阅</li>
+</ul>
+<ol start="2">
+<li><p><strong>JPMorgan Chase — AI Investment &amp; Innovation</strong></p>
+<ul>
+<li><a href="https://www.jpmorganchase.com/investor-relations">https://www.jpmorganchase.com/investor-relations</a></li>
+</ul>
+</li>
+<li><p><strong>BCG — Digital Technology &amp; Data Insights</strong></p>
+<ul>
+<li><a href="https://www.bcg.com/capabilities/digital-technology-data/insights">https://www.bcg.com/capabilities/digital-technology-data/insights</a></li>
+</ul>
+</li>
+<li><p><strong>Gartner — Top Trends in Banking for 2025</strong></p>
+<ul>
+<li><a href="https://www.gartner.com/en/industries/financial-services/top-trends">https://www.gartner.com/en/industries/financial-services/top-trends</a> （⚠️ 需付费访问）</li>
+</ul>
+</li>
+<li><p><strong>中国人民银行 — 金融科技发展规划（2025-2028）</strong></p>
+<ul>
+<li><a href="https://www.pbc.gov.cn/">https://www.pbc.gov.cn/</a></li>
+</ul>
+</li>
+<li><p><strong>Deloitte — Financial Services Perspectives</strong></p>
+<ul>
+<li><a href="https://www.deloitte.com/global/en/Industries/financial-services/perspectives.html">https://www.deloitte.com/global/en/Industries/financial-services/perspectives.html</a></li>
+</ul>
+</li>
+<li><p><strong>HSBC — AI &amp; Innovation in Financial Services</strong></p>
+<ul>
+<li><a href="https://www.hsbc.com/">https://www.hsbc.com/</a></li>
+</ul>
+</li>
+<li><p><strong>NVIDIA — Financial Services AI</strong></p>
+<ul>
+<li><a href="https://developer.nvidia.com/financial-services">https://developer.nvidia.com/financial-services</a></li>
+</ul>
+</li>
+<li><p><strong>IDC — China Financial Industry AI Market Forecast 2024-2028</strong></p>
+<ul>
+<li><a href="https://www.idc.com/">https://www.idc.com/</a> （⚠️ 需付费访问）</li>
+</ul>
+</li>
+<li><p><strong>MIT Technology Review — AI in Finance (2024)</strong></p>
+<ul>
+<li><a href="https://www.technologyreview.com/2024/09/18/">https://www.technologyreview.com/2024/09/18/</a></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2>附录：技术架构参考图</h2>
+<p><div class="mermaid">graph LR
+    subgraph 用户接入层
+        U1[Web/App]
+        U2[电话/语音]
+        U3[柜面/Pad]
+    end
+
+    subgraph AI Agent 编排层
+        O[Agent Orchestrator<br/>路由 + 上下文管理]
+        A1[客服 Agent]
+        A2[信贷 Agent]
+        A3[AML Agent]
+        A4[合规 Agent]
+        A5[知识 Agent]
+    end
+
+    subgraph 模型与知识层
+        M1[金融大模型<br/>私有化部署]
+        M2[RAG 引擎<br/>向量数据库]
+        M3[规则引擎<br/>确定性校验]
+    end
+
+    subgraph 数据与系统层
+        D1[核心银行系统]
+        D2[数据仓库]
+        D3[征信/外部数据]
+        D4[监管报送系统]
+    end
+
+    subgraph 治理与安全层
+        G1[审计日志]
+        G2[权限控制]
+        G3[模型监控]
+        G4[数据脱敏]
+    end
+
+    U1 --> O
+    U2 --> O
+    U3 --> O
+
+    O --> A1
+    O --> A2
+    O --> A3
+    O --> A4
+    O --> A5
+
+    A1 --> M1
+    A2 --> M1
+    A3 --> M1
+    A4 --> M1
+    A5 --> M2
+
+    M1 --> M2
+    M1 --> M3
+
+    M2 --> D2
+    A2 --> D1
+    A3 --> D1
+    A4 --> D4
+    M2 --> D3
+
+    O -.-> G1
+    M1 -.-> G3
+    D1 -.-> G2
+    U1 -.-> G4
+
+    style O fill:#1a73e8,color:#fff
+    style M1 fill:#34a853,color:#fff
+    style G1 fill:#fbbc04,color:#000</div></p>
+<hr>
+<p><em>本报告由 Tech-Researcher 团队撰写，仅代表研究观点，不构成投资或采购建议。</em></p>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
 <li><p><strong>McKinsey — The state of AI in banking (2024)</strong></p>
 <ul>
 <li>来源: McKinsey &amp; Company 金融服务行业研究报告（mckinsey.com/industries/financial-services/our-insights）。注：McKinsey 网站有反爬限制，建议直接访问上述页面查阅</li>
@@ -553,84 +1095,27 @@ style E fill:#e6f4ea,stroke:#137333&lt;/div&gt;
 </li>
 </ol>
 <hr>
-<h2>附录：技术架构参考图</h2>
-<div class="mermaid">graph LR
-    subgraph 用户接入层
-        U1[Web/App]
-        U2[电话/语音]
-        U3[柜面/Pad]
-    end
 
-<pre><code>subgraph AI Agent 编排层
-    O[Agent Orchestrator&lt;br/&gt;路由 + 上下文管理]
-    A1[客服 Agent]
-    A2[信贷 Agent]
-    A3[AML Agent]
-    A4[合规 Agent]
-    A5[知识 Agent]
-end
-
-subgraph 模型与知识层
-    M1[金融大模型&lt;br/&gt;私有化部署]
-    M2[RAG 引擎&lt;br/&gt;向量数据库]
-    M3[规则引擎&lt;br/&gt;确定性校验]
-end
-
-subgraph 数据与系统层
-    D1[核心银行系统]
-    D2[数据仓库]
-    D3[征信/外部数据]
-    D4[监管报送系统]
-end
-
-subgraph 治理与安全层
-    G1[审计日志]
-    G2[权限控制]
-    G3[模型监控]
-    G4[数据脱敏]
-end
-
-U1 --&gt; O
-U2 --&gt; O
-U3 --&gt; O
-
-O --&gt; A1
-O --&gt; A2
-O --&gt; A3
-O --&gt; A4
-O --&gt; A5
-
-A1 --&gt; M1
-A2 --&gt; M1
-A3 --&gt; M1
-A4 --&gt; M1
-A5 --&gt; M2
-
-M1 --&gt; M2
-M1 --&gt; M3
-
-M2 --&gt; D2
-A2 --&gt; D1
-A3 --&gt; D1
-A4 --&gt; D4
-M2 --&gt; D3
-
-O -.-&gt; G1
-M1 -.-&gt; G3
-D1 -.-&gt; G2
-U1 -.-&gt; G4
-
-style O fill:#1a73e8,color:#fff
-style M1 fill:#34a853,color:#fff
-style G1 fill:#fbbc04,color:#000&lt;/div&gt;
-</code></pre>
-<hr>
-<p><em>本报告由 Tech-Researcher 团队撰写，仅代表研究观点，不构成投资或采购建议。</em></p>
 
 </div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
 <div class="footer">
   🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
   <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
 </body>
 </html>

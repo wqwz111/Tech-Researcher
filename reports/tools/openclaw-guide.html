@@ -5,7 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OpenClaw 深度使用指南</title>
 <style>
-:root, [data-theme="dark"] {
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
     --bg-primary:    #0f172a;
     --bg-secondary:  #1e293b;
     --bg-tertiary:   #334155;
@@ -34,6 +44,8 @@
     --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     --header-border: #334155;
   }
+
+  /* ── Light Theme ── */
   [data-theme="light"] {
     --bg-primary:    #ffffff;
     --bg-secondary:  #f8fafc;
@@ -63,116 +75,446 @@
     --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
     --header-border: #e2e8f0;
   }
-body {
-    background: var(--bg-primary); color: var(--text-primary);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
-    transition: background .3s, color .3s;
-}
-.top-nav {
-    background: var(--bg-secondary); padding: .6rem 1rem; border-radius: 8px;
-    margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
-    border: 1px solid var(--border-color);
-}
-.top-nav a { color: var(--accent-secondary); text-decoration: none; }
-.top-nav a:hover { text-decoration: underline; }
-.top-nav .sep { color: var(--text-muted); }
-.theme-btn {
-    background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 20px;
-    padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
-    transition: border-color .2s;
-}
-.theme-btn:hover { border-color: var(--accent-primary); }
-.meta {
-    background: var(--bg-secondary); border-left: 4px solid var(--accent-primary);
-    padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
-}
-.meta h1 { color: var(--accent-primary); margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .info { color: var(--text-muted); font-size: .85rem; }
-.toc {
-    background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px;
-    padding: 1rem 1.5rem; margin-bottom: 2rem;
-}
-.toc h2 { color: var(--accent-secondary); font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: var(--accent-secondary); text-decoration: none; }
-h1 { color: var(--accent-primary); border-bottom: 2px solid var(--border-color); padding-bottom: .5rem; }
-h2 { color: var(--accent-secondary); margin-top: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: .3rem; }
-h3 { color: var(--accent-secondary); margin-top: 1.8rem; }
-a { color: var(--link); }
-code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre {
-    background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; max-width: 100%; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
-}
-pre code { background: none; color: var(--text-primary); }
-pre .lang-label {
-    position: absolute; top: 0; right: 0; background: var(--border-color);
-    color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
-}
-.mermaid { background: var(--bg-secondary); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote {
-    border-left: 4px solid var(--accent-primary); margin: 1.5rem 0; padding: .8rem 1.2rem;
-    background: var(--bg-secondary); border-radius: 0 8px 8px 0;
-}
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid var(--border-color); padding: .7rem 1rem; text-align: left; }
-th { background: var(--bg-secondary); color: var(--accent-secondary); }
-tr:nth-child(even) { background: var(--bg-secondary); }
-hr { border: none; border-top: 1px solid var(--border-color); margin: 2.5rem 0; }
-strong { color: var(--text-primary); }
-.footer {
-    text-align: center; color: var(--text-muted); padding: 2rem 0 1rem;
-    border-top: 1px solid var(--border-color); margin-top: 3rem; font-size: .85rem;
-}
-.footer a { color: var(--link); }
-@media print {
-    body { background: #fff; color: #000; max-width: 100%; }
-    .top-nav, .toc { display: none; }
-}
 
-/* Breadcrumb */
-.breadcrumb {
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
     color: var(--text-muted);
     font-size: 0.85rem;
     margin-bottom: 1.5rem;
-}
-.breadcrumb a {
+  }
+
+  .breadcrumb a {
     color: var(--link);
     text-decoration: none;
-}
-.breadcrumb a:hover { text-decoration: underline; }
+  }
 
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
 </style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
 </head>
 <body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:var(--text-muted)">🛠️ 工具</span>
-<button class="theme-btn" onclick="toggleTheme()" title="切换日夜模式"><span id="themeIcon">☀️</span></button>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>OpenClaw 深度使用指南</h1>
+  <div class="meta">2026-03-19 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
 </div>
-<div class="meta">
-<h1>OpenClaw 深度使用指南</h1>
-<div class="info">2026-03-14 · 分类: 🔧 工具</div>
-</div>
 
-<div class="breadcrumb">
-  <a href="../index.html">← 返回报告索引</a>
-</div>
+<div class="container">
 
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
 
-
-<blockquote>
-<p>最后更新: 2026-03-15 | 分类: AI Agent 平台</p>
-</blockquote>
-<hr>
-<h2>Executive Summary</h2>
-<p>OpenClaw 是一个开源的 AI Agent 编排平台，提供 Agent 运行时、多渠道接入、技能系统和 MCP 集成等能力。与 LangChain/LlamaIndex 等偏重&quot;LLM 调用抽象&quot;的框架不同，OpenClaw 定位更偏向于<strong>Agent 的生产运行时</strong>——关注会话管理、多渠道消息路由、持久化记忆和技能的动态加载。</p>
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p><p>OpenClaw 是一个开源的 AI Agent 编排平台，提供 Agent 运行时、多渠道接入、技能系统和 MCP 集成等能力。与 LangChain/LlamaIndex 等偏重&quot;LLM 调用抽象&quot;的框架不同，OpenClaw 定位更偏向于<strong>Agent 的生产运行时</strong>——关注会话管理、多渠道消息路由、持久化记忆和技能的动态加载。</p>
 <p>本文基于 OpenClaw 的公开文档和实际使用经验，提供从架构理解到高级用法的完整指南。</p>
 <blockquote>
 <p>⚠️ <strong>说明</strong>: OpenClaw 仍在快速迭代中，部分功能可能随版本变化。建议以官方文档为准。</p>
+</blockquote>
+</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <blockquote>
+<p>最后更新: 2026-03-15 | 分类: AI Agent 平台</p>
 </blockquote>
 <hr>
 <h2>1. OpenClaw 架构概览</h2>
@@ -184,8 +526,7 @@ strong { color: var(--text-primary); }
 <li><strong>Session</strong>: 会话上下文，管理 Agent 与用户的交互状态</li>
 </ol>
 <h3>系统架构</h3>
-<div class="mermaid">
-    graph TD
+<p><div class="mermaid">graph TD
     GW["🌐 OpenClaw Gateway"]
     AR["Agent Runtime"]
     CR["Channel Router"]
@@ -202,10 +543,8 @@ strong { color: var(--text-primary); }
     SL --> SM
     SM --> TG
     SM --> DC
-    SM --> SG
-</div>
+    SM --> SG</div></p>
 <h3>主要组件</h3>
-<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -245,11 +584,9 @@ strong { color: var(--text-primary); }
 <td>连接外部 MCP Server</td>
 </tr>
 </tbody></table>
-</div>
 <hr>
 <h2>2. 安装与部署</h2>
 <h3>2.1 系统要求</h3>
-<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -278,7 +615,6 @@ strong { color: var(--text-primary); }
 <td>需要访问 LLM API（如 OpenRouter、Anthropic、OpenAI）</td>
 </tr>
 </tbody></table>
-</div>
 <h3>2.2 快速安装（5 分钟）</h3>
 <pre><code class="language-bash"># 1. 安装 OpenClaw CLI（全局安装）
 npm install -g openclaw
@@ -438,7 +774,6 @@ docker run -d \
 <h2>3. 入门教程：从零到第一个 Agent</h2>
 <h3>3.1 理解核心概念</h3>
 <p>在开始使用前，理解三个核心抽象：</p>
-<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -463,7 +798,6 @@ docker run -d \
 <td>Agent 与某个用户/群组的一次交互上下文</td>
 </tr>
 </tbody></table>
-</div>
 <h3>3.2 第一个对话</h3>
 <pre><code class="language-bash"># 1. 确保 Gateway 运行中
 openclaw gateway status
@@ -602,7 +936,6 @@ agents:
 <hr>
 <h2>5. 多渠道接入</h2>
 <h3>支持的渠道</h3>
-<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -642,7 +975,6 @@ agents:
 <td>自定义前端</td>
 </tr>
 </tbody></table>
-</div>
 <h3>Telegram 渠道配置示例</h3>
 <pre><code class="language-bash"># 安装 Telegram 插件
 openclaw plugin add telegram
@@ -664,8 +996,7 @@ openclaw configure --section telegram
 <h2>6. 技能系统与 MCP 集成</h2>
 <h3>技能系统 (Skills)</h3>
 <p>OpenClaw 的技能是可复用的能力模块，每个技能是一个目录：</p>
-<div class="mermaid">
-    graph TD
+<p><div class="mermaid">graph TD
     SK["📁 skills/"]
     WR["📁 web-research/"]
     CR["📁 code-review/"]
@@ -684,8 +1015,7 @@ openclaw configure --section telegram
     WR --> SCR
     CR --> SM2
     CR --> TMPL
-    WEA --> SM3
-</div>
+    WEA --> SM3</div></p>
 <p><strong>SKILL.md 示例</strong>:</p>
 <pre><code class="language-markdown"># Weather Skill
 
@@ -810,7 +1140,6 @@ CMD [&quot;openclaw&quot;, &quot;gateway&quot;, &quot;start&quot;]
 <hr>
 <h2>8. 故障排查</h2>
 <h3>8.1 Gateway 启动失败</h3>
-<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -840,14 +1169,12 @@ CMD [&quot;openclaw&quot;, &quot;gateway&quot;, &quot;start&quot;]
 <td>检查 <code>openclaw configure</code> 或环境变量是否设置正确</td>
 </tr>
 </tbody></table>
-</div>
 <pre><code class="language-bash"># 诊断 Gateway 问题
 openclaw gateway status    # 查看状态
 openclaw logs --follow     # 实时查看日志
 openclaw gateway restart   # 尝试重启
 </code></pre>
 <h3>8.2 Agent 不回复</h3>
-<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -877,7 +1204,6 @@ openclaw gateway restart   # 尝试重启
 <td>检查 Agent 配置中 <code>system_prompt</code> 是否为空</td>
 </tr>
 </tbody></table>
-</div>
 <pre><code class="language-bash"># 查看最近日志中的错误
 openclaw logs --level error --limit 50
 
@@ -885,7 +1211,6 @@ openclaw logs --level error --limit 50
 openclaw agent test my-agent --message &quot;你好&quot;
 </code></pre>
 <h3>8.3 技能（Skills）不生效</h3>
-<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -910,7 +1235,6 @@ openclaw agent test my-agent --message &quot;你好&quot;
 <td>检查 SKILL.md 是否包含必需的 <code># 触发条件</code> 和 <code># 使用方法</code> 章节</td>
 </tr>
 </tbody></table>
-</div>
 <h3>8.4 MCP 工具连接失败</h3>
 <pre><code class="language-bash"># 检查 MCP Server 状态
 openclaw mcp list
@@ -927,7 +1251,6 @@ openclaw logs --filter mcp
 # 3. 权限不足 → 确保 Server 有权访问目标目录/数据库
 </code></pre>
 <h3>8.5 内存/性能问题</h3>
-<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -952,7 +1275,6 @@ openclaw logs --filter mcp
 <td>降低 <code>max_concurrent</code> 配置</td>
 </tr>
 </tbody></table>
-</div>
 <pre><code class="language-yaml"># 优化配置示例
 runtime:
   max_concurrent: 5
@@ -999,8 +1321,13 @@ openclaw config validate       # 验证配置合法性
 <li>复现步骤</li>
 </ul>
 <hr>
-<h2>参考来源</h2>
-<ol>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
 <li><strong>OpenClaw 官方文档</strong> — <a href="https://docs.openclaw.ai">docs.openclaw.ai</a> — 安装、配置、API</li>
 <li><strong>OpenClaw GitHub</strong> — <a href="https://github.com/openclaw/openclaw">github.com/openclaw/openclaw</a> — 源码、Issues、Releases</li>
 <li><strong>MCP 协议规范</strong> — <a href="https://modelcontextprotocol.io">modelcontextprotocol.io</a> — MCP 协议文档</li>
@@ -1019,29 +1346,25 @@ openclaw config validate       # 验证配置合法性
 <p><em>本指南基于 OpenClaw 公开文档和实际使用经验编写，如有更新请以 <a href="https://docs.openclaw.ai">docs.openclaw.ai</a> 为准。</em></p>
 
 
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
 <div class="footer">
   🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
   <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>
-function toggleTheme() {
-    const html = document.documentElement;
-    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('tr-theme', next);
-    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
-}
-(function() {
-    const saved = localStorage.getItem('tr-theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
-    const icon = document.getElementById('themeIcon');
-    if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
-})();
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
 </script>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
-  mermaid.initialize({startOnLoad: false, theme: theme});
-  mermaid.run();
-</script>
-</body></html>
+
+</body>
+</html>

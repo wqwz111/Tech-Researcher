@@ -5,7 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI 可观测性与调试工具研究</title>
 <style>
-:root, [data-theme="dark"] {
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
     --bg-primary:    #0f172a;
     --bg-secondary:  #1e293b;
     --bg-tertiary:   #334155;
@@ -34,6 +44,8 @@
     --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     --header-border: #334155;
   }
+
+  /* ── Light Theme ── */
   [data-theme="light"] {
     --bg-primary:    #ffffff;
     --bg-secondary:  #f8fafc;
@@ -63,208 +75,555 @@
     --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
     --header-border: #e2e8f0;
   }
-body {
-    background: var(--bg-primary); color: var(--text-primary);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
-    transition: background .3s, color .3s;
-}
-.top-nav {
-    background: var(--bg-secondary); padding: .6rem 1rem; border-radius: 8px;
-    margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
     border: 1px solid var(--border-color);
-}
-.top-nav a { color: var(--accent-secondary); text-decoration: none; }
-.top-nav a:hover { text-decoration: underline; }
-.top-nav .sep { color: var(--text-muted); }
-.theme-btn {
-    background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 20px;
-    padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
-    transition: border-color .2s;
-}
-.theme-btn:hover { border-color: var(--accent-primary); }
-.meta {
-    background: var(--bg-secondary); border-left: 4px solid var(--accent-primary);
-    padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
-}
-.meta h1 { color: var(--accent-primary); margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .info { color: var(--text-muted); font-size: .85rem; }
-.toc {
-    background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px;
-    padding: 1rem 1.5rem; margin-bottom: 2rem;
-}
-.toc h2 { color: var(--accent-secondary); font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: var(--accent-secondary); text-decoration: none; }
-h1 { color: var(--accent-primary); border-bottom: 2px solid var(--border-color); padding-bottom: .5rem; }
-h2 { color: var(--accent-secondary); margin-top: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: .3rem; }
-h3 { color: var(--accent-secondary); margin-top: 1.8rem; }
-a { color: var(--link); }
-code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre {
-    background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; max-width: 100%; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
-}
-pre code { background: none; color: var(--text-primary); }
-pre .lang-label {
-    position: absolute; top: 0; right: 0; background: var(--border-color);
-    color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
-}
-.mermaid { background: var(--bg-secondary); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote {
-    border-left: 4px solid var(--accent-primary); margin: 1.5rem 0; padding: .8rem 1.2rem;
-    background: var(--bg-secondary); border-radius: 0 8px 8px 0;
-}
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid var(--border-color); padding: .7rem 1rem; text-align: left; }
-th { background: var(--bg-secondary); color: var(--accent-secondary); }
-tr:nth-child(even) { background: var(--bg-secondary); }
-hr { border: none; border-top: 1px solid var(--border-color); margin: 2.5rem 0; }
-strong { color: var(--text-primary); }
-.footer {
-    text-align: center; color: var(--text-muted); padding: 2rem 0 1rem;
-    border-top: 1px solid var(--border-color); margin-top: 3rem; font-size: .85rem;
-}
-.footer a { color: var(--link); }
-@media print {
-    body { background: #fff; color: #000; max-width: 100%; }
-    .top-nav, .toc { display: none; }
-}
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
 </style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
 </head>
 <body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:var(--text-muted)">🛠️ 工具</span>
-<button class="theme-btn" onclick="toggleTheme()" title="切换日夜模式"><span id="themeIcon">☀️</span></button>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>AI 可观测性与调试工具研究</h1>
+  <div class="meta">2026-03-19 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
 </div>
-<div class="meta">
-<h1>AI 可观测性与调试工具研究</h1>
-<div class="info">2026-03-14 · 分类: 🛠️ 工具</div>
-</div>
 
-<div class="breadcrumb">
-  <a href="../index.html">← 返回报告索引</a>
-</div>
+<div class="container">
 
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
 
-<p>> <strong>发布日期</strong>: 2026-03-14  </p>
-<p>> <strong>分类</strong>: 工具研究  </p>
-<p>> <strong>标签</strong>: 可观测性, LLM追踪, 调试, 成本监控, 质量监控</p>
-
-<hr>
-
-<h2 id="executive-summary">Executive Summary</h2>
-
-<p>当 LLM 应用从原型走向生产，"可观测性"（Observability）成为不可回避的核心问题。传统软件的可观测性依赖日志、指标、追踪三大支柱，而 LLM 应用在此基础上又增加了新的维度：<strong>Prompt 调试</strong>、<strong>模型输出质量</strong>、<strong>Token 成本</strong>、<strong>幻觉检测</strong>等。</p>
-
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p><p>当 LLM 应用从原型走向生产，&quot;可观测性&quot;（Observability）成为不可回避的核心问题。传统软件的可观测性依赖日志、指标、追踪三大支柱，而 LLM 应用在此基础上又增加了新的维度：<strong>Prompt 调试</strong>、<strong>模型输出质量</strong>、<strong>Token 成本</strong>、<strong>幻觉检测</strong>等。</p>
 <p>本报告深入研究了 AI 应用可观测性与调试工具的全景，覆盖五大核心领域：</p>
+<ol>
+<li><strong>LLM 追踪（Tracing）</strong>：LangSmith、LangFuse、Phoenix、Helicone 等工具如何帮助开发者理解每一次 LLM 调用的完整链路</li>
+<li><strong>Prompt 调试与版本管理</strong>：如何系统化地迭代和优化 Prompt</li>
+<li><strong>成本监控</strong>：Token 消耗追踪、成本归因、预算控制</li>
+<li><strong>质量监控与回归测试</strong>：确保模型输出质量不会随时间退化</li>
+<li><strong>生产告警</strong>：异常检测、延迟监控、可用性保障</li>
+</ol>
+<p><strong>核心结论</strong>：LLM 应用的可观测性不再是&quot;有最好&quot;，而是&quot;必须有&quot;。没有可观测性，你无法知道模型在生产环境中的实际表现，也无法系统化地优化成本和质量。</p>
+</p>
+  </div>
 
-<p>1. <strong>LLM 追踪（Tracing）</strong>：LangSmith、LangFuse、Phoenix、Helicone 等工具如何帮助开发者理解每一次 LLM 调用的完整链路</p>
-<p>2. <strong>Prompt 调试与版本管理</strong>：如何系统化地迭代和优化 Prompt</p>
-<p>3. <strong>成本监控</strong>：Token 消耗追踪、成本归因、预算控制</p>
-<p>4. <strong>质量监控与回归测试</strong>：确保模型输出质量不会随时间退化</p>
-<p>5. <strong>生产告警</strong>：异常检测、延迟监控、可用性保障</p>
-
-<p><strong>核心结论</strong>：LLM 应用的可观测性不再是"有最好"，而是"必须有"。没有可观测性，你无法知道模型在生产环境中的实际表现，也无法系统化地优化成本和质量。</p>
-
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <blockquote>
+<p><strong>发布日期</strong>: 2026-03-14<br><strong>分类</strong>: 工具研究<br><strong>标签</strong>: 可观测性, LLM追踪, 调试, 成本监控, 质量监控</p>
+</blockquote>
 <hr>
-
-<h2 id="一llm-追踪tracing">一、LLM 追踪（Tracing）</h2>
-
-<h3 id="11-为什么-llm-应用需要专用追踪">1.1 为什么 LLM 应用需要专用追踪？</h3>
-
+<h2>一、LLM 追踪（Tracing）</h2>
+<h3>1.1 为什么 LLM 应用需要专用追踪？</h3>
 <p>传统 APM 工具（Datadog、New Relic）可以追踪 API 调用延迟和错误率，但无法回答 LLM 应用特有的问题：</p>
-
+<ul>
 <li>这次调用用了什么 Prompt？</li>
 <li>模型返回了什么？是否合理？</li>
 <li>一次用户请求触发了多少次 LLM 调用（Agent 场景）？</li>
 <li>Token 消耗是多少？成本多高？</li>
 <li>哪个环节出现了幻觉或错误？</li>
-
+</ul>
 <p>LLM 追踪工具就是为了解决这些问题而生。</p>
-
-<h3 id="12-langsmith">1.2 LangSmith</h3>
-
+<h3>1.2 LangSmith</h3>
 <p><strong><a href="https://smith.langchain.com">LangSmith</a></strong> 是 LangChain 团队推出的 LLM 应用开发平台，追踪是其核心功能之一。</p>
-
 <p><strong>核心能力</strong>：</p>
-
+<ul>
 <li><strong>自动追踪</strong>：与 LangChain 集成，一行代码开启追踪</li>
 <li><strong>Trace 可视化</strong>：展示完整的调用链路，包括 Chain、Agent、Tool 的嵌套调用</li>
 <li><strong>输入/输出记录</strong>：自动记录每次 LLM 调用的 Prompt 和响应</li>
 <li><strong>元数据标注</strong>：可以添加自定义标签和元数据</li>
 <li><strong>数据集管理</strong>：从追踪数据中构建评估数据集</li>
-
+</ul>
 <p><strong>不依赖 LangChain 也能用</strong>：通过 <code>@traceable</code> 装饰器或 SDK 手动追踪任意代码。</p>
-
-<pre><span class="lang-label">python</span><code>
-from langsmith import traceable
+<pre><code class="language-python">from langsmith import traceable
 
 @traceable
 def my_llm_call(prompt: str):
     # 任何 LLM 调用都会被自动追踪
     return openai.chat.completions.create(...)
 </code></pre>
-
 <p><strong>定价</strong>：免费层有调用量限制，团队版按追踪量计费。</p>
-
-<h3 id="13-langfuse">1.3 LangFuse</h3>
-
+<h3>1.3 LangFuse</h3>
 <p><strong><a href="https://langfuse.com">LangFuse</a></strong> 是完全开源的 LLM 工程平台，是 LangSmith 的主要竞争对手。</p>
-
 <p><strong>核心优势</strong>：</p>
-
+<ul>
 <li><strong>完全开源</strong>：可自部署，数据完全可控</li>
 <li><strong>框架无关</strong>：原生支持 LangChain、LlamaIndex，也支持纯 OpenAI SDK</li>
 <li><strong>成本追踪</strong>：自动计算每次调用的成本</li>
 <li><strong>Prompt 管理</strong>：内置 Prompt 版本控制和管理</li>
 <li><strong>评估集成</strong>：支持自动化评估和人工标注</li>
 <li><strong>多租户</strong>：支持团队协作和项目隔离</li>
-
+</ul>
 <p><strong>与 LangSmith 的对比</strong>：</p>
-
-<div class="table-wrapper">
-<table><tr><th>维度</th><th>LangSmith</th><th>LangFuse</th></tr>
-<tr><td>开源</td><td>❌ 闭源</td><td>✅ 完全开源</td></tr>
-<tr><td>自部署</td><td>❌ 仅云服务</td><td>✅ 支持</td></tr>
-<tr><td>框架绑定</td><td>偾向 LangChain</td><td>框架无关</td></tr>
-<tr><td>免费层</td><td>有限</td><td>自部署无限制</td></tr>
-<tr><td>成本追踪</td><td>✅</td><td>✅</td></tr>
-<tr><td>评估能力</td><td>✅</td><td>✅</td></tr>
-</table>
-</div>
-
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>LangSmith</th>
+<th>LangFuse</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>开源</td>
+<td>❌ 闭源</td>
+<td>✅ 完全开源</td>
+</tr>
+<tr>
+<td>自部署</td>
+<td>❌ 仅云服务</td>
+<td>✅ 支持</td>
+</tr>
+<tr>
+<td>框架绑定</td>
+<td>偾向 LangChain</td>
+<td>框架无关</td>
+</tr>
+<tr>
+<td>免费层</td>
+<td>有限</td>
+<td>自部署无限制</td>
+</tr>
+<tr>
+<td>成本追踪</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>评估能力</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody></table>
 <p><strong>典型集成</strong>：</p>
-
-<pre><span class="lang-label">python</span><code>
-from langfuse.openai import openai  # 自动追踪
+<pre><code class="language-python">from langfuse.openai import openai  # 自动追踪
 
 response = openai.chat.completions.create(
-    model="gpt-4",
-    messages=[{"role": "user", "content": "Hello"}]
+    model=&quot;gpt-4&quot;,
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello&quot;}]
 )
 # 自动记录到 LangFuse
 </code></pre>
-
-<h3 id="14-phoenixarize">1.4 Phoenix（Arize）</h3>
-
+<h3>1.4 Phoenix（Arize）</h3>
 <p><strong><a href="https://github.com/Arize-AI/phoenix">Phoenix</a></strong> 是 Arize AI 推出的开源 LLM 可观测性工具。</p>
-
 <p><strong>差异化特点</strong>：</p>
-
+<ul>
 <li><strong>专注评估和调试</strong>：不是追踪工具，而是评估工具</li>
 <li><strong>Trace 分析</strong>：可视化分析 trace 数据，发现异常模式</li>
 <li><strong>幻觉检测</strong>：基于事实一致性评估检测模型幻觉</li>
 <li><strong>检索评估</strong>：专门评估 RAG 系统的检索质量</li>
 <li><strong>数据质量</strong>：检测训练数据的分布漂移</li>
-
+</ul>
 <p><strong>典型用法</strong>：</p>
-
-<pre><span class="lang-label">python</span><code>
-import phoenix as px
+<pre><code class="language-python">import phoenix as px
 
 # 启动 Phoenix UI
 session = px.launch_app()
@@ -273,73 +632,82 @@ session = px.launch_app()
 from phoenix.trace.openai import OpenInferenceInstrumentor
 OpenInferenceInstrumentor().instrument()
 </code></pre>
-
 <p><strong>适用场景</strong>：RAG 系统评估、幻觉检测、检索质量分析。</p>
-
-<h3 id="15-helicone">1.5 Helicone</h3>
-
+<h3>1.5 Helicone</h3>
 <p><strong><a href="https://helicone.ai">Helicone</a></strong> 定位为 LLM 应用的可观测性网关。</p>
-
 <p><strong>核心模式</strong>：通过反向代理拦截 API 调用，无需修改代码。</p>
-
-<pre><span class="lang-label">python</span><code>
-# 只需修改 base_url
+<pre><code class="language-python"># 只需修改 base_url
 client = openai.OpenAI(
-    base_url="https://oai.helicone.ai/v1",
-    default_headers={"Helicone-Auth": "Bearer &lt;your-key&gt;"}
+    base_url=&quot;https://oai.helicone.ai/v1&quot;,
+    default_headers={&quot;Helicone-Auth&quot;: &quot;Bearer &lt;your-key&gt;&quot;}
 )
 </code></pre>
-
 <p><strong>特性</strong>：</p>
+<ul>
 <li>一行代码集成</li>
 <li>成本追踪和速率限制</li>
 <li>缓存层（减少重复调用）</li>
 <li>自定义属性和标签</li>
 <li>支持 100+ 模型提供商</li>
-
-<h3 id="16-其他追踪工具">1.6 其他追踪工具</h3>
-
-<div class="table-wrapper">
-<table><tr><th>工具</th><th>特点</th><th>适用场景</th></tr>
-<tr><td>**Braintrust**</td><td>评估 + 追踪一体化</td><td>产品化评估</td></tr>
-<tr><td>**Lunary**</td><td>开源，Prompt 管理 + 追踪</td><td>中小团队</td></tr>
-<tr><td>**Opik（Comet）**</td><td>开源，专注 LLM 评估</td><td>研究和实验</td></tr>
-<tr><td>**Weave（W&B）**</td><td>Weights & Biases 的 LLM 工具</td><td>已使用 W&B 的团队</td></tr>
-<tr><td>**OpenLLMetry**</td><td>基于 OpenTelemetry 标准</td><td>需要对接现有监控栈</td></tr>
-</table>
-</div>
-
+</ul>
+<h3>1.6 其他追踪工具</h3>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>特点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Braintrust</strong></td>
+<td>评估 + 追踪一体化</td>
+<td>产品化评估</td>
+</tr>
+<tr>
+<td><strong>Lunary</strong></td>
+<td>开源，Prompt 管理 + 追踪</td>
+<td>中小团队</td>
+</tr>
+<tr>
+<td><strong>Opik（Comet）</strong></td>
+<td>开源，专注 LLM 评估</td>
+<td>研究和实验</td>
+</tr>
+<tr>
+<td><strong>Weave（W&amp;B）</strong></td>
+<td>Weights &amp; Biases 的 LLM 工具</td>
+<td>已使用 W&amp;B 的团队</td>
+</tr>
+<tr>
+<td><strong>OpenLLMetry</strong></td>
+<td>基于 OpenTelemetry 标准</td>
+<td>需要对接现有监控栈</td>
+</tr>
+</tbody></table>
 <hr>
-
-<h2 id="二prompt-调试与版本管理">二、Prompt 调试与版本管理</h2>
-
-<h3 id="21-prompt-调试的挑战">2.1 Prompt 调试的挑战</h3>
-
+<h2>二、Prompt 调试与版本管理</h2>
+<h3>2.1 Prompt 调试的挑战</h3>
 <p>Prompt 开发不同于传统代码开发，面临独特挑战：</p>
-
+<ul>
 <li><strong>非确定性输出</strong>：同样的 Prompt 可能产生不同的响应</li>
 <li><strong>微小变化影响巨大</strong>：加一个句号可能完全改变输出</li>
 <li><strong>缺乏断点调试</strong>：不能像调试代码那样单步执行</li>
-<li><strong>评估主观性</strong>：很多场景下，"好不好"依赖人工判断</li>
-
-<h3 id="22-调试方法论">2.2 调试方法论</h3>
-
+<li><strong>评估主观性</strong>：很多场景下，&quot;好不好&quot;依赖人工判断</li>
+</ul>
+<h3>2.2 调试方法论</h3>
 <p><strong>系统化 Prompt 调试的五个步骤</strong>：</p>
-
-<p>1. <strong>建立评估标准</strong>：先定义"好的输出"长什么样</p>
-<p>2. <strong>构建测试集</strong>：准备多样化的输入样本</p>
-<p>3. <strong>版本化迭代</strong>：每次只改一个变量</p>
-<p>4. <strong>自动化评估</strong>：用 LLM-as-Judge 或其他指标自动评分</p>
-<p>5. <strong>人工校验</strong>：自动化评估的抽样验证</p>
-
-<h3 id="23-版本管理最佳实践">2.3 版本管理最佳实践</h3>
-
+<ol>
+<li><strong>建立评估标准</strong>：先定义&quot;好的输出&quot;长什么样</li>
+<li><strong>构建测试集</strong>：准备多样化的输入样本</li>
+<li><strong>版本化迭代</strong>：每次只改一个变量</li>
+<li><strong>自动化评估</strong>：用 LLM-as-Judge 或其他指标自动评分</li>
+<li><strong>人工校验</strong>：自动化评估的抽样验证</li>
+</ol>
+<h3>2.3 版本管理最佳实践</h3>
 <h4>使用 Git 管理 Prompt</h4>
-
 <p>最简单但有效的方式：</p>
-
-<div class="mermaid">
-    graph TD
+<p><div class="mermaid">graph TD
     P["📁 prompts/"]
     V1["📁 v1/"]
     V2["📁 v2/"]
@@ -358,30 +726,25 @@ client = openai.OpenAI(
     V1 --> CL1
     V2 --> SP2
     V2 --> FE2
-    V2 --> CL2
-</div>
-
+    V2 --> CL2</div></p>
 <h4>使用专业工具</h4>
-
 <p><strong>PromptLayer</strong>：可视化编辑器 + 版本控制 + 请求追踪</p>
-
 <p><strong>LangFuse Prompt Management</strong>：</p>
+<ul>
 <li>内置在 LangFuse 中</li>
 <li>支持标签和版本</li>
 <li>可以直接在 UI 中测试</li>
 <li>与追踪数据关联</li>
-
+</ul>
 <p><strong>Humanloop</strong>：</p>
+<ul>
 <li>Prompt 编辑 + 评估一体化</li>
 <li>支持多环境（dev/staging/prod）</li>
 <li>团队协作功能</li>
-
-<h3 id="24-ab-测试">2.4 A/B 测试</h3>
-
+</ul>
+<h3>2.4 A/B 测试</h3>
 <p>在生产环境中测试不同 Prompt 版本的效果：</p>
-
-<div class="mermaid">
-    graph TD
+<p><div class="mermaid">graph TD
     REQ["用户请求"]
     V1["50% → Prompt v1 → 输出 A"]
     V2["50% → Prompt v2 → 输出 B"]
@@ -389,242 +752,266 @@ client = openai.OpenAI(
     REQ --> V1
     REQ --> V2
     V1 --> FB
-    V2 --> FB
-</div>
-
+    V2 --> FB</div></p>
 <p><strong>工具支持</strong>：</p>
+<ul>
 <li>Portkey：内置路由和 A/B 测试</li>
 <li>Humanloop：原生支持实验</li>
 <li>自研：基于 feature flag 的简单实现</li>
-
+</ul>
 <hr>
-
-<h2 id="三成本监控">三、成本监控</h2>
-
-<h3 id="31-成本失控的常见原因">3.1 成本失控的常见原因</h3>
-
+<h2>三、成本监控</h2>
+<h3>3.1 成本失控的常见原因</h3>
+<ul>
 <li><strong>没有预算控制</strong>：开发者调用量失控</li>
 <li><strong>模型选择不当</strong>：简单任务用了最贵的模型</li>
 <li><strong>重复调用</strong>：没有缓存机制</li>
 <li><strong>上下文过长</strong>：不必要的长上下文</li>
 <li><strong>循环调用</strong>：Agent 陷入死循环</li>
-
-<h3 id="32-成本追踪工具">3.2 成本追踪工具</h3>
-
+</ul>
+<h3>3.2 成本追踪工具</h3>
 <h4>API 网关层</h4>
-
 <p><strong>LiteLLM</strong>：内置成本追踪</p>
-<pre><span class="lang-label">python</span><code>
-# LiteLLM 自动记录每次调用的成本
-litellm.success_callback = ["lunary"]  # 推送到成本追踪工具
+<pre><code class="language-python"># LiteLLM 自动记录每次调用的成本
+litellm.success_callback = [&quot;lunary&quot;]  # 推送到成本追踪工具
 </code></pre>
-
 <p><strong>Helicone</strong>：代理模式自动追踪</p>
+<ul>
 <li>按模型、用户、API Key 归因</li>
 <li>可视化仪表盘</li>
 <li>成本预警</li>
-
+</ul>
 <h4>专用工具</h4>
-
 <p><strong>Portkey</strong>：</p>
+<ul>
 <li>按请求记录成本</li>
 <li>支持预算限制（per-key、per-team）</li>
 <li>成本归因和分析</li>
-
+</ul>
 <p><strong>LangFuse</strong>：</p>
+<ul>
 <li>自动计算成本（基于模型定价）</li>
 <li>按 trace、user、session 归因</li>
 <li>与追踪数据结合，找出高成本调用</li>
-
-<h3 id="33-成本优化策略">3.3 成本优化策略</h3>
-
-<div class="table-wrapper">
-<table><tr><th>策略</th><th>节省幅度</th><th>实现难度</th></tr>
-<tr><td>**缓存重复请求**</td><td>30-70%</td><td>低</td></tr>
-<tr><td>**模型路由**</td><td>40-80%</td><td>中</td></tr>
-<tr><td>**Prompt 压缩**</td><td>20-40%</td><td>中</td></tr>
-<tr><td>**批量处理**</td><td>10-30%</td><td>低</td></tr>
-<tr><td>**量化部署**</td><td>30-50%（推理成本）</td><td>高</td></tr>
-<tr><td>**本地模型备选**</td><td>50-90%</td><td>高</td></tr>
-</table>
-</div>
-
-<p><strong>模型路由示例</strong>：</p>
-<div class="mermaid">
-    graph TD
+</ul>
+<h3>3.3 成本优化策略</h3>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>节省幅度</th>
+<th>实现难度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>缓存重复请求</strong></td>
+<td>30-70%</td>
+<td>低</td>
+</tr>
+<tr>
+<td><strong>模型路由</strong></td>
+<td>40-80%</td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>Prompt 压缩</strong></td>
+<td>20-40%</td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>批量处理</strong></td>
+<td>10-30%</td>
+<td>低</td>
+</tr>
+<tr>
+<td><strong>量化部署</strong></td>
+<td>30-50%（推理成本）</td>
+<td>高</td>
+</tr>
+<tr>
+<td><strong>本地模型备选</strong></td>
+<td>50-90%</td>
+<td>高</td>
+</tr>
+</tbody></table>
+<p><strong>模型路由示例</strong>：
+<div class="mermaid">graph TD
     Q["用户查询"] --> CL{"分类器"}
     CL -->|"简单问答"| MINI["GPT-4o-mini 便宜"]
     CL -->|"复杂推理"| GPT4["GPT-4 贵但准确"]
-    CL -->|"代码生成"| CLAUDE["Claude Sonnet 代码能力强"]
-</div>
-
-<h3 id="34-预算管理">3.4 预算管理</h3>
-
-<p><strong>Per-Key 预算</strong>：为每个 API Key 设置消费上限  </p>
-<p><strong>Per-User 预算</strong>：跟踪每个用户的消费  </p>
-<p><strong>Per-Team 预算</strong>：团队级别的预算控制  </p>
-<p><strong>告警阈值</strong>：达到 80%/90%/100% 时发送告警</p>
-
+    CL -->|"代码生成"| CLAUDE["Claude Sonnet 代码能力强"]</div></p>
+<h3>3.4 预算管理</h3>
+<p><strong>Per-Key 预算</strong>：为每个 API Key 设置消费上限<br><strong>Per-User 预算</strong>：跟踪每个用户的消费<br><strong>Per-Team 预算</strong>：团队级别的预算控制<br><strong>告警阈值</strong>：达到 80%/90%/100% 时发送告警</p>
 <hr>
-
-<h2 id="四质量监控与回归测试">四、质量监控与回归测试</h2>
-
-<h3 id="41-llm-输出质量的挑战">4.1 LLM 输出质量的挑战</h3>
-
+<h2>四、质量监控与回归测试</h2>
+<h3>4.1 LLM 输出质量的挑战</h3>
 <p>传统软件可以通过单元测试验证正确性，但 LLM 输出是概率性的：</p>
-
+<ul>
 <li>同样的输入可能产生不同的输出</li>
-<li>"正确"往往有多种表现形式</li>
+<li>&quot;正确&quot;往往有多种表现形式</li>
 <li>质量评估需要理解语义，不能简单比较字符串</li>
-<li>有些场景（创意写作）甚至没有"标准答案"</li>
-
-<h3 id="42-评估方法">4.2 评估方法</h3>
-
+<li>有些场景（创意写作）甚至没有&quot;标准答案&quot;</li>
+</ul>
+<h3>4.2 评估方法</h3>
 <h4>自动化评估</h4>
-
 <p><strong>LLM-as-Judge</strong>：用一个 LLM 来评估另一个 LLM 的输出</p>
+<pre><code class="language-python">from langfuse import Langfuse
 
-<pre><span class="lang-label">python</span><code>
-from langfuse import Langfuse
-
-evaluator_prompt = """
+evaluator_prompt = &quot;&quot;&quot;
 评估以下回答的质量，评分1-5：
 问题：{question}
 回答：{answer}
 标准：准确性、完整性、清晰度
-"""
+&quot;&quot;&quot;
 
 # 使用 GPT-4 作为评估器
 score = evaluate_with_llm(evaluator_prompt, question, answer)
 </code></pre>
-
 <p><strong>指标型评估</strong>：</p>
+<ul>
 <li><strong>ROUGE/BLEU</strong>：文本相似度（适合摘要、翻译）</li>
 <li><strong>BERTScore</strong>：语义相似度</li>
 <li><strong>精确匹配</strong>：适合结构化输出</li>
 <li><strong>自定义指标</strong>：根据业务需求定义</li>
-
+</ul>
 <h4>人工评估</h4>
-
+<ul>
 <li><strong>黄金标准评估</strong>：专家标注的参考答案对比</li>
 <li><strong>偏好评估</strong>：比较两个输出的优劣</li>
 <li><strong>评分评估</strong>：多维度打分</li>
-
-<h3 id="43-回归测试框架">4.3 回归测试框架</h3>
-
+</ul>
+<h3>4.3 回归测试框架</h3>
 <h4>Braintrust</h4>
-
 <p><strong><a href="https://braintrust.dev">Braintrust</a></strong> 专注于 AI 产品的评估和测试：</p>
-
+<ul>
 <li><strong>Eval 函数</strong>：定义评估逻辑</li>
 <li><strong>数据集管理</strong>：维护测试数据集</li>
 <li><strong>自动化 CI</strong>：集成到 CI/CD 流程</li>
 <li><strong>评分追踪</strong>：追踪每次改动对质量的影响</li>
-
-<pre><span class="lang-label">python</span><code>
-from braintrust import Eval
+</ul>
+<pre><code class="language-python">from braintrust import Eval
 
 Eval(
-    "my-llm-app",
-    data=lambda: [{"input": "test question", "expected": "test answer"}],
+    &quot;my-llm-app&quot;,
+    data=lambda: [{&quot;input&quot;: &quot;test question&quot;, &quot;expected&quot;: &quot;test answer&quot;}],
     task=lambda input: my_llm_function(input),
     scores=[exact_match, semantic_similarity]
 )
 </code></pre>
-
 <h4>PromptFoo</h4>
-
 <p><strong><a href="https://promptfoo.dev">PromptFoo</a></strong> 是开源的 Prompt 测试工具：</p>
-
+<ul>
 <li>命令行界面，开发者友好</li>
 <li>支持多个模型并行测试</li>
 <li>可视化对比结果</li>
 <li>支持自定义评估器</li>
-
-<pre><span class="lang-label">yaml</span><code>
-# promptfooconfig.yaml
+</ul>
+<pre><code class="language-yaml"># promptfooconfig.yaml
 prompts:
-  - "Answer this question: {{question}}"
+  - &quot;Answer this question: {{question}}&quot;
 providers:
   - openai:gpt-4
   - anthropic:claude-3-opus
 tests:
   - vars:
-      question: "What is 2+2?"
+      question: &quot;What is 2+2?&quot;
     assert:
       - type: contains
-        value: "4"
+        value: &quot;4&quot;
 </code></pre>
-
 <h4>DeepEval</h4>
-
 <p><strong><a href="https://github.com/confident-ai/deepeval">DeepEval</a></strong> 开源的 LLM 评估框架：</p>
-
+<ul>
 <li>内置多种评估指标（幻觉检测、相关性、正确性等）</li>
 <li>支持 pytest 集成</li>
 <li>可以自定义评估器</li>
-
-<pre><span class="lang-label">python</span><code>
-from deepeval import assert_test
+</ul>
+<pre><code class="language-python">from deepeval import assert_test
 from deepeval.metrics import HallucinationMetric
 
 def test_hallucination():
     metric = HallucinationMetric(threshold=0.5)
     assert_test(test_case, [metric])
 </code></pre>
-
-<h3 id="44-质量监控最佳实践">4.4 质量监控最佳实践</h3>
-
-<p>1. <strong>基线测试集</strong>：维护一组代表性测试用例</p>
-<p>2. <strong>CI/CD 集成</strong>：每次 Prompt 修改都跑测试</p>
-<p>3. <strong>生产抽样</strong>：对生产调用进行随机抽样评估</p>
-<p>4. <strong>趋势追踪</strong>：监控质量指标的时间趋势</p>
-<p>5. <strong>异常检测</strong>：当质量指标显著下降时告警</p>
-
+<h3>4.4 质量监控最佳实践</h3>
+<ol>
+<li><strong>基线测试集</strong>：维护一组代表性测试用例</li>
+<li><strong>CI/CD 集成</strong>：每次 Prompt 修改都跑测试</li>
+<li><strong>生产抽样</strong>：对生产调用进行随机抽样评估</li>
+<li><strong>趋势追踪</strong>：监控质量指标的时间趋势</li>
+<li><strong>异常检测</strong>：当质量指标显著下降时告警</li>
+</ol>
 <hr>
-
-<h2 id="五生产告警">五、生产告警</h2>
-
-<h3 id="51-llm-应用特有的告警场景">5.1 LLM 应用特有的告警场景</h3>
-
-<div class="table-wrapper">
-<table><tr><th>告警类型</th><th>触发条件</th><th>严重程度</th></tr>
-<tr><td>**延迟异常**</td><td>P95 延迟超过阈值</td><td>高</td></tr>
-<tr><td>**错误率上升**</td><td>5xx 错误超过 5%</td><td>严重</td></tr>
-<tr><td>**Token 消耗激增**</td><td>突然增长 2x+</td><td>中</td></tr>
-<tr><td>**成本超预算**</td><td>接近或超过预算限制</td><td>高</td></tr>
-<tr><td>**质量下降**</td><td>评估分数低于阈值</td><td>高</td></tr>
-<tr><td>**幻觉率上升**</td><td>幻觉检测比例异常</td><td>高</td></tr>
-<tr><td>**模型不可用**</td><td>API 返回 429/503</td><td>严重</td></tr>
-</table>
-</div>
-
-<h3 id="52-告警集成">5.2 告警集成</h3>
-
+<h2>五、生产告警</h2>
+<h3>5.1 LLM 应用特有的告警场景</h3>
+<table>
+<thead>
+<tr>
+<th>告警类型</th>
+<th>触发条件</th>
+<th>严重程度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>延迟异常</strong></td>
+<td>P95 延迟超过阈值</td>
+<td>高</td>
+</tr>
+<tr>
+<td><strong>错误率上升</strong></td>
+<td>5xx 错误超过 5%</td>
+<td>严重</td>
+</tr>
+<tr>
+<td><strong>Token 消耗激增</strong></td>
+<td>突然增长 2x+</td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>成本超预算</strong></td>
+<td>接近或超过预算限制</td>
+<td>高</td>
+</tr>
+<tr>
+<td><strong>质量下降</strong></td>
+<td>评估分数低于阈值</td>
+<td>高</td>
+</tr>
+<tr>
+<td><strong>幻觉率上升</strong></td>
+<td>幻觉检测比例异常</td>
+<td>高</td>
+</tr>
+<tr>
+<td><strong>模型不可用</strong></td>
+<td>API 返回 429/503</td>
+<td>严重</td>
+</tr>
+</tbody></table>
+<h3>5.2 告警集成</h3>
 <p><strong>与现有监控栈集成</strong>：</p>
-
+<ul>
 <li><strong>Datadog</strong>：通过 OpenTelemetry 或自定义集成</li>
 <li><strong>Grafana</strong>：使用 Prometheus 数据源</li>
 <li><strong>PagerDuty</strong>：严重告警的 on-call 通知</li>
 <li><strong>Slack/飞书/钉钉</strong>：日常告警通知</li>
-
+</ul>
 <p><strong>LangFuse 告警</strong>：</p>
+<ul>
 <li>支持配置阈值告警</li>
 <li>可以按项目、用户、模型分别设置</li>
 <li>Webhook 集成</li>
-
+</ul>
 <p><strong>Portkey 告警</strong>：</p>
+<ul>
 <li>成本告警</li>
 <li>延迟告警</li>
 <li>错误率告警</li>
 <li>速率限制告警</li>
-
-<h3 id="53-告警策略">5.3 告警策略</h3>
-
+</ul>
+<h3>5.3 告警策略</h3>
 <p><strong>分级告警</strong>：</p>
-
-<pre><code>
-P0 - 严重（电话/短信通知）
+<pre><code>P0 - 严重（电话/短信通知）
   - 服务完全不可用
   - 数据泄露风险
   
@@ -640,58 +1027,44 @@ P3 - 低（每周报告）
   - 延迟略有增加
   - 缓存命中率下降
 </code></pre>
-
-<h3 id="54-常见问题排查">5.4 常见问题排查</h3>
-
+<h3>5.4 常见问题排查</h3>
 <p><strong>延迟突然增加</strong>：</p>
-<p>1. 检查模型提供商状态页</p>
-<p>2. 查看是否有上下文长度增加</p>
-<p>3. 检查 Agent 是否陷入循环</p>
-
+<ol>
+<li>检查模型提供商状态页</li>
+<li>查看是否有上下文长度增加</li>
+<li>检查 Agent 是否陷入循环</li>
+</ol>
 <p><strong>成本异常增加</strong>：</p>
-<p>1. 按 API Key 归因</p>
-<p>2. 检查是否有新用户/新功能上线</p>
-<p>3. 查看是否有异常长的上下文</p>
-
+<ol>
+<li>按 API Key 归因</li>
+<li>检查是否有新用户/新功能上线</li>
+<li>查看是否有异常长的上下文</li>
+</ol>
 <p><strong>质量下降</strong>：</p>
-<p>1. 检查模型版本是否有变化</p>
-<p>2. 查看 Prompt 是否被意外修改</p>
-<p>3. 分析是否出现了新的输入类型</p>
-
+<ol>
+<li>检查模型版本是否有变化</li>
+<li>查看 Prompt 是否被意外修改</li>
+<li>分析是否出现了新的输入类型</li>
+</ol>
 <hr>
-
-<h2 id="六工具链整合方案">六、工具链整合方案</h2>
-
-<h3 id="61-最小可行可观测性栈">6.1 最小可行可观测性栈</h3>
-
+<h2>六、工具链整合方案</h2>
+<h3>6.1 最小可行可观测性栈</h3>
 <p><strong>适合：个人项目或小团队 MVP</strong></p>
-
-<div class="mermaid">
-    flowchart TD
+<p><div class="mermaid">flowchart TD
     APP[应用代码] --> H[Helicone<br/>代理追踪]
     H --> |成本 + 延迟 + 错误率| PF[PromptFoo<br/>本地测试]
-    PF --> |回归测试| Done[✅]
-</div>
-
-<h3 id="62-标准可观测性栈">6.2 标准可观测性栈</h3>
-
+    PF --> |回归测试| Done[✅]</div></p>
+<h3>6.2 标准可观测性栈</h3>
 <p><strong>适合：生产环境的中型团队</strong></p>
-
-<div class="mermaid">
-    flowchart TD
+<p><div class="mermaid">flowchart TD
     APP[应用代码] --> LF[LangFuse<br/>自部署]
     LF --> |追踪 + 成本 + Prompt管理| DE[DeepEval<br/>评估]
     DE --> |质量监控| GP[Grafana + Prometheus]
     GP --> |系统指标| Slack[Slack 通知]
-    Slack --> |告警| Done[✅]
-</div>
-
-<h3 id="63-企业级可观测性栈">6.3 企业级可观测性栈</h3>
-
+    Slack --> |告警| Done[✅]</div></p>
+<h3>6.3 企业级可观测性栈</h3>
 <p><strong>适合：大型团队和企业</strong></p>
-
-<div class="mermaid">
-    graph TD
+<p><div class="mermaid">graph TD
     APP["应用代码"] --> OTEL["OpenTelemetry SDK<br/>标准化追踪"]
     OTEL --> LS["LangSmith<br/>LLM 追踪和评估"]
     OTEL --> DD["Datadog<br/>系统 APM"]
@@ -700,81 +1073,63 @@ P3 - 低（每周报告）
     LS --> PD["PagerDuty<br/>告警分发"]
     DD --> PD
     HEL --> PD
-    BT --> PD
-</div>
-
+    BT --> PD</div></p>
 <hr>
-
-<h2 id="实践建议">实践建议</h2>
-
-<h3 id="1-day-1-就加追踪">1. Day 1 就加追踪</h3>
-
+<h2>实践建议</h2>
+<h3>1. Day 1 就加追踪</h3>
 <p>不要等到出了问题才加追踪。在项目第一天就集成 LangFuse 或 Helicone，成本几乎为零，但价值巨大。</p>
-
-<h3 id="2-成本追踪是底线">2. 成本追踪是底线</h3>
-
+<h3>2. 成本追踪是底线</h3>
 <p>即使不加完整的可观测性栈，至少要追踪成本。LLM 应用的成本很容易失控，没有监控就是盲目飞行。</p>
-
-<h3 id="3-构建评估数据集">3. 构建评估数据集</h3>
-
+<h3>3. 构建评估数据集</h3>
 <p>花时间构建好的评估数据集，这是最值得的投资。数据集比工具更重要——有了数据集，换工具很容易。</p>
-
-<h3 id="4-自动化回归测试">4. 自动化回归测试</h3>
-
+<h3>4. 自动化回归测试</h3>
 <p>每次修改 Prompt 或模型配置，都应该跑自动化测试。把评估集成到 CI/CD 流程中。</p>
-
-<h3 id="5-保留人工抽样">5. 保留人工抽样</h3>
-
+<h3>5. 保留人工抽样</h3>
 <p>自动化评估再好，也要定期人工抽检。LLM-as-Judge 本身也有局限性。</p>
-
-<h3 id="6-分级告警">6. 分级告警</h3>
-
+<h3>6. 分级告警</h3>
 <p>不要所有告警都一样处理。明确分级，避免告警疲劳。</p>
-
-<h3 id="7-关注趋势而非单点">7. 关注趋势而非单点</h3>
-
+<h3>7. 关注趋势而非单点</h3>
 <p>单次异常可能不需要太关注，但趋势性的质量下降或成本增加必须重视。</p>
-
 <hr>
 
-<h2 id="参考来源">参考来源</h2>
 
-<p>1. <strong>LangFuse 文档</strong> — https://langfuse.com/docs — 开源 LLM 工程平台的完整文档</p>
-<p>2. <strong>LangSmith 文档</strong> — https://docs.smith.langchain.com — LangChain 团队的可观测性平台</p>
-<p>3. <strong>Phoenix (Arize)</strong> — https://github.com/Arize-Ai/phoenix — 开源 LLM 可观测性和评估工具</p>
-<p>4. <strong>Helicone</strong> — https://docs.helicone.ai — LLM 可观测性网关文档</p>
-<p>5. <strong>PromptFoo</strong> — https://promptfoo.dev/docs — 开源 Prompt 测试框架</p>
-<p>6. <strong>Braintrust</strong> — https://www.braintrust.dev/docs — AI 产品评估平台</p>
-<p>7. <strong>DeepEval</strong> — https://docs.confident-ai.com — LLM 评估框架文档</p>
-<p>8. <strong>LLM 可观测性最佳实践</strong> — https://arize.com/blog/ — Arize 的行业洞察</p>
-
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li><strong>LangFuse 文档</strong> — <a href="https://langfuse.com/docs">https://langfuse.com/docs</a> — 开源 LLM 工程平台的完整文档</li>
+<li><strong>LangSmith 文档</strong> — <a href="https://docs.smith.langchain.com">https://docs.smith.langchain.com</a> — LangChain 团队的可观测性平台</li>
+<li><strong>Phoenix (Arize)</strong> — <a href="https://github.com/Arize-Ai/phoenix">https://github.com/Arize-Ai/phoenix</a> — 开源 LLM 可观测性和评估工具</li>
+<li><strong>Helicone</strong> — <a href="https://docs.helicone.ai">https://docs.helicone.ai</a> — LLM 可观测性网关文档</li>
+<li><strong>PromptFoo</strong> — <a href="https://promptfoo.dev/docs">https://promptfoo.dev/docs</a> — 开源 Prompt 测试框架</li>
+<li><strong>Braintrust</strong> — <a href="https://www.braintrust.dev/docs">https://www.braintrust.dev/docs</a> — AI 产品评估平台</li>
+<li><strong>DeepEval</strong> — <a href="https://docs.confident-ai.com">https://docs.confident-ai.com</a> — LLM 评估框架文档</li>
+<li><strong>LLM 可观测性最佳实践</strong> — <a href="https://arize.com/blog/">https://arize.com/blog/</a> — Arize 的行业洞察</li>
+</ol>
 <hr>
-
 <p><em>本报告基于 2024-2025 年间 AI 可观测性工具生态的研究整理。AI 应用的可观测性领域仍在快速演进，建议读者关注 OpenTelemetry 社区在 LLM 可观测性标准化方面的进展。</em></p>
 
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
 <div class="footer">
   🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
   <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>
-function toggleTheme() {
-    const html = document.documentElement;
-    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('tr-theme', next);
-    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
-}
-(function() {
-    const saved = localStorage.getItem('tr-theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
-    const icon = document.getElementById('themeIcon');
-    if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
-})();
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
 </script>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
-  mermaid.initialize({startOnLoad: false, theme: theme});
-  mermaid.run();
-</script>
-</body></html>
+
+</body>
+</html>

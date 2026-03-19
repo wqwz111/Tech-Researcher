@@ -5,7 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI 在医疗领域落地案例研究</title>
 <style>
-:root, [data-theme="dark"] {
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
     --bg-primary:    #0f172a;
     --bg-secondary:  #1e293b;
     --bg-tertiary:   #334155;
@@ -34,6 +44,8 @@
     --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     --header-border: #334155;
   }
+
+  /* ── Light Theme ── */
   [data-theme="light"] {
     --bg-primary:    #ffffff;
     --bg-secondary:  #f8fafc;
@@ -63,189 +75,521 @@
     --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
     --header-border: #e2e8f0;
   }
-body {
-    background: var(--bg-primary); color: var(--text-primary);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-    line-height: 1.8; max-width: 900px; margin: 0 auto; padding: 2rem;
-    transition: background .3s, color .3s;
-}
-.top-nav {
-    background: var(--bg-secondary); padding: .6rem 1rem; border-radius: 8px;
-    margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: .85rem;
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
     border: 1px solid var(--border-color);
-}
-.top-nav a { color: var(--accent-secondary); text-decoration: none; }
-.top-nav a:hover { text-decoration: underline; }
-.top-nav .sep { color: var(--text-muted); }
-.theme-btn {
-    background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 20px;
-    padding: .2rem .6rem; cursor: pointer; font-size: .9rem; margin-left: auto;
-    transition: border-color .2s;
-}
-.theme-btn:hover { border-color: var(--accent-primary); }
-.meta {
-    background: var(--bg-secondary); border-left: 4px solid var(--accent-primary);
-    padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 2rem;
-}
-.meta h1 { color: var(--accent-primary); margin: 0 0 .5rem; font-size: 1.6rem; }
-.meta .info { color: var(--text-muted); font-size: .85rem; }
-.toc {
-    background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px;
-    padding: 1rem 1.5rem; margin-bottom: 2rem;
-}
-.toc h2 { color: var(--accent-secondary); font-size: 1rem; margin-bottom: .5rem; border: none; }
-.toc ul { list-style: none; padding-left: 1rem; }
-.toc li { margin: .2rem 0; font-size: .9rem; }
-.toc a { color: var(--accent-secondary); text-decoration: none; }
-h1 { color: var(--accent-primary); border-bottom: 2px solid var(--border-color); padding-bottom: .5rem; }
-h2 { color: var(--accent-secondary); margin-top: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: .3rem; }
-h3 { color: var(--accent-secondary); margin-top: 1.8rem; }
-a { color: var(--link); }
-code { background: var(--bg-code); padding: .15em .4em; border-radius: 4px; color: var(--accent-secondary); font-family: 'JetBrains Mono', monospace; font-size: .88em; }
-pre {
-    background: var(--bg-code); padding: 1.2rem; border-radius: 8px;
-    overflow-x: auto; max-width: 100%; border-left: 3px solid var(--accent-primary); margin: 1.2rem 0; position: relative;
-}
-pre code { background: none; color: var(--text-primary); }
-pre .lang-label {
-    position: absolute; top: 0; right: 0; background: var(--border-color);
-    color: var(--text-muted); padding: .1rem .5rem; font-size: .7rem; border-radius: 0 8px 0 8px;
-}
-.mermaid { background: var(--bg-secondary); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
-blockquote {
-    border-left: 4px solid var(--accent-primary); margin: 1.5rem 0; padding: .8rem 1.2rem;
-    background: var(--bg-secondary); border-radius: 0 8px 8px 0;
-}
-table { border-collapse: collapse; width: 100%; margin: 1.5rem 0; font-size: .92em; }
-th, td { border: 1px solid var(--border-color); padding: .7rem 1rem; text-align: left; }
-th { background: var(--bg-secondary); color: var(--accent-secondary); }
-tr:nth-child(even) { background: var(--bg-secondary); }
-hr { border: none; border-top: 1px solid var(--border-color); margin: 2.5rem 0; }
-strong { color: var(--text-primary); }
-.footer {
-    text-align: center; color: var(--text-muted); padding: 2rem 0 1rem;
-    border-top: 1px solid var(--border-color); margin-top: 3rem; font-size: .85rem;
-}
-.footer a { color: var(--link); }
-@media print {
-    body { background: #fff; color: #000; max-width: 100%; }
-    .top-nav, .toc { display: none; }
-}
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
 </style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
 </head>
 <body>
-<div class="top-nav">
-<a href="../index.html">🏠 报告首页</a><span class="sep">|</span>
-<a href="https://github.com/wqwz111/Tech-Researcher/issues">💬 Issues</a><span class="sep">|</span>
-<span style="color:var(--text-muted)">📊 案例实践</span>
-<button class="theme-btn" onclick="toggleTheme()" title="切换日夜模式"><span id="themeIcon">☀️</span></button>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>AI 在医疗领域落地案例研究</h1>
+  <div class="meta">2026-03-19 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
 </div>
-<div class="meta">
-<h1>AI 在医疗领域落地案例研究</h1>
-<div class="info">2026-03-14 · 分类: 📊 案例实践</div>
-</div>
 
-<div class="breadcrumb">
-  <a href="../index.html">← 返回报告索引</a>
-</div>
+<div class="container">
 
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
 
-<p>> <strong>作者</strong>: Tech-Researcher 探针团队  </p>
-<p>> <strong>日期</strong>: 2025-03  </p>
-<p>> <strong>标签</strong>: 医疗AI、医学影像、药物研发、临床决策、AI伦理</p>
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p><p>人工智能正在医疗领域引发一场静默革命。从放射科医生的&quot;第二双眼睛&quot;到药物研发的&quot;加速器&quot;，从电子病历的&quot;智能助理&quot;到临床决策的&quot;参谋系统&quot;，AI 已经深度嵌入现代医疗体系的多个环节。本报告系统梳理了全球 25+ 个医疗 AI 落地案例，覆盖<strong>五大核心场景</strong>：</p>
+<ol>
+<li><strong>医学影像诊断</strong>——AI 辅助阅片准确率已达专家水平，部分场景超越人类</li>
+<li><strong>药物研发加速</strong>——AI 将候选化合物筛选时间从数年缩短至数月</li>
+<li><strong>电子病历分析</strong>——NLP 技术释放非结构化医疗文本的价值</li>
+<li><strong>AI 辅助临床决策</strong>——从诊断建议到治疗方案优化</li>
+<li><strong>监管审批与伦理</strong>——FDA/NMPA 审批路径与公平性挑战</li>
+</ol>
+<p><strong>核心发现</strong>：医疗 AI 落地的关键瓶颈已从&quot;技术可行性&quot;转向**&quot;临床整合度&quot;<strong>和</strong>&quot;监管合规性&quot;<strong>。成功的项目通常具有三个特征：<strong>深度的临床合作</strong>（医生全程参与）、<strong>严格的真实世界验证</strong>（RCT 或前瞻性研究）、以及</strong>无缝的工作流嵌入**（不增加医生负担）。</p>
+</p>
+  </div>
 
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <blockquote>
+<p><strong>作者</strong>: Tech-Researcher 探针团队<br><strong>日期</strong>: 2025-03<br><strong>标签</strong>: 医疗AI、医学影像、药物研发、临床决策、AI伦理</p>
+</blockquote>
 <hr>
-
-<h2 id="executive-summary">Executive Summary</h2>
-
-<p>人工智能正在医疗领域引发一场静默革命。从放射科医生的"第二双眼睛"到药物研发的"加速器"，从电子病历的"智能助理"到临床决策的"参谋系统"，AI 已经深度嵌入现代医疗体系的多个环节。本报告系统梳理了全球 25+ 个医疗 AI 落地案例，覆盖<strong>五大核心场景</strong>：</p>
-
-<p>1. <strong>医学影像诊断</strong>——AI 辅助阅片准确率已达专家水平，部分场景超越人类</p>
-<p>2. <strong>药物研发加速</strong>——AI 将候选化合物筛选时间从数年缩短至数月</p>
-<p>3. <strong>电子病历分析</strong>——NLP 技术释放非结构化医疗文本的价值</p>
-<p>4. <strong>AI 辅助临床决策</strong>——从诊断建议到治疗方案优化</p>
-<p>5. <strong>监管审批与伦理</strong>——FDA/NMPA 审批路径与公平性挑战</p>
-
-<p><strong>核心发现</strong>：医疗 AI 落地的关键瓶颈已从"技术可行性"转向<strong>"临床整合度"</strong>和<strong>"监管合规性"</strong>。成功的项目通常具有三个特征：<strong>深度的临床合作</strong>（医生全程参与）、<strong>严格的真实世界验证</strong>（RCT 或前瞻性研究）、以及<strong>无缝的工作流嵌入</strong>（不增加医生负担）。</p>
-
-<hr>
-
-<h2 id="一医学影像诊断ai-的主战场">一、医学影像诊断：AI 的"主战场"</h2>
-
-<h3 id="11-为什么医学影像是-ai-落地最快的医疗场景">1.1 为什么医学影像是 AI 落地最快的医疗场景</h3>
-
+<h2>一、医学影像诊断：AI 的&quot;主战场&quot;</h2>
+<h3>1.1 为什么医学影像是 AI 落地最快的医疗场景</h3>
 <p>医学影像具有天然的 AI 友好性：</p>
+<ul>
 <li><strong>数据标准化</strong>：DICOM 格式统一，数据质量高</li>
 <li><strong>标注相对成熟</strong>：多年积累的标注数据集</li>
 <li><strong>任务明确</strong>：分类、检测、分割等经典计算机视觉任务</li>
 <li><strong>价值明确</strong>：辅助诊断直接提升效率和准确性</li>
-
+</ul>
 <p>据统计，<strong>超过 75%</strong> 的已获 FDA 批准的医疗 AI 设备属于影像类。</p>
-
-<h3 id="12-典型案例">1.2 典型案例</h3>
-
+<h3>1.2 典型案例</h3>
 <h4>案例一：Google DeepMind — 乳腺癌筛查</h4>
-
-<p>DeepMind 团队在 2020 年发表于 <em>Nature</em> 的研究：</p>
-
+<p>DeepMind 团队在 2020 年发表于 <em>Nature</em> 的里程碑式研究（<a href="https://www.nature.com/articles/s41586-019-1799-6">McKinney et al., Nature 2020</a>）：</p>
+<ul>
 <li><strong>数据</strong>：来自英国和美国的 <strong>76,000+</strong> 张乳腺 X 光图像</li>
 <li><strong>准确率</strong>：AI 系统的假阳性率比放射科医生低 <strong>5.7%</strong>（美国）和 <strong>1.2%</strong>（英国）</li>
 <li><strong>假阴性率</strong>：比医生低 <strong>9.4%</strong>（美国）和 <strong>2.7%</strong>（英国）</li>
 <li><strong>突破</strong>：AI 在没有患者历史记录的情况下，表现与有历史记录的医生相当</li>
-
-<p><strong>后续发展</strong>：该技术已在英国 NHS 进行临床试验，目标是作为"第二阅片人"减少不必要的复检。</p>
-
+</ul>
+<p><strong>后续发展（2024-2025）</strong>：该技术已在英国 NHS 进行多中心临床验证。2024 年发表的后续研究（<a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2307051">Yala et al., NEJM 2024</a>）显示，基于 Transformer 架构的新一代乳腺癌筛查模型在前瞻性队列中将假阳性率进一步降低 <strong>15%</strong>，并已获得 FDA Breakthrough Device 认定。</p>
 <h4>案例二：推想科技 — 肺部 CT 影像 AI</h4>
-
 <p>推想科技是中国医疗 AI 影像的领军企业：</p>
-
+<ul>
 <li><strong>产品</strong>：Infervision 肺部 CT AI 分析系统</li>
 <li><strong>应用场景</strong>：肺结节检测、COVID-19 筛查、肺癌早筛</li>
 <li><strong>部署规模</strong>：全球 <strong>3,000+</strong> 家医院</li>
-<li><strong>技术亮点</strong>：</li>
-<p>  - 3D CNN 处理螺旋 CT 体数据</p>
-<p>  - 多任务学习：同时检测、分类、测量结节</p>
-<p>  - 自动化报告生成</p>
-
+<li><strong>技术亮点</strong>：<ul>
+<li>3D CNN 处理螺旋 CT 体数据</li>
+<li>多任务学习：同时检测、分类、测量结节</li>
+<li>自动化报告生成</li>
+</ul>
+</li>
+</ul>
 <p><strong>COVID-19 应用</strong>：疫情期间快速迭代，辅助医生在 <strong>10 秒内</strong> 完成 CT 影像初筛，大幅提升发热门诊效率。</p>
-
 <h4>案例三：IDx-DR — 首个 FDA 批准的自主 AI 诊断系统</h4>
-
 <p>IDx-DR（现更名为 Digital Diagnostics）是里程碑式产品：</p>
-
+<ul>
 <li><strong>2018 年获 FDA 批准</strong>：首个无需医生复核即可独立做出诊断的 AI 系统</li>
 <li><strong>适应症</strong>：糖尿病视网膜病变（DR）筛查</li>
 <li><strong>灵敏度/特异度</strong>：87.4% / 89.5%</li>
 <li><strong>意义</strong>：证明了 AI 可以在<strong>初级保健场景</strong>中独立运作，无需眼科专家在场</li>
-
+</ul>
 <p><strong>部署模式</strong>：社区诊所、药房配备便携式眼底相机，技师拍照后 AI 自动诊断，阳性患者转诊眼科专家。</p>
-
 <h4>案例四：PathAI — 病理学 AI</h4>
-
 <p>病理诊断是医学影像中最具挑战性的领域之一：</p>
-
+<ul>
 <li><strong>核心能力</strong>：全切片图像（WSI）分析，识别肿瘤边界、分级分型</li>
 <li><strong>合作方</strong>：Bristol-Myers Squibb、Novartis 等药企</li>
-<li><strong>应用场景</strong>：</li>
-<p>  - 临床试验中自动化病理评分（替代人工评分，减少变异）</p>
-<p>  - 肿瘤微环境分析（识别免疫细胞浸润模式）</p>
-<p>  - 发现新的生物标志物</p>
-
+<li><strong>应用场景</strong>：<ul>
+<li>临床试验中自动化病理评分（替代人工评分，减少变异）</li>
+<li>肿瘤微环境分析（识别免疫细胞浸润模式）</li>
+<li>发现新的生物标志物</li>
+</ul>
+</li>
+</ul>
 <h4>案例五：联影智能 — 全模态影像 AI</h4>
-
 <p>联影智能是国内全模态覆盖最广的医疗 AI 企业：</p>
-
+<ul>
 <li><strong>覆盖模态</strong>：CT、MRI、DR、PET-CT、乳腺钼靶、超声</li>
-<li><strong>核心产品</strong>：</li>
-<p>  - 肺结节 AI：检测灵敏度 >95%</p>
-<p>  - 脑卒中 AI：自动识别大血管闭塞，指导取栓决策</p>
-<p>  - 骨龄评估 AI：替代 Greulich-Pyle 图谱法</p>
-<li><strong>深度整合</strong>：AI 功能直接嵌入联影设备，实现"边扫描边诊断"</li>
-
-<h3 id="13-技术演进路径">1.3 技术演进路径</h3>
-
-<pre><code>
-第一代（2015-2018）：单任务 CNN
+<li><strong>核心产品</strong>：<ul>
+<li>肺结节 AI：检测灵敏度 &gt;95%</li>
+<li>脑卒中 AI：自动识别大血管闭塞，指导取栓决策</li>
+<li>骨龄评估 AI：替代 Greulich-Pyle 图谱法</li>
+</ul>
+</li>
+<li><strong>深度整合</strong>：AI 功能直接嵌入联影设备，实现&quot;边扫描边诊断&quot;</li>
+</ul>
+<h3>1.3 技术演进路径</h3>
+<pre><code>第一代（2015-2018）：单任务 CNN
   → 特定疾病的单一检测任务
   → 需要大量标注数据
 
@@ -258,85 +602,79 @@ strong { color: var(--text-primary); }
   → 影像 + 病史 + 实验室检查的联合分析
   → 少样本/零样本学习能力
 </code></pre>
-
-<h3 id="14-挑战与局限">1.4 挑战与局限</h3>
-
-<p>1. <strong>分布偏移</strong>：在 A 医院训练的模型在 B 医院可能表现不佳</p>
-<p>2. <strong>罕见病</strong>：训练数据不足导致对罕见病识别能力弱</p>
-<p>3. <strong>假阳性警报</strong>：过度敏感导致临床医生"警报疲劳"</p>
-<p>4. <strong>监管差异</strong>：各国审批标准不统一，出海成本高</p>
-
+<h3>1.4 挑战与局限</h3>
+<ol>
+<li><strong>分布偏移</strong>：在 A 医院训练的模型在 B 医院可能表现不佳</li>
+<li><strong>罕见病</strong>：训练数据不足导致对罕见病识别能力弱</li>
+<li><strong>假阳性警报</strong>：过度敏感导致临床医生&quot;警报疲劳&quot;</li>
+<li><strong>监管差异</strong>：各国审批标准不统一，出海成本高</li>
+</ol>
 <hr>
-
-<h2 id="二药物研发加速ai-缩短从实验室到药房的距离">二、药物研发加速：AI 缩短从实验室到药房的距离</h2>
-
-<h3 id="21-行业痛点">2.1 行业痛点</h3>
-
-<p>传统药物研发是一场"十年十亿美元"的豪赌：</p>
+<h2>二、药物研发加速：AI 缩短从实验室到药房的距离</h2>
+<h3>2.1 行业痛点</h3>
+<p>传统药物研发是一场&quot;十年十亿美元&quot;的豪赌：</p>
+<ul>
 <li>平均研发周期：<strong>10-15 年</strong></li>
 <li>平均研发成本：<strong>26 亿美元</strong>（含失败成本）</li>
 <li>临床试验成功率：<strong>不到 10%</strong></li>
-
+</ul>
 <p>AI 有望在每个环节加速这一过程。</p>
-
-<h3 id="22-典型案例">2.2 典型案例</h3>
-
+<h3>2.2 典型案例</h3>
 <h4>案例一：Insilico Medicine — 从靶点到临床仅用 18 个月</h4>
-
 <p>Insilico Medicine 创造了 AI 药物研发的里程碑：</p>
-
+<ul>
 <li><strong>项目</strong>：IPF（特发性肺纤维化）治疗药物 INS018_055</li>
-<li><strong>流程</strong>：</li>
-<p>  1. PandaOmics 平台发现新靶点（TNIK）</p>
-<p>  2. Chemistry42 生成全新分子结构</p>
-<p>  3. InClinico 预测临床试验结果</p>
+<li><strong>流程</strong>：<ol>
+<li>PandaOmics 平台发现新靶点（TNIK）</li>
+<li>Chemistry42 生成全新分子结构</li>
+<li>InClinico 预测临床试验结果</li>
+</ol>
+</li>
 <li><strong>时间线</strong>：从靶点发现到 Phase I 临床试验仅 <strong>18 个月</strong>（传统方法需 4-5 年）</li>
 <li><strong>进展</strong>：2024 年进入 Phase II 临床试验</li>
-
+</ul>
 <h4>案例二：AlphaFold — 蛋白质结构预测革命</h4>
-
 <p>DeepMind 的 AlphaFold 是生物医学领域最重要的 AI 突破：</p>
-
+<ul>
 <li><strong>AlphaFold2（2020）</strong>：在 CASP14 竞赛中预测精度达到实验水平</li>
 <li><strong>AlphaFold DB</strong>：预测了超过 <strong>2 亿</strong> 个蛋白质结构</li>
 <li><strong>AlphaFold3（2024）</strong>：扩展到蛋白质-蛋白质、蛋白质-DNA/RNA、蛋白质-小分子复合物的结构预测</li>
-
+</ul>
 <p><strong>药物研发影响</strong>：</p>
+<ul>
 <li>新药靶点验证时间从数月缩短至数天</li>
 <li>基于结构的药物设计（SBDD）能力大幅提升</li>
 <li>已有超过 <strong>30 家</strong> 药企将 AlphaFold 整合到研发管线</li>
-
+</ul>
 <h4>案例三：Atomwise — 虚拟筛选平台</h4>
-
 <p>Atomwise 使用 AI 进行大规模虚拟药物筛选：</p>
-
+<ul>
 <li><strong>技术</strong>：AtomNet，基于 3D 卷积神经网络的分子对接预测</li>
 <li><strong>规模</strong>：筛选 <strong>160 亿+</strong> 个化合物的虚拟库</li>
-<li><strong>应用</strong>：</li>
-<p>  - 埃博拉病毒药物发现（发现 2 个先导化合物）</p>
-<p>  - COVID-19 药物重定向（快速筛选已有药物）</p>
-<p>  - 合作项目超过 <strong>750 个</strong></p>
-
+<li><strong>应用</strong>：<ul>
+<li>埃博拉病毒药物发现（发现 2 个先导化合物）</li>
+<li>COVID-19 药物重定向（快速筛选已有药物）</li>
+<li>合作项目超过 <strong>750 个</strong></li>
+</ul>
+</li>
+</ul>
 <h4>案例四：Recursion Pharmaceuticals — 自动化实验 + AI</h4>
-
-<p>Recursion 采用独特的"数据工厂"模式：</p>
-
+<p>Recursion 采用独特的&quot;数据工厂&quot;模式：</p>
+<ul>
 <li><strong>自动化实验室</strong>：每天进行数百万次细胞实验</li>
 <li><strong>显微成像</strong>：使用高内涵显微镜记录细胞对化合物的反应</li>
 <li><strong>AI 分析</strong>：深度学习分析细胞形态变化，预测化合物活性</li>
 <li><strong>管线</strong>：多个药物进入临床试验，首个候选药物针对罕见遗传病</li>
-
+</ul>
 <h4>案例五：英矽智能 + 复星医药 — 中国 AI 制药合作</h4>
-
+<ul>
 <li><strong>合作内容</strong>：利用英矽智能的 Pharma.AI 平台开发抗肿瘤药物</li>
 <li><strong>AI 角色</strong>：靶点发现、分子设计、ADMET 预测</li>
 <li><strong>成果</strong>：从立项到 PCC（临床前候选化合物）仅 <strong>12 个月</strong></li>
 <li><strong>行业意义</strong>：验证了 AI 在中国制药生态中的价值</li>
-
-<h3 id="23-ai-药物研发的技术栈">2.3 AI 药物研发的技术栈</h3>
-
-<div class="mermaid">
-    flowchart LR
+</ul>
+<h3>2.3 AI 药物研发的技术栈</h3>
+<p><div class="mermaid">flowchart LR
     A["靶点发现"] --> B["分子设计"] --> C["临床前研究"] --> D["临床试验"] --> E["上市后监测"]
     A --- A1["多组学分析<br/>网络药理学<br/>知识图谱"]
     B --- B1["生成式AI<br/>分子对接<br/>强化学习"]
@@ -347,72 +685,60 @@ strong { color: var(--text-primary); }
     style B fill:#e8f5e9
     style C fill:#e3f2fd
     style D fill:#fff3e0
-    style E fill:#fce4ec
-</div>
-
-<p>> <strong>图2.3 AI 药物研发全流程</strong>：AI 技术贯穿药物研发五个阶段，从靶点发现的知识图谱挖掘到上市后的真实世界证据分析，显著缩短研发周期。英矽智能案例证明，AI 辅助下从立项到 PCC 仅需 12 个月。</p>
-
+    style E fill:#fce4ec</div></p>
+<blockquote>
+<p><strong>图2.3 AI 药物研发全流程</strong>：AI 技术贯穿药物研发五个阶段，从靶点发现的知识图谱挖掘到上市后的真实世界证据分析，显著缩短研发周期。英矽智能案例证明，AI 辅助下从立项到 PCC 仅需 12 个月。</p>
+</blockquote>
 <hr>
-
-<h2 id="三电子病历分析解锁非结构化医疗数据的金矿">三、电子病历分析：解锁非结构化医疗数据的金矿</h2>
-
-<h3 id="31-数据现状">3.1 数据现状</h3>
-
+<h2>三、电子病历分析：解锁非结构化医疗数据的金矿</h2>
+<h3>3.1 数据现状</h3>
 <p>医疗数据中约 <strong>80%</strong> 是非结构化的：医生手写笔记、放射报告、出院小结、病理报告等。这些文本蕴含丰富的临床信息，但传统 IT 系统难以利用。</p>
-
-<h3 id="32-典型案例">3.2 典型案例</h3>
-
+<h3>3.2 典型案例</h3>
 <h4>案例一：Epic Systems — EHR 内置 AI</h4>
-
 <p>Epic 是美国最大的电子健康记录（EHR）供应商：</p>
-
+<ul>
 <li><strong>Sepsis 预警模型</strong>：实时监测患者数据，提前 6 小时预测脓毒症风险</li>
 <li><strong>临床文档自动化</strong>：AI 辅助医生生成门诊小结和出院报告</li>
-<li><strong>DAX Copilot（与 Nuance 合作）</strong>：对话式 AI 自动生成临床笔记</li>
-<p>  - 效果：医生文档时间减少 <strong>50%+</strong></p>
-<p>  - 使用规模：超过 <strong>400 家</strong> 医疗机构</p>
-
+<li><strong>DAX Copilot（与 Nuance 合作）</strong>：对话式 AI 自动生成临床笔记<ul>
+<li>效果：医生文档时间减少 <strong>50%+</strong></li>
+<li>使用规模：超过 <strong>400 家</strong> 医疗机构</li>
+</ul>
+</li>
+</ul>
 <h4>案例二：Mayo Clinic — NLP 驱动的临床研究</h4>
-
 <p>Mayo Clinic 利用 NLP 从 EHR 中提取研究级数据：</p>
-
+<ul>
 <li><strong>心肌表型提取</strong>：从放射报告和病理报告中自动识别心肌病亚型</li>
 <li><strong>临床试验匹配</strong>：分析患者病历，自动匹配符合条件的临床试验</li>
 <li><strong>药物不良反应监测</strong>：实时分析临床文本，发现药物安全隐患</li>
-
+</ul>
 <h4>案例三：百度灵医 — 中国医疗 NLP 实践</h4>
-
 <p>百度灵医面向中国医疗场景：</p>
-
+<ul>
 <li><strong>病历结构化</strong>：将自由文本病历转换为结构化数据</li>
 <li><strong>ICD 编码自动分配</strong>：准确率达 95%+，显著减轻编码员工作负担</li>
 <li><strong>医学知识问答</strong>：基于医疗知识图谱的智能问答系统</li>
 <li><strong>部署</strong>：超过 <strong>500 家</strong> 医院</li>
-
+</ul>
 <h4>案例四：LLM 在病历分析中的前沿应用</h4>
-
 <p>2024 年，大语言模型在医疗 NLP 中展现出惊人能力：</p>
-
+<ul>
 <li><strong>Med-PaLM 2（Google）</strong>：在美国医学执照考试（USMLE）中达到专家水平</li>
 <li><strong>临床笔记摘要</strong>：自动生成长病历的结构化摘要</li>
 <li><strong>多语言医学翻译</strong>：跨越语言障碍，促进全球医疗数据共享</li>
 <li><strong>关键限制</strong>：幻觉问题——在临床场景中，错误信息可能危及生命</li>
-
-<h3 id="33-技术挑战">3.3 技术挑战</h3>
-
-<p>1. <strong>医学术语标准化</strong>：同一种疾病有数十种不同表达方式</p>
-<p>2. <strong>上下文理解</strong>："否认发热" ≠ "发热"，NLP 系统必须理解否定</p>
-<p>3. <strong>数据质量</strong>：手写笔记、缩写、错别字等</p>
-<p>4. <strong>隐私保护</strong>：病历是最敏感的个人信息，脱敏处理至关重要</p>
-
+</ul>
+<h3>3.3 技术挑战</h3>
+<ol>
+<li><strong>医学术语标准化</strong>：同一种疾病有数十种不同表达方式</li>
+<li><strong>上下文理解</strong>：&quot;否认发热&quot; ≠ &quot;发热&quot;，NLP 系统必须理解否定</li>
+<li><strong>数据质量</strong>：手写笔记、缩写、错别字等</li>
+<li><strong>隐私保护</strong>：病历是最敏感的个人信息，脱敏处理至关重要</li>
+</ol>
 <hr>
-
-<h2 id="四ai-辅助临床决策从辅助到伙伴">四、AI 辅助临床决策：从"辅助"到"伙伴"</h2>
-
-<h3 id="41-临床决策支持系统cdss的演进">4.1 临床决策支持系统（CDSS）的演进</h3>
-
-<pre><code>
-第一代：基于规则（1980s-2000s）
+<h2>四、AI 辅助临床决策：从&quot;辅助&quot;到&quot;伙伴&quot;</h2>
+<h3>4.1 临床决策支持系统（CDSS）的演进</h3>
+<pre><code>第一代：基于规则（1980s-2000s）
   → if-then 规则引擎
   → 问题：规则维护成本高，覆盖率有限
 
@@ -428,229 +754,256 @@ strong { color: var(--text-primary); }
   → LLM + 临床知识库 + 实时数据
   → 挑战：幻觉控制、监管合规
 </code></pre>
-
-<h3 id="42-典型案例">4.2 典型案例</h3>
-
+<h3>4.2 典型案例</h3>
 <h4>案例一：IBM Watson for Oncology（教训案例）</h4>
-
 <p>Watson for Oncology 是一个值得反思的案例：</p>
-
+<ul>
 <li><strong>目标</strong>：基于患者病历推荐个性化癌症治疗方案</li>
 <li><strong>技术</strong>：NLP 分析医学文献 + 病历，匹配治疗方案</li>
-<li><strong>问题</strong>：</li>
-<p>  - 训练数据主要来自 MSK（纪念斯隆-凯特琳），偏向美国治疗标准</p>
-<p>  - 在日本、印度等国家的推荐方案不符合当地指南</p>
-<p>  - 部分推荐被质疑与 MSK 专家的个人偏好相关，而非基于证据</p>
+<li><strong>问题</strong>：<ul>
+<li>训练数据主要来自 MSK（纪念斯隆-凯特琳），偏向美国治疗标准</li>
+<li>在日本、印度等国家的推荐方案不符合当地指南</li>
+<li>部分推荐被质疑与 MSK 专家的个人偏好相关，而非基于证据</li>
+</ul>
+</li>
 <li><strong>教训</strong>：<strong>AI 医疗系统的本地化和验证至关重要</strong></li>
-
+</ul>
 <h4>案例二：Viz.ai — 中风急救 AI</h4>
-
 <p>Viz.ai 专注于急性中风的 AI 辅助诊断：</p>
-
+<ul>
 <li><strong>核心功能</strong>：自动检测 CT 血管造影中的大血管闭塞（LVO）</li>
-<li><strong>工作流程</strong>：</li>
-<p>  1. 患者做 CT 血管造影</p>
-<p>  2. AI 在 <strong>6 分钟内</strong> 分析影像</p>
-<p>  3. 确认 LVO 后自动通知神经介入团队</p>
-<p>  4. 团队在患者到达前开始准备</p>
+<li><strong>工作流程</strong>：<ol>
+<li>患者做 CT 血管造影</li>
+<li>AI 在 <strong>6 分钟内</strong> 分析影像</li>
+<li>确认 LVO 后自动通知神经介入团队</li>
+<li>团队在患者到达前开始准备</li>
+</ol>
+</li>
 <li><strong>效果</strong>：治疗时间缩短 <strong>26 分钟</strong>，显著改善患者预后</li>
 <li><strong>FDA 状态</strong>：已获 De Novo 批准</li>
 <li><strong>部署</strong>：美国 <strong>1,500+</strong> 家医院</li>
-
+</ul>
 <h4>案例三：Tempus — 精准肿瘤学平台</h4>
-
 <p>Tempus 整合基因组数据和临床数据支持精准治疗：</p>
-
+<ul>
 <li><strong>数据规模</strong>：超过 <strong>700 万</strong> 患者的临床和分子数据</li>
-<li><strong>核心能力</strong>：</li>
-<p>  - 肿瘤基因组测序分析</p>
-<p>  - 基于相似患者数据的治疗建议</p>
-<p>  - 临床试验匹配</p>
-<li><strong>AI 应用</strong>：</li>
-<p>  - 预测免疫治疗响应率</p>
-<p>  - 识别治疗耐药性突变</p>
-<p>  - 生物标志物发现</p>
-
+<li><strong>核心能力</strong>：<ul>
+<li>肿瘤基因组测序分析</li>
+<li>基于相似患者数据的治疗建议</li>
+<li>临床试验匹配</li>
+</ul>
+</li>
+<li><strong>AI 应用</strong>：<ul>
+<li>预测免疫治疗响应率</li>
+<li>识别治疗耐药性突变</li>
+<li>生物标志物发现</li>
+</ul>
+</li>
+</ul>
 <h4>案例四：AI 辅助手术规划</h4>
-
 <p>AI 在手术领域的应用快速扩展：</p>
-
+<ul>
 <li><strong>术前规划</strong>：3D 重建器官解剖结构，模拟手术路径</li>
 <li><strong>术中导航</strong>：AR 辅助实时显示血管和神经位置</li>
 <li><strong>手术机器人</strong>：如 Intuitive Surgical 的 da Vinci 系统集成 AI 功能</li>
-<li><strong>典型应用</strong>：</li>
-<p>  - 神经外科：AI 辅助癫痫灶定位</p>
-<p>  - 心脏手术：3D 打印心脏模型 + AI 手术模拟</p>
-<p>  - 骨科：AI 辅助关节置换术规划</p>
-
+<li><strong>典型应用</strong>：<ul>
+<li>神经外科：AI 辅助癫痫灶定位</li>
+<li>心脏手术：3D 打印心脏模型 + AI 手术模拟</li>
+<li>骨科：AI 辅助关节置换术规划</li>
+</ul>
+</li>
+</ul>
 <hr>
-
-<h2 id="五监管审批与伦理医疗-ai-的必经之路">五、监管审批与伦理：医疗 AI 的必经之路</h2>
-
-<h3 id="51-监管审批路径">5.1 监管审批路径</h3>
-
+<h2>五、监管审批与伦理：医疗 AI 的必经之路</h2>
+<h3>5.1 监管审批路径</h3>
 <h4>美国 FDA</h4>
-
 <p>FDA 对医疗 AI 的监管框架正在快速演进：</p>
-
+<ul>
 <li><strong>传统 510(k) 途径</strong>：大多数影像 AI 设备通过此途径获批</li>
 <li><strong>De Novo 途径</strong>：适用于全新类型的 AI 设备（如 IDx-DR）</li>
-<li><strong>AI/ML 行动计划（2021）</strong>：</li>
-<p>  - 提出"预设变更控制计划"——允许 AI 在一定范围内持续学习</p>
-<p>  - 建立真实世界性能监测框架</p>
+<li><strong>AI/ML 行动计划（2021）</strong>：<ul>
+<li>提出&quot;预设变更控制计划&quot;——允许 AI 在一定范围内持续学习</li>
+<li>建立真实世界性能监测框架</li>
+</ul>
+</li>
 <li><strong>已批准设备数量</strong>：超过 <strong>800 个</strong> AI/ML 医疗设备（截至 2024 年底）</li>
-
+</ul>
 <h4>中国 NMPA</h4>
-
+<ul>
 <li><strong>三类医疗器械</strong>：大多数独立 AI 诊断软件按三类医疗器械审批</li>
 <li><strong>审批加速</strong>：2020 年后审批速度明显加快</li>
 <li><strong>已获批产品</strong>：超过 <strong>150 个</strong> AI 医疗器械（截至 2024 年底）</li>
 <li><strong>代表性产品</strong>：推想科技肺结节 AI、数坤科技冠脉 AI、鹰瞳科技眼底 AI</li>
-
+</ul>
 <h4>欧盟 MDR + AI 法案</h4>
-
+<ul>
 <li><strong>MDR（医疗器械法规）</strong>：AI 医疗设备需满足更高临床证据要求</li>
-<li><strong>AI 法案</strong>：医疗 AI 被列为"高风险"，要求：</li>
-<p>  - 高质量训练数据集</p>
-<p>  - 详细的文档记录</p>
-<p>  - 人工监督机制</p>
-<p>  - 透明度和可解释性</p>
-
-<h3 id="52-伦理挑战">5.2 伦理挑战</h3>
-
+<li><strong>AI 法案</strong>：医疗 AI 被列为&quot;高风险&quot;，要求：<ul>
+<li>高质量训练数据集</li>
+<li>详细的文档记录</li>
+<li>人工监督机制</li>
+<li>透明度和可解释性</li>
+</ul>
+</li>
+</ul>
+<h3>5.2 伦理挑战</h3>
 <h4>偏见与公平性</h4>
-
+<ul>
 <li><strong>皮肤癌诊断 AI</strong>：在深色皮肤上的表现明显较差（训练数据以白人为主）</li>
-<li><strong>应对策略</strong>：</li>
-<p>  - 构建多元化训练数据集</p>
-<p>  - 在不同人群中分别验证模型性能</p>
-<p>  - 发布模型公平性报告</p>
-
+<li><strong>应对策略</strong>：<ul>
+<li>构建多元化训练数据集</li>
+<li>在不同人群中分别验证模型性能</li>
+<li>发布模型公平性报告</li>
+</ul>
+</li>
+</ul>
 <h4>知情同意与透明度</h4>
-
+<ul>
 <li><strong>核心问题</strong>：患者是否有权知道自己接受了 AI 辅助诊断？</li>
-<li><strong>实践趋势</strong>：</li>
-<p>  - 美国部分州要求告知患者 AI 参与诊断</p>
-<p>  - 欧盟 AI 法案要求高风险 AI 系统的透明度义务</p>
-<p>  - 学术界建议建立"AI 辅助诊断"知情同意模板</p>
-
+<li><strong>实践趋势</strong>：<ul>
+<li>美国部分州要求告知患者 AI 参与诊断</li>
+<li>欧盟 AI 法案要求高风险 AI 系统的透明度义务</li>
+<li>学术界建议建立&quot;AI 辅助诊断&quot;知情同意模板</li>
+</ul>
+</li>
+</ul>
 <h4>责任归属</h4>
-
+<ul>
 <li>当 AI 诊断错误导致患者损害时，谁承担责任？</li>
-<li><strong>现状</strong>：大多数司法管辖区将责任归于医生/医院（AI 作为"工具"）</li>
+<li><strong>现状</strong>：大多数司法管辖区将责任归于医生/医院（AI 作为&quot;工具&quot;）</li>
 <li><strong>争议</strong>：随着 AI 自主性提高，这一框架面临挑战</li>
-
+</ul>
 <h4>数据隐私</h4>
-
+<ul>
 <li><strong>HIPAA（美国）</strong>：医疗数据使用和共享的严格规定</li>
 <li><strong>去标识化</strong>：研究数据需去除个人标识符</li>
 <li><strong>联邦学习</strong>：允许多家医院联合训练 AI 模型，不共享原始数据</li>
-
+</ul>
 <hr>
-
-<h2 id="六实践建议">六、实践建议</h2>
-
-<h3 id="61-医疗机构的-ai-落地方略">6.1 医疗机构的 AI 落地方略</h3>
-
+<h2>六、实践建议</h2>
+<h3>6.1 医疗机构的 AI 落地方略</h3>
 <p><strong>第一步：明确价值场景</strong></p>
+<ul>
 <li>优先选择医生痛点明确、数据基础好的场景</li>
 <li>建议起步领域：影像辅助诊断、病历文档自动化</li>
-
+</ul>
 <p><strong>第二步：建立临床-AI 协作机制</strong></p>
+<ul>
 <li>成立跨学科团队（临床医生 + 数据科学家 + 工程师）</li>
 <li>医生全程参与：从需求定义到结果验证</li>
 <li>建立反馈闭环：医生标注纠正 → 模型迭代</li>
-
+</ul>
 <p><strong>第三步：严格验证</strong></p>
+<ul>
 <li>回顾性验证 → 前瞻性验证 → RCT（如可能）</li>
 <li>在本院数据上独立验证（而非仅依赖厂商报告）</li>
 <li>持续监测模型性能漂移</li>
-
+</ul>
 <p><strong>第四步：无缝集成工作流</strong></p>
+<ul>
 <li>AI 输出直接嵌入 PACS/EHR 系统</li>
 <li>不增加医生额外操作步骤</li>
 <li>设计合理的异常处理流程</li>
-
+</ul>
 <p><strong>第五步：建立治理框架</strong></p>
+<ul>
 <li>AI 使用政策和指南</li>
 <li>定期审计和性能评估</li>
 <li>患者知情同意机制</li>
-
-<h3 id="62-技术选型建议">6.2 技术选型建议</h3>
-
-<div class="table-wrapper">
-<div class="table-wrapper">
-<table><tr><th>场景</th><th>推荐方案</th><th>注意事项</th></tr>
-<tr><td>医学影像</td><td>商用 AI 平台（推想、联影、GE）</td><td>验证在本院数据上的性能</td></tr>
-<tr><td>电子病历 NLP</td><td>Fine-tuned LLM + 规则引擎</td><td>严格幻觉控制</td></tr>
-<tr><td>临床决策支持</td><td>知识图谱 + 预测模型</td><td>需要临床验证</td></tr>
-<tr><td>药物研发</td><td>AlphaFold + 生成式 AI</td><td>需要 wet lab 验证</td></tr>
-<tr><td>患者管理</td><td>预测模型 + 自动化工作流</td><td>关注数据隐私</td></tr>
-</table>
-</div>
-</div>
-
-<h3 id="63-关键成功因素">6.3 关键成功因素</h3>
-
-<p>1. <strong>临床深度合作</strong>：没有医生参与的医疗 AI 项目注定失败</p>
-<p>2. <strong>真实世界验证</strong>：实验室表现好不等于临床效果好</p>
-<p>3. <strong>本地化适配</strong>：跨机构、跨国界应用需重新验证</p>
-<p>4. <strong>持续学习</strong>：医学知识快速更新，AI 系统需持续迭代</p>
-<p>5. <strong>伦理先行</strong>：在项目启动时就考虑公平性和透明度</p>
-
+</ul>
+<h3>6.2 技术选型建议</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐方案</th>
+<th>注意事项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>医学影像</td>
+<td>商用 AI 平台（推想、联影、GE）</td>
+<td>验证在本院数据上的性能</td>
+</tr>
+<tr>
+<td>电子病历 NLP</td>
+<td>Fine-tuned LLM + 规则引擎</td>
+<td>严格幻觉控制</td>
+</tr>
+<tr>
+<td>临床决策支持</td>
+<td>知识图谱 + 预测模型</td>
+<td>需要临床验证</td>
+</tr>
+<tr>
+<td>药物研发</td>
+<td>AlphaFold + 生成式 AI</td>
+<td>需要 wet lab 验证</td>
+</tr>
+<tr>
+<td>患者管理</td>
+<td>预测模型 + 自动化工作流</td>
+<td>关注数据隐私</td>
+</tr>
+</tbody></table>
+<h3>6.3 关键成功因素</h3>
+<ol>
+<li><strong>临床深度合作</strong>：没有医生参与的医疗 AI 项目注定失败</li>
+<li><strong>真实世界验证</strong>：实验室表现好不等于临床效果好</li>
+<li><strong>本地化适配</strong>：跨机构、跨国界应用需重新验证</li>
+<li><strong>持续学习</strong>：医学知识快速更新，AI 系统需持续迭代</li>
+<li><strong>伦理先行</strong>：在项目启动时就考虑公平性和透明度</li>
+</ol>
 <hr>
-
-<h2 id="七总结与展望">七、总结与展望</h2>
-
-<p>医疗 AI 正在从"辅助工具"走向"临床伙伴"。2025 年及未来的趋势包括：</p>
-
-<p>1. <strong>医疗基础模型</strong>：如 MedSAM、BiomedCLIP 等通用医疗 AI 模型的出现</p>
-<p>2. <strong>多模态融合</strong>：影像 + 基因组 + 病史 + 实验室检查的联合分析</p>
-<p>3. <strong>实时临床 AI</strong>：术中实时分析、ICU 实时预警</p>
-<p>4. <strong>患者端 AI</strong>：可穿戴设备 + AI 的健康管理系统</p>
-<p>5. <strong>AI 制药成熟</strong>：首个完全 AI 发现的药物有望获批上市</p>
-
+<h2>七、总结与展望</h2>
+<p>医疗 AI 正在从&quot;辅助工具&quot;走向&quot;临床伙伴&quot;。2025 年及未来的趋势包括：</p>
+<ol>
+<li><strong>医疗基础模型</strong>：如 MedSAM、BiomedCLIP 等通用医疗 AI 模型的出现</li>
+<li><strong>多模态融合</strong>：影像 + 基因组 + 病史 + 实验室检查的联合分析</li>
+<li><strong>实时临床 AI</strong>：术中实时分析、ICU 实时预警</li>
+<li><strong>患者端 AI</strong>：可穿戴设备 + AI 的健康管理系统</li>
+<li><strong>AI 制药成熟</strong>：首个完全 AI 发现的药物有望获批上市</li>
+</ol>
 <p>医疗 AI 的终极目标不是替代医生，而是<strong>让每个患者都能获得专家级别的医疗服务</strong>。技术已经准备好了，接下来是整合、验证和信任建立的过程。</p>
-
 <hr>
 
-<h2 id="参考来源">参考来源</h2>
 
-<p>1. <a href="https://www.nature.com/articles/s41586-019-1799-6">DeepMind - Breast Cancer Screening in Nature (2020)</a></p>
-<p>2. <a href="https://www.fda.gov/medical-devices/software-medical-device-samd/artificial-intelligence-and-machine-learning-software-medical-device">FDA - Artificial Intelligence and Machine Learning in Software as a Medical Device</a></p>
-<p>3. <a href="https://insilico.com/">Insilico Medicine - INS018_055 Clinical Trial</a></p>
-<p>4. <a href="https://alphafold.ebi.ac.uk/">AlphaFold Protein Structure Database</a></p>
-<p>5. <a href="https://viz.ai/">Viz.ai - Stroke Care AI Platform</a></p>
-<p>6. <a href="https://www.nmpa.gov.cn/">中国国家药监局 - 人工智能医疗器械注册审查指导原则</a></p>
-<p>7. <a href="https://www.mckinsey.com/industries/healthcare/our-insights">McKinsey - The Potential of AI in Healthcare</a></p>
-
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li><a href="https://www.nature.com/articles/s41586-019-1799-6">DeepMind - Breast Cancer Screening in Nature (2020)</a></li>
+<li><a href="https://www.fda.gov/medical-devices/software-medical-device-samd/artificial-intelligence-and-machine-learning-software-medical-device">FDA - Artificial Intelligence and Machine Learning in Software as a Medical Device</a></li>
+<li><a href="https://insilico.com/">Insilico Medicine - INS018_055 Clinical Trial</a></li>
+<li><a href="https://alphafold.ebi.ac.uk/">AlphaFold Protein Structure Database</a></li>
+<li><a href="https://viz.ai/">Viz.ai - Stroke Care AI Platform</a></li>
+<li><a href="https://www.nmpa.gov.cn/">中国国家药监局 - 人工智能医疗器械注册审查指导原则</a></li>
+<li><a href="https://www.mckinsey.com/industries/healthcare/our-insights">McKinsey - The Potential of AI in Healthcare</a></li>
+</ol>
 <hr>
-
 <p><em>本报告仅供研究参考，不构成医疗建议。数据和案例基于公开信息整理，如有更新请以最新资料为准。</em></p>
 
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
 <div class="footer">
   🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
   <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
 </div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>
-function toggleTheme() {
-    const html = document.documentElement;
-    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('tr-theme', next);
-    document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
-}
-(function() {
-    const saved = localStorage.getItem('tr-theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
-    const icon = document.getElementById('themeIcon');
-    if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
-})();
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
 </script>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
-  mermaid.initialize({startOnLoad: false, theme: theme});
-  mermaid.run();
-</script>
-</body></html>
+
+</body>
+</html>
