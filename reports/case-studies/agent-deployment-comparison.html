@@ -502,7 +502,7 @@
   <!-- Executive Summary -->
   <div class="exec-summary">
     <div class="exec-summary__label">Executive Summary</div>
-    <p><p><strong>一句话结论：95% 的个人开发者选 $6-24/月的 CPU VPS 即可，无需折腾树莓派；需要本地推理小模型时再考虑树莓派或 GPU VPS。Docker 是所有方案的必选项，不是可选项。</strong></p>
+    <p><p><strong>一句话结论：绝大多数个人开发者选择 $6-24/月的 CPU VPS 即可，无需折腾树莓派；需要本地推理小模型时再考虑树莓派或 GPU VPS。Docker 是所有方案的必选项，不是可选项。</strong></p>
 <h3>选型速查表</h3>
 <table>
 <thead>
@@ -856,16 +856,17 @@ Jeff Geerling 的测试表明，Pi 5 可通过 PCIe 连接 AMD RX 6700 XT 等 GP
 <h2>3. Docker 容器化方案</h2>
 <h3>3.1 OpenClaw Docker 部署流程</h3>
 <p>OpenClaw 官方推荐 Docker 作为标准部署方式：</p>
-<pre><code>1. 准备 VPS (≥2GB RAM, Ubuntu/Debian)
-2. 安装 Docker + Docker Compose
-3. 运行 docker-setup.sh（交互式向导）
-   → 自动构建镜像 / 拉取预构建镜像
-   → 生成 Gateway token
-   → 创建 volume 目录
-   → 启动 Gateway
-4. 配置 AI Provider 凭证 (OpenRouter / OpenAI 等)
-5. 连接消息平台 (Telegram / Discord / WhatsApp)
-</code></pre>
+<p><div class="mermaid">flowchart TD
+    A[🖥️ 准备 VPS<br>≥2GB RAM, Ubuntu/Debian] --> B[📦 安装 Docker<br>+ Docker Compose]
+    B --> C[🚀 运行 docker-setup.sh<br>交互式向导]
+    C --> D{自动构建}
+    D --> D1[构建镜像 / 拉取预构建镜像]
+    D --> D2[生成 Gateway token]
+    D --> D3[创建 volume 目录]
+    D --> D4[启动 Gateway]
+    D1 & D2 & D3 & D4 --> E[🔑 配置 AI Provider 凭证<br>OpenRouter / OpenAI 等]
+    E --> F[💬 连接消息平台<br>Telegram / Discord / WhatsApp]
+    F --> G[✅ 部署完成]</div></p>
 <blockquote>
 <p>💡 <strong>数据来源</strong>: <a href="https://openclawn.com/deploying-openclaw-self-host-docker-guide">OpenClaw Docker 部署指南</a>, <a href="https://www.hostinger.com/tutorials/how-to-set-up-openclaw">Hostinger OpenClaw 教程</a>, <a href="https://lumadock.com/tutorials/openclaw-docker-kubernetes">LumaDock Docker &amp; K8s</a></p>
 </blockquote>
@@ -1205,15 +1206,15 @@ GPU VPS: RTX 4000 Ada ~$72/月按需
 <li><strong>不要过度工程化</strong>: 95% 的 Agent 不需要本地推理，调用 API 即可。一台 $6-12/月的 VPS 足矣。</li>
 <li><strong>树莓派是小众选择</strong>: 除非你有明确的离线/边缘需求，否则 VPS 更省心。Pi 5 与 Mini PC 已价格持平，Mini PC 性价比更高。</li>
 <li><strong>Docker 是必选项</strong>: 不论选择哪种基础设施，Docker 都能显著降低运维复杂度。</li>
-<li><strong>成本大头是 API 调用</strong>: 基础设施月费通常只占总成本的 20-30%，API 调用费用才是大头。优化 Agent 的 prompt 和调用频率比省 VPS 费用更有效。</li>
+<li><strong>成本大头是 API 调用</strong>: 基础设施月费通常只占总成本的 20-30%，API 调用费用才是大头（来源: <a href="https://towardsai.net/p/l/2025-guide-to-optimizing-costs-in-agentic-ai-deployments">Towards AI — Optimizing Costs</a>, <a href="https://www.techaheadcorp.com/blog/how-to-cap-ai-agent-costs/">TechAhead — AI Agent Cost Control</a>）。优化 Agent 的 prompt 和调用频率比省 VPS 费用更有效。</li>
 </ol>
 <h3>投资回报率排序</h3>
 <p>对于 AI Agent 私有化部署，投入精力的优先级：</p>
 <ol>
-<li>🔴 <strong>高回报</strong>: 优化 API 调用（减少不必要的 LLM 调用）— 可节省 40-60% 总成本</li>
-<li>🟠 <strong>中回报</strong>: 选择合适的 VPS 配置（避免过度配置）— 可节省 30-50% 基础设施成本</li>
+<li>🔴 <strong>高回报</strong>: 优化 API 调用（减少不必要的 LLM 调用）— 可节省 40-60% 总成本（来源: <a href="https://towardsai.net/p/l/2025-guide-to-optimizing-costs-in-agentic-ai-deployments">Towards AI — Optimizing Costs in Agentic AI</a>）</li>
+<li>🟠 <strong>中回报</strong>: 选择合适的 VPS 配置（避免过度配置）— 可节省 30-50% 基础设施成本（来源: <a href="https://deploy.me/blog/best-vps-for-developers-2025">deploy.me VPS 对比</a>）</li>
 <li>🟡 <strong>低回报</strong>: 从 VPS 迁移到树莓派 — 仅在特定场景有意义</li>
-<li>🔵 <strong>视情况</strong>: 本地推理（GPU VPS 或自建硬件）— 仅在数据隐私或延迟要求极高时考虑</li>
+<li>🔵 <strong>视情况</strong>: 本地推理（GPU VPS 或自建硬件）— 仅在数据隐私或延迟要求极高时考虑（来源: <a href="https://getdeploying.com/gpus">getdeploying.com GPU 价格</a>）</li>
 </ol>
 <hr>
 
