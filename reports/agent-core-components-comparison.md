@@ -331,22 +331,35 @@ messages = [
 
 ---
 
-### 2.3 OpenAI Assistants（已弃用，转向 Responses API）
+### 2.3 OpenAI Assistants（已弃用，2026-08-26 停服）
 
-**历史状态**（截至 2025-06 文档）：
+**官方状态**（截至 2026-03）：
+- **已弃用**：OpenAI 宣布 Assistants API 将在 **2026年8月26日** 正式关闭
+- **迁移目标**：**[Responses API](https://developers.openai.com/docs/guides/responses-vs-chat-completions)** + **Prompts** + **Conversations**
+- **核心变更**：
+  - Assistants → Prompts（配置化，支持版本管理）
+  - Threads → Conversations（通用化 items 流）
+  - Runs → Responses（同步返回，简化循环管理）
+- **保留功能**：所有核心能力（工具调用、文件搜索、代码解释）在 Responses API 中均已支持，并新增 deep research、MCP、computer use 等特性
+- **迁移路径**：在 OpenAI Dashboard 中将现有 Assistant 导出为 Prompt，应用代码引用 Prompt ID 而非 Assistant ID
+
+**历史设计**（供对比参考）：
 - **Tools**：内置 File Search、Code Interpreter、Function Calling
 - **Memory**：通过 Threads 实现持久化，自动管理
 - **系统提示词**：Assistant 的 `instructions` 字段
 - **状态管理**：Runs 对象跟踪异步执行
 
-**迁移方向**（2026-08 停服）：
-- Assistants → **Prompts + Conversations + Responses**
-- 重点：`responses.create()` 直接返回结果，无 Runs 状态轮询
-- 新特性：deep research, MCP, computer use
+**官方资源**：
+- 迁移指南: https://developers.openai.com/api/docs/assistants/migration
+- 新 API 指南: https://developers.openai.com/docs/guides/responses-vs-chat-completions
+- 深度研究: https://developers.openai.com/docs/guides/deep-research
+- MCP 工具: https://developers.openai.com/docs/guides/tools-remote-mcp
+- Computer Use: https://developers.openai.com/docs/guides/tools-computer-use
 
-**启示**：
-- API 设计的演化：从 "对象化"（Assistant 对象）到 "无状态"（Responses）
-- 核心思想未变：tools + memory + prompt 仍是三大支柱
+**设计启示**：
+- API 设计趋势：从 "对象化"（Assistant 对象）到 "配置化"（Prompts）+ "无状态"（Responses）
+- 核心范式未变：tools + memory + prompt 仍是三大支柱
+- 版本控制和回滚成为一等需求
 
 ---
 
@@ -383,29 +396,47 @@ messages = [
 
 ---
 
-### 2.5 AutoGPT（早期自主 Agent 实验项目）
+### 2.5 AutoGPT（仍在维护的平台化演进）
 
-**状态**：2024 年后活跃度下降，被更专业的框架替代。
+**当前状态**（截至 2026-03）：
+- ✅ **项目仍在积极维护**，已从早期实验项目演进为完整的 **AutoGPT Platform**
+- **双重发布**：
+  - **Classic 版本**（`classic/`，MIT 许可证）- 原有的自主 Agent 实验项目，包含 Forge、Benchmark、Frontend
+  - **新平台**（`autogpt_platform/`，Polyform Shield License）- 重构的工作流平台，支持可视化 Agent 构建、部署和管理
+- **托管服务**：提供云端 beta 版本（https://agpt.co），同时保持自托管免费
+- **文档网站**：https://docs.agpt.co（文档完整，持续更新）
+- **社区**：Discord 活跃，项目持续发布（最近更新活跃）
 
-**核心组件**：
+**架构演进**：
 
-#### 插件系统（Plugins = Tools）
-- 通过 `plugins.json` 配置
-- 事件钩子：`before_agpt_starts`, `after_agpt_loop`
-- 内置：Google Search, Web Scrape, File Operations
+#### Classic 版本（遗留，供参考）
+- **插件系统（Plugins = Tools）**：通过 `plugins.json` 配置，事件钩子扩展
+- **Memory（简化）**：JSON 文件存储，滑动窗口 + 基础向量（有限能力）
+- **实验特性**：情绪（Emotion）和信仰（Belief）系统（不推荐用于生产）
 
-#### Memory（简化）
-- `autogpt/memory/`：JSON 文件存储
-- 无向量检索，仅滑动窗口 + 本地向量（有限）
+#### AutoGPT Platform（当前重点）
+- **块工作流（Blocks）**：可视化构建 Agent，每个块执行单一动作
+- **Agent Builder**：低代码界面，配置 Agent 行为和工具
+- **Marketplace**：预建 Agent 和工作流库
+- **Server**：Docker 部署，支持外部触发和持续运行
+- **协议**：采用 [Agent Protocol](https://agentprotocol.ai/) 标准，兼容第三方前端和 benchmark
 
-#### 情绪（Emotion）和信仰（Belief）系统
-- 实验性：模拟人类情感和信念更新
-- 不推荐用于生产
+**经验教训（从 Classic 到 Platform 的演进）**：
+- **工具爆炸问题**：早期版本工具过多导致 Token 消耗快 → Platform 通过可视化块组合解决
+- **循环控制**：早期 Agent 易陷入重复思考 → Platform 引入更严格的流程控制
+- **Memory 分级缺失** → Platform 分离工作流状态和长期知识
+- **部署复杂度** → Platform 提供一键 Docker 部署 + 云端托管
 
-**经验教训**：
-- 工具爆炸：默认安装过多插件，导致 Token 消耗过快
-- 循环控制难：Agent 经常陷入重复思考
-- 缺乏 Memory 分级：所有历史堆在上下文
+**适用场景**：
+- **Classic**：研究、实验、benchmark 测试（适合想深入了解 Agent 原理的开发者）
+- **Platform**：生产环境工作流自动化、可视化 Agent 构建、需要快速部署的场景
+
+**资源链接**：
+- 主仓库: https://github.com/Significant-Gravitas/AutoGPT
+- 平台文档: https://docs.agpt.co
+- 平台入门: https://agpt.co/docs/platform/getting-started/getting-started
+- Agent Protocol: https://agentprotocol.ai/
+- Classic Forge 教程: https://github.com/Significant-Gravitas/AutoGPT/blob/master/classic/forge/tutorials/001_getting_started.md
 
 ---
 
@@ -638,14 +669,24 @@ graph LR
    - https://docs.crewai.com/core/concepts/tasks/
 
 3. **OpenAI Assistants API** (2025-2026 迁移指南)
-   - https://platform.openai.com/docs/assistants/overview
-   - https://platform.openai.com/docs/assistants/tools
+   - 迁移指南: https://developers.openai.com/api/docs/assistants/migration
+   - Responses API: https://developers.openai.com/docs/guides/responses-vs-chat-completions
+   - 深度研究: https://developers.openai.com/docs/guides/deep-research
+   - MCP 工具: https://developers.openai.com/docs/guides/tools-remote-mcp
+   - Computer Use: https://developers.openai.com/docs/guides/tools-computer-use
 
 4. **OpenClaw Skill 架构** - 自研框架设计 (2024-2025)
-   - OpenClaw 内部文档（经 agents 执行获取）
+   - Tools 文档: https://docs.openclaw.ai/tools
+   - Skills 文档: https://docs.openclaw.ai/tools/skills
+   - 架构概览: https://docs.openclaw.ai/concepts/architecture
+   - 官方文档库: https://docs.openclaw.ai
 
-5. **AutoGPT 项目经验** - 工具爆炸问题案例 (2024)
-   - https://docs.agpt.co/architecture
+5. **AutoGPT 项目** - 平台化演进与经验教训 (2024-2025)
+   - 主仓库: https://github.com/Significant-Gravitas/AutoGPT
+   - 官方文档: https://docs.agpt.co
+   - 平台入门: https://agpt.co/docs/platform/getting-started/getting-started
+   - Agent Protocol: https://agentprotocol.ai/
+   - Classic Forge 教程: https://github.com/Significant-Gravitas/AutoGPT/blob/master/classic/forge/tutorials/001_getting_started.md
 
 6. **LLM 安全最佳实践** - Prompt Injection 防护 (OWASP 2025)
    - 基于行业标准（2024-2025）
