@@ -60,6 +60,8 @@
 
 > 💡 **数据来源**: [getdeploying.com GPU 价格 2026](https://getdeploying.com/gpus), [CoreWeave vs RunPod](https://computeprices.com/compare/coreweave-vs-runpod)
 
+> 💡 **数据来源**：getdeploying.com — GPU Price Comparison 2026
+
 ### 1.4 选型建议
 
 - **个人开发/测试**: Vultr/DigitalOcean $6-12/月，全球节点多，按需升降配
@@ -164,6 +166,8 @@ flowchart TD
 | **网络复杂性** | 多容器通信需理解 Docker 网络 | 使用 Docker Compose 默认网络即可 |
 | **持久化存储** | 容器重启后数据丢失 | 正确配置 volume mount |
 
+> ⚠️ **ARM 兼容性**：树莓派等 ARM 设备需使用 `arm64` 标签的多阶段构建镜像；VPS 通常为 x86_64。pull 时选择对应架构标签，例如：`docker pull --platform linux/arm64 myimage:latest`
+
 ### 3.4 Docker vs 裸机部署
 
 | 维度 | Docker | 裸机 |
@@ -186,43 +190,43 @@ flowchart TD
 
 ```
 月预算: $6-12
-推荐: Vultr/DigitalOcean 2GB VPS
+推荐: Vultr/DigitalOcean 2GB VPS [1][2]
 配置: 1vCPU / 2GB RAM / 50-55GB SSD
 附加: Docker 部署 OpenClaw
 推理: 调用云端 API (OpenRouter/OpenAI)
 月总成本: $6-12 (VPS) + $5-20 (API) = $11-32
 ```
 
-**为什么不选树莓派？** Pi 5 8GB 一次性投入 $125+$40 配件 = $165，等于 8-27 个月 VPS 费用。除非你需要离线能力或边缘部署，否则 VPS 更划算且省心。
+**为什么不选树莓派？** Pi 5 8GB 一次性投入 $125+$40 配件 = $165，等于 8-27 个月 VPS 费用[6]。除非你需要离线能力或边缘部署[2]，否则 VPS 更划算且省心。
 
 #### 小团队 (3-10人)
 
 ```
 月预算: $10-50
-推荐: Hetzner 4-8GB VPS
+推荐: Hetzner 4-8GB VPS [1][3] — 性价比之王
 配置: 2-4vCPU / 4-8GB RAM / 40-80GB SSD
 附加: Docker Compose 编排 + Nginx 反代
 推理: 调用云端 API，按量付费
 月总成本: €4.51-9.02 (VPS) + $20-80 (API) = $25-90
 
-或进阶: Hetzner + GPU VPS (需要本地推理时)
+或进阶: Hetzner + GPU VPS (需要本地推理时)[5]
 GPU VPS: RTX 4000 Ada ~$72/月按需
 ```
 
-**为什么 Hetzner？** 同样 $12/月，在 Hetzner 可以拿到 2vCPU/4GB，而在 DigitalOcean 只有 1vCPU/2GB。流量需求不大时（欧洲用户为主），Hetzner 是最优解。
+**为什么 Hetzner？** 同样 $12/月，在 Hetzner 可以拿到 2vCPU/4GB，而在 DigitalOcean 只有 1vCPU/2GB[3]。流量需求不大时（欧洲用户为主），Hetzner 是最优解[1]。
 
 #### 企业 / 生产环境
 
 ```
 月预算: $50-500+
-推荐: AWS Lightsail / 阿里云轻量 / 腾讯云 Lighthouse
+推荐: AWS Lightsail / 阿里云轻量 / 腾讯云 Lighthouse [3] — 适合需要合规认证的场景
 配置: 4-8vCPU / 8-16GB RAM / 160-320GB SSD
 附加: Docker + 负载均衡 + 自动备份 + 监控
-推理: 云端 API + 可选 GPU 实例做本地推理
+推理: 云端 API + 可选 GPU 实例做本地推理[5]
 月总成本: $24-80 (VPS) + $50-300 (API) + $20-50 (备份/监控) = $94-430
 ```
 
-**为什么选大厂？** 合规认证（SOC2/ISO27001）、SLA 保障、全球多区域部署、企业级支持。
+**为什么选大厂？** 合规认证（SOC2/ISO27001）[3]、SLA 保障、全球多区域部署、企业级支持。
 
 ### 4.2 总拥有成本 (TCO) 对比 — 3年周期
 

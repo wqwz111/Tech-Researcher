@@ -8,7 +8,7 @@
 - Heartbeat 间隔应匹配业务关键程度，高频服务 5-10s，普通服务 30-60s
 - 多窗口多燃烧率 (Multi-window Multi-burn-rate) 是告警配置的最优解
 - 开源方案 (Langfuse/Phoenix) 基于 OpenTelemetry 可降低供应商锁定风险
-- OpenClaw 自带 heartbeat 机制但缺乏量化告警，需补充 metrics 导出
+- OpenClaw 自带 heartbeat 机制但缺乏量化告警 (基于 OpenClaw v2026.3 配置 heartbeat.yaml)，需补充 metrics 导出
 
 ---
 
@@ -47,7 +47,7 @@ livenessProbe:
   failureThreshold: 3       # 失败后重启阈值
 ```
 
-**引用来源**: [Kubernetes Container Health Checks](https://kubernetes.io/docs/concepts/containers/container-health-checks/) (2024-2026)
+**引用**: [Kubernetes Container Health Checks](https://kubernetes.io/docs/concepts/containers/container-health-checks/) (2024-2026)
 
 ### 1.3 Target 配置与探测方式
 
@@ -107,7 +107,7 @@ def exponential_backoff(retry_count, base_delay=100, max_delay=30000):
 # retry 5: 1600-1760ms
 ```
 
-**引用来源**: [AWS — Retry Strategies] (2024)
+**引用**: [AWS — Retry Strategies](https://docs.aws.amazon.com/general/latest/gr/api-retries.html) (2024)
 
 ---
 
@@ -168,7 +168,7 @@ job:slo_errors_per_request:ratio_rate3d{job="agent-api"} > 0.001
 - 5 分钟短窗口 → 快速恢复 (Reset time 提升至 5 分钟)
 - 3 天窗口覆盖低错误率但长期问题 → Recall 优秀
 
-**引用来源**: [Google SRE — Alerting on SLOs](https://sre.google/workbook/alerting-on-slos/) (2024-2025)
+**引用**: [Google SRE — Alerting on SLOs](https://sre.google/workbook/alerting-on-slos/) (2024-2025)
 
 ### 2.3 低流量服务特殊处理
 
@@ -193,7 +193,7 @@ job:slo_errors_per_request:ratio_rate3d{job="agent-api"} > 0.001
    - 如果单次失败影响不大，降低 SLO (如 99.9% → 99%)
    - 让告警更聚焦真正关键问题
 
-**引用来源**: [Google SRE — Alerting on SLOs, Low-Traffic Services 章节] (2024-2025)
+**引用**: [Google SRE — Alerting on SLOs, Low-Traffic Services](https://sre.google/workbook/alerting-on-slos/#low-traffic-services) (2024-2025)
 
 ---
 
@@ -344,7 +344,7 @@ def get_user_profile(user_id):
 - **劣势**: Tracing 功能相对较弱，UI 复杂度高
 - **适用**: 评估驱动开发、深度 RAG 分析
 
-**引用来源**:
+**引用**:
 - [LangSmith Documentation](https://docs.langchain.com/langsmith/home.md) (2024-2026)
 - [Langfuse Documentation](https://langfuse.com/docs) (2024-2026)
 - [Arize Phoenix Documentation](https://arize.com/docs/phoenix) (2024-2026)
@@ -378,7 +378,7 @@ flowchart TD
 - 避免 vendor lock-in
 - 标准 Schema，跨团队协作
 
-**引用**: [OpenTelemetry Documentation](https://opentelemetry.io/docs) (2024-2026)
+**引用**: [OpenTelemetry Documentation](https://opentelemetry.io/docs/) (2024-2026)
 
 ---
 
@@ -401,7 +401,7 @@ flowchart TD
 - 循环/死循环 Agent → 无限调用
 - 模型误用 (高成本模型处理简单任务)
 
-**引用来源**: [OpenAI Pricing](https://chatgpt.com/pricing) (2024-2026)
+**引用**: [OpenAI Pricing](https://chatgpt.com/pricing) (2024-2026)
 
 ### 5.2 成本监控关键指标
 

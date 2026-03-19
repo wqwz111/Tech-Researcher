@@ -298,6 +298,8 @@ flowchart LR
 >
 > *注：上表中"行业平均"和"精英团队"数据来自 Galileo AI 对 1,500+ AI 团队的调研（2025）；"我们的团队"数据来自 3.2 节内部运营日志。*
 
+> 💡 **数据来源**：Galileo AI 调研（1,500+ 团队）；内部数据来自 OpenClaw gateway 日志 + git 时间戳（统计周期：2026-03-12 至 2026-03-18，样本：30+ 探针任务、12 次调色板、8 次评审）
+
 根据 Reddit 社区的实际案例 [2]，一个 12-Agent 生产系统通过 checkpoint hashing with rollback 实现了：
 - Pipeline completion: 91% → 97%
 - Cost per output: $0.06 → $0.04

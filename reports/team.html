@@ -205,71 +205,14 @@ a:hover { color:#a5b4fc; }
   <!-- Workflow Diagram -->
   <div class="section-title">🔄 工作流程</div>
   <div class="diagram-container">
-    <div class="mermaid">
- flowchart LR
- subgraph SGInput["输入"]
- Issues["GitHub Issues<br/>用户需求"]
- Trends["趋势监控<br/>技术动态"]
- end
-subgraph SGProduction["生产"]
- Plan["主编<br/>选题 & 计划"]
- Research["探针<br/>多源研究"]
- Review["读者<br/>独立审稿"]
- Design["调色板<br/>视觉美化"]
- end
-subgraph SGOutput["输出"]
- Pages["GitHub Pages<br/>在线阅读"]
- Release["Release<br/>版本发布"]
- Index["索引页<br/>分类导航"]
- end
-Issues --> Plan
-    Trends --> Plan
-    Plan -->|"分派任务"| Research
-    Research -->|"报告草稿"| Review
-    Review -->|"通过"| Design
-    Review -->|"修改"| Research
-    Design -->|"美化报告"| Pages
-    Design --> Release
-    Pages --> Index
- style Plan fill:#38bdf8,color:#000
- style Research fill:#7dd3fc,color:#000
- style Review fill:#a78bfa,color:#000
- style Design fill:#fb923c,color:#000
- style Pages fill:#34d399,color:#000
-</div>
+    <img src="../assets/workflow-infographic.png" alt="Tech Researcher 工作流程" style="width:100%;max-width:960px;border-radius:12px;display:block;margin:0 auto;">
     <div class="diagram-caption">图 2: 报告生产流程 — 从选题到发布的完整链路</div>
   </div>
 
   <!-- Review Process Diagram -->
   <div class="section-title">🔍 审稿流程</div>
   <div class="diagram-container">
-    <div class="mermaid">
- flowchart TD
- Draft["探针提交报告草稿"]
- subgraph SGReviewers["独立审稿（并行）"]
- TechReader["技术审稿人<br/>事实准确性 · 逻辑完整性"]
- ReadReader["可读性审稿人<br/>Executive Summary · 术语"]
- DomainReader["领域审稿人<br/>专业深度 · 前沿性"]
- end
-Score["评分汇总<br/>每项 1-5 星"]
- Decision{"总分 ≥ 21/25?"}
- Pass["通过 → 调色板美化"]
- Revise["需修改 → 返回探针"]
-Draft --> TechReader
-    Draft --> ReadReader
-    Draft --> DomainReader
-    TechReader --> Score
-    ReadReader --> Score
-    DomainReader --> Score
-    Score --> Decision
-    Decision -->|">= 21"| Pass
-    Decision -->|"< 21"| Revise
-    Revise --> Draft
- style Draft fill:#38bdf8,color:#000
- style Pass fill:#34d399,color:#000
- style Revise fill:#fb923c,color:#000
- style Decision fill:#f472b6,color:#000
-</div>
+    <img src="../assets/review-process.png" alt="Tech Researcher 三轮独立审稿流程" style="width:100%;max-width:960px;border-radius:12px;display:block;margin:0 auto;">
     <div class="diagram-caption">图 3: 三轮独立审稿流程 — 确保报告质量</div>
   </div>
 
