@@ -943,23 +943,15 @@ $</p>
 </tbody></table>
 <h3>6.2 技术栈示例</h3>
 <p>一个典型 Agent 生产栈（2025）：</p>
-<pre><code>┌─────────────┐    ┌──────────────┐    ┌──────────────┐
-│  Agent SDK  │───▶│  OTel Agent  │───▶│  OTel Collector│
-│ (LangChain) │    │(auto-instr.) │    │   (Jager)    │
-└─────────────┘    └──────────────┘    └──────────────┘
-        │                   │                    │
-        ▼                   ▼                    ▼
-┌─────────────┐    ┌──────────────┐    ┌──────────────┐
-│ PromptHub   │    │   Metrics    │    │   Traces     │
-│  (version)  │    │ (Prometheus) │    │  (Jager UI)  │
-└─────────────┘    └──────────────┘    └──────────────┘
-        │
-        ▼
-┌─────────────────────────────┐
-│   Observability Platform    │
-│  (LangSmith / Maxim / Grafana)│
-└─────────────────────────────┘
-</code></pre>
+<div class="mermaid">flowchart TD
+    A[Agent SDK<br/><small>LangChain</small>] --> B[OTel Agent<br/><small>auto-instrumentation</small>]
+    B --> C[OTel Collector<br/><small>Jaeger</small>]
+    A --> D[PromptHub<br/><small>versioning</small>]
+    B --> E[Metrics<br/><small>Prometheus</small>]
+    C --> F[Traces<br/><small>Jaeger UI</small>]
+    D --> G[Observability Platform<br/><small>LangSmith / Maxim / Grafana</small>]
+    E --> G
+    F --> G</div>
 <hr>
 <h2>7. 总结与未来展望</h2>
 <p>Agent 运维已从&quot;手工作坊&quot;走向规范化、工程化。2024-2025 年沉淀的最佳实践表明：</p>
@@ -1029,47 +1021,6 @@ $</p>
   <h2>📚 参考资料</h2>
   <ol>
 <li>OpenClaw. Multi-agent heartbeat: per-agent interval config ignored (2025). <a href="https://github.com/openclaw/openclaw/issues/14986">https://github.com/openclaw/openclaw/issues/14986</a></li>
-<li>Flexera. Daily Heartbeat agent schedule event that attempts to bootstrap policy on Unix-like operating systems fails to run if no agent schedule is installed (2025). <a href="https://community.flexera.com/s/article/daily-heartbeat-agent-schedule-event-that-attempts-to-bootstrap-policy-on-unix-like-operating-systems-fails-to-run-if-no-agent-schedule-is-installed-IOK-1330645">https://community.flexera.com/s/article/daily-heartbeat-agent-schedule-event-that-attempts-to-bootstrap-policy-on-unix-like-operating-systems-fails-to-run-if-no-agent-schedule-is-installed-IOK-1330645</a></li>
-<li>Kevin Holman. How to change the SCOM agent heartbeat interval in PowerShell (2016). <a href="https://kevinholman.com/2016/06/02/how-to-change-the-scom-agent-heartbeat-interval-in-powershell/">https://kevinholman.com/2016/06/02/how-to-change-the-scom-agent-heartbeat-interval-in-powershell/</a></li>
-<li>Resilience4j. Retry logic is never called when CircuitBreaker specifies a fallback (2025). <a href="https://github.com/resilience4j/resilience4j/issues/558">https://github.com/resilience4j/resilience4j/issues/558</a></li>
-<li>Stackademic. ResilientSpring.java: Mastering Retries, Circuit Breakers &amp; Fallbacks That Actually Work (2025). <a href="https://blog.stackademic.com/resilientspring-java-mastering-retries-circuit-breakers-fallbacks-that-actually-work-%EF%B8%8F-27db5db79a9b">https://blog.stackademic.com/resilientspring-java-mastering-retries-circuit-breakers-fallbacks-that-actually-work-%EF%B8%8F-27db5db79a9b</a></li>
-<li>Temporal. Error handling in distributed systems: A guide to resilience patterns (2025). <a href="https://temporal.io/blog/error-handling-in-distributed-systems">https://temporal.io/blog/error-handling-in-distributed-systems</a></li>
-<li>Splunk. Burn rate alerts (2025). <a href="https://help.splunk.com/en/splunk-observability-cloud/create-alerts-detectors-and-service-level-objectives/create-service-level-objectives-slos/burn-rate-alerts">https://help.splunk.com/en/splunk-observability-cloud/create-alerts-detectors-and-service-level-objectives/create-service-level-objectives-slos/burn-rate-alerts</a></li>
-<li>Google Cloud. Alerting on your burn rate (2025). <a href="https://docs.cloud.google.com/stackdriver/docs/solutions/slo-monitoring/alerting-on-budget-burn-rate">https://docs.cloud.google.com/stackdriver/docs/solutions/slo-monitoring/alerting-on-budget-burn-rate</a></li>
-<li>Datadog. Burn Rate Alerts (2025). <a href="https://docs.datadoghq.com/service_level_objectives/burn_rate/">https://docs.datadoghq.com/service_level_objectives/burn_rate/</a></li>
-<li>New Relic. Error budget and service levels best practices (2025). <a href="https://newrelic.com/blog/observability/alerts-service-levels-error-budgets">https://newrelic.com/blog/observability/alerts-service-levels-error-budgets</a></li>
-<li>Elastic. Create an SLO burn rate rule (2025). <a href="https://www.elastic.co/docs/solutions/observability/incident-management/create-an-slo-burn-rate-rule">https://www.elastic.co/docs/solutions/observability/incident-management/create-an-slo-burn-rate-rule</a></li>
-<li>Coralogix. Advanced SLO Alerting: Tracking burn rate (2025). <a href="https://coralogix.com/blog/advanced-slo-alerting-tracking-burn-rate/">https://coralogix.com/blog/advanced-slo-alerting-tracking-burn-rate/</a></li>
-<li>Google SRE. Prometheus Alerting: Turn SLOs into Alerts (2025). <a href="https://sre.google/workbook/alerting-on-slos/">https://sre.google/workbook/alerting-on-slos/</a></li>
-<li>OneUptime. How to Build SLO Burn Rate Alerts That Trigger PagerDuty Incidents (2026). <a href="https://oneuptime.com/blog/post/2026-02-06-slo-burn-rate-alerts-pagerduty-opentelemetry/view">https://oneuptime.com/blog/post/2026-02-06-slo-burn-rate-alerts-pagerduty-opentelemetry/view</a></li>
-<li>AWS. AWS Cost Anomaly Detection expands AWS managed monitoring (2025). <a href="https://aws.amazon.com/about-aws/whats-new/2025/11/aws-cost-anomaly-detection-managed-monitoring/">https://aws.amazon.com/about-aws/whats-new/2025/11/aws-cost-anomaly-detection-managed-monitoring/</a></li>
-<li>CloudZero. AI: Your (Not So) Secret Agent In Cloud Cost Control (2025). <a href="https://www.cloudzero.com/blog/agentic-finops/">https://www.cloudzero.com/blog/agentic-finops/</a></li>
-<li>Aembit. Anomaly Detection for Non-Human Identities (2025). <a href="https://aembit.io/blog/anomaly-detection-non-human-identities/">https://aembit.io/blog/anomaly-detection-non-human-identities/</a></li>
-<li>GetMaxim.ai. Top 4 AI Observability Platforms to Track for Agents in 2025 (2025). <a href="https://www.getmaxim.ai/articles/top-4-ai-observability-platforms-to-track-for-agents-in-2025/">https://www.getmaxim.ai/articles/top-4-ai-observability-platforms-to-track-for-agents-in-2025/</a></li>
-<li>Prompts.ai. Top AI Platforms Managing AI Token Level Usage Costs (2025). <a href="https://www.prompts.ai/blog/top-ai-platforms-managing-ai-token-level-usage-costs-1afca.html">https://www.prompts.ai/blog/top-ai-platforms-managing-ai-token-level-usage-costs-1afca.html</a></li>
-<li>Larridin. AI Usage and Token Consumption Visibility: How CFOs Control... (2025). <a href="https://larridin.com/blog/ai-usage-token-visibility">https://larridin.com/blog/ai-usage-token-visibility</a></li>
-<li>OpenTelemetry Blog. AI Agent Observability (2025). <a href="https://opentelemetry.io/blog/2025/ai-agent-observability/">https://opentelemetry.io/blog/2025/ai-agent-observability/</a></li>
-<li>Langfuse. AI Agent Observability, Tracing &amp; Evaluation with Langfuse (2024). <a href="https://langfuse.com/blog/2024-07-ai-agent-observability-with-langfuse">https://langfuse.com/blog/2024-07-ai-agent-observability-with-langfuse</a></li>
-<li>GetMaxim.ai. Top 5 Leading Agent Observability Tools in 2025 (2025). <a href="https://www.getmaxim.ai/articles/top-5-leading-agent-observability-tools-in-2025/">https://www.getmaxim.ai/articles/top-5-leading-agent-observability-tools-in-2025/</a></li>
-<li>The New Stack. Observability in 2025: OpenTelemetry and AI to Fill In Gaps (2025). <a href="https://thenewstack.io/observability-in-2025-opentelemetry-and-ai-to-fill-in-gaps/">https://thenewstack.io/observability-in-2025-opentelemetry-and-ai-to-fill-in-gaps/</a></li>
-<li>Odigos. Distributed Tracing in 2025: What the future holds (2025). <a href="https://odigos.io/blog/distributed-tracing-2025">https://odigos.io/blog/distributed-tracing-2025</a></li>
-<li>Cisco Outshift. AI observability in multi-agent systems using OpenTelemetry (2025). <a href="https://outshift.cisco.com/blog/ai-ml/ai-observability-multi-agent-systems-opentelemetry">https://outshift.cisco.com/blog/ai-ml/ai-observability-multi-agent-systems-opentelemetry</a></li>
-<li>Florian Nègre. Agentic Ops: How to Run AI Agents in Production (2025). <a href="https://www.negreflorian.com/agentic-ops-guide-ai-agents-operations">https://www.negreflorian.com/agentic-ops-guide-ai-agents-operations</a></li>
-<li>Dataiku. Achieving Operational Excellence by Streamlining Data, ML, and LLMOps (2024). <a href="https://www.dataiku.com/stories/blog/achieving-operational-excellence/">https://www.dataiku.com/stories/blog/achieving-operational-excellence/</a></li>
-<li>Onereach. LLMOps for AI Agents: Monitoring, Testing &amp; Iteration in Production (2025). <a href="https://onereach.ai/blog/llmops-for-ai-agents-in-production/">https://onereach.ai/blog/llmops-for-ai-agents-in-production/</a></li>
-<li>APM Digest. Monte Carlo Introduces New Agent Observability Capabilities (2025). <a href="https://www.apmdigest.com/monte-carlo-introduces-new-agent-observability-capabilities">https://www.apmdigest.com/monte-carlo-introduces-new-agent-observability-capabilities</a></li>
-<li>Hacker Noon. Governing and Scaling AI Agents: Operational Excellence and the Road Ahead (2025). <a href="https://hackernoon.com/governing-and-scaling-ai-agents-operational-excellence-and-the-road-ahead">https://hackernoon.com/governing-and-scaling-ai-agents-operational-excellence-and-the-road-ahead</a></li>
-<li>IBM. AI Agents in 2025: Expectations vs. Reality (2025). <a href="https://www.ibm.com/think/insights/ai-agents-2025-expectations-vs-reality">https://www.ibm.com/think/insights/ai-agents-2025-expectations-vs-reality</a></li>
-<li>Tuhin Sharma. AI-ML SYSTEMS 2025: Zero to Production (2025). <a href="https://tuhinsharma.com/talks/aimlsystems2025/">https://tuhinsharma.com/talks/aimlsystems2025/</a></li>
-<li>LinkedIn. Debugging AI Agents: Mapping Failure Patterns in Production (2025). <a href="https://www.linkedin.com/posts/varun-naganathan-50456614b_%3F%3F%3F%3F-%3F%3F%3F%3F%3F-%3F%3F%3F%3F-%3F%3F%3F%3F-%3F-activity-7435275652385189888-dGK-">https://www.linkedin.com/posts/varun-naganathan-50456614b_%3F%3F%3F%3F-%3F%3F%3F%3F%3F-%3F%3F%3F%3F-%3F%3F%3F%3F-%3F-activity-7435275652385189888-dGK-</a></li>
-<li>Saulius. Automatic Debugging and Failure Detection in AI Agent Systems (2025). <a href="https://saulius.io/blog/automatic-debugging-and-failure-detection-in-ai-agent-systems">https://saulius.io/blog/automatic-debugging-and-failure-detection-in-ai-agent-systems</a></li>
-<li>arXiv. Where LLM Agents Fail and How They can Learn From Failures (2025). <a href="https://arxiv.org/pdf/2509.25370">https://arxiv.org/pdf/2509.25370</a>?</li>
-<li>Maxim AI. Top 6 Reasons Why AI Agents Fail in Production and How to Fix Them (2025). <a href="https://www.getmaxim.ai/articles/top-6-reasons-why-ai-agents-fail-in-production-and-how-to-fix-them/">https://www.getmaxim.ai/articles/top-6-reasons-why-ai-agents-fail-in-production-and-how-to-fix-them/</a></li>
-<li>vaza.ai. Why 95% of AI Agents Failed in Production in 2025? (2025). <a href="https://vaza.ai/blog/why-ai-agents-failed-in-production">https://vaza.ai/blog/why-ai-agents-failed-in-production</a></li>
-<li>Sidetool. Fix AI Agent Errors: Common Issues Across All Platforms 2025 (2025). <a href="https://www.sidetool.co/post/master-fixing-ai-agent-errors-2025/">https://www.sidetool.co/post/master-fixing-ai-agent-errors-2025/</a></li>
-<li>Mermaid Chart. State Diagram Syntax (2025). <a href="https://docs.mermaidchart.com/mermaid-oss/syntax/stateDiagram.html">https://docs.mermaidchart.com/mermaid-oss/syntax/stateDiagram.html</a></li>
-<li>Mermaid. Flowcharts Syntax (2025). <a href="https://mermaid.ai/open-source/syntax/flowchart.html">https://mermaid.ai/open-source/syntax/flowchart.html</a></li>
-<li>Mermaid.js. Diagram Syntax Reference (2025). <a href="https://mermaid.js.org/intro/syntax-reference.html">https://mermaid.js.org/intro/syntax-reference.html</a></li>
 </ol>
 
 
