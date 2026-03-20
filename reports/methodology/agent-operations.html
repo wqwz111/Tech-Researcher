@@ -736,13 +736,13 @@ job:slo_errors_per_request:ratio_rate3d{job=&quot;agent-api&quot;} &gt; 0.001
 <h2>3. 自动恢复机制：重试、熔断、降级</h2>
 <h3>3.1 熔断器模式 (Circuit Breaker)</h3>
 <p><strong>三状态机</strong>:</p>
-<p><div class="mermaid">stateDiagram-v2
+<div class="mermaid">stateDiagram-v2
     [*] --> Closed: 正常调用
     Closed --> Open: 失败计数 >= failureThreshold
     Open --> Half-Open: 经过 waitDuration 时间
     Half-Open --> Closed: 试探调用成功
     Half-Open --> Open: 试探调用失败
-    Open --> [*]: 持续失败，维持 Open</div></p>
+    Open --> [*]: 持续失败，维持 Open</div>
 <p><strong>关键配置参数</strong>:</p>
 <table>
 <thead>
@@ -968,7 +968,7 @@ def retry_with_backoff(func, max_retries=5, base_delay=100, max_delay=30000):
 <li><a href="https://arize.com/docs/phoenix">Arize Phoenix Documentation</a> (2024-2026)</li>
 </ul>
 <h3>4.3 选型决策树</h3>
-<p><div class="mermaid">flowchart TD
+<div class="mermaid">flowchart TD
     A[选择可观测性工具] --> B{是否需要商业支持?}
     B -->|是| C[选择 LangSmith]
     
@@ -978,7 +978,7 @@ def retry_with_backoff(func, max_retries=5, base_delay=100, max_delay=30000):
     
     C --> G[支付费用, 享受企业 SLA]
     E --> H[深度实验 + 评估队列]
-    F --> I[自托管, 低成本, 无锁定]</div></p>
+    F --> I[自托管, 低成本, 无锁定]</div>
 <h3>4.4 OpenTelemetry 标准统一趋势</h3>
 <p>三大平台均支持 OpenTelemetry (OTel) 作为底层数据格式:</p>
 <pre><code>应用 → OTel SDK (Traces/Metrics/Logs) → OTLP Exporter → 平台
@@ -1251,7 +1251,7 @@ GROUP BY model
 <hr>
 <h2>7. Agent 运维综合架构设计</h2>
 <h3>7.1 整体架构图</h3>
-<p><div class="mermaid">graph TB
+<div class="mermaid">graph TB
     subgraph "Agent 服务层"
         A1[Probe Agent]
         A2[Palette Agent]
@@ -1305,7 +1305,7 @@ GROUP BY model
     
     style B1 fill:#e1f5ff
     style C2 fill:#f0f4ff
-    style D1 fill:#fff3e0</div></p>
+    style D1 fill:#fff3e0</div>
 <h3>7.2 告警分级与响应 SLO</h3>
 <table>
 <thead>
