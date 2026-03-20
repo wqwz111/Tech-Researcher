@@ -502,1040 +502,576 @@
   <!-- Executive Summary -->
   <div class="exec-summary">
     <div class="exec-summary__label">Executive Summary</div>
-    <p>本文系统性地阐述了 AI Agent Production 环境的运维实践体系，涵盖 heartbeat 设计、异常检测与自动恢复、可观测性工具选型、以及成本监控止损策略。通过对 LangSmith、Langfuse、Phoenix 三大可观测性平台的深度对比，结合 Google SRE 错误预算告警机制和 Kubernetes 健康检查最佳实践，为 Agent 运维提供可落地的操作指南。</p>
-<p><strong>核心发现</strong>:</p>
+    <p>随着 AI Agent 在生产环境的广泛应用，如何保障其可靠性、可观测性和成本可控性已成为 2024-2025 年的核心挑战。本文系统性梳理了 Agent 运维的核心支柱：Heartbeat 健康检查、异常恢复机制、可观测性体系建设以及成本监控治理，并提供可落地的实践指南。</p>
+<p><strong>核心发现</strong>：</p>
 <ul>
-<li>Heartbeat 间隔应匹配业务关键程度，高频服务 5-10s，普通服务 30-60s</li>
-<li>多窗口多燃烧率 (Multi-window Multi-burn-rate) 是告警配置的最优解</li>
-<li>开源方案 (Langfuse/Phoenix) 基于 OpenTelemetry 可降低供应商锁定风险</li>
-<li>OpenClaw 自带 heartbeat 机制但缺乏量化告警 (基于 OpenClaw v2026.3 配置 heartbeat.yaml)，需补充 metrics 导出</li>
+<li><strong>Heartbeat 设计</strong>：合理的探测间隔（通常 30s-5min）和多层次失败判定策略是发现 Agent 异常的第一道防线</li>
+<li><strong>异常恢复</strong>：熔断器（Circuit Breaker）配合重试（Retry）和降级（Fallback）能显著提升系统韧性，Resilience4j 和 Polly 是 2025 年主流实现</li>
+<li><strong>可观测性</strong>：基于 SLO 的燃烧率告警（Burn Rate Alerting）让团队能在错误预算耗尽前主动干预，Splunk、Datadog、Google Cloud 等平台已成熟支持[4][5]</li>
+<li><strong>成本监控</strong>：Token 级追踪和异常检测可控制 AI 成本，CloudZero、Instana 等平台提供 Agent 专用监控[19]</li>
 </ul>
+<p>本文提供完整的 Mermaid 图表集（使用稳定语法）和工具选型矩阵，可作为 Agent 生产化落地的直接参考。</p>
 
   </div>
 
   <!-- ═══════════════════════════════════════════
        CONTENT
        ═══════════════════════════════════════════ -->
-  <h2>1. Heartbeat 设计：从原则到配置</h2>
-<h3>1.1 Heartbeat 的核心目标</h3>
-<p>Heartbeat（心跳检测）的根本目的是<strong>及时发现服务不可用状态</strong>，并触发恢复流程。设计时需平衡:</p>
-<ul>
-<li><strong>检测频率</strong> vs <strong>系统负载</strong>: 过于频繁增加压力，过稀疏延长 MTTR</li>
-<li><strong>误报率</strong> vs <strong>漏报率</strong>: 需要量化错误预算消耗速率</li>
-<li><strong>主动探测</strong> vs <strong>被动指标</strong>: HTTP 探针简单但无法检测逻辑故障</li>
-</ul>
-<h3>1.2 间隔配置策略</h3>
-<p>根据 Google SRE 和 Kubernetes 最佳实践:</p>
-<table>
-<thead>
-<tr>
-<th>服务等级</th>
-<th>推荐间隔</th>
-<th>失败阈值</th>
-<th>适用场景</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>P0 (关键)</strong></td>
-<td>5-10s</td>
-<td>2-3 次连续失败</td>
-<td>支付、认证服务</td>
-</tr>
-<tr>
-<td><strong>P1 (高)</strong></td>
-<td>30s</td>
-<td>3 次连续失败</td>
-<td>核心 API 服务</td>
-</tr>
-<tr>
-<td><strong>P2 (中)</strong></td>
-<td>60s</td>
-<td>5 次连续失败</td>
-<td>异步处理服务</td>
-</tr>
-<tr>
-<td><strong>P3 (低)</strong></td>
-<td>300s</td>
-<td>3 次连续失败</td>
-<td>批处理任务</td>
-</tr>
-</tbody></table>
-<p><strong>关键参数说明</strong> (以 Kubernetes 为例):</p>
-<pre><code class="language-yaml">livenessProbe:
-  httpGet:
-    path: /health
-    port: 8080
-  initialDelaySeconds: 30   # 容器启动后等待时间
-  periodSeconds: 10         # 检查间隔
-  timeoutSeconds: 5         # 单次超时
-  successThreshold: 1       # 成功阈值
-  failureThreshold: 3       # 失败后重启阈值
-</code></pre>
-<p><strong>引用</strong>: <a href="https://kubernetes.io/docs/concepts/containers/container-health-checks/">Kubernetes Container Health Checks</a> (2024-2026)</p>
-<h3>1.3 Target 配置与探测方式</h3>
-<p><strong>探测类型选择</strong>:</p>
+  <h2>1. Heartbeat 设计：从检查到自愈</h2>
+<h3>1.1 Heartbeat 的核心作用</h3>
+<p>在分布式 Agent 系统中，Heartbeat 是判断 Agent 存活状态的基石机制。Agent 定期向监控中心发送&quot;我还活着&quot;信号，超时未响应即判定为故障。</p>
+<p><strong>关键设计要素</strong>：</p>
 <ol>
-<li><p><strong>HTTP 探针</strong> (<code>/health</code> endpoint)</p>
-<ul>
-<li>优点: 简单、标准、能检查依赖状态</li>
-<li>缺点: 依赖应用层实现，网络层问题无法检测</li>
-<li>最佳实践: 返回 JSON <code>{status: &quot;ok&quot;, checks: {...}}</code></li>
-</ul>
-</li>
-<li><p><strong>TCP 探针</strong></p>
-<ul>
-<li>优点: 底层网络连通性检测</li>
-<li>缺点: 无法判断应用逻辑</li>
-<li>适用: 数据库、缓存等基础设施</li>
-</ul>
-</li>
-<li><p><strong>自定义命令探针</strong></p>
-<ul>
-<li>优点: 完全自定义逻辑</li>
-<li>缺点: 实现复杂度高</li>
-<li>适用: 特殊业务健康检查</li>
-</ul>
-</li>
+<li><strong>探测间隔（Interval）</strong>：根据业务容忍度设置，通常 30 秒至 5 分钟。过短增加负载，过长延长故障发现时间</li>
+<li><strong>探测方式</strong>：HTTP ping、TCP socket、自定义心跳消息等。自描述协议（如 <code>/health</code> 端点）最为通用</li>
+<li><strong>失败判定</strong>：连续失败 N 次（通常 2-3 次）才标记为 Down，避免网络抖动误判</li>
 </ol>
-<p><strong>OpenClaw 实现案例</strong>:</p>
-<p>OpenClaw 的 heartbeat 基于文件系统状态变化驱动，而非传统 HTTP 探针:</p>
+<h3>1.2 Agentic Heartbeat 模式</h3>
+<p>传统的固定间隔心跳在动态 Agent 环境中存在局限。2024 年提出的 <strong>Agentic Heartbeat Pattern</strong> 允许 Agent 根据当前负载和任务复杂度动态调整心跳频率：</p>
 <ul>
-<li><strong>存储</strong>: <code>~/self-improving/heartbeat-state.md</code></li>
-<li><strong>触发</strong>: 每 30 分钟扫描文件修改时间</li>
-<li><strong>判据</strong>: 文件修改时间 &gt; <code>last_reviewed_change_at</code></li>
-<li><strong>动作</strong>: 保守整理（不删除、不大改）</li>
+<li><strong>空闲期</strong>：延长间隔（如 5min），减少监控开销</li>
+<li><strong>任务执行期</strong>：缩短间隔（如 30s），快速暴露卡死问题</li>
+<li><strong>故障恢复期</strong>：高频心跳（如 10s）验证恢复状态</li>
 </ul>
-<p>这种设计适用于<strong>低频变更的管理型 Agent</strong>，而非高可用 24/7 服务。</p>
-<h3>1.4 失败判定与重试策略</h3>
-<p><strong>连续失败累积法</strong>:</p>
-<pre><code>这 次失败: 失败计数 = 1
-第 2 次失败: 失败计数 = 2
-第 N 次失败: 失败计数 = min(N, failureThreshold)
-
-当失败计数 &gt;= failureThreshold → 标记为不健康
-</code></pre>
-<p><strong>指数回退重试</strong> (Exponential Backoff with Jitter):</p>
-<pre><code class="language-python">def exponential_backoff(retry_count, base_delay=100, max_delay=30000):
-    delay = min(base_delay * (2 ** retry_count), max_delay)
-    jitter = random.uniform(0, delay * 0.1)  # 10% jitter
-    return delay + jitter
-
-# 示例: 第 1-5 次重试的等待时间
-# retry 1: 100-110ms
-# retry 2: 200-220ms
-# retry 3: 400-440ms
-# retry 4: 800-880ms
-# retry 5: 1600-1760ms
-</code></pre>
-<p><strong>引用</strong>: <a href="https://docs.aws.amazon.com/general/latest/gr/api-retries.html">AWS — Retry Strategies</a> (2024)</p>
-<hr>
-<h2>2. 异常检测：从错误预算到燃烧率告警</h2>
-<h3>2.1 SLO、SLI、Error Budget 基础</h3>
-<p><strong>核心概念</strong>:</p>
-<ul>
-<li><strong>SLI (Service Level Indicator)</strong>: 服务等级指标（如: 请求成功率 99.9%）</li>
-<li><strong>SLO (Service Level Objective)</strong>: SLI 的目标值（如: 99.9%）</li>
-<li><strong>Error Budget</strong>: 允许的失败额度（如: 0.1% 错误率 × 30 天）</li>
-</ul>
-<p><strong>告警触发逻辑</strong>: 当错误预算消耗速率超过阈值时告警，而非绝对错误率。</p>
-<h3>2.2 燃烧率 (Burn Rate) 告警</h3>
-<p><strong>燃烧率公式</strong>:</p>
-<pre><code>Burn Rate = (当前错误率) / (SLO 允许的错误率)
-
-示例:
-SLO = 99.9% → 允许错误率 = 0.1%
-当前错误率 = 1% → Burn Rate = 1% / 0.1% = 10x
-</code></pre>
-<p><strong>多窗口多燃烧率配置</strong> (Google SRE 推荐):</p>
-<table>
-<thead>
-<tr>
-<th>告警级别</th>
-<th>时间窗口</th>
-<th>燃烧率阈值</th>
-<th>错误预算消耗</th>
-<th>通知方式</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>Page</strong></td>
-<td>1 小时</td>
-<td>14.4x</td>
-<td>2%</td>
-<td>电话/即时消息</td>
-</tr>
-<tr>
-<td><strong>Page</strong></td>
-<td>6 小时</td>
-<td>6x</td>
-<td>5%</td>
-<td>电话/即时消息</td>
-</tr>
-<tr>
-<td><strong>Ticket</strong></td>
-<td>3 天</td>
-<td>1x</td>
-<td>10%</td>
-<td>工单系统</td>
-</tr>
-</tbody></table>
-<p><strong>PromQL 示例</strong>:</p>
-<pre><code class="language-promql"># 1 小时窗口，14.4x 燃烧率告警
-job:slo_errors_per_request:ratio_rate1h{job=&quot;agent-api&quot;} &gt; (14.4 * 0.001)
-
-# Ticket 级别，3 天窗口，1x 燃烧率
-job:slo_errors_per_request:ratio_rate3d{job=&quot;agent-api&quot;} &gt; 0.001
-</code></pre>
-<p><strong>优化: 短窗口验证</strong> 避免误报:</p>
-<pre><code class="language-promql"># 使用 1/12 时长短窗口确认，提高 reset time
-(
-  job:slo_errors_per_request:ratio_rate1h &gt; (14.4 * 0.001)
-  and
-  job:slo_errors_per_request:ratio_rate5m &gt; (14.4 * 0.001)
-)
-</code></pre>
-<p><strong>关键优势</strong>:</p>
-<ul>
-<li>2% 预算消耗 1 小时内 → 快速检测 (Detection time 优秀)</li>
-<li>5 分钟短窗口 → 快速恢复 (Reset time 提升至 5 分钟)</li>
-<li>3 天窗口覆盖低错误率但长期问题 → Recall 优秀</li>
-</ul>
-<p><strong>引用</strong>: <a href="https://sre.google/workbook/alerting-on-slos/">Google SRE — Alerting on SLOs</a> (2024-2025)</p>
-<h3>2.3 低流量服务特殊处理</h3>
-<p><strong>挑战</strong>: 低流量下单次失败即触发高燃烧率，导致过多误报</p>
-<p><strong>解决方案</strong>:</p>
-<ol>
-<li><p><strong>合成流量</strong> (Synthetic Traffic)</p>
-<ul>
-<li>定期生成探测请求，提供统计信号</li>
-<li>风险: 无法覆盖全部用户路径</li>
-</ul>
-</li>
-<li><p><strong>服务合并监控</strong> (Aggregate Similar Services)</p>
-<ul>
-<li>将相关低流量服务合并为一个监控组</li>
-<li>风险: 单服务 100% 故障可能被掩盖</li>
-</ul>
-</li>
-<li><p><strong>客户端重试 + 降级</strong> (Client-side Retry &amp; Fallback)</p>
-<ul>
-<li>指数回退重试 (3-5 次)</li>
-<li>实现 fallback 路径 (缓存响应/默认值)</li>
-<li>允许更多错误进入预算 (降低误报率)</li>
-</ul>
-</li>
-<li><p><strong>调整 SLO</strong></p>
-<ul>
-<li>如果单次失败影响不大，降低 SLO (如 99.9% → 99%)</li>
-<li>让告警更聚焦真正关键问题</li>
-</ul>
-</li>
-</ol>
-<p><strong>引用</strong>: <a href="https://sre.google/workbook/alerting-on-slos/#low-traffic-services">Google SRE — Alerting on SLOs, Low-Traffic Services</a> (2024-2025)</p>
-<hr>
-<h2>3. 自动恢复机制：重试、熔断、降级</h2>
-<h3>3.1 熔断器模式 (Circuit Breaker)</h3>
-<p><strong>三状态机</strong>:</p>
+<h3>1.3 状态机设计</h3>
+<p>以下使用 <code>stateDiagram</code>（稳定语法，非 <code>stateDiagram</code>）描述 Agent Heartbeat 状态流转：</p>
 <div class="mermaid">stateDiagram
-    [*] --> Closed: 正常调用
-    Closed --> Open: 失败计数 >= failureThreshold
-    Open --> Half-Open: 经过 waitDuration 时间
-    Half-Open --> Closed: 试探调用成功
-    Half-Open --> Open: 试探调用失败
-    Open --> [*]: 持续失败，维持 Open</div>
-<p><strong>关键配置参数</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>推荐值</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>failureThreshold</code></td>
-<td>5 次连续失败</td>
-<td>过低易误判，过高恢复慢</td>
-</tr>
-<tr>
-<td><code>waitDuration</code></td>
-<td>60-300s</td>
-<td>Open 状态持续时间</td>
-</tr>
-<tr>
-<td><code>halfOpenMaxCalls</code></td>
-<td>3-5 次</td>
-<td>半开状态试探调用次数</td>
-</tr>
-<tr>
-<td><code>resetTimeout</code></td>
-<td>与 waitDuration 一致</td>
-<td>状态重置时间</td>
-</tr>
-</tbody></table>
-<p><strong>实现示例</strong> (Python):</p>
-<pre><code class="language-python">class CircuitBreaker:
-    def __init__(self, failure_threshold=5, wait_duration=60):
-        self.failure_threshold = failure_threshold
-        self.wait_duration = wait_duration
-        self.failure_count = 0
-        self.last_failure_time = None
-        self.state = &quot;CLOSED&quot;
-
-    def call(self, func, *args, **kwargs):
-        if self.state == &quot;OPEN&quot;:
-            if time.time() - self.last_failure_time &gt; self.wait_duration:
-                self.state = &quot;HALF_OPEN&quot;
-            else:
-                raise CircuitBreakerOpenError(&quot;熔断器打开，拒绝调用&quot;)
-
-        try:
-            result = func(*args, **kwargs)
-            if self.state == &quot;HALF_OPEN&quot;:
-                self.state = &quot;CLOSED&quot;
-                self.failure_count = 0
-            return result
-        except Exception as e:
-            self.failure_count += 1
-            self.last_failure_time = time.time()
-            if self.failure_count &gt;= self.failure_threshold:
-                self.state = &quot;OPEN&quot;
-            raise e
-</code></pre>
-<h3>3.2 指数回退重试 + 抖动</h3>
-<p><strong>完整重试逻辑</strong>:</p>
-<pre><code class="language-python">import random
-import time
-
-def retry_with_backoff(func, max_retries=5, base_delay=100, max_delay=30000):
-    for attempt in range(max_retries + 1):
-        try:
-            return func()
-        except (TimeoutError, ServiceUnavailable) as e:
-            if attempt == max_retries:
-                raise
-            delay = min(base_delay * (2 ** attempt), max_delay)
-            jitter = random.uniform(0, delay * 0.1)
-            time.sleep((delay + jitter) / 1000)  # 转换为秒
-</code></pre>
-<p><strong>关键原则</strong>:</p>
+    [*] --> healthy: Start
+    healthy --> warning: Miss 1 heartbeat
+    warning --> critical: Miss 2-3 heartbeats
+    critical --> recovered: Success ping
+    warning --> healthy: Success ping
+    critical --> dead: Timeout exceed
+    dead --> [*]</div>
+<p><strong>修正为稳定语法</strong>：</p>
+<div class="mermaid">stateDiagram
+    [*] --> Healthy
+    Healthy --> Warning: Miss 1 heartbeat
+    Warning --> Critical: Miss 2-3 heartbeats
+    Critical --> Recovered: Success ping
+    Warning --> Healthy: Success ping
+    Critical --> Dead: Timeout exceed
+    Dead --> [*]
+    Recovered --> Healthy: Stabilized</div>
+<p>状态说明：</p>
 <ul>
-<li>仅对幂等操作重试 (GET, PUT, DELETE)</li>
-<li>对非幂等操作 (POST) 使用去重 token (idempotency key)</li>
-<li>记录重试次数并传递上下文，便于调试</li>
+<li><strong>Healthy</strong>：Agent 正常运行，心跳正常</li>
+<li><strong>Warning</strong>：错过 1 次心跳，开始记录但暂不告警</li>
+<li><strong>Critical</strong>：连续错过，触发告警并准备恢复流程</li>
+<li><strong>Recovered</strong>：心跳恢复，进入稳定期</li>
+<li><strong>Dead</strong>：超时未恢复，判定为永久故障，触发替换或重启</li>
 </ul>
-<h3>3.3 服务降级与 Fallback</h3>
-<p><strong>分级降级策略</strong>:</p>
+<h3>1.4 分布式 Heartbeat 挑战</h3>
+<p>在多 Agent 架构中，Heartbeat 配置需注意：</p>
+<ul>
+<li><strong>时钟同步</strong>：所有 Agent 使用 NTP，避免时间漂移导致误判</li>
+<li><strong>网络分区</strong>：脑裂（Split-brain）场景下，需引入仲裁机制（如 Redis锁、数据库行锁）</li>
+<li><strong>资源隔离</strong>：Heartbeat 线程优先级应高于业务线程，确保故障时仍可发送</li>
+</ul>
+<hr>
+<h2>2. 异常恢复：重试、熔断与降级</h2>
+<h3>2.1 三大模式概述</h3>
+<p>Agent 调用外部服务（LLM API、工具、数据库）时，网络抖动、服务降级、限流等问题频发。必须应用弹性模式：</p>
 <table>
 <thead>
 <tr>
-<th>降级级别</th>
-<th>触发条件</th>
-<th>降级行为</th>
+<th>模式</th>
+<th>目的</th>
+<th>典型配置</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><strong>L1 缓存</strong></td>
-<td>下游超时</td>
-<td>返回缓存结果 (TTL 可接受)</td>
+<td><strong>Retry</strong></td>
+<td>自动重试临时失败</td>
+<td>最大 3 次，指数退避（2^retry * 100ms）</td>
 </tr>
 <tr>
-<td><strong>L2 静态</strong></td>
-<td>下游不可用</td>
-<td>返回静态配置/默认值</td>
+<td><strong>Circuit Breaker</strong></td>
+<td>失败达到阈值时熔断，避免雪崩</td>
+<td>失败率 50%，窗口大小 10 次调用，熔断时长 2s-2min</td>
 </tr>
 <tr>
-<td><strong>L3 简化</strong></td>
-<td>降级模式</td>
-<td>简化业务逻辑，只返回核心信息</td>
-</tr>
-<tr>
-<td><strong>L4 不可用</strong></td>
-<td>全量失败</td>
-<td>返回 503 或友好错误页</td>
+<td><strong>Fallback</strong></td>
+<td>熔断或重试失败后提供降级响应</td>
+<td>返回缓存、默认值或异步处理确认</td>
 </tr>
 </tbody></table>
-<p><strong>代码示例</strong>:</p>
-<pre><code class="language-python">def get_user_profile(user_id):
-    try:
-        # L0: 正常路径
-        return fetch_user_profile(user_id)
-    except TimeoutError:
-        try:
-            # L1: 缓存降级
-            return cache.get(f&quot;user:{user_id}&quot;)
-        except CacheMiss:
-            # L2: 静态默认值
-            return default_profile
+<h3>2.2 实现示例：Resilience4j（Java）</h3>
+<pre><code class="language-java">@CircuitBreaker(name = &quot;paymentCircuit&quot;, fallbackMethod = &quot;fallbackPayment&quot;)
+@Retry(name = &quot;paymentRetry&quot;)
+public String processPayment(String orderId) {
+    System.out.println(&quot;💳 Calling Payment API...&quot;);
+    if (new Random().nextInt(3) == 0) {
+        throw new RuntimeException(&quot;💥 Payment timeout!&quot;);
+    }
+    return &quot;✅ Payment successful for &quot; + orderId;
+}
+
+public String fallbackPayment(String orderId, Exception ex) {
+    return &quot;⚠️ Payment failed for &quot; + orderId + &quot;, switching to backup gateway.&quot;;
+}
 </code></pre>
+<p>配置示例（YAML）：</p>
+<pre><code class="language-yaml">resilience4j:
+  circuitbreaker:
+    instances:
+      healthProvider:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 2s
+        permittedNumberOfCallsInHalfOpenState: 2
+        minimum-number-of-calls: 2
+  retry:
+    instances:
+      paymentRetry:
+        maxAttempts: 3
+        waitDuration: 100ms
+        retryExceptions:
+          - java.util.concurrent.TimeoutException
+</code></pre>
+<h3>2.3 Polly（.NET）实现</h3>
+<p>Polly 是 .NET 生态的事实标准，支持策略组合：</p>
+<pre><code class="language-csharp">// Fallback Policy (最外层)
+var fallbackPolicy = Policy&lt;HttpResponseMessage&gt;
+    .Handle&lt;BrokenCircuitException&gt;()
+    .Or&lt;TimeoutRejectedException&gt;()
+    .OrResult(r =&gt; (int)r.StatusCode &gt;= 500)
+    .FallbackAsync(
+        fallbackValue: new HttpResponseMessage(HttpStatusCode.ServiceUnavailable),
+        onFallbackAsync: (outcome, context) =&gt; {
+            Console.WriteLine(&quot;[Fallback] Triggered&quot;);
+            return Task.CompletedTask;
+        });
+
+// Timeout Policy (内层)
+var timeoutPolicy = Policy.TimeoutAsync&lt;HttpResponseMessage&gt;(
+    TimeSpan.FromSeconds(5));
+
+// 组合：外层 fallback，内层 timeout
+var composite = Policy.WrapAsync(fallbackPolicy, timeoutPolicy);
+</code></pre>
+<h3>2.4 状态机：熔断器生命周期</h3>
+<div class="mermaid">stateDiagram
+    [*] --> Closed
+    Closed --> Open: Failure rate > threshold
+    Open --> Half_Open: Wait duration expired
+    Half_Open --> Closed: Test call succeeds
+    Half_Open --> Open: Test call fails
+    Closed --> Half_Open: (optional) manual reset
+    Open --> [*]: Manual override</div>
+<p>关键参数：</p>
+<ul>
+<li><strong>Closed</strong>：正常状态，调用通过并统计失败率</li>
+<li><strong>Open</strong>：熔断，所有调用快速失败，直接走 Fallback</li>
+<li><strong>Half_Open</strong>：允许少量测试调用验证恢复情况</li>
+</ul>
 <hr>
-<h2>4. 可观测性工具对比：LangSmith vs Langfuse vs Phoenix</h2>
-<h3>4.1 核心功能对比矩阵</h3>
+<h2>3. 可观测性：从日志到 SLO</h2>
+<h3>3.1 可观测性三大支柱</h3>
+<p>传统监控（Metrics, Logs, Traces）在 Agent 系统中需扩展：</p>
+<ul>
+<li><strong>Metrics</strong>：QPS、延迟、错误率、Token 消耗速率</li>
+<li><strong>Logs</strong>：Agent 决策日志、工具调用记录、中间结果</li>
+<li><strong>Traces</strong>：跨 Agent 的分布式链路，包含 prompt、模型参数、输出质量[14]</li>
+</ul>
+<h3>3.2 SLO 与错误预算（Error Budget）</h3>
+<p><strong>SLO（Service Level Objective）</strong>：定义服务可用性或性能目标，如&quot;99.9% 请求成功&quot;。</p>
+<p><strong>错误预算（Error Budget）</strong> = 1 - SLO，即允许的失败比例。30 天内 99.9% 可用性对应约 43 分钟不可用[4]。</p>
+<p><strong>燃烧率（Burn Rate）</strong>：错误预算消耗速度。1x 燃烧率表示预算将在 SLO 周期结束时恰好耗尽；14.4x 表示将在 2 天内耗尽 30 天预算[6]。</p>
+<h3>3.3 燃烧率告警策略</h3>
+<p>燃烧率告警比绝对错误率更敏感。SLO 窗口 30 天、目标 99.9%（错误率 0.1%）时：</p>
+<pre><code class="language-yaml"># Prometheus 告警规则示例[6]
+groups:
+  - name: slo_burn_rate_alerts
+    rules:
+      # 关键告警：14.4x 燃烧率，5分钟检测，1小时确认
+      - alert: SLOBurnRate_Critical
+        expr: |
+          service:sli_error_ratio:5m &gt; (14.4 * 0.001) and
+          service:sli_error_ratio:1h &gt; (14.4 * 0.001)
+        labels:
+          severity: critical
+        annotations:
+          summary: &quot;SLO burn rate critical&quot;
+          description: &quot;Error budget consumed at 14.4x rate. 30-day budget exhausted in ~2 days.&quot;
+
+      # 低优先级：1x 燃烧率，3天窗口
+      - alert: SLOBurnRate_Low
+        expr: service:sli_error_ratio:3d &gt; (1 * 0.001)
+        labels:
+          severity: info
+        annotations:
+          summary: &quot;Budget trending to exhaustion&quot;
+</code></pre>
+<p>燃烧率计算公式（Datadog）[5]：</p>
+<p>$
+\text{burn rate} = \frac{\text{SLO window (hours)} \times \text{% error budget consumed}}{\text{long window (hours)} \times 100%}
+$</p>
+<p>示例：7 天 SLO，希望 1 小时内检测到 10% 预算消耗：</p>
+<ul>
+<li>burn rate = (7 * 24 * 10%) / (1 * 100%) = 16.8</li>
+</ul>
+<h3>3.4 工具选型对比</h3>
 <table>
 <thead>
 <tr>
-<th>维度</th>
-<th>LangSmith</th>
-<th>Langfuse</th>
-<th>Phoenix</th>
+<th>工具</th>
+<th>SLO 支持</th>
+<th>燃烧率告警</th>
+<th>OpenTelemetry</th>
+<th>Agent 专项</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><strong>开源协议</strong></td>
-<td>❌ 闭源商业</td>
-<td>✅ Apache 2.0</td>
-<td>✅ Apache 2.0</td>
-</tr>
-<tr>
-<td><strong>核心技术</strong></td>
-<td>私有 SDK</td>
-<td>OpenTelemetry</td>
-<td>OpenTelemetry + OpenInference</td>
-</tr>
-<tr>
-<td><strong>Tracing</strong></td>
-<td>✅ 完整</td>
-<td>✅ 完整</td>
-<td>✅ 完整</td>
-</tr>
-<tr>
-<td><strong>Evaluation</strong></td>
-<td>✅ 强大 (LLM-as-judge)</td>
-<td>✅ 完整</td>
-<td>✅ 专业级</td>
-</tr>
-<tr>
-<td><strong>Prompt Management</strong></td>
-<td>✅ 版本控制</td>
-<td>✅ 版本控制</td>
-<td>✅ Playground</td>
-</tr>
-<tr>
-<td><strong>Datasets &amp; Experiments</strong></td>
+<td><strong>Splunk Observability</strong></td>
 <td>✅</td>
 <td>✅</td>
-<td>✅ 深度集成</td>
+<td>✅</td>
+<td>⚠️</td>
 </tr>
 <tr>
-<td><strong>自托管</strong></td>
+<td><strong>Datadog</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
 <td>❌</td>
-<td>✅ Docker/K8s</td>
-<td>✅ Docker/K8s</td>
 </tr>
 <tr>
-<td><strong>多模态支持</strong></td>
+<td><strong>Google Cloud SLO</strong></td>
 <td>✅</td>
 <td>✅</td>
 <td>✅</td>
+<td>❌</td>
 </tr>
 <tr>
-<td><strong>定价模式</strong></td>
-<td>按用量付费</td>
-<td>免费 (自托管)</td>
-<td>免费 (自托管) / 云版付费</td>
+<td><strong>New Relic</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
 </tr>
 <tr>
-<td><strong>社区活跃度</strong></td>
-<td>高 (LangChain 生态)</td>
-<td>高 (开源贡献)</td>
-<td>中 (Arize 驱动)</td>
+<td><strong>Prometheus + Pyrra</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>LangSmith</strong></td>
+<td>⚠️</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Langfuse</strong></td>
+<td>⚠️</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Maxim AI</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
 </tr>
 </tbody></table>
-<p><strong>数据来源</strong>: 各平台官方文档 (2024-2026 版本)</p>
-<h3>4.2 深度分析：协议与生态锁定</h3>
-<p><strong>LangSmith</strong>:</p>
-<ul>
-<li><strong>优势</strong>: LangChain 原生深度集成，企业级支持，SLA 保证</li>
-<li><strong>劣势</strong>: 供应商锁定，成本随用量增长，私有部署困难</li>
-<li><strong>适用</strong>: LangChain 技术栈、需要商业支持的企业</li>
-</ul>
-<p><strong>Langfuse</strong>:</p>
-<ul>
-<li><strong>优势</strong>: 基于 OpenTelemetry 标准，无供应商锁定，社区驱动，SDK 丰富 (Python/JS)</li>
-<li><strong>劣势</strong>: 企业级功能需自建，文档不如 LangSmith 完善</li>
-<li><strong>适用</strong>: 多框架、多云/混合云、重视数据主权</li>
-</ul>
-<p><strong>Phoenix</strong>:</p>
-<ul>
-<li><strong>优势</strong>: 专注于 LLM Evaluation，集成 Ragas/Deepeval 等第三方评估器，实验功能强大</li>
-<li><strong>劣势</strong>: Tracing 功能相对较弱，UI 复杂度高</li>
-<li><strong>适用</strong>: 评估驱动开发、深度 RAG 分析</li>
-</ul>
-<p><strong>引用</strong>:</p>
-<ul>
-<li><a href="https://docs.langchain.com/langsmith/home.md">LangSmith Documentation</a> (2024-2026)</li>
-<li><a href="https://langfuse.com/docs">Langfuse Documentation</a> (2024-2026)</li>
-<li><a href="https://arize.com/docs/phoenix">Arize Phoenix Documentation</a> (2024-2026)</li>
-</ul>
-<h3>4.3 选型决策树</h3>
-<div class="mermaid">flowchart TD
-    A[选择可观测性工具] --> B{是否需要商业支持?}
-    B -->|是| C[选择 LangSmith]
-    
-    B -->|否| D{评估是否核心需求?}
-    D -->|是, 评估为主| E[选择 Phoenix]
-    D -->|否, 全功能| F[选择 Langfuse]
-    
-    C --> G[支付费用, 享受企业 SLA]
-    E --> H[深度实验 + 评估队列]
-    F --> I[自托管, 低成本, 无锁定]</div>
-<h3>4.4 OpenTelemetry 标准统一趋势</h3>
-<p>三大平台均支持 OpenTelemetry (OTel) 作为底层数据格式:</p>
-<pre><code>应用 → OTel SDK (Traces/Metrics/Logs) → OTLP Exporter → 平台
-</code></pre>
-<p><strong>关键优势</strong>:</p>
-<ul>
-<li>一次 instrument，多平台导出</li>
-<li>避免 vendor lock-in</li>
-<li>标准 Schema，跨团队协作</li>
-</ul>
-<p><strong>引用</strong>: <a href="https://opentelemetry.io/docs/">OpenTelemetry Documentation</a> (2024-2026)</p>
 <hr>
-<h2>5. 成本异常监控与止损策略</h2>
-<h3>5.1 LLM API 成本结构 (2024-2026)</h3>
-<p>以 OpenAI 为例 (2025 定价):</p>
-<table>
-<thead>
-<tr>
-<th>模型</th>
-<th>输入价格 ($/1M tokens)</th>
-<th>输出价格 ($/1M tokens)</th>
-<th>适用场景</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>GPT-4.5 Turbo</td>
-<td>75.00</td>
-<td>150.00</td>
-<td>高质量生成</td>
-</tr>
-<tr>
-<td>GPT-4o</td>
-<td>5.00</td>
-<td>15.00</td>
-<td>平衡型</td>
-</tr>
-<tr>
-<td>GPT-4o Mini</td>
-<td>0.15</td>
-<td>0.60</td>
-<td>低成本</td>
-</tr>
-<tr>
-<td>GPT-3.5 Turbo</td>
-<td>0.50</td>
-<td>1.50</td>
-<td>简单任务</td>
-</tr>
-</tbody></table>
-<p><strong>成本失控风险</strong>:</p>
+<h2>4. 成本监控与异常止损</h2>
+<h3>4.1 Token 级追踪</h3>
+<p>AI Agent 成本主要来自 LLM API 的 Token 消耗。2025 年最佳实践要求：</p>
 <ul>
-<li>突发流量 → 费用激增</li>
-<li>提示词优化不足 → token 浪费</li>
-<li>循环/死循环 Agent → 无限调用</li>
-<li>模型误用 (高成本模型处理简单任务)</li>
+<li><strong>实时追踪</strong>：每个 Agent 调用记录 prompt tokens、completion tokens、缓存命中率 [12]</li>
+<li><strong>归因分析</strong>：按团队、项目、用户维度聚合消耗，识别&quot;浪费大户&quot; [12]</li>
+<li><strong>预算控制</strong>：设置硬性上限（Hard Limit）和软性告警（Soft Alert，如 80% 使用率）</li>
 </ul>
-<p><strong>引用</strong>: <a href="https://chatgpt.com/pricing">OpenAI Pricing</a> (2024-2026)</p>
-<h3>5.2 成本监控关键指标</h3>
-<p><strong>核心维度</strong>:</p>
+<h3>4.2 异常检测</h3>
+<p>仅追踪不足以防止成本爆炸。需建立异常检测机制[19]：</p>
 <ol>
-<li><p><strong>总成本趋势</strong></p>
-<ul>
-<li>按日/小时聚合 API 消费</li>
-<li>设置预算告警阈值 (80%, 90%, 100%)</li>
-</ul>
-</li>
-<li><p><strong>模型使用分布</strong></p>
-<pre><code class="language-sql">SELECT model, SUM(tokens_input * price_input + tokens_output * price_output) as cost
-FROM llm_calls
-WHERE date &gt;= NOW() - INTERVAL &#39;1 day&#39;
-GROUP BY model
-</code></pre>
-</li>
-<li><p><strong>单次调用成本异常检测</strong></p>
-<ul>
-<li>指标: 单次调用 token 数 / 成本的历史 P95-P99</li>
-<li>阈值: 超过 P99 + 3σ 触发告警</li>
-</ul>
-</li>
-<li><p><strong>用户/项目维度归属</strong></p>
-<ul>
-<li>通过 API Key 或上下文 ID 隔离</li>
-<li>设置 per-project 配额</li>
-</ul>
-</li>
-<li><p><strong>缓存命中率</strong></p>
-<ul>
-<li>命中率 &lt; 80% → 提示优化</li>
-<li>相同 query 多次调用 → 缓存策略失效</li>
-</ul>
-</li>
+<li><strong>基线建立</strong>：基于历史 7-30 天数据计算正常消耗区间（P50 ± 2σ）</li>
+<li><strong>实时比对</strong>：当前消耗超过基线 3σ 触发异常告警</li>
+<li><strong>根因定位</strong>：关联异常与 Agent 行为（循环重试、无限生成、上下文膨胀）</li>
 </ol>
-<h3>5.3 自动止损机制</h3>
-<p><strong>分层防御</strong>:</p>
+<h3>4.3 止损策略</h3>
+<p>当检测到异常消耗时，自动执行[19]：</p>
 <table>
 <thead>
 <tr>
-<th>层级</th>
-<th>机制</th>
+<th>策略</th>
 <th>触发条件</th>
 <th>动作</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><strong>L1 配额</strong></td>
-<td>API Key Quota</td>
-<td>达到月预算 80%</td>
-<td>暂停/限流</td>
+<td><strong>限流</strong></td>
+<td>单个 Agent QPS 突增</td>
+<td>限制并发请求数</td>
 </tr>
 <tr>
-<td><strong>L2 降级</strong></td>
-<td>模型降级</td>
-<td>单次成本 &gt; 阈值</td>
-<td>切换至 GPT-3.5</td>
+<td><strong>截断</strong></td>
+<td>单个请求输出过长</td>
+<td>强制停止生成，返回截断提示</td>
 </tr>
 <tr>
-<td><strong>L3 限流</strong></td>
-<td>Rate Limiting</td>
-<td>QPS &gt; 基线 2x</td>
-<td>429 响应，排队</td>
+<td><strong>降级模型</strong></td>
+<td>预算超 80%</td>
+<td>切换到低成本模型（如 GPT-4o → GPT-4o-mini）</td>
 </tr>
 <tr>
-<td><strong>L4 熔断</strong></td>
-<td>Circuit Breaker</td>
-<td>错误率 &gt; 5%</td>
-<td>暂时拒绝请求</td>
+<td><strong>暂停</strong></td>
+<td>预算超 95%</td>
+<td>停止 Agent 执行，人工介入</td>
 </tr>
 </tbody></table>
-<p><strong>代码示例</strong> (模型自动降级):</p>
-<pre><code class="language-python">def call_llm_with_fallback(prompt, max_cost_per_call=0.10):
-    models = [
-        {&quot;name&quot;: &quot;gpt-4o&quot;, &quot;cost_input&quot;: 5.0, &quot;cost_output&quot;: 15.0},
-        {&quot;name&quot;: &quot;gpt-3.5-turbo&quot;, &quot;cost_input&quot;: 0.5, &quot;cost_output&quot;: 1.5},
-    ]
-    
-    for model in models:
-        try:
-            response = openai.ChatCompletion.create(
-                model=model[&quot;name&quot;],
-                messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}],
-            )
-            cost = (response.usage.prompt_tokens * model[&quot;cost_input&quot;] / 1e6 +
-                    response.usage.completion_tokens * model[&quot;cost_output&quot;] / 1e6)
-            if cost &gt; max_cost_per_call:
-                raise CostLimitExceeded(f&quot;调用成本 ${cost:.4f} 超出限制 ${max_cost_per_call}&quot;)
-            return response
-        except CostLimitExceeded:
-            continue  # 尝试下一个低成本模型
-    raise AllModelsExceeded(&quot;所有模型均超出成本限制&quot;)
-</code></pre>
-<h3>5.4 告警配置（基于 SLO）</h3>
-<p>将成本监控纳入 SLO 框架:</p>
-<pre><code>成本预算 SLO: 月成本 &lt; $10,000 (误差预算 10%)
-告警配置:
-  - Page: 2% 预算/1小时 (燃烧率 14.4x) → 即 $200/小时
-  - Ticket: 10% 预算/3天 → 即 $1,000/3天
-</code></pre>
+<h3>4.4 成本监控架构</h3>
+<div class="mermaid">flowchart TD
+    A[Agent Invocation] --> B[OTel Collector]
+    B --> C[Token Metrics]
+    C --> D{Cost Anomaly Detection}
+    D -->|Normal| E[Cost Dashboard]
+    D -->|Anomaly| F[Auto-Remediation]
+    F --> G[Throttle]
+    F --> H[Downgrade Model]
+    F --> I[Pause Agent]
+    E --> J[Finance Report]</div>
 <hr>
-<h2>6. OpenClaw 运维现状与改进建议</h2>
-<h3>6.1 OpenClaw 心跳机制分析</h3>
-<p><strong>现有配置</strong>:</p>
-<table>
-<thead>
-<tr>
-<th>Agent</th>
-<th>heartbeat.every</th>
-<th>heartbeat.target</th>
-<th>状态</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>chief-editor</td>
-<td>30m</td>
-<td><code>last</code></td>
-<td>✅ 推送到 Telegram</td>
-</tr>
-<tr>
-<td>report-reader</td>
-<td>30m</td>
-<td><code>last</code></td>
-<td>✅ 已修复 (原为 <code>none</code>)</td>
-</tr>
-<tr>
-<td>probe-agent</td>
-<td>未配置</td>
-<td>-</td>
-<td>⚠️ 需要配置</td>
-</tr>
-</tbody></table>
-<p><strong>状态存储</strong>: <code>~/self-improving/heartbeat-state.md</code></p>
-<p><strong>执行逻辑</strong>:</p>
-<ul>
-<li>基于文件修改时间判断是否有&quot;material change&quot;</li>
-<li>仅执行保守整理 (index 更新、重复合并)</li>
-<li>遵循&quot;Most heartbeat runs should do nothing&quot;原则</li>
-</ul>
-<h3>6.2 发现的 Bug 与修复</h3>
-<p><strong>Bug #1: Gateway WebSocket 握手超时</strong></p>
-<ul>
-<li><strong>根因</strong>: 握手超时 3s &lt; auth 认证耗时，连接在认证完成前被关闭</li>
-<li><strong>影响</strong>: CLI 的 websocket RPC 命令失败 (cron、gateway call)</li>
-<li><strong>不影响</strong>: HTTP 接口、Telegram 消息通道、cron 内部调度</li>
-<li><strong>修复</strong>: PR #49751 — 移动 timer 清除时机 + 超时 3s → 10s</li>
-<li><strong>版本</strong>: 等待下一个 OpenClaw release</li>
-</ul>
-<p><strong>Bug #2: Reader heartbeat target 设置为 none</strong></p>
-<ul>
-<li><strong>问题</strong>: 每 30 分钟运行但结果不推送，等于白跑</li>
-<li><strong>修复</strong>: <code>target</code> 从 <code>none</code> 改为 <code>last</code></li>
-<li><strong>状态</strong>: 已修复</li>
-</ul>
-<h3>6.3 与 SRE 最佳实践差距</h3>
-<table>
-<thead>
-<tr>
-<th>领域</th>
-<th>OpenClaw 现状</th>
-<th>SRE 最佳实践</th>
-<th>差距</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>自观测</strong></td>
-<td>❌ heartbeat 自身无 metrics</td>
-<td>导出 Prometheus metrics</td>
-<td>缺少 self-monitoring</td>
-</tr>
-<tr>
-<td><strong>自动恢复</strong></td>
-<td>❌ heartbeat 失败不重启</td>
-<td>系统服务自动重启 (systemd/K8s)</td>
-<td>单点故障</td>
-</tr>
-<tr>
-<td><strong>量化告警</strong></td>
-<td>❌ 任何改动即通知</td>
-<td>Burn rate + 错误预算</td>
-<td>噪音大，缺少优先级</td>
-</tr>
-<tr>
-<td><strong>日志聚合</strong></td>
-<td>⚠️ 文件系统存储</td>
-<td>结构化日志 + 集中式 ELK/Loki</td>
-<td>难排查</td>
-</tr>
-<tr>
-<td><strong>分布式 Tracing</strong></td>
-<td>❌ 无</td>
-<td>OpenTelemetry traces</td>
-<td>链路不可见</td>
-</tr>
-</tbody></table>
-<h3>6.4 改进路线图 (P0-P2)</h3>
-<p><strong>P0 (必须修复)</strong>:</p>
+<h2>5. 生产环境最佳实践</h2>
+<h3>5.1 Agentic Ops 四大支柱</h3>
+<p>2025 年成熟的 <strong>Agentic Ops</strong> 框架定义了四个核心领域[18]：</p>
 <ol>
-<li>为 heartbeat 自身添加 Prometheus metrics 导出<pre><code class="language-python"># 指标: heartbeat_duration_seconds, heartbeat_result{success/failed}
-</code></pre>
-</li>
-<li>配置 heartbeat 作为 systemd service，失败自动重启</li>
-<li>引入基于文件改动量的量化告警阈值 (如: 改动 &lt; 5 行不通知)</li>
+<li><strong>Governance（治理）</strong>：定义 Agent 权限边界，敏感操作需人工审批</li>
+<li><strong>Monitoring（监控）</strong>：实时追踪 Agent 行为、错误率、输出质量漂移</li>
+<li><strong>Orchestration（编排）</strong>：多 Agent 工作流管理，上下文传递，MCP 工具集成</li>
+<li><strong>Reliability（可靠性）</strong>：Fallback 逻辑、重试机制、升级路径、审计日志</li>
 </ol>
-<p><strong>P1 (高优先级)</strong>:
-4. 集成 OpenTelemetry tracing 到 Agent 调度链路
-5. 实现成本监控模块 (按 Agent/用户维度)
-6. 优化 heartbeat 规则引擎，支持条件过滤</p>
-<p><strong>P2 (中优先级)</strong>:
-7. 迁移状态存储从文件到轻量 DB (SQLite)
-8. 实现 heartbeat 历史记录查询 API
-9. 添加 heartbeat 执行时长 SLO 监控</p>
-<hr>
-<h2>7. Agent 运维综合架构设计</h2>
-<h3>7.1 整体架构图</h3>
-<div class="mermaid">graph TB
-    subgraph "Agent 服务层"
-        A1[Probe Agent]
-        A2[Palette Agent]
-        A3[Reader Agent]
-        A4[Chief Agent]
-    end
-    
-    subgraph "运维核心层"
-        B1[Heartbeat 监控<br/>30min 间隔]
-        B2[健康检查<br/>文件/Socket/HTTP]
-        B3[异常检测<br/>Burn Rate 告警]
-        B4[自动恢复<br/>重试/熔断/降级]
-    end
-    
-    subgraph "可观测性层"
-        C1[Logs<br/>结构化日志]
-        C2[Tracing<br/>OpenTelemetry]
-        C3[Metrics<br/>Prometheus]
-    end
-    
-    subgraph "成本控制层"
-        D1[成本监控<br/>按 Agent/Model]
-        D2[配额管理<br/>API Key Quota]
-        D3[自动降级<br/>GPT-4 → GPT-3.5]
-    end
-    
-    A1 --> B1
-    A2 --> B1
-    A3 --> B1
-    A4 --> B1
-    
-    B1 --> B2
-    B2 --> B3
-    B3 --> B4
-    
-    A1 --> C1
-    A2 --> C1
-    A3 --> C1
-    A4 --> C1
-    
-    A1 --> C2
-    A2 --> C2
-    A3 --> C2
-    A4 --> C2
-    
-    B4 --> D1
-    D1 --> D2
-    D2 --> D3
-    
-    C3 --> B3
-    
-    style B1 fill:#e1f5ff
-    style C2 fill:#f0f4ff
-    style D1 fill:#fff3e0</div>
-<h3>7.2 告警分级与响应 SLO</h3>
+<h3>5.2 失败根因分析</h3>
+<p>MIT 2025 研究显示，95% 的生成式 AI 试点项目失败[35]。Agent 生产失败的主要模式[27]：</p>
 <table>
 <thead>
 <tr>
-<th>级别</th>
-<th>触发条件</th>
-<th>检测时间</th>
-<th>恢复 SLO</th>
-<th>值班响应</th>
+<th>失败类型</th>
+<th>比例</th>
+<th>根因</th>
+<th>缓解措施</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><strong>P0</strong></td>
-<td>服务完全不可用</td>
-<td>&lt; 1 分钟</td>
-<td>30 分钟</td>
-<td>5 分钟内响应，立即处理</td>
+<td><strong>幻觉（Hallucination）</strong></td>
+<td>32%</td>
+<td>模型知识滞后或推理错误</td>
+<td>RAG 增强、输出验证</td>
 </tr>
 <tr>
-<td><strong>P1</strong></td>
-<td>错误率 &gt; 5%</td>
-<td>&lt; 5 分钟</td>
-<td>2 小时</td>
-<td>15 分钟内响应</td>
+<td><strong>上下文窗口溢出</strong></td>
+<td>21%</td>
+<td>记忆管理不当，长会话 Token 超限</td>
+<td>滑动窗口、摘要压缩</td>
 </tr>
 <tr>
-<td><strong>P2</strong></td>
-<td>成本 &gt; 预算 80%</td>
-<td>&lt; 10 分钟</td>
-<td>下一工作日</td>
-<td>1 小时内确认</td>
+<td><strong>工具集成故障</strong></td>
+<td>18%</td>
+<td>API 返回异常、Schema 不匹配</td>
+<td>重试 + 熔断 + 类型校验</td>
 </tr>
 <tr>
-<td><strong>P3</strong></td>
-<td>性能下降</td>
-<td>&lt; 30 分钟</td>
-<td>下周排期</td>
-<td>24 小时内评估</td>
+<td><strong>延迟超时</strong></td>
+<td>15%</td>
+<td>模型推理慢、工具调用阻塞</td>
+<td>超时配置、异步化</td>
+</tr>
+<tr>
+<td><strong>错误累积</strong></td>
+<td>14%</td>
+<td>多步骤任务中错误未及时中断</td>
+<td>中间结果验证、早期失败检测</td>
 </tr>
 </tbody></table>
-<p><strong>引用原则</strong>: 基于 Google SRE 错误预算消费模型</p>
-<hr>
-<h2>8. Agent 运维实操清单 (ES)</h2>
-<h3>8.1 Heartbeat 配置清单</h3>
+<h3>5.3 可观测性实施检查清单</h3>
+<p>成功的 Agent 可观测性需覆盖[21][15]：</p>
 <ul>
-<li><p><input disabled="" type="checkbox"> <strong>1. 确定服务等级 (P0-P3)</strong></p>
-<ul>
-<li>P0 关键服务: 间隔 5-10s, failureThreshold=2</li>
-<li>P1 高可用服务: 间隔 30s, failureThreshold=3</li>
-<li>P2 普通服务: 间隔 60s, failureThreshold=5</li>
-</ul>
-</li>
-<li><p><input disabled="" type="checkbox"> <strong>2. 选择探测方式</strong></p>
-<ul>
-<li><input disabled="" type="checkbox"> HTTP <code>/health</code> 端点，返回 JSON <code>{status: &quot;ok&quot;}</code></li>
-<li><input disabled="" type="checkbox"> TCP 端口检查 (数据库/缓存)</li>
-<li><input disabled="" type="checkbox"> 自定义命令脚本</li>
-</ul>
-</li>
-<li><p><input disabled="" type="checkbox"> <strong>3. 配置健康检查参数</strong></p>
-<pre><code class="language-yaml">initialDelaySeconds: 30   # 启动等待
-periodSeconds: 10         # 检查间隔
-timeoutSeconds: 5         # 超时时间
-successThreshold: 1
-failureThreshold: 3
-</code></pre>
-</li>
-<li><p><input disabled="" type="checkbox"> <strong>4. 设置自动恢复</strong></p>
-<ul>
-<li><input disabled="" type="checkbox"> 启用容器自动重启策略 (K8s: <code>restartPolicy: Always</code>)</li>
-<li><input disabled="" type="checkbox"> 实现熔断器模式 (失败 5 次 → 开放 60s)</li>
-<li><input disabled="" type="checkbox"> 实现指数回退重试 (最多 5 次，最大延迟 30s)</li>
-</ul>
-</li>
-<li><p><input disabled="" type="checkbox"> <strong>5. 验证配置</strong></p>
-<ul>
-<li><input disabled="" type="checkbox"> 模拟服务崩溃，观察恢复时间</li>
-<li><input disabled="" type="checkbox"> 模拟网络抖动，验证重试逻辑</li>
-<li><input disabled="" type="checkbox"> 测试熔断器状态转换</li>
-</ul>
-</li>
-</ul>
-<h3>8.2 异常检测与告警清单</h3>
-<ul>
-<li><p><input disabled="" type="checkbox"> <strong>1. 定义 SLI/SLO</strong></p>
-<ul>
-<li><input disabled="" type="checkbox"> 可用性: <code>success_requests / total_requests &gt;= 99.9%</code></li>
-<li><input disabled="" type="checkbox"> 延迟: <code>p95_latency &lt;= 200ms</code></li>
-<li><input disabled="" type="checkbox"> 错误预算: <code>error_budget &gt; 0</code></li>
-</ul>
-</li>
-<li><p><input disabled="" type="checkbox"> <strong>2. 配置燃烧率告警</strong></p>
-<pre><code class="language-promql"># P0: 2% 预算/1小时，燃烧率 14.4x
-alert: HighErrorRate
-expr: job:slo_errors_per_request:ratio_rate1h &gt; (14.4 * slo_threshold)
-for: 5m
-
-# P1: 5% 预算/6小时，燃烧率 6x
-alert: MediumErrorRate
-expr: job:slo_errors_per_request:ratio_rate6h &gt; (6 * slo_threshold)
-for: 30m
-</code></pre>
-</li>
-<li><p><input disabled="" type="checkbox"> <strong>3. 设置通知渠道</strong></p>
-<ul>
-<li><input disabled="" type="checkbox"> P0/P1 → Slack/Telegram/PagerDuty (15分钟内响应)</li>
-<li><input disabled="" type="checkbox"> P2 → 工单系统/邮件 (次日处理)</li>
-<li><input disabled="" type="checkbox"> P3 → 周报汇总</li>
-</ul>
-</li>
-<li><p><input disabled="" type="checkbox"> <strong>4. 低流量服务特殊处理</strong></p>
-<ul>
-<li><input disabled="" type="checkbox"> 评估是否需合成流量 (每 5 分钟 1 次 probe)</li>
-<li><input disabled="" type="checkbox"> 客户端添加指数回退重试 (3-5 次)</li>
-<li><input disabled="" type="checkbox"> 考虑降低 SLO 或合并监控组</li>
-</ul>
-</li>
-</ul>
-<h3>8.3 可观测性工具部署清单</h3>
-<p><strong>Langfuse (自托管)</strong>:</p>
-<ul>
-<li><input disabled="" type="checkbox"> 1. 准备 PostgreSQL + Redis (或使用 Docker compose)</li>
-<li><input disabled="" type="checkbox"> 2. 部署 Langfuse 容器<pre><code class="language-bash">docker run -p 3000:3000 \
-  -e DATABASE_URL=postgresql://... \
-  -e SALT=$(openssl rand -base64 32) \
-  langfuse/langfuse:latest
-</code></pre>
-</li>
-<li><input disabled="" type="checkbox"> 3. 集成 OTel SDK (Python: <code>langfuse</code> 包，JS: <code>@langfuse/js</code>)</li>
-<li><input disabled="" type="checkbox"> 4. 验证 traces 数据正常流入</li>
-</ul>
-<p><strong>Phoenix (自托管)</strong>:</p>
-<ul>
-<li><input disabled="" type="checkbox"> 1. Docker 部署<pre><code class="language-bash">docker run -p 6006:6006 -v ~/.phoenix:/mnt/phoenix \
-  -e PHOENIX_WORKING_DIR=/mnt/phoenix arize/phoenix:latest
-</code></pre>
-</li>
-<li><input disabled="" type="checkbox"> 2. 集成 <code>phoenix.trace</code> 装饰器或上下文管理器</li>
-<li><input disabled="" type="checkbox"> 3. 发送 traces 到 <code>http://localhost:6006/v1/traces</code></li>
-<li><input disabled="" type="checkbox"> 4. 验证 datasets 和 evaluations 正常</li>
-</ul>
-<p><strong>LangSmith (云服务)</strong>:</p>
-<ul>
-<li><input disabled="" type="checkbox"> 1. 注册账户 (smith.langchain.com)</li>
-<li><input disabled="" type="checkbox"> 2. 创建 API Key</li>
-<li><input disabled="" type="checkbox"> 3. 集成 <code>langsmith</code> SDK</li>
-<li><input disabled="" type="checkbox"> 4. 设置项目和环境 (生产/测试)</li>
-</ul>
-<h3>8.4 成本监控清单</h3>
-<ul>
-<li><p><input disabled="" type="checkbox"> <strong>1. 成本指标收集</strong></p>
-<ul>
-<li><input disabled="" type="checkbox"> 记录每次 LLM 调用的 token 数 (prompt + completion)</li>
-<li><input disabled="" type="checkbox"> 记录模型名称和版本</li>
-<li><input disabled="" type="checkbox"> 记录调用时间戳和用户/项目 ID</li>
-</ul>
-</li>
-<li><p><input disabled="" type="checkbox"> <strong>2. 成本聚合</strong></p>
-<pre><code class="language-sql">-- 按日成本报告
-SELECT DATE(created_at) as day,
-       model,
-       SUM(prompt_tokens * input_price / 1e6) as input_cost,
-       SUM(completion_tokens * output_price / 1e6) as output_cost,
-       SUM(total_cost) as total_cost
-FROM llm_usage
-GROUP BY day, model
-</code></pre>
-</li>
-<li><p><input disabled="" type="checkbox"> <strong>3. 告警阈值</strong></p>
-<ul>
-<li><input disabled="" type="checkbox"> 日预算: 预算 / 30 × 1.2 (20% 缓冲)</li>
-<li><input disabled="" type="checkbox"> 单次调用成本 &gt; P99 历史值 × 2</li>
-<li><input disabled="" type="checkbox"> 缓存命中率 &lt; 80% → 优化提示词</li>
-</ul>
-</li>
-<li><p><input disabled="" type="checkbox"> <strong>4. 自动止损</strong></p>
-<ul>
-<li><input disabled="" type="checkbox"> 配置 API Key quota (OpenAI/Anthropic 控制台)</li>
-<li><input disabled="" type="checkbox"> 实现模型降级逻辑 (高成本 → 低成本)</li>
-<li><input disabled="" type="checkbox"> 设置 rate limiting (单 IP/user 的 QPS 限制)</li>
-</ul>
-</li>
-</ul>
-<h3>8.5 OpenClaw 运维改进清单</h3>
-<ul>
-<li><p><input disabled="" type="checkbox"> <strong>P0: Heartbeat 自监控</strong></p>
-<ul>
-<li><input disabled="" type="checkbox"> 添加指标: <code>heartbeat_duration_seconds</code>, <code>heartbeat_success_total</code></li>
-<li><input disabled="" type="checkbox"> 配置 heartbeat 自身 SLO: 成功率 &gt; 99.9%</li>
-<li><input disabled="" type="checkbox"> heartbeat 失败时触发重启 (systemd/supervisor)</li>
-</ul>
-</li>
-<li><p><input disabled="" type="checkbox"> <strong>P1: 成本控制模块</strong></p>
-<ul>
-<li><input disabled="" type="checkbox"> 集成 Langfuse cost tracking</li>
-<li><input disabled="" type="checkbox"> 按 Agent 类型统计 token 消耗</li>
-<li><input disabled="" type="checkbox"> 设置 per-Agent 预算配额</li>
-</ul>
-</li>
-<li><p><input disabled="" type="checkbox"> <strong>P2: Tracing 集成</strong></p>
-<ul>
-<li><input disabled="" type="checkbox"> Agent 调度链路添加 OpenTelemetry trace</li>
-<li><input disabled="" type="checkbox"> 导出到 Langfuse/Phoenix</li>
-<li><input disabled="" type="checkbox"> 关键 span 添加 attributes (agent_id, task_type, duration)</li>
-</ul>
-</li>
+<li><input disabled="" type="checkbox"> <strong>分布式追踪</strong>：每个 Agent 调用生成 Trace，包含 prompt 版本、工具参数</li>
+<li><input disabled="" type="checkbox"> <strong>日志结构化</strong>：JSON 格式，包含 agent_id、run_id、step_id、timestamp</li>
+<li><input disabled="" type="checkbox"> <strong>自动评估</strong>：每次运行后执行 faithfulness、relevance 评分</li>
+<li><input disabled="" type="checkbox"> <strong>成本感知</strong>：每次调用记录 token 数和预估成本</li>
+<li><input disabled="" type="checkbox"> <strong>仪表板</strong>：团队级 SLO、错误预算余额、Top N 成本 Agent、失败率趋势</li>
 </ul>
 <hr>
-<h2>9. 关键参考文献 (2024-2026)</h2>
+<h2>6. 工具选型指南</h2>
+<h3>6.1 按场景推荐</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐工具</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>全栈 Agent 平台</strong></td>
+<td>Maxim AI</td>
+<td>覆盖仿真、评估、可观测性，团队协作友好[15]</td>
+</tr>
+<tr>
+<td><strong>LangChain 生态</strong></td>
+<td>LangSmith</td>
+<td>深度集成 LangGraph，调试体验最佳</td>
+</tr>
+<tr>
+<td><strong>开源/自托管</strong></td>
+<td>Langfuse + Prometheus</td>
+<td>灵活部署，成本可控，支持 OTEL[21]</td>
+</tr>
+<tr>
+<td><strong>传统 SLO 迁移</strong></td>
+<td>Splunk/Datadog</td>
+<td>现有监控体系平滑接入 Agent</td>
+</tr>
+<tr>
+<td><strong>成本敏感小团队</strong></td>
+<td>OpenTelemetry + Grafana</td>
+<td>零成本，自建指标和告警</td>
+</tr>
+<tr>
+<td><strong>高合规要求</strong></td>
+<td>Arize + 私有 OTEL 收集</td>
+<td>数据不出境，完整 audit trail</td>
+</tr>
+</tbody></table>
+<h3>6.2 技术栈示例</h3>
+<p>一个典型 Agent 生产栈（2025）：</p>
+<pre><code>┌─────────────┐    ┌──────────────┐    ┌──────────────┐
+│  Agent SDK  │───▶│  OTel Agent  │───▶│  OTel Collector│
+│ (LangChain) │    │(auto-instr.) │    │   (Jager)    │
+└─────────────┘    └──────────────┘    └──────────────┘
+        │                   │                    │
+        ▼                   ▼                    ▼
+┌─────────────┐    ┌──────────────┐    ┌──────────────┐
+│ PromptHub   │    │   Metrics    │    │   Traces     │
+│  (version)  │    │ (Prometheus) │    │  (Jager UI)  │
+└─────────────┘    └──────────────┘    └──────────────┘
+        │
+        ▼
+┌─────────────────────────────┐
+│   Observability Platform    │
+│  (LangSmith / Maxim / Grafana)│
+└─────────────────────────────┘
+</code></pre>
+<hr>
+<h2>7. 总结与未来展望</h2>
+<p>Agent 运维已从&quot;手工作坊&quot;走向规范化、工程化。2024-2025 年沉淀的最佳实践表明：</p>
 <ol>
-<li><a href="https://sre.google/workbook/alerting-on-slos/">Google SRE — Alerting on SLOs</a> (2024-2025)</li>
-<li><a href="https://kubernetes.io/docs/concepts/containers/container-health-checks/">Kubernetes — Container Health Checks</a> (2024-2026)</li>
-<li><a href="https://docs.langchain.com/langsmith/home.md">LangSmith Documentation</a> (2024-2026)</li>
-<li><a href="https://langfuse.com/docs">Langfuse Documentation</a> (2024-2026)</li>
-<li><a href="https://arize.com/docs/phoenix">Arize Phoenix Documentation</a> (2024-2026)</li>
-<li><a href="https://opentelemetry.io/docs">OpenTelemetry Documentation</a> (2024-2026)</li>
-<li><a href="https://chatgpt.com/pricing">OpenAI Pricing</a> (2024-2026)</li>
+<li><strong>Heartbeat</strong> 是基础，但需要自适应机制应对动态负载</li>
+<li><strong>异常恢复</strong>三件套（重试+熔断+降级）必须组合使用，单点失效风险高</li>
+<li><strong>SLO + 燃烧率告警</strong>是平衡稳定性与创新的最佳实践，避免过度响应</li>
+<li><strong>成本监控</strong>需 Token 级可见性和自动止损，否则账单可能指数增长</li>
+<li><strong>OpenTelemetry</strong> 正在成为 Agent 可观测性的统一标准，生态快速成熟[14]</li>
 </ol>
+<p>未来方向（2026+）：</p>
+<ul>
+<li><strong>AI Native 监控</strong>：用 AI Agent 监控 AI Agent，自动诊断异常</li>
+<li><strong>预测性 SLO</strong>：基于机器学习预测预算消耗，提前调整</li>
+<li><strong>混沌工程</strong>：主动注入故障（网络延迟、API 限流），测试恢复能力</li>
+<li><strong>绿色 Agent</strong>：优化 Token 消耗，降低碳排放，符合 ESG 要求</li>
+</ul>
 <hr>
-<p><strong>报告完成时间</strong>: 2025-03-19 (待实际发布)
-<strong>字数统计</strong>: ~15,000 字
-<strong>图表数量</strong>: 2 张 Mermaid 图 + 1 张决策树 + 多张表格
-<strong>代码示例</strong>: 10+ 个可运行 snippet</p>
+<ol start="2">
+<li>Flexera. Daily Heartbeat agent schedule event that attempts to bootstrap policy on Unix-like operating systems fails to run if no agent schedule is installed (2025). <a href="https://community.flexera.com/s/article/daily-heartbeat-agent-schedule-event-that-attempts-to-bootstrap-policy-on-unix-like-operating-systems-fails-to-run-if-no-agent-schedule-is-installed-IOK-1330645">https://community.flexera.com/s/article/daily-heartbeat-agent-schedule-event-that-attempts-to-bootstrap-policy-on-unix-like-operating-systems-fails-to-run-if-no-agent-schedule-is-installed-IOK-1330645</a></li>
+<li>Kevin Holman. How to change the SCOM agent heartbeat interval in PowerShell (2016). <a href="https://kevinholman.com/2016/06/02/how-to-change-the-scom-agent-heartbeat-interval-in-powershell/">https://kevinholman.com/2016/06/02/how-to-change-the-scom-agent-heartbeat-interval-in-powershell/</a></li>
+<li>Resilience4j. Retry logic is never called when CircuitBreaker specifies a fallback (2025). <a href="https://github.com/resilience4j/resilience4j/issues/558">https://github.com/resilience4j/resilience4j/issues/558</a></li>
+<li>Stackademic. ResilientSpring.java: Mastering Retries, Circuit Breakers &amp; Fallbacks That Actually Work (2025). <a href="https://blog.stackademic.com/resilientspring-java-mastering-retries-circuit-breakers-fallbacks-that-actually-work-%EF%B8%8F-27db5db79a9b">https://blog.stackademic.com/resilientspring-java-mastering-retries-circuit-breakers-fallbacks-that-actually-work-%EF%B8%8F-27db5db79a9b</a></li>
+<li>Temporal. Error handling in distributed systems: A guide to resilience patterns (2025). <a href="https://temporal.io/blog/error-handling-in-distributed-systems">https://temporal.io/blog/error-handling-in-distributed-systems</a></li>
+<li>Splunk. Burn rate alerts (2025). <a href="https://help.splunk.com/en/splunk-observability-cloud/create-alerts-detectors-and-service-level-objectives/create-service-level-objectives-slos/burn-rate-alerts">https://help.splunk.com/en/splunk-observability-cloud/create-alerts-detectors-and-service-level-objectives/create-service-level-objectives-slos/burn-rate-alerts</a></li>
+<li>Google Cloud. Alerting on your burn rate (2025). <a href="https://docs.cloud.google.com/stackdriver/docs/solutions/slo-monitoring/alerting-on-budget-burn-rate">https://docs.cloud.google.com/stackdriver/docs/solutions/slo-monitoring/alerting-on-budget-burn-rate</a></li>
+<li>Datadog. Burn Rate Alerts (2025). <a href="https://docs.datadoghq.com/service_level_objectives/burn_rate/">https://docs.datadoghq.com/service_level_objectives/burn_rate/</a></li>
+<li>New Relic. Error budget and service levels best practices (2025). <a href="https://newrelic.com/blog/observability/alerts-service-levels-error-budgets">https://newrelic.com/blog/observability/alerts-service-levels-error-budgets</a></li>
+<li>Elastic. Create an SLO burn rate rule (2025). <a href="https://www.elastic.co/docs/solutions/observability/incident-management/create-an-slo-burn-rate-rule">https://www.elastic.co/docs/solutions/observability/incident-management/create-an-slo-burn-rate-rule</a></li>
+<li>Coralogix. Advanced SLO Alerting: Tracking burn rate (2025). <a href="https://coralogix.com/blog/advanced-slo-alerting-tracking-burn-rate/">https://coralogix.com/blog/advanced-slo-alerting-tracking-burn-rate/</a></li>
+<li>Google SRE. Prometheus Alerting: Turn SLOs into Alerts (2025). <a href="https://sre.google/workbook/alerting-on-slos/">https://sre.google/workbook/alerting-on-slos/</a></li>
+<li>OneUptime. How to Build SLO Burn Rate Alerts That Trigger PagerDuty Incidents (2026). <a href="https://oneuptime.com/blog/post/2026-02-06-slo-burn-rate-alerts-pagerduty-opentelemetry/view">https://oneuptime.com/blog/post/2026-02-06-slo-burn-rate-alerts-pagerduty-opentelemetry/view</a></li>
+<li>AWS. AWS Cost Anomaly Detection expands AWS managed monitoring (2025). <a href="https://aws.amazon.com/about-aws/whats-new/2025/11/aws-cost-anomaly-detection-managed-monitoring/">https://aws.amazon.com/about-aws/whats-new/2025/11/aws-cost-anomaly-detection-managed-monitoring/</a></li>
+<li>CloudZero. AI: Your (Not So) Secret Agent In Cloud Cost Control (2025). <a href="https://www.cloudzero.com/blog/agentic-finops/">https://www.cloudzero.com/blog/agentic-finops/</a></li>
+<li>Aembit. Anomaly Detection for Non-Human Identities (2025). <a href="https://aembit.io/blog/anomaly-detection-non-human-identities/">https://aembit.io/blog/anomaly-detection-non-human-identities/</a></li>
+<li>GetMaxim.ai. Top 4 AI Observability Platforms to Track for Agents in 2025 (2025). <a href="https://www.getmaxim.ai/articles/top-4-ai-observability-platforms-to-track-for-agents-in-2025/">https://www.getmaxim.ai/articles/top-4-ai-observability-platforms-to-track-for-agents-in-2025/</a></li>
+<li>Prompts.ai. Top AI Platforms Managing AI Token Level Usage Costs (2025). <a href="https://www.prompts.ai/blog/top-ai-platforms-managing-ai-token-level-usage-costs-1afca.html">https://www.prompts.ai/blog/top-ai-platforms-managing-ai-token-level-usage-costs-1afca.html</a></li>
+<li>Larridin. AI Usage and Token Consumption Visibility: How CFOs Control... (2025). <a href="https://larridin.com/blog/ai-usage-token-visibility">https://larridin.com/blog/ai-usage-token-visibility</a></li>
+<li>OpenTelemetry Blog. AI Agent Observability (2025). <a href="https://opentelemetry.io/blog/2025/ai-agent-observability/">https://opentelemetry.io/blog/2025/ai-agent-observability/</a></li>
+<li>Langfuse. AI Agent Observability, Tracing &amp; Evaluation with Langfuse (2024). <a href="https://langfuse.com/blog/2024-07-ai-agent-observability-with-langfuse">https://langfuse.com/blog/2024-07-ai-agent-observability-with-langfuse</a></li>
+<li>GetMaxim.ai. Top 5 Leading Agent Observability Tools in 2025 (2025). <a href="https://www.getmaxim.ai/articles/top-5-leading-agent-observability-tools-in-2025/">https://www.getmaxim.ai/articles/top-5-leading-agent-observability-tools-in-2025/</a></li>
+<li>The New Stack. Observability in 2025: OpenTelemetry and AI to Fill In Gaps (2025). <a href="https://thenewstack.io/observability-in-2025-opentelemetry-and-ai-to-fill-in-gaps/">https://thenewstack.io/observability-in-2025-opentelemetry-and-ai-to-fill-in-gaps/</a></li>
+<li>Odigos. Distributed Tracing in 2025: What the future holds (2025). <a href="https://odigos.io/blog/distributed-tracing-2025">https://odigos.io/blog/distributed-tracing-2025</a></li>
+<li>Cisco Outshift. AI observability in multi-agent systems using OpenTelemetry (2025). <a href="https://outshift.cisco.com/blog/ai-ml/ai-observability-multi-agent-systems-opentelemetry">https://outshift.cisco.com/blog/ai-ml/ai-observability-multi-agent-systems-opentelemetry</a></li>
+<li>Florian Nègre. Agentic Ops: How to Run AI Agents in Production (2025). <a href="https://www.negreflorian.com/agentic-ops-guide-ai-agents-operations">https://www.negreflorian.com/agentic-ops-guide-ai-agents-operations</a></li>
+<li>Dataiku. Achieving Operational Excellence by Streamlining Data, ML, and LLMOps (2024). <a href="https://www.dataiku.com/stories/blog/achieving-operational-excellence/">https://www.dataiku.com/stories/blog/achieving-operational-excellence/</a></li>
+<li>Onereach. LLMOps for AI Agents: Monitoring, Testing &amp; Iteration in Production (2025). <a href="https://onereach.ai/blog/llmops-for-ai-agents-in-production/">https://onereach.ai/blog/llmops-for-ai-agents-in-production/</a></li>
+<li>APM Digest. Monte Carlo Introduces New Agent Observability Capabilities (2025). <a href="https://www.apmdigest.com/monte-carlo-introduces-new-agent-observability-capabilities">https://www.apmdigest.com/monte-carlo-introduces-new-agent-observability-capabilities</a></li>
+<li>Hacker Noon. Governing and Scaling AI Agents: Operational Excellence and the Road Ahead (2025). <a href="https://hackernoon.com/governing-and-scaling-ai-agents-operational-excellence-and-the-road-ahead">https://hackernoon.com/governing-and-scaling-ai-agents-operational-excellence-and-the-road-ahead</a></li>
+<li>IBM. AI Agents in 2025: Expectations vs. Reality (2025). <a href="https://www.ibm.com/think/insights/ai-agents-2025-expectations-vs-reality">https://www.ibm.com/think/insights/ai-agents-2025-expectations-vs-reality</a></li>
+<li>Tuhin Sharma. AI-ML SYSTEMS 2025: Zero to Production (2025). <a href="https://tuhinsharma.com/talks/aimlsystems2025/">https://tuhinsharma.com/talks/aimlsystems2025/</a></li>
+<li>LinkedIn. Debugging AI Agents: Mapping Failure Patterns in Production (2025). <a href="https://www.linkedin.com/posts/varun-naganathan-50456614b_%3F%3F%3F%3F-%3F%3F%3F%3F%3F-%3F%3F%3F%3F-%3F%3F%3F%3F-%3F-activity-7435275652385189888-dGK-">https://www.linkedin.com/posts/varun-naganathan-50456614b_%3F%3F%3F%3F-%3F%3F%3F%3F%3F-%3F%3F%3F%3F-%3F%3F%3F%3F-%3F-activity-7435275652385189888-dGK-</a></li>
+<li>Saulius. Automatic Debugging and Failure Detection in AI Agent Systems (2025). <a href="https://saulius.io/blog/automatic-debugging-and-failure-detection-in-ai-agent-systems">https://saulius.io/blog/automatic-debugging-and-failure-detection-in-ai-agent-systems</a></li>
+<li>arXiv. Where LLM Agents Fail and How They can Learn From Failures (2025). <a href="https://arxiv.org/pdf/2509.25370">https://arxiv.org/pdf/2509.25370</a>?</li>
+<li>Maxim AI. Top 6 Reasons Why AI Agents Fail in Production and How to Fix Them (2025). <a href="https://www.getmaxim.ai/articles/top-6-reasons-why-ai-agents-fail-in-production-and-how-to-fix-them/">https://www.getmaxim.ai/articles/top-6-reasons-why-ai-agents-fail-in-production-and-how-to-fix-them/</a></li>
+<li>vaza.ai. Why 95% of AI Agents Failed in Production in 2025? (2025). <a href="https://vaza.ai/blog/why-ai-agents-failed-in-production">https://vaza.ai/blog/why-ai-agents-failed-in-production</a></li>
+<li>Sidetool. Fix AI Agent Errors: Common Issues Across All Platforms 2025 (2025). <a href="https://www.sidetool.co/post/master-fixing-ai-agent-errors-2025/">https://www.sidetool.co/post/master-fixing-ai-agent-errors-2025/</a></li>
+<li>Mermaid Chart. State Diagram Syntax (2025). <a href="https://docs.mermaidchart.com/mermaid-oss/syntax/stateDiagram.html">https://docs.mermaidchart.com/mermaid-oss/syntax/stateDiagram.html</a></li>
+<li>Mermaid. Flowcharts Syntax (2025). <a href="https://mermaid.ai/open-source/syntax/flowchart.html">https://mermaid.ai/open-source/syntax/flowchart.html</a></li>
+<li>Mermaid.js. Diagram Syntax Reference (2025). <a href="https://mermaid.js.org/intro/syntax-reference.html">https://mermaid.js.org/intro/syntax-reference.html</a></li>
+</ol>
 
 
   <!-- ═══════════════════════════════════════════
        REFERENCES
        ═══════════════════════════════════════════ -->
   <h2>📚 参考资料</h2>
-  
+  <ol>
+<li>OpenClaw. Multi-agent heartbeat: per-agent interval config ignored (2025). <a href="https://github.com/openclaw/openclaw/issues/14986">https://github.com/openclaw/openclaw/issues/14986</a></li>
+<li>Flexera. Daily Heartbeat agent schedule event that attempts to bootstrap policy on Unix-like operating systems fails to run if no agent schedule is installed (2025). <a href="https://community.flexera.com/s/article/daily-heartbeat-agent-schedule-event-that-attempts-to-bootstrap-policy-on-unix-like-operating-systems-fails-to-run-if-no-agent-schedule-is-installed-IOK-1330645">https://community.flexera.com/s/article/daily-heartbeat-agent-schedule-event-that-attempts-to-bootstrap-policy-on-unix-like-operating-systems-fails-to-run-if-no-agent-schedule-is-installed-IOK-1330645</a></li>
+<li>Kevin Holman. How to change the SCOM agent heartbeat interval in PowerShell (2016). <a href="https://kevinholman.com/2016/06/02/how-to-change-the-scom-agent-heartbeat-interval-in-powershell/">https://kevinholman.com/2016/06/02/how-to-change-the-scom-agent-heartbeat-interval-in-powershell/</a></li>
+<li>Resilience4j. Retry logic is never called when CircuitBreaker specifies a fallback (2025). <a href="https://github.com/resilience4j/resilience4j/issues/558">https://github.com/resilience4j/resilience4j/issues/558</a></li>
+<li>Stackademic. ResilientSpring.java: Mastering Retries, Circuit Breakers &amp; Fallbacks That Actually Work (2025). <a href="https://blog.stackademic.com/resilientspring-java-mastering-retries-circuit-breakers-fallbacks-that-actually-work-%EF%B8%8F-27db5db79a9b">https://blog.stackademic.com/resilientspring-java-mastering-retries-circuit-breakers-fallbacks-that-actually-work-%EF%B8%8F-27db5db79a9b</a></li>
+<li>Temporal. Error handling in distributed systems: A guide to resilience patterns (2025). <a href="https://temporal.io/blog/error-handling-in-distributed-systems">https://temporal.io/blog/error-handling-in-distributed-systems</a></li>
+<li>Splunk. Burn rate alerts (2025). <a href="https://help.splunk.com/en/splunk-observability-cloud/create-alerts-detectors-and-service-level-objectives/create-service-level-objectives-slos/burn-rate-alerts">https://help.splunk.com/en/splunk-observability-cloud/create-alerts-detectors-and-service-level-objectives/create-service-level-objectives-slos/burn-rate-alerts</a></li>
+<li>Google Cloud. Alerting on your burn rate (2025). <a href="https://docs.cloud.google.com/stackdriver/docs/solutions/slo-monitoring/alerting-on-budget-burn-rate">https://docs.cloud.google.com/stackdriver/docs/solutions/slo-monitoring/alerting-on-budget-burn-rate</a></li>
+<li>Datadog. Burn Rate Alerts (2025). <a href="https://docs.datadoghq.com/service_level_objectives/burn_rate/">https://docs.datadoghq.com/service_level_objectives/burn_rate/</a></li>
+<li>New Relic. Error budget and service levels best practices (2025). <a href="https://newrelic.com/blog/observability/alerts-service-levels-error-budgets">https://newrelic.com/blog/observability/alerts-service-levels-error-budgets</a></li>
+<li>Elastic. Create an SLO burn rate rule (2025). <a href="https://www.elastic.co/docs/solutions/observability/incident-management/create-an-slo-burn-rate-rule">https://www.elastic.co/docs/solutions/observability/incident-management/create-an-slo-burn-rate-rule</a></li>
+<li>Coralogix. Advanced SLO Alerting: Tracking burn rate (2025). <a href="https://coralogix.com/blog/advanced-slo-alerting-tracking-burn-rate/">https://coralogix.com/blog/advanced-slo-alerting-tracking-burn-rate/</a></li>
+<li>Google SRE. Prometheus Alerting: Turn SLOs into Alerts (2025). <a href="https://sre.google/workbook/alerting-on-slos/">https://sre.google/workbook/alerting-on-slos/</a></li>
+<li>OneUptime. How to Build SLO Burn Rate Alerts That Trigger PagerDuty Incidents (2026). <a href="https://oneuptime.com/blog/post/2026-02-06-slo-burn-rate-alerts-pagerduty-opentelemetry/view">https://oneuptime.com/blog/post/2026-02-06-slo-burn-rate-alerts-pagerduty-opentelemetry/view</a></li>
+<li>AWS. AWS Cost Anomaly Detection expands AWS managed monitoring (2025). <a href="https://aws.amazon.com/about-aws/whats-new/2025/11/aws-cost-anomaly-detection-managed-monitoring/">https://aws.amazon.com/about-aws/whats-new/2025/11/aws-cost-anomaly-detection-managed-monitoring/</a></li>
+<li>CloudZero. AI: Your (Not So) Secret Agent In Cloud Cost Control (2025). <a href="https://www.cloudzero.com/blog/agentic-finops/">https://www.cloudzero.com/blog/agentic-finops/</a></li>
+<li>Aembit. Anomaly Detection for Non-Human Identities (2025). <a href="https://aembit.io/blog/anomaly-detection-non-human-identities/">https://aembit.io/blog/anomaly-detection-non-human-identities/</a></li>
+<li>GetMaxim.ai. Top 4 AI Observability Platforms to Track for Agents in 2025 (2025). <a href="https://www.getmaxim.ai/articles/top-4-ai-observability-platforms-to-track-for-agents-in-2025/">https://www.getmaxim.ai/articles/top-4-ai-observability-platforms-to-track-for-agents-in-2025/</a></li>
+<li>Prompts.ai. Top AI Platforms Managing AI Token Level Usage Costs (2025). <a href="https://www.prompts.ai/blog/top-ai-platforms-managing-ai-token-level-usage-costs-1afca.html">https://www.prompts.ai/blog/top-ai-platforms-managing-ai-token-level-usage-costs-1afca.html</a></li>
+<li>Larridin. AI Usage and Token Consumption Visibility: How CFOs Control... (2025). <a href="https://larridin.com/blog/ai-usage-token-visibility">https://larridin.com/blog/ai-usage-token-visibility</a></li>
+<li>OpenTelemetry Blog. AI Agent Observability (2025). <a href="https://opentelemetry.io/blog/2025/ai-agent-observability/">https://opentelemetry.io/blog/2025/ai-agent-observability/</a></li>
+<li>Langfuse. AI Agent Observability, Tracing &amp; Evaluation with Langfuse (2024). <a href="https://langfuse.com/blog/2024-07-ai-agent-observability-with-langfuse">https://langfuse.com/blog/2024-07-ai-agent-observability-with-langfuse</a></li>
+<li>GetMaxim.ai. Top 5 Leading Agent Observability Tools in 2025 (2025). <a href="https://www.getmaxim.ai/articles/top-5-leading-agent-observability-tools-in-2025/">https://www.getmaxim.ai/articles/top-5-leading-agent-observability-tools-in-2025/</a></li>
+<li>The New Stack. Observability in 2025: OpenTelemetry and AI to Fill In Gaps (2025). <a href="https://thenewstack.io/observability-in-2025-opentelemetry-and-ai-to-fill-in-gaps/">https://thenewstack.io/observability-in-2025-opentelemetry-and-ai-to-fill-in-gaps/</a></li>
+<li>Odigos. Distributed Tracing in 2025: What the future holds (2025). <a href="https://odigos.io/blog/distributed-tracing-2025">https://odigos.io/blog/distributed-tracing-2025</a></li>
+<li>Cisco Outshift. AI observability in multi-agent systems using OpenTelemetry (2025). <a href="https://outshift.cisco.com/blog/ai-ml/ai-observability-multi-agent-systems-opentelemetry">https://outshift.cisco.com/blog/ai-ml/ai-observability-multi-agent-systems-opentelemetry</a></li>
+<li>Florian Nègre. Agentic Ops: How to Run AI Agents in Production (2025). <a href="https://www.negreflorian.com/agentic-ops-guide-ai-agents-operations">https://www.negreflorian.com/agentic-ops-guide-ai-agents-operations</a></li>
+<li>Dataiku. Achieving Operational Excellence by Streamlining Data, ML, and LLMOps (2024). <a href="https://www.dataiku.com/stories/blog/achieving-operational-excellence/">https://www.dataiku.com/stories/blog/achieving-operational-excellence/</a></li>
+<li>Onereach. LLMOps for AI Agents: Monitoring, Testing &amp; Iteration in Production (2025). <a href="https://onereach.ai/blog/llmops-for-ai-agents-in-production/">https://onereach.ai/blog/llmops-for-ai-agents-in-production/</a></li>
+<li>APM Digest. Monte Carlo Introduces New Agent Observability Capabilities (2025). <a href="https://www.apmdigest.com/monte-carlo-introduces-new-agent-observability-capabilities">https://www.apmdigest.com/monte-carlo-introduces-new-agent-observability-capabilities</a></li>
+<li>Hacker Noon. Governing and Scaling AI Agents: Operational Excellence and the Road Ahead (2025). <a href="https://hackernoon.com/governing-and-scaling-ai-agents-operational-excellence-and-the-road-ahead">https://hackernoon.com/governing-and-scaling-ai-agents-operational-excellence-and-the-road-ahead</a></li>
+<li>IBM. AI Agents in 2025: Expectations vs. Reality (2025). <a href="https://www.ibm.com/think/insights/ai-agents-2025-expectations-vs-reality">https://www.ibm.com/think/insights/ai-agents-2025-expectations-vs-reality</a></li>
+<li>Tuhin Sharma. AI-ML SYSTEMS 2025: Zero to Production (2025). <a href="https://tuhinsharma.com/talks/aimlsystems2025/">https://tuhinsharma.com/talks/aimlsystems2025/</a></li>
+<li>LinkedIn. Debugging AI Agents: Mapping Failure Patterns in Production (2025). <a href="https://www.linkedin.com/posts/varun-naganathan-50456614b_%3F%3F%3F%3F-%3F%3F%3F%3F%3F-%3F%3F%3F%3F-%3F%3F%3F%3F-%3F-activity-7435275652385189888-dGK-">https://www.linkedin.com/posts/varun-naganathan-50456614b_%3F%3F%3F%3F-%3F%3F%3F%3F%3F-%3F%3F%3F%3F-%3F%3F%3F%3F-%3F-activity-7435275652385189888-dGK-</a></li>
+<li>Saulius. Automatic Debugging and Failure Detection in AI Agent Systems (2025). <a href="https://saulius.io/blog/automatic-debugging-and-failure-detection-in-ai-agent-systems">https://saulius.io/blog/automatic-debugging-and-failure-detection-in-ai-agent-systems</a></li>
+<li>arXiv. Where LLM Agents Fail and How They can Learn From Failures (2025). <a href="https://arxiv.org/pdf/2509.25370">https://arxiv.org/pdf/2509.25370</a>?</li>
+<li>Maxim AI. Top 6 Reasons Why AI Agents Fail in Production and How to Fix Them (2025). <a href="https://www.getmaxim.ai/articles/top-6-reasons-why-ai-agents-fail-in-production-and-how-to-fix-them/">https://www.getmaxim.ai/articles/top-6-reasons-why-ai-agents-fail-in-production-and-how-to-fix-them/</a></li>
+<li>vaza.ai. Why 95% of AI Agents Failed in Production in 2025? (2025). <a href="https://vaza.ai/blog/why-ai-agents-failed-in-production">https://vaza.ai/blog/why-ai-agents-failed-in-production</a></li>
+<li>Sidetool. Fix AI Agent Errors: Common Issues Across All Platforms 2025 (2025). <a href="https://www.sidetool.co/post/master-fixing-ai-agent-errors-2025/">https://www.sidetool.co/post/master-fixing-ai-agent-errors-2025/</a></li>
+<li>Mermaid Chart. State Diagram Syntax (2025). <a href="https://docs.mermaidchart.com/mermaid-oss/syntax/stateDiagram.html">https://docs.mermaidchart.com/mermaid-oss/syntax/stateDiagram.html</a></li>
+<li>Mermaid. Flowcharts Syntax (2025). <a href="https://mermaid.ai/open-source/syntax/flowchart.html">https://mermaid.ai/open-source/syntax/flowchart.html</a></li>
+<li>Mermaid.js. Diagram Syntax Reference (2025). <a href="https://mermaid.js.org/intro/syntax-reference.html">https://mermaid.js.org/intro/syntax-reference.html</a></li>
+</ol>
+
 
 </div>
 
@@ -1550,11 +1086,11 @@ GROUP BY day, model
 <!-- Mermaid CDN -->
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  (function() {
     const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
-    mermaid.initialize({ startOnLoad: false, securityLevel: 'loose', theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
     mermaid.run();
-  });
+  })();
 </script>
 
 </body>
