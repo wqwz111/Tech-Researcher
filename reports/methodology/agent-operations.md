@@ -204,7 +204,7 @@ job:slo_errors_per_request:ratio_rate3d{job="agent-api"} > 0.001
 **三状态机**:
 
 ```mermaid
-stateDiagram-v2
+stateDiagram
     [*] --> Closed: 正常调用
     Closed --> Open: 失败计数 >= failureThreshold
     Open --> Half-Open: 经过 waitDuration 时间
