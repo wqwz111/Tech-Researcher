@@ -486,7 +486,7 @@
     <span class="label" id="themeLabel">日间</span>
   </button>
   <h1>Agent 运维从 0 到 1：Heartbeat、异常恢复与可观测性实践</h1>
-  <div class="meta">2026-03-19 · 探针 (Probe)</div>
+  <div class="meta">2026-03-20 · 探针 (Probe)</div>
   <div style="margin-top:0.8rem">
     <span class="tag">Agent</span>
   </div>
@@ -502,15 +502,15 @@
   <!-- Executive Summary -->
   <div class="exec-summary">
     <div class="exec-summary__label">Executive Summary</div>
-    <p><p>本文系统性地阐述了 AI Agent Production 环境的运维实践体系，涵盖 heartbeat 设计、异常检测与自动恢复、可观测性工具选型、以及成本监控止损策略。通过对 LangSmith、Langfuse、Phoenix 三大可观测性平台的深度对比，结合 Google SRE 错误预算告警机制和 Kubernetes 健康检查最佳实践，为 Agent 运维提供可落地的操作指南。</p>
+    <p>本文系统性地阐述了 AI Agent Production 环境的运维实践体系，涵盖 heartbeat 设计、异常检测与自动恢复、可观测性工具选型、以及成本监控止损策略。通过对 LangSmith、Langfuse、Phoenix 三大可观测性平台的深度对比，结合 Google SRE 错误预算告警机制和 Kubernetes 健康检查最佳实践，为 Agent 运维提供可落地的操作指南。</p>
 <p><strong>核心发现</strong>:</p>
 <ul>
 <li>Heartbeat 间隔应匹配业务关键程度，高频服务 5-10s，普通服务 30-60s</li>
 <li>多窗口多燃烧率 (Multi-window Multi-burn-rate) 是告警配置的最优解</li>
 <li>开源方案 (Langfuse/Phoenix) 基于 OpenTelemetry 可降低供应商锁定风险</li>
-<li>OpenClaw 自带 heartbeat 机制但缺乏量化告警，需补充 metrics 导出</li>
+<li>OpenClaw 自带 heartbeat 机制但缺乏量化告警 (基于 OpenClaw v2026.3 配置 heartbeat.yaml)，需补充 metrics 导出</li>
 </ul>
-</p>
+
   </div>
 
   <!-- ═══════════════════════════════════════════
@@ -571,7 +571,7 @@
   successThreshold: 1       # 成功阈值
   failureThreshold: 3       # 失败后重启阈值
 </code></pre>
-<p><strong>引用来源</strong>: <a href="https://kubernetes.io/docs/concepts/containers/container-health-checks/">Kubernetes Container Health Checks</a> (2024-2026)</p>
+<p><strong>引用</strong>: <a href="https://kubernetes.io/docs/concepts/containers/container-health-checks/">Kubernetes Container Health Checks</a> (2024-2026)</p>
 <h3>1.3 Target 配置与探测方式</h3>
 <p><strong>探测类型选择</strong>:</p>
 <ol>
@@ -627,7 +627,7 @@
 # retry 4: 800-880ms
 # retry 5: 1600-1760ms
 </code></pre>
-<p><strong>引用来源</strong>: [AWS — Retry Strategies] (2024)</p>
+<p><strong>引用</strong>: <a href="https://docs.aws.amazon.com/general/latest/gr/api-retries.html">AWS — Retry Strategies</a> (2024)</p>
 <hr>
 <h2>2. 异常检测：从错误预算到燃烧率告警</h2>
 <h3>2.1 SLO、SLI、Error Budget 基础</h3>
@@ -700,7 +700,7 @@ job:slo_errors_per_request:ratio_rate3d{job=&quot;agent-api&quot;} &gt; 0.001
 <li>5 分钟短窗口 → 快速恢复 (Reset time 提升至 5 分钟)</li>
 <li>3 天窗口覆盖低错误率但长期问题 → Recall 优秀</li>
 </ul>
-<p><strong>引用来源</strong>: <a href="https://sre.google/workbook/alerting-on-slos/">Google SRE — Alerting on SLOs</a> (2024-2025)</p>
+<p><strong>引用</strong>: <a href="https://sre.google/workbook/alerting-on-slos/">Google SRE — Alerting on SLOs</a> (2024-2025)</p>
 <h3>2.3 低流量服务特殊处理</h3>
 <p><strong>挑战</strong>: 低流量下单次失败即触发高燃烧率，导致过多误报</p>
 <p><strong>解决方案</strong>:</p>
@@ -731,7 +731,7 @@ job:slo_errors_per_request:ratio_rate3d{job=&quot;agent-api&quot;} &gt; 0.001
 </ul>
 </li>
 </ol>
-<p><strong>引用来源</strong>: [Google SRE — Alerting on SLOs, Low-Traffic Services 章节] (2024-2025)</p>
+<p><strong>引用</strong>: <a href="https://sre.google/workbook/alerting-on-slos/#low-traffic-services">Google SRE — Alerting on SLOs, Low-Traffic Services</a> (2024-2025)</p>
 <hr>
 <h2>3. 自动恢复机制：重试、熔断、降级</h2>
 <h3>3.1 熔断器模式 (Circuit Breaker)</h3>
@@ -961,7 +961,7 @@ def retry_with_backoff(func, max_retries=5, base_delay=100, max_delay=30000):
 <li><strong>劣势</strong>: Tracing 功能相对较弱，UI 复杂度高</li>
 <li><strong>适用</strong>: 评估驱动开发、深度 RAG 分析</li>
 </ul>
-<p><strong>引用来源</strong>:</p>
+<p><strong>引用</strong>:</p>
 <ul>
 <li><a href="https://docs.langchain.com/langsmith/home.md">LangSmith Documentation</a> (2024-2026)</li>
 <li><a href="https://langfuse.com/docs">Langfuse Documentation</a> (2024-2026)</li>
@@ -989,7 +989,7 @@ def retry_with_backoff(func, max_retries=5, base_delay=100, max_delay=30000):
 <li>避免 vendor lock-in</li>
 <li>标准 Schema，跨团队协作</li>
 </ul>
-<p><strong>引用</strong>: <a href="https://opentelemetry.io/docs">OpenTelemetry Documentation</a> (2024-2026)</p>
+<p><strong>引用</strong>: <a href="https://opentelemetry.io/docs/">OpenTelemetry Documentation</a> (2024-2026)</p>
 <hr>
 <h2>5. 成本异常监控与止损策略</h2>
 <h3>5.1 LLM API 成本结构 (2024-2026)</h3>
@@ -1035,7 +1035,7 @@ def retry_with_backoff(func, max_retries=5, base_delay=100, max_delay=30000):
 <li>循环/死循环 Agent → 无限调用</li>
 <li>模型误用 (高成本模型处理简单任务)</li>
 </ul>
-<p><strong>引用来源</strong>: <a href="https://chatgpt.com/pricing">OpenAI Pricing</a> (2024-2026)</p>
+<p><strong>引用</strong>: <a href="https://chatgpt.com/pricing">OpenAI Pricing</a> (2024-2026)</p>
 <h3>5.2 成本监控关键指标</h3>
 <p><strong>核心维度</strong>:</p>
 <ol>
