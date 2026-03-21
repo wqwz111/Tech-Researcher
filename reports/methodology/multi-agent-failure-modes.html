@@ -486,7 +486,7 @@
     <span class="label" id="themeLabel">日间</span>
   </button>
   <h1>多 Agent 协作的 5 种典型故障模式：从研究到实践</h1>
-  <div class="meta">2026-03-18 · 探针 (Probe)</div>
+  <div class="meta">2026-03-21 · 探针 (Probe)</div>
   <div style="margin-top:0.8rem">
     <span class="tag">Agent</span>
   </div>
@@ -502,14 +502,14 @@
   <!-- Executive Summary -->
   <div class="exec-summary">
     <div class="exec-summary__label">Executive Summary</div>
-    <p><ol>
+    <ol>
 <li><strong>规格模糊是头号杀手</strong>：MAST 研究显示，41.77% 的多 Agent 系统失败源于规格问题（Specification Issues）——自然语言指令缺乏 Schema 验证，Agent 对任务理解产生分歧。</li>
 <li><strong>错误级联放大效应</strong>：多 Agent 协作中，一个 Agent 的微小偏差会被下游 Agent 当作事实接受，最终系统收敛到错误共识（Error Cascade, arXiv:2603.04474）。</li>
 <li><strong>谄媚偏差在 Agent 间泛化</strong>：RLHF 导致的 Sycophancy 不只存在于 Agent↔用户交互中，Agent↔Agent 辩论时弱 Agent 会误导强 Agent，使正确答案退化（Talk Isn&#39;t Always Cheap, 2025）。</li>
 <li><strong>验证环节普遍缺失</strong>：21.30% 的失败源于验证缺失或薄弱——多数框架没有端到端的决策链追踪和独立验证层。</li>
 <li><strong>更好的 Prompt ≠ 更好的系统</strong>：单纯优化 prompt 无法根本解决多 Agent 系统失败，需要结构化通信协议、编排框架和可观测性基础设施的系统性方案。</li>
 </ol>
-</p>
+
   </div>
 
   <!-- ═══════════════════════════════════════════
@@ -616,7 +616,7 @@
 </ul>
 <hr>
 <h2>故障模式全景图</h2>
-<p><div class="mermaid">graph TD
+<div class="mermaid">graph TD
     A["🚨 多 Agent 系统失败"] --> B["规格模糊<br/>Specification Ambiguity"]
     A --> C["错误级联<br/>Error Cascade"]
     A --> D["谄媚偏差<br/>Sycophancy Bias"]
@@ -654,10 +654,10 @@
     style STATS2 fill:#ff922b,color:#fff
     style STATS3 fill:#845ef7,color:#fff
     style STATS4 fill:#22b8cf,color:#fff
-    style STATS5 fill:#51cf66,color:#333</div></p>
+    style STATS5 fill:#51cf66,color:#333</div>
 <hr>
 <h2>各框架应对方案对比</h2>
-<p><div class="mermaid">graph LR
+<div class="mermaid">graph LR
     subgraph 问题域
         P1["规格模糊"]
         P2["错误级联"]
@@ -704,7 +704,7 @@
     style P2 fill:#ff6b6b,color:#fff
     style P3 fill:#ff6b6b,color:#fff
     style P4 fill:#ff6b6b,color:#fff
-    style P5 fill:#ff6b6b,color:#fff</div></p>
+    style P5 fill:#ff6b6b,color:#fff</div>
 <blockquote>
 <p><strong>解读</strong>：主流 MAS 框架对&quot;规格模糊&quot;和&quot;协调死锁&quot;有一定缓解，但对&quot;错误级联&quot;和&quot;谄媚偏差&quot;的应对普遍不足。自建方案配合 MCP 等标准化协议可以针对性解决所有 5 类问题，但需要较高的工程投入。</p>
 </blockquote>
@@ -802,13 +802,8 @@
 <li>最终输出前做完整性检查</li>
 </ul>
 <hr>
-
-
-  <!-- ═══════════════════════════════════════════
-       REFERENCES
-       ═══════════════════════════════════════════ -->
-  <h2>📚 参考资料</h2>
-  <ol>
+<h2>参考来源</h2>
+<ol>
 <li><p><strong>MAST: Why Do Multi-Agent LLM Systems Fail?</strong> — UC Berkeley et al., NeurIPS 2025 Spotlight<br><a href="https://arxiv.org/abs/2503.13657">https://arxiv.org/abs/2503.13657</a></p>
 </li>
 <li><p><strong>MAST Project Page</strong> — UC Berkeley Sky Computing Lab<br><a href="https://sky.cs.berkeley.edu/project/mast/">https://sky.cs.berkeley.edu/project/mast/</a></p>
@@ -837,6 +832,12 @@
 <hr>
 <p><em>报告生成时间：2026-03-18 | 探针：writer-collab | 基于搜集员整理的 12 个来源</em></p>
 
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  
 
 </div>
 

@@ -1,18 +1,8 @@
-🔍 发现 15 个引用链接，开始验证...
-  https://newrelic.com/blog/observability/what-are-slos-slis-slas -> 200 ✅
-  https://pub.towardsai.net/observability-evaluation-in-llms-and-agentic-systems-d778f4b35be8 -> 403 ❌
-  https://medium.com/@Micheal-Lanham/agent-reliability-engineering-stop-your-ai-agents-from-failing-at-3-am-f10d1ac8d2ef -> 403 ❌
-  https://litmuschaos.io/ -> 200 ✅
-  https://dev.to/franciscohumarang/the-9-production-realities-for-ai-agents-a-guide-to-building-reliable-agents-from-a-flakestorm-4g1n -> 200 ✅
-  https://arxiv.org/html/2511.07865v1 -> 200 ✅
-  https://incident.io/blog/incident-management-best-practices-2026 -> 200 ✅
-  https://sparkco.ai/blog/mastering-slos-and-slas-for-ai-agents-in-2025 -> 200 ✅
-  https://www.cncf.io/blog/2024/03/19/chaos-engineering-in-2024-with-litmuschaos/ -> 200 ✅
-  https://aws.amazon.com/video/watch/c4caf5fbfe4/ -> 200 ✅
-  https://journals.stecab.com/jcsp/article/view/846 -> 200 ✅
-  https://www.conf42.com/Site_Reliability_Engineering_SRE_2025_Rahul_Amte_smarter_failure_testing -> 200 ✅
-  https://files.sdiarticle5.com/wp-content/uploads/2025/05/Ms_AJRCOS_135387.pdf -> 200 ✅
-  https://rootly.com/sre/sre-incident-management-best-practices-with-postmortem-tools -> 200 ✅
-  https://www.quinnox.com/blogs/fault-injection-chaos-engineering/ -> 200 ✅
+URL Validation Report
+=====================
+Total URLs: 14
+Passed (200-399): 14
+Failed: 0
+Pass rate: 100.0%
 
-📊 Report written to: url-validation-report.txt
+✅ All URLs are accessible (100% pass rate).
