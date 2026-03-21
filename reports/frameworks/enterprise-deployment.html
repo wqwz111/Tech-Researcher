@@ -591,62 +591,61 @@
   <h2>1. 架构设计</h2>
 <h3>1.1 企业级架构概览</h3>
 <p>OpenClaw 企业部署采用分层架构，将 Gateway（网关）、Agent（代理）、Tool（工具）、Sandbox（沙箱）分离职责，形成清晰的信任边界[5][12][13].</p>
-<pre><code>graph TB
-    subgraph &quot;接入层&quot;
+<div class="mermaid">graph TB
+    subgraph "接入层"
         LB[负载均衡器]
         INGRESS[入口网关]
     end
 
-    subgraph &quot;控制平面&quot;
+    subgraph "控制平面"
         CONTROL[控制平面]
         DB[(强一致性DB)]
         REDIS[(Redis缓存)]
     end
 
-    subgraph &quot;数据平面 - 租户A&quot;
+    subgraph "数据平面 - 租户A"
         AGENT_A1[Agent Node 1]
         AGENT_A2[Agent Node 2]
         SANDBOX_A1[沙箱容器]
         TOOL_A1[工具执行]
     end
 
-    subgraph &quot;数据平面 - 租户B&quot;
+    subgraph "数据平面 - 租户B"
         AGENT_B1[Agent Node 1]
         AGENT_B2[Agent Node 2]
         SANDBOX_B1[沙箱容器]
         TOOL_B1[工具执行]
     end
 
-    subgraph &quot;安全与监控&quot;
+    subgraph "安全与监控"
         AUDIT[审计日志]
         MON[监控告警]
         VAULT[密钥管理]
     end
 
-    LB --&gt; INGRESS
-    INGRESS --&gt; CONTROL
-    CONTROL --&gt; DB
-    CONTROL --&gt; REDIS
+    LB --> INGRESS
+    INGRESS --> CONTROL
+    CONTROL --> DB
+    CONTROL --> REDIS
 
-    CONTROL --&gt; AGENT_A1
-    CONTROL --&gt; AGENT_A2
-    CONTROL --&gt; AGENT_B1
-    CONTROL --&gt; AGENT_B2
+    CONTROL --> AGENT_A1
+    CONTROL --> AGENT_A2
+    CONTROL --> AGENT_B1
+    CONTROL --> AGENT_B2
 
-    AGENT_A1 --&gt; SANDBOX_A1
-    AGENT_A2 --&gt; SANDBOX_A2
-    AGENT_B1 --&gt; SANDBOX_B1
-    AGENT_B2 --&gt; SANDBOX_B2
+    AGENT_A1 --> SANDBOX_A1
+    AGENT_A2 --> SANDBOX_A2
+    AGENT_B1 --> SANDBOX_B1
+    AGENT_B2 --> SANDBOX_B2
 
-    SANDBOX_A1 --&gt; TOOL_A1
-    SANDBOX_B1 --&gt; TOOL_B1
+    SANDBOX_A1 --> TOOL_A1
+    SANDBOX_B1 --> TOOL_B1
 
-    AGENT_A1 --&gt; AUDIT
-    AGENT_B1 --&gt; AUDIT
-    CONTROL --&gt; MON
-    AGENT_A1 --&gt; VAULT
-    AGENT_B1 --&gt; VAULT
-</code></pre>
+    AGENT_A1 --> AUDIT
+    AGENT_B1 --> AUDIT
+    CONTROL --> MON
+    AGENT_A1 --> VAULT
+    AGENT_B1 --> VAULT</div>
 <p>架构设计关键原则：</p>
 <ol>
 <li><p><strong>控制平面与数据平面分离</strong>：控制平面负责路由、认证、策略决策；数据平面承载实际 Agent 执行，可按租户水平扩展[1][5]。</p>
@@ -707,24 +706,23 @@
 </ol>
 <h3>2.2 RBAC 与权限模型</h3>
 <p>企业级权限模型需扩展 OpenClaw 内置权限（<code>chat</code>、<code>read</code>、<code>write</code>、<code>query</code>、<code>admin</code>、<code>audit</code>），构建租户级角色：</p>
-<pre><code>graph TD
+<div class="mermaid">graph TD
     ORG[组织管理员]
     TENANT[租户管理员]
     DEV[开发者]
     AUDITOR[审计员]
     USER[普通用户]
 
-    ORG --&gt; TENANT
-    TENANT --&gt; DEV
-    TENANT --&gt; AUDITOR
-    TENANT --&gt; USER
+    ORG --> TENANT
+    TENANT --> DEV
+    TENANT --> AUDITOR
+    TENANT --> USER
 
-    ORG --&gt;|系统配置, 跨租户审计| ADMIN_ALL
-    TENANT --&gt;|租户内用户管理| TENANT_ADMIN
-    DEV --&gt;|技能部署, 数据读写| DEVELOPER
-    AUDITOR --&gt;|只读审计日志| AUDIT_READ
-    USER --&gt;|基础对话, 个人数据| USER_BASIC
-</code></pre>
+    ORG -->|系统配置, 跨租户审计| ADMIN_ALL
+    TENANT -->|租户内用户管理| TENANT_ADMIN
+    DEV -->|技能部署, 数据读写| DEVELOPER
+    AUDITOR -->|只读审计日志| AUDIT_READ
+    USER -->|基础对话, 个人数据| USER_BASIC</div>
 <p>权限继承与约束：</p>
 <ul>
 <li><strong>最小权限原则</strong>：默认拒绝，显式授权。高风险操作（文件删除、网络调用、sudo）需额外审批流程[2]</li>
@@ -817,23 +815,22 @@
 <h2>4. 合规要求</h2>
 <h3>4.1 审计日志完整性</h3>
 <p>合规部署必须确保每项操作可追溯：</p>
-<pre><code>sequenceDiagram
+<div class="mermaid">sequenceDiagram
     participant U as 用户/租户
     participant G as Gateway
     participant A as Agent
     participant D as DB
     participant L as 审计日志
 
-    U-&gt;&gt;G: 请求 (身份+租户上下文)
-    G-&gt;&gt;G: 记录请求进入
-    G-&gt;&gt;A: 转发请求
-    A-&gt;&gt;D: 查询/写入数据 (附加租户ID)
-    A-&gt;&gt;A: 调用工具
-    A-&gt;&gt;L: 操作日志 (操作人,租户,动作,数据,结果)
-    A-&gt;&gt;G: 响应
-    G-&gt;&gt;L: 请求日志 (完整payload,响应码)
-    G-&gt;&gt;U: 返回结果
-</code></pre>
+    U->>G: 请求 (身份+租户上下文)
+    G->>G: 记录请求进入
+    G->>A: 转发请求
+    A->>D: 查询/写入数据 (附加租户ID)
+    A->>A: 调用工具
+    A->>L: 操作日志 (操作人,租户,动作,数据,结果)
+    A->>G: 响应
+    G->>L: 请求日志 (完整payload,响应码)
+    G->>U: 返回结果</div>
 <p>审计日志要素（必须）：</p>
 <ul>
 <li><strong>身份标识</strong>： ingress_user_id、租户 ID</li>

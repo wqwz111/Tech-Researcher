@@ -838,169 +838,116 @@ data: {&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;session/upda
     style E fill:#f3e5f5
     style F fill:#f3e5f5
     style G fill:#e8f5e8</div>
-<pre><code>                  ┌─────────────────┐
-                  │  External Tools │
-                  │   &amp; Data (DB,   │
-                  │    APIs, Files) │
-                  └────────┬────────┘
-                           │ MCP
-                           ▼
-┌─────────────┐      ┌─────────────┐
-│   Agent A    │◄────►│   Agent B    │
-│ (ACP Client) │      │ (ACP Server) │
-└─────────────┘      └─────────────┘
-         │                   │
-         └─────────┬─────────┘
-                   │ ACP
-                   ▼
-           ┌──────────────┐
-           │   Client     │
-           │ (Editor/UI)  │
-           └──────────────┘
+<pre><code>                       ▼
+               ▼
 </code></pre>
-<p><strong>工作流程示例</strong>:</p>
-<ol>
-<li>用户通过编辑器（ACP Client）发送提示 &quot;查询用户订单&quot;</li>
-<li>编辑器通过 ACP 发送 <code>session/prompt</code> 到订单代理（Agent A）</li>
-<li>订单代理需要用户数据，通过 ACP 向数据库代理（Agent B）发送请求</li>
-<li>数据库代理内部使用 MCP 连接到 Postgres MCP 服务器获取数据</li>
-<li>数据库代理返回结果给订单代理（通过 ACP）</li>
-<li>订单代理处理并返回最终响应给编辑器（通过 ACP）[11]</li>
-</ol>
-<p>在此架构中：</p>
-<ul>
-<li><strong>ACP 层</strong>: 代理间职责分工、协调、消息路由</li>
-<li><strong>MCP 层</strong>: 每个代理独立接入外部上下文和工具</li>
-</ul>
-<h3>4.3 技术特性对比</h3>
-<p>多家机构对协议特性进行了详细比较[7]。下表总结了关键差异：</p>
-<table>
-<thead>
-<tr>
-<th>维度</th>
-<th>MCP</th>
-<th>ACP</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>主要用途</strong></td>
-<td>模型上下文增强</td>
-<td>代理通信与编排</td>
-</tr>
-<tr>
-<td><strong>通信方向</strong></td>
-<td>Host ←→ Servers (星型)</td>
-<td>Agent ↔ Agent/Client (网状)</td>
-</tr>
-<tr>
-<td><strong>传输协议</strong></td>
-<td>JSON-RPC 2.0</td>
-<td>REST + JSON-RPC 2.0</td>
-</tr>
-<tr>
-<td><strong>会话模型</strong></td>
-<td>有状态连接</td>
-<td>可无状态（HTTP），也可有状态会话</td>
-</tr>
-<tr>
-<td><strong>资源消耗</strong></td>
-<td>较高（会话管理开销）</td>
-<td>较低（无状态设计）[9]</td>
-</tr>
-<tr>
-<td><strong>生态系统</strong></td>
-<td>Anthropic + OpenAI + MS + Google</td>
-<td>Linux Foundation + IBM + 多家企业</td>
-</tr>
-<tr>
-<td><strong>实现难度</strong></td>
-<td>需要 SDK 知识</td>
-<td>熟悉 REST 即可入门[8]</td>
-</tr>
-<tr>
-<td><strong>扩展性</strong></td>
-<td>通过新 MCP servers</td>
-<td>ExtRequest/ExtNotification</td>
-</tr>
-<tr>
-<td><strong>适用场景</strong></td>
-<td>单代理+多工具集成</td>
-<td>多代理系统、编辑器-代理 UI</td>
-</tr>
-</tbody></table>
-<h3>4.4 集成决策指南</h3>
-<p><strong>何时使用 MCP</strong>:</p>
-<ul>
-<li>需要为 LLM/Agent 提供丰富上下文（文件、数据库、API）[6][9]</li>
-<li>构建独立代理，框架已提供 MCP 支持</li>
-<li>目标用户在 Anthropic/OpenAI 生态</li>
-<li>需要大量现成工具服务器</li>
-</ul>
-<p><strong>何时使用 ACP</strong>:</p>
-<ul>
-<li>多代理协作场景（代理间直接对话）[6][9]</li>
-<li>标准化的编辑器-代理集成（避&quot;组合爆炸&quot;）[5]</li>
-<li>跨组织/框架边界通信[2]</li>
-<li>需要云原生、scale-to-zero 部署[1]</li>
-</ul>
-<p><strong>何时两者都用</strong>:</p>
-<ul>
-<li>构建企业级 AI 平台，需要多代理编排 + 丰富的上下文接入[11][12]</li>
-<li>代理需要调用外部工具（MCP），同时与其他代理协调（ACP）</li>
-</ul>
-<hr>
-<h2>5. 协议演进与标准化</h2>
-<h3>5.1 治理与社区</h3>
-<p>ACP 现已成为 Agent2Agent (A2A) 协议的一部分，在 Linux Foundation 下管理[1][17]。这一变化确保：</p>
-<ul>
-<li>开放治理和透明度[17]</li>
-<li>避免供应商锁定</li>
-<li>长期稳定性</li>
-</ul>
-<p>主要实现框架：</p>
-<ul>
-<li><strong>BeeAI Framework</strong>: IBM Research 的生产级框架，提供 Python 和 TypeScript SDK[1][17]</li>
-<li><strong>i-am-bee/acp</strong>: 开源实现，包含 OpenAPI 规范、SDK、示例[13]</li>
-<li><strong>agentclientprotocol/python-sdk</strong>: 官方 Python 库[14]</li>
-<li><strong>@agentclientprotocol/sdk</strong>: 官方 TypeScript 库[15]</li>
-</ul>
-<h3>5.2 生产就绪功能</h3>
-<p>最新版本（2025-2026）支持的功能包括[13]:</p>
-<ul>
-<li><strong>Trajectory Metadata</strong>: 跟踪多步骤推理和工具调用链</li>
-<li><strong>Distributed Sessions</strong>: 基于 URI 的会话跨多服务器实例连续性</li>
-<li><strong>RAG LlamaIndex Agent</strong>: 内置 RAG 代理示例</li>
-<li><strong>Citation Metadata</strong>: 改进的来源追踪和归因</li>
-<li><strong>High Availability</strong>: 集中存储（Redis/PostgreSQL）支持</li>
-<li><strong>Message Role Parameter</strong>: 更好的代理标识</li>
-</ul>
-<h3>5.3 与竞争协议的对比</h3>
-<p>除了 MCP，ACP 还与其他代理协议竞争[10]:</p>
-<ul>
-<li><strong>A2A (Agent-to-Agent Protocol)</strong>: Google 发起，对标 ACP，但更面向 Google 生态。使用 JSON-RPC，强调 Peer-to-Peer 实时协作[10]。</li>
-<li><strong>ANP (Agent Network Protocol)</strong>: Cisco 推出，完全去中心化设计[10]。</li>
-<li><strong>ACP</strong> 定位为 brokered model，适合企业友好型编排[10]。</li>
-</ul>
-<p>选择建议:</p>
-<ul>
-<li>Context-heavy → MCP</li>
-<li>Real-time collaboration → A2A</li>
-<li>Standard interoperability → ACP</li>
-</ul>
-<hr>
-<h2>6. 结论</h2>
-<p>ACP 协议代表 AI 代理互操作性的重要里程碑。通过 REST-based 架构、JSON-RPC 2.0 消息信封、SDK-optional 设计，它显著降低了代理与编辑器、代理与代理之间集成的门槛。核心设计目标——开放性、轻量级、传输中立、多模态、异步优先——使其适应从本地开发到云原生生产部署的多种场景。</p>
-<p>ACP 与 MCP 的关系是互补而非竞争。双总线架构清晰划分职责：ACP 负责代理间通信和编排，MCP 负责单个代理的上下文接入。这种分工使开发者可以灵活组合两种协议，构建分层、可扩展的 AI 系统。</p>
-<p>随着 Linux Foundation 治理和 BeeAI 生态系统的成熟，ACP 有望成为多代理编排的事实标准。对于规划 AI 系统的组织，建议：</p>
-<ol>
-<li>评估是否需要多代理协作（需要 → ACP）</li>
-<li>评估是否需要丰富工具/数据接入（需要 → MCP）</li>
-<li>根据供应商锁定偏好选择协议组合</li>
-<li>优先考虑生产就绪的 SDK（Python/TypeScript）</li>
-<li>关注协议成熟度和社区活跃度</li>
-</ol>
-<p>ACP 的演进仍在进行中，分布式会话、高可用支持、轨迹元数据等新特性表明协议正快速成熟。开发者应关注 2026-2027 年的标准化进程和更多商业采纳案例。</p>
-<hr>
+<pre><code>
+**工作流程示例**:
+1. 用户通过编辑器（ACP Client）发送提示 &quot;查询用户订单&quot;
+2. 编辑器通过 ACP 发送 `session/prompt` 到订单代理（Agent A）
+3. 订单代理需要用户数据，通过 ACP 向数据库代理（Agent B）发送请求
+4. 数据库代理内部使用 MCP 连接到 Postgres MCP 服务器获取数据
+5. 数据库代理返回结果给订单代理（通过 ACP）
+6. 订单代理处理并返回最终响应给编辑器（通过 ACP）[11]
+
+在此架构中：
+- **ACP 层**: 代理间职责分工、协调、消息路由
+- **MCP 层**: 每个代理独立接入外部上下文和工具
+
+### 4.3 技术特性对比
+
+多家机构对协议特性进行了详细比较[7]。下表总结了关键差异：
+
+| 维度 | MCP | ACP |
+|------|-----|-----|
+| **主要用途** | 模型上下文增强 | 代理通信与编排 |
+| **通信方向** | Host ←→ Servers (星型) | Agent ↔ Agent/Client (网状) |
+| **传输协议** | JSON-RPC 2.0 | REST + JSON-RPC 2.0 |
+| **会话模型** | 有状态连接 | 可无状态（HTTP），也可有状态会话 |
+| **资源消耗** | 较高（会话管理开销） | 较低（无状态设计）[9] |
+| **生态系统** | Anthropic + OpenAI + MS + Google | Linux Foundation + IBM + 多家企业 |
+| **实现难度** | 需要 SDK 知识 | 熟悉 REST 即可入门[8] |
+| **扩展性** | 通过新 MCP servers | ExtRequest/ExtNotification |
+| **适用场景** | 单代理+多工具集成 | 多代理系统、编辑器-代理 UI |
+
+### 4.4 集成决策指南
+
+**何时使用 MCP**:
+- 需要为 LLM/Agent 提供丰富上下文（文件、数据库、API）[6][9]
+- 构建独立代理，框架已提供 MCP 支持
+- 目标用户在 Anthropic/OpenAI 生态
+- 需要大量现成工具服务器
+
+**何时使用 ACP**:
+- 多代理协作场景（代理间直接对话）[6][9]
+- 标准化的编辑器-代理集成（避&quot;组合爆炸&quot;）[5]
+- 跨组织/框架边界通信[2]
+- 需要云原生、scale-to-zero 部署[1]
+
+**何时两者都用**:
+- 构建企业级 AI 平台，需要多代理编排 + 丰富的上下文接入[11][12]
+- 代理需要调用外部工具（MCP），同时与其他代理协调（ACP）
+
+---
+
+## 5. 协议演进与标准化
+
+### 5.1 治理与社区
+
+ACP 现已成为 Agent2Agent (A2A) 协议的一部分，在 Linux Foundation 下管理[1][17]。这一变化确保：
+- 开放治理和透明度[17]
+- 避免供应商锁定
+- 长期稳定性
+
+主要实现框架：
+- **BeeAI Framework**: IBM Research 的生产级框架，提供 Python 和 TypeScript SDK[1][17]
+- **i-am-bee/acp**: 开源实现，包含 OpenAPI 规范、SDK、示例[13]
+- **agentclientprotocol/python-sdk**: 官方 Python 库[14]
+- **@agentclientprotocol/sdk**: 官方 TypeScript 库[15]
+
+### 5.2 生产就绪功能
+
+最新版本（2025-2026）支持的功能包括[13]:
+
+- **Trajectory Metadata**: 跟踪多步骤推理和工具调用链
+- **Distributed Sessions**: 基于 URI 的会话跨多服务器实例连续性
+- **RAG LlamaIndex Agent**: 内置 RAG 代理示例
+- **Citation Metadata**: 改进的来源追踪和归因
+- **High Availability**: 集中存储（Redis/PostgreSQL）支持
+- **Message Role Parameter**: 更好的代理标识
+
+### 5.3 与竞争协议的对比
+
+除了 MCP，ACP 还与其他代理协议竞争[10]:
+
+- **A2A (Agent-to-Agent Protocol)**: Google 发起，对标 ACP，但更面向 Google 生态。使用 JSON-RPC，强调 Peer-to-Peer 实时协作[10]。
+- **ANP (Agent Network Protocol)**: Cisco 推出，完全去中心化设计[10]。
+- **ACP** 定位为 brokered model，适合企业友好型编排[10]。
+
+选择建议:
+- Context-heavy → MCP
+- Real-time collaboration → A2A
+- Standard interoperability → ACP
+
+---
+
+## 6. 结论
+
+ACP 协议代表 AI 代理互操作性的重要里程碑。通过 REST-based 架构、JSON-RPC 2.0 消息信封、SDK-optional 设计，它显著降低了代理与编辑器、代理与代理之间集成的门槛。核心设计目标——开放性、轻量级、传输中立、多模态、异步优先——使其适应从本地开发到云原生生产部署的多种场景。
+
+ACP 与 MCP 的关系是互补而非竞争。双总线架构清晰划分职责：ACP 负责代理间通信和编排，MCP 负责单个代理的上下文接入。这种分工使开发者可以灵活组合两种协议，构建分层、可扩展的 AI 系统。
+
+随着 Linux Foundation 治理和 BeeAI 生态系统的成熟，ACP 有望成为多代理编排的事实标准。对于规划 AI 系统的组织，建议：
+1. 评估是否需要多代理协作（需要 → ACP）
+2. 评估是否需要丰富工具/数据接入（需要 → MCP）
+3. 根据供应商锁定偏好选择协议组合
+4. 优先考虑生产就绪的 SDK（Python/TypeScript）
+5. 关注协议成熟度和社区活跃度
+
+ACP 的演进仍在进行中，分布式会话、高可用支持、轨迹元数据等新特性表明协议正快速成熟。开发者应关注 2026-2027 年的标准化进程和更多商业采纳案例。
+
+---
+</code></pre>
 
 
   <!-- ═══════════════════════════════════════════

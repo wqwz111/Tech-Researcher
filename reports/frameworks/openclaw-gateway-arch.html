@@ -529,37 +529,27 @@
 <li><strong>API 网关</strong>: 提供 WebSocket 控制接口、HTTP API、Web UI</li>
 </ul>
 <h3>1.2 运行时模型</h3>
-<p>Gateway 采用单进程常驻模式，统一管理所有 Channel 连接和 Agent 路由：</p>
-<pre><code>┌─────────────────────────────────────────────────────────────┐
-│                    OpenClaw Gateway                         │
-├─────────────────────────────────────────────────────────────┤
-│  WebSocket Control Plane (port 18789 default)              │
-│  ├─ Operator clients (CLI/UI/automation)                   │
-│  └─ Node clients (iOS/Android cameras/sensors)             │
-├─────────────────────────────────────────────────────────────┤
-│  Channel Adapters                                          │
-│  ├─ WhatsApp (Baileys Web)                                 │
-│  ├─ Telegram (TDLib)                                       │
-│  ├─ Discord (discord.js)                                   │
-│  ├─ iMessage (imsg rpc)                                    │
-│  └─ Extensions (Mattermost/Matrix/Teams/IRС)               │
-├─────────────────────────────────────────────────────────────┤
-│  Core Engine                                               │
-│  ├─ Router (Binding matcher)                               │
-│  ├─ Session Manager                                        │
-│  ├─ Agent Dispatcher                                       │
-│  ├─ Message Broker                                         │
-│  ├─ Health Monitor                                         │
-│  └─ Config Reloader                                        │
-├─────────────────────────────────────────────────────────────┤
-│  Agent Workspaces                                          │
-│  ├─ workspace-main (agentId: main)                         │
-│  ├─ workspace-coding (agentId: coding)                     │
-│  └─ workspace-family (agentId: family)                     │
-└─────────────────────────────────────────────────────────────┘
+<p>Gateway 采用单进程常驻模式[4]，统一管理所有 Channel 连接和 Agent 路由[5]：</p>
+<div class="mermaid">graph TB
+    subgraph "Gateway Process"
+        CP[WebSocket Control Plane<br/>port 18789]
+        CA[Channel Adapters<br/>WhatsApp/Telegram/Discord]
+        CE[Core Engine<br/>Router/Session/Dispatcher]
+        AW[Agent Workspaces<br/>main/coding/family]
+    end
+
+    CP --> CA
+    CA --> CE
+    CE --> AW
+
+    style CP fill:#e1f5fe
+    style CA fill:#f3e5f5
+    style CE fill:#fff3e0
+    style AW fill:#e8f5e8</div>
+<pre><code>
 </code></pre>
 <h3>1.3 配置结构</h3>
-<p>Gateway 配置使用 JSON5 格式，主要顶层字段：</p>
+<p>Gateway 配置使用 JSON5 格式[3]，主要顶层字段：</p>
 <pre><code class="language-json5">{
   // Agent 配置（支持多 Agent）
   agents: {
@@ -678,29 +668,30 @@
 </ol>
 <p><strong>同优先级冲突</strong>：按配置文件顺序，<strong>先匹配的获胜</strong>。</p>
 <h4>2.1.3 匹配流程图</h4>
+<p>Binding 流程遵循优先级链[5][10]：</p>
 <div class="mermaid">flowchart TD
     Start[收到 inbound 消息] --> Extract{提取消息特征}
     Extract --> Channel[channel = "whatsapp"]
     Extract --> Account[accountId = "personal"]
     Extract --> Peer[peer = {kind: "direct", id: "+15551234567"}]
     
-    Channel --> Bindings{加载所有<br/>bindings[]}
-    Bindings --> Tier1{ Tier 1: peer 匹配?}
-    Tier1 -- 是 --> Select1[选择匹配的 binding]
-    Tier1 -- 否 --> Tier2{ Tier 2: parentPeer?}
-    Tier2 -- 是 --> Select2[选择匹配的 binding]
-    Tier2 -- 否 --> Tier3{ Tier 3: guild+roles?}
-    Tier3 -- 是 --> Select3[选择匹配的 binding]
+    Channel --> Bindings{加载所有<br/>bindings}
+    Bindings --> Tier1{T1: peer 匹配?}
+    Tier1 -- 是 --> Select1[选择匹配]
+    Tier1 -- 否 --> Tier2{T2: parentPeer?}
+    Tier2 -- 是 --> Select2[选择匹配]
+    Tier2 -- 否 --> Tier3{T3: guild+roles?}
+    Tier3 -- 是 --> Select3[选择匹配]
     Tier3 -- 否 --> Tier4{guildId?}
-    Tier4 -- 是 --> Select4[选择匹配的 binding]
+    Tier4 -- 是 --> Select4[选择匹配]
     Tier4 -- 否 --> Tier5{teamId?}
-    Tier5 -- 是 --> Select5[选择匹配的 binding]
-    Tier5 -- 否 --> Tier6{accountId 精确匹配?}
-    Tier6 -- 是 --> Select6[选择匹配的 binding]
-    Tier6 -- 否 --> Tier7{accountId = "*"?}
-    Tier7 -- 是 --> Select7[选择匹配的 binding]
+    Tier5 -- 是 --> Select5[选择匹配]
+    Tier5 -- 否 --> Tier6{accountId 精确?}
+    Tier6 -- 是 --> Select6[选择匹配]
+    Tier6 -- 否 --> Tier7{accountId="*"?}
+    Tier7 -- 是 --> Select7[选择匹配]
     Tier7 -- 否 --> Tier8{channel 匹配?}
-    Tier8 -- 是 --> Select8[选择匹配的 binding]
+    Tier8 -- 是 --> Select8[选择匹配]
     Tier8 -- 否 --> Default[使用默认 Agent]
     
     Select1 --> Route[路由到目标 Agent]
@@ -714,28 +705,16 @@
     Default --> Route
     
     Route --> Done[完成路由]</div>
+<p>此流程基于 OpenClaw 官方文档的 binding 引擎设计[5][10]。</p>
 <h3>2.2 Multi-Agent 路由模式</h3>
-<p>Gateway 原生支持多 Agent 隔离运行，每个 Agent 拥有独立的 workspace、auth profiles、会话存储。</p>
+<p>Gateway 原生支持多 Agent 隔离运行[1]，每个 Agent 拥有独立的 workspace[2]、auth profiles、会话存储。</p>
 <h4>2.2.1 隔离模型</h4>
 <pre><code>Host Filesystem
-├── ~/.openclaw/
-│   ├── openclaw.json          ← 全局配置（含 bindings）
-│   ├── agents/
-│   │   ├── main/agent/        ← main Agent auth profile
-│   │   │   └── auth-profiles.json
-│   │   ├── coding/agent/      ← coding Agent auth profile
-│   │   │   └── auth-profiles.json
-│   │   └── family/agent/
-│   ├── agents/main/sessions/  ← main 会话存储
-│   ├── agents/coding/sessions/ ← coding 会话存储
-│   ├── workspace-main/        ← main 工作区（AGENTS.md, SOUL.md）
-│   ├── workspace-coding/      ← coding 工作区
-│   └── workspace-family/
 </code></pre>
 <p>关键隔离点：</p>
 <ul>
 <li><strong>认证隔离</strong>: 每个 Agent 的 <code>auth-profiles.json</code> 独立，Channel 凭据按 Agent 作用域分发</li>
-<li><strong>会话隔离</strong>: 会话文件路径 <code>~/.openclaw/agents/&lt;agentId&gt;/sessions/</code> 完全分离</li>
+<li><strong>会话隔离</strong>: 会话文件路径[2] <code>~/.openclaw/agents/&lt;agentId&gt;/sessions/</code> 完全分离</li>
 <li><strong>技能隔离</strong>: 每个 workspace 的 <code>skills/</code> 目录独立，共享技能从 <code>~/.openclaw/skills</code> 加载</li>
 <li><strong>工具权限</strong>: <code>agents.list[].tools.allow/deny</code> 支持 per-agent 工具白名单/黑名单</li>
 </ul>
@@ -1015,25 +994,32 @@
 <h2>五、消息分发与流式处理</h2>
 <h3>5.1 消息分发流程</h3>
 <p> inbound 消息处理链路：</p>
-<pre><code>Channel Adapter
-    ↓ 解析 platform-specific envelope
-Inbound Envelope (统一格式)
-    ↓ Router 匹配 binding
-Binding Engine → agentId
-    ↓ Session Manager 定位/创建 session
-Session Context (历史 + 系统提示)
-    ↓ Agent Dispatcher 启动 LLM run
-Agent Runtime (工具调用 + 推理)
-    ↓ Message Formatter 适配 channel 格式
-Channel Sender → 平台 API 发送
-</code></pre>
+<div class="mermaid">sequenceDiagram
+    participant CA as Channel Adapter
+    participant IE as Inbound Envelope
+    participant BE as Binding Engine
+    participant SM as Session Manager
+    participant SC as Session Context
+    participant AD as Agent Dispatcher
+    participant AR as Agent Runtime
+    participant MF as Message Formatter
+    participant CS as Channel Sender
+
+    CA->>IE: 解析 platform-specific envelope
+    IE->>BE: Router 匹配 binding
+    BE->>SM: 定位/创建 session (agentId)
+    SM->>SC: 加载历史 + 系统提示
+    SC->>AD: 启动 LLM run
+    AD->>AR: 工具调用 + 推理
+    AR->>MF: 适配 channel 格式
+    MF->>CS: 平台 API 发送</div>
 <h3>5.2 流式输出模式</h3>
-<p>OpenClaw 支持两种流式输出：</p>
+<p>OpenClaw 支持两种流式输出[6]：</p>
 <ol>
-<li><strong>Block Streaming</strong>（通道消息分块发送）</li>
-<li><strong>Preview Streaming</strong>（预览消息实时更新）</li>
+<li><strong>Block Streaming[6]</strong>（通道消息分块发送）</li>
+<li><strong>Preview Streaming[6]</strong>（预览消息实时更新）</li>
 </ol>
-<h4>5.2.1 Block Streaming</h4>
+<h4>5.2.1 Block Streaming[6]</h4>
 <p>适用于长回复场景，将输出拆分为多个通道消息块发送：</p>
 <pre><code class="language-json5">{
   agents: {
@@ -1059,7 +1045,7 @@ Channel Sender → 平台 API 发送
 </ul>
 <p><strong>Coalescing（合并）</strong>：避免短消息碎片化，等待 <code>idleMs</code> 空闲期后再发送，合并多个流块。</p>
 <p><strong>Human-like Delay</strong>：模拟人类输入节奏，在块间添加 <code>800-2500ms</code> 随机延迟（<code>agents.defaults.humanDelay</code>）。</p>
-<h4>5.2.2 Preview Streaming</h4>
+<h4>5.2.2 Preview Streaming[6]</h4>
 <p>用于 Telegram/Discord/Slack 的实时预览：</p>
 <table>
 <thead>
@@ -1490,27 +1476,13 @@ openclaw channels status --probe   # 通道可达性探测
 <li>OpenClaw Documentation Index. (2025). <em>llms.txt</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/llms.txt">https://docs.openclaw.ai/llms.txt</a></li>
 </ol>
 <hr>
-
+<!-- REFERENCE START -->
 
   <!-- ═══════════════════════════════════════════
        REFERENCES
        ═══════════════════════════════════════════ -->
   <h2>📚 参考资料</h2>
-  <ol>
-<li>OpenClaw Documentation. (2025). <em>Multi-Agent Routing</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/concepts/multi-agent">https://docs.openclaw.ai/concepts/multi-agent</a></li>
-<li>OpenClaw Documentation. (2025). <em>Session Management</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/concepts/session">https://docs.openclaw.ai/concepts/session</a></li>
-<li>OpenClaw Documentation. (2025). <em>Configuration Reference</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/gateway/configuration-reference">https://docs.openclaw.ai/gateway/configuration-reference</a></li>
-<li>OpenClaw Documentation. (2025). <em>Gateway Runbook</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/gateway">https://docs.openclaw.ai/gateway</a></li>
-<li>OpenClaw Documentation. (2025). <em>Gateway Protocol</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/gateway/protocol">https://docs.openclaw.ai/gateway/protocol</a></li>
-<li>OpenClaw Documentation. (2025). <em>Streaming and Chunking</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/concepts/streaming">https://docs.openclaw.ai/concepts/streaming</a></li>
-<li>OpenClaw Documentation. (2025). <em>Retry Policy</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/concepts/retry">https://docs.openclaw.ai/concepts/retry</a></li>
-<li>OpenClaw Documentation. (2025). <em>Health Checks</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/gateway/health">https://docs.openclaw.ai/gateway/health</a></li>
-<li>OpenClaw Documentation. (2025). <em>Features Overview</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/concepts/features">https://docs.openclaw.ai/concepts/features</a></li>
-<li>OpenClaw Documentation. (2025). <em>Channel Configuration</em> (WhatsApp, Telegram, Discord). OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/gateway/configuration-reference">https://docs.openclaw.ai/gateway/configuration-reference</a></li>
-<li>OpenClaw CLI Help. (2025). <em>openclaw gateway --help</em>. Retrieved from local installation</li>
-<li>OpenClaw Documentation Index. (2025). <em>llms.txt</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/llms.txt">https://docs.openclaw.ai/llms.txt</a></li>
-</ol>
-
+  
 
 </div>
 
