@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw 企业级部署模式</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>OpenClaw 企业级部署模式</h1>
+  <div class="meta">2026-03-21 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>OpenClaw 作为开源 AI Agent 框架，在企业级部署中面临多租户隔离、高可用性、安全合规三大核心挑战。本报告系统分析 OpenClaw 在企业环境的部署模式，涵盖架构设计、租户隔离机制、容灾策略与合规要求，为企业技术决策提供参考。</p>
+<p>企业级部署的核心发现：(1) OpenClaw 原生安全模型设计为&quot;单可信操作员&quot;边界，而非多租户隔离，多租户场景需额外构建 Agent Plane 和严格的 RBAC 体系[6]；(2) 高可用需要至少 3 节点集群配合强一致性数据存储，RTO 目标在 15 分钟内的容灾需要完善的备份与演练机制[1][4]；(3) SOC 2 和 GDPR 合规要求在不修改 OpenClaw 核心代码的前提下，必须在基础设施层、管理层、审计层三层补足控制点[2][7]。</p>
+<div class="mermaid">graph TB
+    subgraph "用户层"
+        WEB[Web UI]
+        API[API 客户端]
+        MOBILE[移动端]
+    end
+
+    subgraph "接入层"
+        LB[负载均衡器<br/>F5/NGINX]
+        WAF[WAF 防护]
+        INGRESS[入口网关<br/>OpenClaw Gateway]
+    end
+
+    subgraph "控制平面"
+        AUTH[身份认证<br/>OIDC/SAML]
+        POLICY[策略引擎<br/>RBAC/ABAC]
+        CONTROL[控制服务]
+        DB[(强一致性数据库<br/>PostgreSQL/etcd)]
+        REDIS[(Redis 集群<br/>会话缓存)]
+    end
+
+    subgraph "数据平面 - 租户 A"
+        AGENT_A[Agent 集群]
+        SANDBOX_A[沙箱环境<br/>Docker/VM]
+        TOOL_A[工具服务]
+        STORAGE_A[对象存储]
+    end
+
+    subgraph "数据平面 - 租户 B"
+        AGENT_B[Agent 集群]
+        SANDBOX_B[沙箱环境]
+        TOOL_B[工具服务]
+        STORAGE_B[对象存储]
+    end
+
+    subgraph "安全与运维"
+        AUDIT[审计日志<br/>ELK/Splunk]
+        MON[监控告警<br/>Prometheus/Grafana]
+        VAULT[密钥管理<br/>HashiCorp Vault]
+        BACKUP[备份系统]
+    end
+
+    WEB --> LB
+    API --> LB
+    MOBILE --> LB
+
+    LB --> WAF
+    WAF --> INGRESS
+
+    INGRESS --> AUTH
+    AUTH --> POLICY
+    POLICY --> CONTROL
+    CONTROL --> DB
+    CONTROL --> REDIS
+
+    CONTROL --> AGENT_A
+    CONTROL --> AGENT_B
+
+    AGENT_A --> SANDBOX_A
+    AGENT_B --> SANDBOX_B
+
+    SANDBOX_A --> TOOL_A
+    SANDBOX_B --> TOOL_B
+
+    AGENT_A --> STORAGE_A
+    AGENT_B --> STORAGE_B
+
+    AGENT_A --> AUDIT
+    AGENT_B --> AUDIT
+    CONTROL --> MON
+    AGENT_A --> VAULT
+    AGENT_B --> VAULT
+    CONTROL --> BACKUP
+
+    style INGRESS fill:#e1f5fe
+    style DB fill:#f3e5f5
+    style AUDIT fill:#fff3e0
+    style VAULT fill:#e8f5e8</div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. 架构设计</h2>
+<h3>1.1 企业级架构概览</h3>
+<p>OpenClaw 企业部署采用分层架构，将 Gateway（网关）、Agent（代理）、Tool（工具）、Sandbox（沙箱）分离职责，形成清晰的信任边界[5][12][13].</p>
+<pre><code>graph TB
+    subgraph &quot;接入层&quot;
+        LB[负载均衡器]
+        INGRESS[入口网关]
+    end
+
+    subgraph &quot;控制平面&quot;
+        CONTROL[控制平面]
+        DB[(强一致性DB)]
+        REDIS[(Redis缓存)]
+    end
+
+    subgraph &quot;数据平面 - 租户A&quot;
+        AGENT_A1[Agent Node 1]
+        AGENT_A2[Agent Node 2]
+        SANDBOX_A1[沙箱容器]
+        TOOL_A1[工具执行]
+    end
+
+    subgraph &quot;数据平面 - 租户B&quot;
+        AGENT_B1[Agent Node 1]
+        AGENT_B2[Agent Node 2]
+        SANDBOX_B1[沙箱容器]
+        TOOL_B1[工具执行]
+    end
+
+    subgraph &quot;安全与监控&quot;
+        AUDIT[审计日志]
+        MON[监控告警]
+        VAULT[密钥管理]
+    end
+
+    LB --&gt; INGRESS
+    INGRESS --&gt; CONTROL
+    CONTROL --&gt; DB
+    CONTROL --&gt; REDIS
+
+    CONTROL --&gt; AGENT_A1
+    CONTROL --&gt; AGENT_A2
+    CONTROL --&gt; AGENT_B1
+    CONTROL --&gt; AGENT_B2
+
+    AGENT_A1 --&gt; SANDBOX_A1
+    AGENT_A2 --&gt; SANDBOX_A2
+    AGENT_B1 --&gt; SANDBOX_B1
+    AGENT_B2 --&gt; SANDBOX_B2
+
+    SANDBOX_A1 --&gt; TOOL_A1
+    SANDBOX_B1 --&gt; TOOL_B1
+
+    AGENT_A1 --&gt; AUDIT
+    AGENT_B1 --&gt; AUDIT
+    CONTROL --&gt; MON
+    AGENT_A1 --&gt; VAULT
+    AGENT_B1 --&gt; VAULT
+</code></pre>
+<p>架构设计关键原则：</p>
+<ol>
+<li><p><strong>控制平面与数据平面分离</strong>：控制平面负责路由、认证、策略决策；数据平面承载实际 Agent 执行，可按租户水平扩展[1][5]。</p>
+</li>
+<li><p><strong>强一致性数据存储</strong>：OpenClaw 依赖强一致性保证会话状态、权限配置、审计日志的跨节点一致。推荐使用 PostgreSQL（支持同步复制）或 etcd[1]。</p>
+</li>
+<li><p><strong>无状态 Agent 节点</strong>：Agent 节点本身无状态，会话状态存储在 DB，便于弹性扩缩容[1]。</p>
+</li>
+</ol>
+<h3>1.2 部署模式选择</h3>
+<p>企业部署模式主要有三种：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>适用场景</th>
+<th>隔离级别</th>
+<th>成本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>单实例单租户</strong></td>
+<td>小团队, 内部使用</td>
+<td>应用层隔离</td>
+<td>低</td>
+</tr>
+<tr>
+<td><strong>多租户共享实例</strong></td>
+<td>SaaS 服务, 业务部门</td>
+<td>逻辑隔离 (RBAC)</td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>每租户独立实例</strong></td>
+<td>大型企业, 强合规</td>
+<td>基础设施隔离</td>
+<td>高</td>
+</tr>
+</tbody></table>
+<p>对于需要严格数据隔离的场景（如金融、医疗），推荐每租户独立 VPC/集群部署；对于内部工具型应用，多租户共享实例配合 RBAC 可满足需求[3][6]。</p>
+<hr>
+<h2>2. 租户隔离</h2>
+<h3>2.1 多租户安全边界</h3>
+<p>OpenClaw 原生设计并不支持多租户作为对抗性边界。官方文档明确说明：&quot;Authenticated Gateway callers are treated as trusted operators for that gateway&quot;，意味着一旦通过认证，用户在网关上拥有同等信任等级[4]。这导致多租户场景必须自行构建隔离机制。</p>
+<p>核心隔离策略包括：</p>
+<ol>
+<li><p><strong>身份隔离</strong>：每个租户拥有独立的身份提供商（IdP），通过 OIDC/SAML 与 OpenClaw Gateway 集成。租户身份在请求链路中传递（<code>tenant_id</code> 请求头），所有数据访问层必须强制租户过滤[3]。</p>
+</li>
+<li><p><strong>Agent Plane 隔离</strong>：GitHub 社区提案的 Agent Plane 实现每租户独立的 VM、服务账号、密钥和网络策略，本质上将 OpenClaw 转型为&quot;OpenClaw for Teams&quot;模式[6]。</p>
+</li>
+<li><p><strong>沙箱隔离</strong>：启用 <code>agents.defaults.sandbox.mode = &quot;enabled&quot;</code>，工具执行在独立容器中运行[11]。沙箱配置 <code>scope</code> 控制容器创建粒度：</p>
+<ul>
+<li><code>&quot;session&quot;</code>：每个会话独立容器（强隔离）</li>
+<li><code>&quot;agent&quot;</code>：每个 Agent 共享容器（中隔离）</li>
+<li><code>&quot;none&quot;</code>：无隔离（仅开发）[2][11]</li>
+</ul>
+</li>
+</ol>
+<h3>2.2 RBAC 与权限模型</h3>
+<p>企业级权限模型需扩展 OpenClaw 内置权限（<code>chat</code>、<code>read</code>、<code>write</code>、<code>query</code>、<code>admin</code>、<code>audit</code>），构建租户级角色：</p>
+<pre><code>graph TD
+    ORG[组织管理员]
+    TENANT[租户管理员]
+    DEV[开发者]
+    AUDITOR[审计员]
+    USER[普通用户]
+
+    ORG --&gt; TENANT
+    TENANT --&gt; DEV
+    TENANT --&gt; AUDITOR
+    TENANT --&gt; USER
+
+    ORG --&gt;|系统配置, 跨租户审计| ADMIN_ALL
+    TENANT --&gt;|租户内用户管理| TENANT_ADMIN
+    DEV --&gt;|技能部署, 数据读写| DEVELOPER
+    AUDITOR --&gt;|只读审计日志| AUDIT_READ
+    USER --&gt;|基础对话, 个人数据| USER_BASIC
+</code></pre>
+<p>权限继承与约束：</p>
+<ul>
+<li><strong>最小权限原则</strong>：默认拒绝，显式授权。高风险操作（文件删除、网络调用、sudo）需额外审批流程[2]</li>
+<li><strong>租户边界强制</strong>：数据库查询自动附加 <code>WHERE tenant_id = ?</code>，文件访问限制在租户专属目录[3]</li>
+<li><strong>权限审计</strong>：所有权限变更记录审计日志，支持定期权限复核（Certification）[7]</li>
+</ul>
+<h3>2.3 会话隔离风险与防御</h3>
+<p>多用户并发场景下，会话隔离失败可导致权限提升攻击。研究显示，若 Router 使用&quot;当前活动上下文&quot;或共享可变状态作为身份代理，异步消息交错可能使用户请求在管理员会话上下文中评估[8]。</p>
+<p>防御措施：</p>
+<ol>
+<li><strong>稳定身份标识</strong>：使用 <code>ingress_user_id</code>（来自网关层）作为身份标识，拒绝负载中的&quot;声明用户ID&quot;[8]</li>
+<li><strong>会话绑定</strong>：Agent 处理链路上保持会话身份不可变</li>
+<li><strong>随机会话 ID</strong>：每个会话生成唯一标识，避免可预测</li>
+<li><strong>并发控制</strong>：关键操作串行化或乐观锁</li>
+</ol>
+<hr>
+<h2>3. 容灾策略</h2>
+<h3>3.1 高可用架构</h3>
+<p>OpenClaw 高可用需要三层冗余：</p>
+<div class="mermaid">flowchart TD
+    Start[用户请求进入] --> LB[负载均衡器]
+    LB --> CheckHealth{健康检查?}
+
+    CheckHealth -->|通过| Route[路由到健康节点]
+    CheckHealth -->|失败| Failover[故障转移<br/>切换到备用节点]
+
+    Route --> GW1[Gateway 节点 1]
+    Route --> GW2[Gateway 节点 2]
+    Route --> GW3[Gateway 节点 3]
+
+    GW1 --> DB{DB 主节点<br/>正常?}
+    GW2 --> DB
+    GW3 --> DB
+
+    DB -->|正常| Process[处理请求]
+    DB -->|主节点故障| FailoverDB[自动故障转移<br/>Promoter 选取备用]
+
+    FailoverDB --> Switchover[切换到备用库]
+    Switchover --> UpdateConfig{更新配置?}
+    UpdateConfig -->|是| Update[通知 Gateway 新连接]
+    UpdateConfig -->|否| Wait[等待恢复]
+
+    Process --> Cache{缓存命中?}
+    Cache -->|是| ReturnCache[返回缓存结果]
+    Cache -->|否| QueryDB[查询数据库]
+    QueryDB --> CacheResult[缓存结果并返回]
+
+    subgraph "故障检测机制"
+        Monitor[监控系统] --> Alert[告警通知]
+        HealthCheck[健康检查器] --> MarkDown[标记节点下线]
+    end
+
+    Failover --> Monitor
+    Failover --> HealthCheck</div>
+<p>高可用配置要点[1]：</p>
+<ol>
+<li><strong>节点数量</strong>：至少 3 个 Gateway 节点，分布在不同可用区（AZ）</li>
+<li><strong>会话粘性</strong>：Gateway 层面不保持会话状态，Agent 会话状态在 DB，可任意路由</li>
+<li><strong>数据库高可用</strong>：PostgreSQL 同步复制 + 自动故障转移（Patroni/Stolon）</li>
+<li><strong>Redis 高可用</strong>：Redis Cluster 或哨兵模式</li>
+<li><strong>就绪检查</strong>：Gateway 健康检查端点 <code>/healthz</code>，负载均衡器配置就绪检查而非存活检查</li>
+</ol>
+<h3>3.2 备份与恢复</h3>
+<p>备份数据层包括：</p>
+<ul>
+<li><strong>配置数据</strong>：<code>config.json</code>、Agent 定义、SOUL.md</li>
+<li><strong>会话数据</strong>：数据库（消息历史、记忆）</li>
+<li><strong>审计日志</strong>：结构化日志（JSON）写入集中存储（ELK/Splunk）</li>
+<li><strong>文件存储</strong>：Agent 工作区、技能文件、上传附件</li>
+</ul>
+<p>备份策略：</p>
+<ul>
+<li><strong>频繁备份</strong>：配置和会话数据库每日增量 + 每周全量</li>
+<li><strong>异地存储</strong>：备份加密后传输至不同区域对象存储（如 S3 跨区域复制）</li>
+<li><strong>保留策略</strong>：每日备份保留 30 天，每周保留 12 周，每月保留 36 个月[4]</li>
+</ul>
+<h3>3.3 RPO/RTO 定义与演练</h3>
+<ul>
+<li><strong>RPO（恢复点目标）</strong>：数据丢失容忍度。多租户企业建议 RPO ≤ 15 分钟（增量备份频率）[4]</li>
+<li><strong>RTO（恢复时间目标）</strong>：服务中断容忍度。建议 RTO ≤ 60 分钟（含故障检测、切换、验证）[4]</li>
+</ul>
+<p>恢复演练必须每月执行：</p>
+<ol>
+<li>从备份恢复配置 + 数据库到隔离环境</li>
+<li>验证数据完整性（会话连续性、文件可访问）</li>
+<li>执行端到端测试（用户对话、工具调用）</li>
+<li>文档化故障切换步骤（Runbook），包括 DNS 切换、证书更新、监控告警恢复</li>
+</ol>
+<hr>
+<h2>4. 合规要求</h2>
+<h3>4.1 审计日志完整性</h3>
+<p>合规部署必须确保每项操作可追溯：</p>
+<pre><code>sequenceDiagram
+    participant U as 用户/租户
+    participant G as Gateway
+    participant A as Agent
+    participant D as DB
+    participant L as 审计日志
+
+    U-&gt;&gt;G: 请求 (身份+租户上下文)
+    G-&gt;&gt;G: 记录请求进入
+    G-&gt;&gt;A: 转发请求
+    A-&gt;&gt;D: 查询/写入数据 (附加租户ID)
+    A-&gt;&gt;A: 调用工具
+    A-&gt;&gt;L: 操作日志 (操作人,租户,动作,数据,结果)
+    A-&gt;&gt;G: 响应
+    G-&gt;&gt;L: 请求日志 (完整payload,响应码)
+    G-&gt;&gt;U: 返回结果
+</code></pre>
+<p>审计日志要素（必须）：</p>
+<ul>
+<li><strong>身份标识</strong>： ingress_user_id、租户 ID</li>
+<li><strong>时间戳</strong>：精确到毫秒，UTC 时区</li>
+<li><strong>操作类型</strong>：chat、tool_invoke、file_read、file_write、config_change</li>
+<li><strong>资源标识</strong>：会话 ID、Agent 名称、文件路径、数据库表</li>
+<li><strong>结果状态</strong>：success、failure、denied、timeout</li>
+<li><strong>请求/响应摘要</strong>：脱敏后的数据（PII 必须过滤）[2][7]</li>
+</ul>
+<p>日志存储与保护：</p>
+<ul>
+<li>写入即只读（WORM 存储）</li>
+<li>完整性校验（SHA-256 hash chain）</li>
+<li>保留至少 7 年（金融/医疗要求）</li>
+</ul>
+<h3>4.2 GDPR 与数据隐私</h3>
+<p>GDPR 对 OpenClaw 部署的影响：</p>
+<ol>
+<li><p><strong>数据 residency</strong>：EU 居民数据处理必须在 EU 区域完成。措施：租户 EU 数据部署在 Frankfurt/Dublin 区域，禁用跨区域复制[2]。</p>
+</li>
+<li><p><strong>用户权利</strong>：支持数据访问、删除、可携带权。实现：</p>
+<ul>
+<li><code>GET /api/v1/users/{id}/data</code> 导出个人数据</li>
+<li><code>DELETE /api/v1/sessions/{id}</code> 删除会话（含关联记忆）</li>
+<li>数据擦除需级联到所有副本（DB、缓存、备份）[2]</li>
+</ul>
+</li>
+<li><p><strong>数据最小化</strong>：Agent 记忆配置 <code>memory.maxSize</code> 限制上下文窗口，避免无限制累积个人数据。</p>
+</li>
+<li><p><strong>DPO 访问</strong>：审计日志和数据导出 API 需授权给数据保护官（DPO）角色独立访问，不受租户管理员控制[2]。</p>
+</li>
+</ol>
+<h3>4.3 SOC 2 Type II 与 HIPAA</h3>
+<p>SOC 2 五大信任准则在 OpenClaw 部署中的落实：</p>
+<table>
+<thead>
+<tr>
+<th>准则</th>
+<th>控制措施</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>安全</strong></td>
+<td>网络隔离、WAF、DDoS 防护、漏洞扫描、强制 MFA</td>
+</tr>
+<tr>
+<td><strong>可用性</strong></td>
+<td>多 AZ 部署、RTO ≤ 60 分钟、性能监控、容量规划</td>
+</tr>
+<tr>
+<td><strong>处理完整性</strong></td>
+<td>输入验证、输出过滤、原子操作、事务日志</td>
+</tr>
+<tr>
+<td><strong>保密性</strong></td>
+<td>静态加密（AES-256）、传输加密（TLS 1.3）、密钥生命周期管理</td>
+</tr>
+<tr>
+<td><strong>隐私</strong></td>
+<td>GDPR 措施 + 隐私政策展示、数据处理协议（DPA）记录</td>
+</tr>
+</tbody></table>
+<p>HIPAA（医疗健康数据）额外要求：</p>
+<ul>
+<li><strong>BAAs（业务伙伴协议）</strong>：AI 提供商（OpenAI/Anthropic）需签署 BAA，使用其 HIPAA eligible 端点（如 Azure OpenAI with BAA）[2]</li>
+<li><strong>PHI 隔离</strong>：部署在独立 VNet，禁止流出医疗数据</li>
+<li><strong>自动检测</strong>：前置脱敏层扫描 PII/PHI，发现意外流出立即阻断[5]</li>
+</ul>
+<h3>4.4 合规评估框架</h3>
+<p>使用 CLAW-10 十维评估矩阵量化 OpenClaw 企业就绪度[7]：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>权重</th>
+<th>评分(1-5)</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>身份认证 (Identity)</td>
+<td>15%</td>
+<td>3</td>
+<td>OIDC 支持但无 MFA 强制</td>
+</tr>
+<tr>
+<td>授权 (Authorization)</td>
+<td>15%</td>
+<td>2</td>
+<td>原生 RBAC 弱，需自建</td>
+</tr>
+<tr>
+<td>沙箱执行 (Sandboxing)</td>
+<td>15%</td>
+<td>4</td>
+<td>Docker 沙箱成熟</td>
+</tr>
+<tr>
+<td>审计日志 (Audit)</td>
+<td>12%</td>
+<td>3</td>
+<td>日志完整但需集中管理</td>
+</tr>
+<tr>
+<td>数据加密 (Encryption)</td>
+<td>10%</td>
+<td>3</td>
+<td>TLS 完整，静态加密需配置</td>
+</tr>
+<tr>
+<td>密钥管理 (Secrets)</td>
+<td>10%</td>
+<td>2</td>
+<td>Vault 集成需自建</td>
+</tr>
+<tr>
+<td>网络隔离 (Networking)</td>
+<td>8%</td>
+<td>3</td>
+<td>防火墙/VPC 可配置</td>
+</tr>
+<tr>
+<td>漏洞管理 (Vuln Mgmt)</td>
+<td>7%</td>
+<td>2</td>
+<td>无内置扫描</td>
+</tr>
+<tr>
+<td>合规报告 (Reporting)</td>
+<td>6%</td>
+<td>1</td>
+<td>无标准报告模板</td>
+</tr>
+<tr>
+<td>供应商管理 (Vendor)</td>
+<td>2%</td>
+<td>3</td>
+<td>AI 提供商需自行评估</td>
+</tr>
+</tbody></table>
+<p>企业部署前必须补齐薄弱项（评分&lt;4），否则无法通过审计。</p>
+<hr>
+<h2>7. 结论</h2>
+<p>OpenClaw 企业级部署需要系统化工程，而非简单&quot;docker-compose up&quot;。核心结论如下：</p>
+<ol>
+<li><p><strong>架构设计</strong>：控制平面与数据平面分离是扩展性的基础，3+ 节点集群配合强一致性存储实现高可用[1]。</p>
+</li>
+<li><p><strong>租户隔离</strong>：OpenClaw 原生不适合多租户，必须构建 Agent Plane 或每租户独立实例，结合 RBAC 和沙箱实现逻辑隔离[3][6]。</p>
+</li>
+<li><p><strong>容灾策略</strong>：RPO≤15 分钟 + RTO≤60 分钟需要完整的备份策略和月度演练，备份涵盖配置、数据库、审计日志三个层次[4]。</p>
+</li>
+<li><p><strong>合规要求</strong>：SOC 2 和 GDPR 需要在基础设施层、管理层、审计层三层补足控制，特别是审计日志完整性、数据 residency、用户权利实现[2][7]。</p>
+</li>
+<li><p><strong>风险提示</strong>：OpenClaw 社区版在企业安全维度存在差距（CLAW-10 平均评分 &lt;3），生产部署前必须进行威胁建模和安全加固[7][8]。</p>
+</li>
+</ol>
+<p>建议企业采用渐进式路线：</p>
+<ul>
+<li><strong>阶段 1</strong>：单租户试点，验证核心业务价值</li>
+<li><strong>阶段 2</strong>：引入 RBAC 和审计日志，满足基础合规</li>
+<li><strong>阶段 3</strong>：多租户架构改造，实施 Agent Plane</li>
+<li><strong>阶段 4</strong>：高可用容灾建设，通过 SOC 2/GDPR 认证</li>
+</ul>
+<hr>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>OpenClawn.com. Achieving High Availability with OpenClaw Self-Host Clusters (2026). <a href="https://openclawn.com/achieving-high-availability-openclaw-clusters/">https://openclawn.com/achieving-high-availability-openclaw-clusters/</a></li>
+<li>KiwiClaw. SOC 2 and GDPR Compliance for OpenClaw Deployments. <a href="https://kiwiclaw.app/blog/openclaw-soc2-gdpr-compliance/">https://kiwiclaw.app/blog/openclaw-soc2-gdpr-compliance/</a></li>
+<li>EastonDev. OpenClaw Enterprise Deployment in Practice: Complete Guide to Multi-User Management, Permission Isolation, and Security Hardening (2026). <a href="https://eastondev.com/blog/en/posts/ai/20260205-openclaw-enterprise-deploy/">https://eastondev.com/blog/en/posts/ai/20260205-openclaw-enterprise-deploy/</a></li>
+<li>Tencent Cloud Techpedia. OpenClaw Server Disaster Recovery and Recovery Strategies. <a href="https://www.tencentcloud.com/techpedia/140854">https://www.tencentcloud.com/techpedia/140854</a></li>
+<li>Microsoft Security. Running OpenClaw safely: identity, isolation, and runtime risk (2026). <a href="https://www.microsoft.com/en-us/security/blog/2026/02/19/running-openclaw-safely-identity-isolation-runtime-risk/">https://www.microsoft.com/en-us/security/blog/2026/02/19/running-openclaw-safely-identity-isolation-runtime-risk/</a></li>
+<li>GitHub OpenClaw. feat: Agents Plane — multi-tenant agent provisioning and isolation (#17299). <a href="https://github.com/openclaw/openclaw/issues/17299">https://github.com/openclaw/openclaw/issues/17299</a></li>
+<li>Onyx AI. OpenClaw Enterprise Evaluation Framework | CLAW-10. <a href="https://onyx.app/insights/openclaw-enterprise-evaluation-framework">https://onyx.app/insights/openclaw-enterprise-evaluation-framework</a></li>
+<li>Snyk Labs. On Ways to Bypass OpenClaw&#39;s Security Sandbox. <a href="https://labs.snyk.io/resources/bypass-openclaw-security-sandbox/">https://labs.snyk.io/resources/bypass-openclaw-security-sandbox/</a></li>
+<li>Penligent.ai. OpenClaw Multi-User Session Isolation Failure Authorization Bypass and Privilege Escalation. <a href="https://www.penligent.ai/hackinglabs/hi/openclaw-multi-user-session-isolation-failure-authorization-bypass-and-privilege-escalation/">https://www.penligent.ai/hackinglabs/hi/openclaw-multi-user-session-isolation-failure-authorization-bypass-and-privilege-escalation/</a></li>
+<li>OpenClaw Docs. Sandboxing. <a href="https://docs.openclaw.ai/gateway/sandboxing">https://docs.openclaw.ai/gateway/sandboxing</a></li>
+<li>Alibaba Cloud. OpenClaw Managed Solution by Alibaba Cloud. <a href="https://www.alibabacloud.com/blog/openclaw-managed-solution-by-alibaba-cloud_602961">https://www.alibabacloud.com/blog/openclaw-managed-solution-by-alibaba-cloud_602961</a></li>
+<li>Valletta Software. OpenClaw Architecture &amp; Setup Guide (2026). <a href="https://vallettasoftware.com/blog/post/openclaw-2026-guide">https://vallettasoftware.com/blog/post/openclaw-2026-guide</a></li>
+<li>Tencent Cloud Techpedia. OpenClaw Server Environment Isolation and Multi-Tenant Deployment. <a href="https://www.tencentcloud.com/techpedia/139885">https://www.tencentcloud.com/techpedia/139885</a></li>
+<li>Ken Huang. OpenClaw Design Patterns (Part 5 of 7): Reliability &amp; Security Patterns. <a href="https://kenhuangus.substack.com/p/openclaw-design-patterns-part-5-of">https://kenhuangus.substack.com/p/openclaw-design-patterns-part-5-of</a></li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>

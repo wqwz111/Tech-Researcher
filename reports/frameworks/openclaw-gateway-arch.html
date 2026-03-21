@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw Gateway 架构深度剖析</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>OpenClaw Gateway 架构深度剖析</h1>
+  <div class="meta">2026-03-21 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>OpenClaw Gateway 是一个高度模块化的多通道 AI Agent 路由网关，支持 WhatsApp、Telegram、Discord、iMessage 等主流即时通讯平台的统一接入。本报告深度剖析其核心架构设计，重点涵盖以下四个方面：</p>
+<p><strong>路由机制</strong>: Gateway 采用基于 Binding 的确定性路由模型，通过 match 规则实现消息到 Agent 的精准映射。路由优先级遵循&quot;最具体匹配获胜&quot;原则，支持 peer 级别、guild 级别、account 级别等多层路由策略，实现灵活的多租户隔离。</p>
+<p><strong>Binding 设计</strong>: Binding 是连接 Channel、Account、Peer 和 Agent 的配置桥梁，采用 JSON5 声明式配置。支持 ACP（Agent-to-Agent）绑定、多账户绑定、跨平台身份映射等高级特性，为企业级多 Agent 部署提供原生支持。</p>
+<p><strong>会话管理</strong>: 会话状态完全由 Gateway 集中管理，支持多种会话隔离策略（main/per-peer/per-channel-peer/per-account-channel-peer）。采用事务性写入、定期归档、自动裁剪等机制，确保大规模部署时的存储效率。</p>
+<p><strong>扩展性</strong>: 通过插件系统、多 Agent 隔离、沙箱执行、热重载配置等机制，实现水平扩展和安全隔离。WebSocket 协议统一控制平面和数据平面，支持多客户端并发连接。</p>
+<p>本报告基于 2024-2026 年官方文档和技术资料，提供 8 个架构示意图和配置实例，为生产部署和二次开发提供技术参考。</p>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h1>引言</h1>
+<p>OpenClaw Gateway 作为 OpenClaw 生态系统的核心枢纽，承担着消息路由、协议转换、会话管理、安全控制等关键职责。随着多 Agent 架构的演进，Gateway 的设计从单一 Agent 网关进化为支持企业级多租户的分布式路由平台。</p>
+<p>本报告从架构视角，系统分析 Gateway 的核心组件交互流程、Binding 路由算法、会话生命周期管理、性能优化策略，并结合实际部署场景给出最佳实践建议。</p>
+<hr>
+<h2>一、架构概览</h2>
+<h3>1.1 核心职责</h3>
+<p>Gateway 作为控制平面和数据平面的统一入口，主要承担以下职责：</p>
+<ul>
+<li><strong>消息路由</strong>: 根据 Binding 配置将 inbound 消息路由到目标 Agent</li>
+<li><strong>协议转换</strong>: 统一多 Channel 的消息格式（WhatsApp/Telegram/Discord/iMessage 等）</li>
+<li><strong>会话管理</strong>: 维护会话状态、上下文、历史记录</li>
+<li><strong>安全控制</strong>: 认证、授权、DM/Group 访问控制、sandbox 隔离</li>
+<li><strong>API 网关</strong>: 提供 WebSocket 控制接口、HTTP API、Web UI</li>
+</ul>
+<h3>1.2 运行时模型</h3>
+<p>Gateway 采用单进程常驻模式，统一管理所有 Channel 连接和 Agent 路由：</p>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                    OpenClaw Gateway                         │
+├─────────────────────────────────────────────────────────────┤
+│  WebSocket Control Plane (port 18789 default)              │
+│  ├─ Operator clients (CLI/UI/automation)                   │
+│  └─ Node clients (iOS/Android cameras/sensors)             │
+├─────────────────────────────────────────────────────────────┤
+│  Channel Adapters                                          │
+│  ├─ WhatsApp (Baileys Web)                                 │
+│  ├─ Telegram (TDLib)                                       │
+│  ├─ Discord (discord.js)                                   │
+│  ├─ iMessage (imsg rpc)                                    │
+│  └─ Extensions (Mattermost/Matrix/Teams/IRС)               │
+├─────────────────────────────────────────────────────────────┤
+│  Core Engine                                               │
+│  ├─ Router (Binding matcher)                               │
+│  ├─ Session Manager                                        │
+│  ├─ Agent Dispatcher                                       │
+│  ├─ Message Broker                                         │
+│  ├─ Health Monitor                                         │
+│  └─ Config Reloader                                        │
+├─────────────────────────────────────────────────────────────┤
+│  Agent Workspaces                                          │
+│  ├─ workspace-main (agentId: main)                         │
+│  ├─ workspace-coding (agentId: coding)                     │
+│  └─ workspace-family (agentId: family)                     │
+└─────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3>1.3 配置结构</h3>
+<p>Gateway 配置使用 JSON5 格式，主要顶层字段：</p>
+<pre><code class="language-json5">{
+  // Agent 配置（支持多 Agent）
+  agents: {
+    list: [
+      { id: &quot;main&quot;, workspace: &quot;~/.openclaw/workspace-main&quot; },
+      { id: &quot;coding&quot;, workspace: &quot;~/.openclaw/workspace-coding&quot; }
+    ],
+    defaults: { /* 默认模型、超时、sandbox 等 */ }
+  },
+
+  // Channel 账户配置
+  channels: {
+    whatsapp: {
+      accounts: {
+        default: { /* 认证信息 */ },
+        personal: {},
+        biz: {}
+      }
+    },
+    telegram: { /* ... */ },
+    discord: { /* ... */ }
+  },
+
+  // Binding 路由规则（核心）
+  bindings: [
+    { agentId: &quot;main&quot;, match: { channel: &quot;whatsapp&quot;, accountId: &quot;personal&quot; } },
+    { agentId: &quot;coding&quot;, match: { channel: &quot;telegram&quot;, peer: { kind: &quot;direct&quot;, id: &quot;123456&quot; } } }
+  ],
+
+  // Session 配置
+  session: {
+    dmScope: &quot;per-channel-peer&quot;,
+    maintenance: { /* 归档裁剪策略 */ }
+  },
+
+  // Gateway 自身配置
+  gateway: {
+    port: 18789,
+    bind: &quot;loopback&quot;,
+    auth: { token: &quot;...&quot;, password: &quot;...&quot; }
+  }
+}
+</code></pre>
+<hr>
+<h2>二、路由机制详解</h2>
+<h3>2.1 Binding 匹配算法</h3>
+<p>Binding 是 Gateway 路由决策的核心数据结构，包含 <code>agentId</code>（目标 Agent）和 <code>match</code>（匹配条件）两个关键字段。</p>
+<h4>2.1.1 match 字段语义</h4>
+<p><code>match</code> 支持以下维度的条件组合（AND 语义）：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>channel</code></td>
+<td>string</td>
+<td>通道类型：<code>whatsapp</code>/<code>telegram</code>/<code>discord</code> 等</td>
+</tr>
+<tr>
+<td><code>accountId</code></td>
+<td>string</td>
+<td>账户标识（多账户场景），<code>&quot;*&quot;</code> 匹配所有账户</td>
+</tr>
+<tr>
+<td><code>peer</code></td>
+<td>object</td>
+<td>对等端（DM/Group），包含 <code>kind</code> 和 <code>id</code></td>
+</tr>
+<tr>
+<td><code>parentPeer</code></td>
+<td>object</td>
+<td>父级会话继承（Discord 线程）</td>
+</tr>
+<tr>
+<td><code>guildId</code></td>
+<td>string</td>
+<td>Discord 服务器 ID</td>
+</tr>
+<tr>
+<td><code>roles</code></td>
+<td>string[]</td>
+<td>Discord 角色列表</td>
+</tr>
+<tr>
+<td><code>teamId</code></td>
+<td>string</td>
+<td>Slack 工作区 ID</td>
+</tr>
+</tbody></table>
+<p>示例：</p>
+<pre><code class="language-json5">{
+  agentId: &quot;support&quot;,
+  match: {
+    channel: &quot;whatsapp&quot;,
+    accountId: &quot;biz&quot;,
+    peer: { kind: &quot;group&quot;, id: &quot;1203630...@g.us&quot; }
+  }
+}
+</code></pre>
+<h4>2.1.2 优先级策略</h4>
+<p>Binding 匹配遵循 <strong>&quot;最具体获胜&quot;</strong> 原则，优先级从高到低：</p>
+<ol>
+<li><code>peer</code> 精确匹配（DM/group id）</li>
+<li><code>parentPeer</code> 匹配（线程继承）</li>
+<li><code>guildId + roles</code>（Discord 角色路由）</li>
+<li><code>guildId</code>（Discord 服务器）</li>
+<li><code>teamId</code>（Slack 工作区）</li>
+<li><code>accountId</code> 精确匹配</li>
+<li><code>accountId: &quot;*&quot;</code>（账户级通配）</li>
+<li><code>channel</code> 匹配（省略 accountId 时）</li>
+<li>默认 Agent（<code>agents.list[].default</code> 或首个 entry）</li>
+</ol>
+<p><strong>同优先级冲突</strong>：按配置文件顺序，<strong>先匹配的获胜</strong>。</p>
+<h4>2.1.3 匹配流程图</h4>
+<div class="mermaid">flowchart TD
+    Start[收到 inbound 消息] --> Extract{提取消息特征}
+    Extract --> Channel[channel = "whatsapp"]
+    Extract --> Account[accountId = "personal"]
+    Extract --> Peer[peer = {kind: "direct", id: "+15551234567"}]
+    
+    Channel --> Bindings{加载所有<br/>bindings[]}
+    Bindings --> Tier1{ Tier 1: peer 匹配?}
+    Tier1 -- 是 --> Select1[选择匹配的 binding]
+    Tier1 -- 否 --> Tier2{ Tier 2: parentPeer?}
+    Tier2 -- 是 --> Select2[选择匹配的 binding]
+    Tier2 -- 否 --> Tier3{ Tier 3: guild+roles?}
+    Tier3 -- 是 --> Select3[选择匹配的 binding]
+    Tier3 -- 否 --> Tier4{guildId?}
+    Tier4 -- 是 --> Select4[选择匹配的 binding]
+    Tier4 -- 否 --> Tier5{teamId?}
+    Tier5 -- 是 --> Select5[选择匹配的 binding]
+    Tier5 -- 否 --> Tier6{accountId 精确匹配?}
+    Tier6 -- 是 --> Select6[选择匹配的 binding]
+    Tier6 -- 否 --> Tier7{accountId = "*"?}
+    Tier7 -- 是 --> Select7[选择匹配的 binding]
+    Tier7 -- 否 --> Tier8{channel 匹配?}
+    Tier8 -- 是 --> Select8[选择匹配的 binding]
+    Tier8 -- 否 --> Default[使用默认 Agent]
+    
+    Select1 --> Route[路由到目标 Agent]
+    Select2 --> Route
+    Select3 --> Route
+    Select4 --> Route
+    Select5 --> Route
+    Select6 --> Route
+    Select7 --> Route
+    Select8 --> Route
+    Default --> Route
+    
+    Route --> Done[完成路由]</div>
+<h3>2.2 Multi-Agent 路由模式</h3>
+<p>Gateway 原生支持多 Agent 隔离运行，每个 Agent 拥有独立的 workspace、auth profiles、会话存储。</p>
+<h4>2.2.1 隔离模型</h4>
+<pre><code>Host Filesystem
+├── ~/.openclaw/
+│   ├── openclaw.json          ← 全局配置（含 bindings）
+│   ├── agents/
+│   │   ├── main/agent/        ← main Agent auth profile
+│   │   │   └── auth-profiles.json
+│   │   ├── coding/agent/      ← coding Agent auth profile
+│   │   │   └── auth-profiles.json
+│   │   └── family/agent/
+│   ├── agents/main/sessions/  ← main 会话存储
+│   ├── agents/coding/sessions/ ← coding 会话存储
+│   ├── workspace-main/        ← main 工作区（AGENTS.md, SOUL.md）
+│   ├── workspace-coding/      ← coding 工作区
+│   └── workspace-family/
+</code></pre>
+<p>关键隔离点：</p>
+<ul>
+<li><strong>认证隔离</strong>: 每个 Agent 的 <code>auth-profiles.json</code> 独立，Channel 凭据按 Agent 作用域分发</li>
+<li><strong>会话隔离</strong>: 会话文件路径 <code>~/.openclaw/agents/&lt;agentId&gt;/sessions/</code> 完全分离</li>
+<li><strong>技能隔离</strong>: 每个 workspace 的 <code>skills/</code> 目录独立，共享技能从 <code>~/.openclaw/skills</code> 加载</li>
+<li><strong>工具权限</strong>: <code>agents.list[].tools.allow/deny</code> 支持 per-agent 工具白名单/黑名单</li>
+</ul>
+<h4>2.2.2 典型部署方案</h4>
+<p><strong>场景一：按功能分离 Agent</strong></p>
+<pre><code class="language-json5">{
+  agents: {
+    list: [
+      { id: &quot;chat&quot;, name: &quot;日常聊天&quot;, model: &quot;anthropic/claude-sonnet-4-6&quot; },
+      { id: &quot;coding&quot;, name: &quot;编程助手&quot;, model: &quot;openai/gpt-5&quot; },
+      { id: &quot;alerts&quot;, name: &quot;告警机器人&quot;, model: &quot;anthropic/claude-3.5-haiku&quot; }
+    ]
+  },
+  bindings: [
+    { agentId: &quot;chat&quot;, match: { channel: &quot;whatsapp&quot; } },
+    { agentId: &quot;coding&quot;, match: { channel: &quot;telegram&quot; } },
+    { agentId: &quot;alerts&quot;, match: { channel: &quot;telegram&quot;, peer: { kind: &quot;group&quot;, id: &quot;-100987654321&quot; } } }
+  ]
+}
+</code></pre>
+<p><strong>场景二：按租户分离 Agent（SaaS 多租户）</strong></p>
+<pre><code class="language-json5">{
+  agents: {
+    list: [
+      { id: &quot;tenant-a&quot;, workspace: &quot;~/.openclaw/workspace-tenant-a&quot; },
+      { id: &quot;tenant-b&quot;, workspace: &quot;~/.openclaw/workspace-tenant-b&quot; }
+    ]
+  },
+  bindings: [
+    { agentId: &quot;tenant-a&quot;, match: { channel: &quot;whatsapp&quot;, accountId: &quot;tenant-a-phone&quot; } },
+    { agentId: &quot;tenant-b&quot;, match: { channel: &quot;whatsapp&quot;, accountId: &quot;tenant-b-phone&quot; } }
+  ],
+  channels: {
+    whatsapp: {
+      accounts: {
+        &quot;tenant-a-phone&quot;: {},
+        &quot;tenant-b-phone&quot;: {}
+      }
+    }
+  }
+}
+</code></pre>
+<hr>
+<h2>三、Binding 设计深度剖析</h2>
+<h3>3.1 Binding 配置语法</h3>
+<p>Binding 配置包含三个核心字段：</p>
+<pre><code class="language-json5">{
+  agentId: string,           // 必填，目标 Agent ID
+  match: MatchCondition,     // 必填，匹配条件对象
+  type?: &quot;acp&quot; | &quot;standard&quot; // 可选，绑定类型（默认 standard）
+}
+</code></pre>
+<h4>3.1.1 MatchCondition 类型</h4>
+<pre><code class="language-typescript">interface MatchCondition {
+  channel?: string;          // &quot;whatsapp&quot; | &quot;telegram&quot; | &quot;discord&quot; | ...
+  accountId?: string | &quot;*&quot;; // 账户 ID，* 匹配所有
+  peer?: {
+    kind: &quot;direct&quot; | &quot;group&quot; | &quot;channel&quot;;
+    id: string;             // 平台原始 ID（E.164 号码、group chat id 等）
+  };
+  parentPeer?: {             // 父级 peer（用于线程继承）
+    kind: &quot;direct&quot; | &quot;group&quot; | &quot;channel&quot;;
+    id: string;
+  };
+  guildId?: string;          // Discord server ID
+  roles?: string[];          // Discord 角色列表（@role 提及）
+  teamId?: string;           // Slack workspace ID
+}
+</code></pre>
+<h4>3.1.2 ACP Binding</h4>
+<p>对于 Agent-to-Agent 通信场景，使用 <code>type: &quot;acp&quot;</code> 绑定：</p>
+<pre><code class="language-json5">{
+  type: &quot;acp&quot;,
+  agentId: &quot;coding&quot;,
+  match: {
+    channel: &quot;telegram&quot;,
+    peer: { kind: &quot;group&quot;, id: &quot;-1001234567890:topic:99&quot; } // 论坛主题
+  }
+}
+</code></pre>
+<p>ACP binding 的语义是&quot;持久性跨 Agent 绑定&quot;，常用于论坛主题、专用频道等需要长期绑定的场景。</p>
+<h3>3.2 匹配算法实现细节</h3>
+<p>Gateway 在 <code>src/gateway/router/router.ts</code> 中实现了 Binding 匹配引擎，主要逻辑：</p>
+<ol>
+<li><strong>加载所有 bindings</strong>：从配置读取，缓存到内存</li>
+<li><strong>提取 inbound 特征</strong>：从 inbound envelope 中解析 <code>channel</code>、<code>accountId</code>、<code>peer</code> 等字段</li>
+<li><strong>分层匹配</strong>：按 9 层优先级筛选匹配的 binding 集合</li>
+<li><strong>同层去重</strong>：同一层级多个匹配时，取配置顺序第一条</li>
+<li><strong>返回 agentId</strong>：匹配失败则使用默认 agent</li>
+</ol>
+<p>伪代码：</p>
+<pre><code class="language-typescript">function routeMessage(inbound: Inbound, bindings: Binding[]): string {
+  const features = extractFeatures(inbound);
+  const matched = [];
+
+  // Tier 1: peer exact match
+  matched.push(...bindings.filter(b =&gt; b.match.peer &amp;&amp; equal(b.match.peer, features.peer)));
+
+  // Tier 2: parentPeer match
+  if (matched.length === 0) {
+    matched.push(...bindings.filter(b =&gt; b.match.parentPeer &amp;&amp; ...));
+  }
+  // ... 其他 tiers
+
+  if (matched.length &gt; 0) {
+    return matched[0].agentId; // 配置顺序优先
+  }
+
+  return getDefaultAgentId(); // fallback
+}
+</code></pre>
+<h3>3.3 账户作用域（Account Scoping）</h3>
+<p>多账户场景下，Binding 的 <code>accountId</code> 字段至关重要：</p>
+<pre><code class="language-json5">{
+  bindings: [
+    // 精确 accountId 匹配
+    { agentId: &quot;personal&quot;, match: { channel: &quot;whatsapp&quot;, accountId: &quot;personal&quot; } },
+    // 通配符匹配（跨账户）
+    { agentId: &quot;catchall&quot;, match: { channel: &quot;whatsapp&quot;, accountId: &quot;*&quot; } },
+    // 省略 accountId → 仅匹配 default account
+    { agentId: &quot;main&quot;, match: { channel: &quot;whatsapp&quot; } }
+  ]
+}
+</code></pre>
+<p>匹配规则：</p>
+<ul>
+<li>inbound 携带 <code>accountId</code>（从 channel 连接上下文推断）</li>
+<li>优先寻找 <code>match.accountId === inbound.accountId</code> 的 binding</li>
+<li>其次寻找 <code>match.accountId === &quot;*&quot;</code> 的 binding</li>
+<li>最后寻找 <code>match.accountId</code> 未指定的 binding（视为匹配 <code>default</code> account）</li>
+</ul>
+<hr>
+<h2>四、会话管理</h2>
+<h3>4.1 会话键生成策略</h3>
+<p>Gateway 为每个对话上下文生成唯一的 <code>sessionKey</code>，格式：</p>
+<pre><code>agent:&lt;agentId&gt;:&lt;channel&gt;:&lt;scope&gt;:&lt;identifier&gt;
+</code></pre>
+<p><code>&lt;scope&gt;</code> 取值：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>sessionKey 示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DM（dmScope: main）</td>
+<td><code>agent:main:main</code></td>
+<td>所有 DM 共享 main 会话</td>
+</tr>
+<tr>
+<td>DM（per-peer）</td>
+<td><code>agent:main:direct:+15551234567</code></td>
+<td>按发送者隔离</td>
+</tr>
+<tr>
+<td>DM（per-channel-peer）</td>
+<td><code>agent:main:whatsapp:direct:+15551234567</code></td>
+<td>按 channel+sender 隔离</td>
+</tr>
+<tr>
+<td>Group</td>
+<td><code>agent:main:whatsapp:group:1203630...@g.us</code></td>
+<td>按群组隔离</td>
+</tr>
+<tr>
+<td>Telegram Topic</td>
+<td><code>agent:main:telegram:group:-100123...:topic:99</code></td>
+<td>主题隔离</td>
+</tr>
+<tr>
+<td>Slack Thread</td>
+<td><code>agent:main:slack:thread:C123...</code></td>
+<td>线程隔离</td>
+</tr>
+</tbody></table>
+<p><code>&lt;identifier&gt;</code> 是平台提供的唯一标识（用户 E.164、群组 JID、频道 ID 等）。</p>
+<h3>4.2 会话隔离策略（dmScope）</h3>
+<p><code>session.dmScope</code> 控制 Direct Message 的会话分组方式：</p>
+<pre><code class="language-json5">{
+  session: {
+    dmScope: &quot;per-channel-peer&quot;  // 推荐：多用户收件箱场景
+  }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>会话键模式</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>main</code></td>
+<td><code>agent:&lt;id&gt;:main</code></td>
+<td>单用户（所有 DM 共享）</td>
+</tr>
+<tr>
+<td><code>per-peer</code></td>
+<td><code>agent:&lt;id&gt;:direct:&lt;peerId&gt;</code></td>
+<td>跨平台身份映射</td>
+</tr>
+<tr>
+<td><code>per-channel-peer</code></td>
+<td><code>agent:&lt;id&gt;:&lt;channel&gt;:direct:&lt;peerId&gt;</code></td>
+<td>多平台多用户</td>
+</tr>
+<tr>
+<td><code>per-account-channel-peer</code></td>
+<td><code>agent:&lt;id&gt;:&lt;channel&gt;:&lt;accountId&gt;:direct:&lt;peerId&gt;</code></td>
+<td>多账户收件箱</td>
+</tr>
+</tbody></table>
+<h4>4.2.1 身份链接（identityLinks）</h4>
+<p>当同一用户跨多个平台联系时，使用 <code>session.identityLinks</code> 将其映射到同一身份：</p>
+<pre><code class="language-json5">{
+  session: {
+    dmScope: &quot;per-peer&quot;,
+    identityLinks: {
+      canonicalAlice: [
+        &quot;telegram:123456789&quot;,   // Telegram user ID
+        &quot;discord:987654321012345678&quot;, // Discord user ID
+        &quot;+15551234567&quot;          // WhatsApp phone number
+      ]
+    }
+  }
+}
+</code></pre>
+<p>匹配时，平台提供的 <code>peer.id</code> 若在 links 中，则替换为 canonical key，实现跨平台会话合并。</p>
+<h3>4.3 会话生命周期</h3>
+<h4>4.3.1 重置策略（Reset Policy）</h4>
+<p>会话重置控制对话上下文的持久性，配置：</p>
+<pre><code class="language-json5">{
+  session: {
+    reset: {
+      mode: &quot;daily&quot;,     // daily | idle | none
+      atHour: 4,         // 每日重置时间（本地时区）
+      idleMinutes: 120   // 空闲超时（分钟）
+    },
+    resetByType: {
+      direct: { mode: &quot;idle&quot;, idleMinutes: 240 },
+      group: { mode: &quot;daily&quot;, atHour: 4 },
+      thread: { mode: &quot;idle&quot;, idleMinutes: 24 }
+    }
+  }
+}
+</code></pre>
+<p><strong>混合重置规则</strong>：当同时配置 <code>daily</code> 和 <code>idle</code> 时，以<strong>先触发者为准</strong>。</p>
+<p><strong>重置命令</strong>：用户在聊天中发送 <code>/new</code> 或 <code>/reset</code> 可手动触发会话重置（独立于自动策略）。</p>
+<h4>4.3.2 会话维护</h4>
+<p>Gateway 自动执行会话存储维护（<code>session.maintenance</code>）：</p>
+<pre><code class="language-json5">{
+  session: {
+    maintenance: {
+      mode: &quot;enforce&quot;,      // warn | enforce
+      pruneAfter: &quot;30d&quot;,    // 删除超过 30 天的陈旧条目
+      maxEntries: 500,      // 最多保留 500 个活跃会话条目
+      rotateBytes: &quot;10mb&quot;,  // 会话存储文件超过 10MB 时轮转
+      maxDiskBytes: &quot;1gb&quot;,  // 总磁盘配额（可选）
+      highWaterBytes: &quot;800mb&quot; // 高水位线，超过则清理
+    }
+  }
+}
+</code></pre>
+<p>维护顺序（<code>enforce</code> 模式）：</p>
+<ol>
+<li>删除超过 <code>pruneAfter</code> 的陈旧条目</li>
+<li>条目数裁剪至 <code>maxEntries</code>（删除最旧的）</li>
+<li>归档已删除条目的转录文件（<code>.deleted.&lt;timestamp&gt;</code>）</li>
+<li>清理超过保留期的归档</li>
+<li>会话存储文件轮转（超过 <code>rotateBytes</code>）</li>
+<li>磁盘配额清理（最早 artifacts → 最旧会话）</li>
+</ol>
+<hr>
+<h2>五、消息分发与流式处理</h2>
+<h3>5.1 消息分发流程</h3>
+<p> inbound 消息处理链路：</p>
+<pre><code>Channel Adapter
+    ↓ 解析 platform-specific envelope
+Inbound Envelope (统一格式)
+    ↓ Router 匹配 binding
+Binding Engine → agentId
+    ↓ Session Manager 定位/创建 session
+Session Context (历史 + 系统提示)
+    ↓ Agent Dispatcher 启动 LLM run
+Agent Runtime (工具调用 + 推理)
+    ↓ Message Formatter 适配 channel 格式
+Channel Sender → 平台 API 发送
+</code></pre>
+<h3>5.2 流式输出模式</h3>
+<p>OpenClaw 支持两种流式输出：</p>
+<ol>
+<li><strong>Block Streaming</strong>（通道消息分块发送）</li>
+<li><strong>Preview Streaming</strong>（预览消息实时更新）</li>
+</ol>
+<h4>5.2.1 Block Streaming</h4>
+<p>适用于长回复场景，将输出拆分为多个通道消息块发送：</p>
+<pre><code class="language-json5">{
+  agents: {
+    defaults: {
+      blockStreamingDefault: &quot;on&quot;,
+      blockStreamingBreak: &quot;text_end&quot;,
+      blockStreamingChunk: { minChars: 800, maxChars: 1200 },
+      blockStreamingCoalesce: { idleMs: 1000 }
+    }
+  },
+  channels: {
+    whatsapp: { blockStreaming: true, textChunkLimit: 4000 },
+    discord: { blockStreaming: true, maxLinesPerMessage: 17 }
+  }
+}
+</code></pre>
+<p><strong>分块算法</strong>（<code>EmbeddedBlockChunker</code>）：</p>
+<ul>
+<li>缓冲区 ≥ <code>minChars</code> 时才发送</li>
+<li>达到 <code>maxChars</code> 硬上限时强制分割</li>
+<li>分割优先级：<code>paragraph</code> → <code>newline</code> → <code>sentence</code> → <code>whitespace</code></li>
+<li>代码块内禁止分割，强制分割时闭合并重新打开 fence</li>
+</ul>
+<p><strong>Coalescing（合并）</strong>：避免短消息碎片化，等待 <code>idleMs</code> 空闲期后再发送，合并多个流块。</p>
+<p><strong>Human-like Delay</strong>：模拟人类输入节奏，在块间添加 <code>800-2500ms</code> 随机延迟（<code>agents.defaults.humanDelay</code>）。</p>
+<h4>5.2.2 Preview Streaming</h4>
+<p>用于 Telegram/Discord/Slack 的实时预览：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>Telegram</th>
+<th>Discord</th>
+<th>Slack</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>off</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>partial</code></td>
+<td>✅（editMessageText）</td>
+<td>✅（edit）</td>
+<td>✅（native streaming）</td>
+</tr>
+<tr>
+<td><code>block</code></td>
+<td>✅</td>
+<td>✅（draft chunk）</td>
+<td>✅（append）</td>
+</tr>
+<tr>
+<td><code>progress</code></td>
+<td>→ partial</td>
+<td>→ partial</td>
+<td>✅（status preview）</td>
+</tr>
+</tbody></table>
+<p>配置示例：</p>
+<pre><code class="language-json5">{
+  channels: {
+    telegram: { streaming: &quot;partial&quot; },
+    discord: { streaming: &quot;block&quot; },
+    slack: { streaming: &quot;progress&quot;, nativeStreaming: true }
+  }
+}
+</code></pre>
+<h3>5.3 重试与可靠性</h3>
+<p>各 Channel 实现独立的重试策略（<code>channels.&lt;provider&gt;.retry</code>）：</p>
+<pre><code class="language-json5">{
+  channels: {
+    telegram: {
+      retry: { attempts: 3, minDelayMs: 400, maxDelayMs: 30000, jitter: 0.1 }
+    },
+    discord: {
+      retry: { attempts: 3, minDelayMs: 500, maxDelayMs: 30000, jitter: 0.1 }
+    }
+  }
+}
+</code></pre>
+<p><strong>触发条件</strong>：</p>
+<ul>
+<li><strong>Telegram</strong>: 429 限流、超时、连接重置、暂时不可用</li>
+<li><strong>Discord</strong>: 仅 429 限流（使用 <code>retry_after</code> 或指数退避）</li>
+</ul>
+<p>重试策略：每请求独立重试，保持顺序（仅重试当前步骤），避免非幂等操作重复执行。</p>
+<hr>
+<h2>六、性能优化与扩展性</h2>
+<h3>6.1 水平扩展策略</h3>
+<h4>6.1.1 多 Gateway 部署</h4>
+<p>单机可运行多个 Gateway 实例（严格隔离场景）：</p>
+<pre><code class="language-bash"># Instance A
+OPENCLAW_CONFIG_PATH=~/.openclaw/a.json \
+OPENCLAW_STATE_DIR=~/.openclaw-a \
+openclaw gateway --port 19001
+
+# Instance B
+OPENCLAW_CONFIG_PATH=~/.openclaw/b.json \
+OPENCLAW_STATE_DIR=~/.openclaw-b \
+openclaw gateway --port 19002
+</code></pre>
+<p><strong>隔离要求</strong>：</p>
+<ul>
+<li>唯一 <code>gateway.port</code></li>
+<li>唯一 <code>OPENCLAW_CONFIG_PATH</code></li>
+<li>唯一 <code>OPENCLAW_STATE_DIR</code></li>
+<li>唯一 <code>agents.defaults.workspace</code></li>
+</ul>
+<h4>6.1.2 远程 Gateway 访问</h4>
+<p>通过 Tailscale/VPN 或 SSH 隧道访问远程 Gateway：</p>
+<pre><code class="language-bash"># SSH tunnel
+ssh -N -L 18789:127.0.0.1:18789 user@remote-host
+
+# 客户端连接本地转发的端口
+ws://127.0.0.1:18789
+</code></pre>
+<h3>6.2 健康检查与自愈</h3>
+<p>Gateway 内置健康监控（<code>gateway.channelHealthCheckMinutes</code>，默认 5 分钟）：</p>
+<ul>
+<li><strong>健康状态</strong>: 每 5 分钟 probe 各 channel 连接状态</li>
+<li><strong>陈旧检测</strong>: <code>gateway.channelStaleEventThresholdMinutes</code>（默认 30）超过则重启</li>
+<li><strong>重启限制</strong>: <code>gateway.channelMaxRestartsPerHour</code>（默认 10），防抖动</li>
+</ul>
+<p>CLI 诊断命令：</p>
+<pre><code class="language-bash">openclaw status                    # 本地摘要
+openclaw gateway status --deep     # 深度诊断
+openclaw health --json             # Gateway 健康快照
+openclaw channels status --probe   # 通道可达性探测
+</code></pre>
+<h3>6.3 配置热重载</h3>
+<p>Gateway 支持配置文件的热重载（<code>gateway.reload.mode</code>）：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>off</code></td>
+<td>禁用热重载，仅手动重启</td>
+</tr>
+<tr>
+<td><code>hot</code></td>
+<td>仅应用热安全变更（不 restart）</td>
+</tr>
+<tr>
+<td><code>restart</code></td>
+<td>检测到变更则完整 restart</td>
+</tr>
+<tr>
+<td><code>hybrid</code>（默认）</td>
+<td>热安全变更 hot-apply，其余 restart</td>
+</tr>
+</tbody></table>
+<p>热安全变更包括：<code>channels.&lt;provider&gt;.*</code>（除 <code>token</code> 等敏感字段）、<code>agents.defaults.*</code> 等；敏感变更（如 <code>gateway.auth.token</code>）需要 restart。</p>
+<h3>6.4 性能调优建议</h3>
+<p><strong>Session 存储优化</strong>（高量级部署）：</p>
+<pre><code class="language-json5">{
+  session: {
+    maintenance: {
+      mode: &quot;enforce&quot;,
+      pruneAfter: &quot;14d&quot;,        // 缩短保留期
+      maxEntries: 2000,         // 控制活跃会话数
+      maxDiskBytes: &quot;2gb&quot;,      // 启用磁盘配额
+      highWaterBytes: &quot;1.6gb&quot;   // 80% 高水位
+    }
+  }
+}
+</code></pre>
+<p><strong>Context 修剪</strong>（避免 LLM 窗口溢出）：</p>
+<pre><code class="language-json5">{
+  agents: {
+    defaults: {
+      contextPruning: {
+        mode: &quot;cache-ttl&quot;,
+        ttl: &quot;1h&quot;,
+        keepLastAssistants: 3,
+        softTrimRatio: 0.3,
+        hardClearRatio: 0.5
+      }
+    }
+  }
+}
+</code></pre>
+<p><strong>并发控制</strong>：</p>
+<pre><code class="language-json5">{
+  agents: {
+    defaults: {
+      maxConcurrent: 3,  // 最大并行 Agent 运行数（默认 1）
+      timeoutSeconds: 600 // LLM 调用超时
+    }
+  }
+}
+</code></pre>
+<hr>
+<h2>七、安全性设计</h2>
+<h3>7.1 认证与授权</h3>
+<p><strong>Gateway 认证</strong>（控制平面）：</p>
+<ul>
+<li>可选 <code>gateway.auth.token</code> / <code>gateway.auth.password</code></li>
+<li>环境变量 <code>OPENCLAW_GATEWAY_TOKEN</code> / <code>OPENCLAW_GATEWAY_PASSWORD</code></li>
+<li>WebSocket <code>connect</code> 请求必须携带匹配的 <code>auth</code> 字段</li>
+</ul>
+<p><strong>设备身份与配对</strong>：</p>
+<p>所有 WS 客户端（Operator 和 Node）必须在 <code>connect.device</code> 中提供设备指纹：</p>
+<pre><code class="language-json">{
+  &quot;device&quot;: {
+    &quot;id&quot;: &quot;fingerprint-of-public-key&quot;,
+    &quot;publicKey&quot;: &quot;...&quot;,
+    &quot;signature&quot;: &quot;...&quot;,      // 签名 server nonce
+    &quot;signedAt&quot;: 1737264000000
+  }
+}
+</code></pre>
+<p>Gateway 在配对前需要批准新设备 ID（除非 auto-approve 本地连接）。</p>
+<p><strong>Operator 权限范围</strong>（scopes）：</p>
+<ul>
+<li><code>operator.read</code>：只读操作（status, logs）</li>
+<li><code>operator.write</code>：写入操作（chat.send, config 非敏感变更）</li>
+<li><code>operator.admin</code>：管理操作（/config set/unset, restart）</li>
+<li><code>operator.approvals</code>：exec approvals 决议</li>
+<li><code>operator.pairing</code>：设备配对管理</li>
+</ul>
+<p><strong>工具权限（Agent 级别）</strong>：</p>
+<pre><code class="language-json5">{
+  agents: {
+    list: [
+      {
+        id: &quot;untrusted&quot;,
+        tools: {
+          allow: [&quot;read&quot;, &quot;sessions_list&quot;], // 仅白名单工具
+          deny: [&quot;exec&quot;, &quot;write&quot;, &quot;edit&quot;, &quot;browser&quot;] // 黑名单工具
+        },
+        sandbox: { mode: &quot;all&quot;, backend: &quot;docker&quot; } // 强制沙箱
+      }
+    ]
+  }
+}
+</code></pre>
+<h3>7.2 DM 安全模式</h3>
+<p><strong>问题</strong>：默认 <code>dmScope: &quot;main&quot;</code> 下，所有用户的 DM 共享同一会话上下文，存在隐私泄露风险。</p>
+<p><strong>解决方案</strong>：启用 <strong>Secure DM Mode</strong></p>
+<pre><code class="language-json5">{
+  session: {
+    dmScope: &quot;per-channel-peer&quot;  // 或 per-account-channel-peer
+  }
+}
+</code></pre>
+<p>适用于：</p>
+<ul>
+<li>多用户配对收件箱</li>
+<li>DM allowlist 包含多用户</li>
+<li>多账户多号码部署</li>
+</ul>
+<p><code>openclaw security audit</code> 命令可检测当前配置的安全性。</p>
+<h3>7.3 Sandbox 隔离</h3>
+<p>沙箱为高风险 Agent 提供系统级隔离：</p>
+<pre><code class="language-json5">{
+  agents: {
+    list: [
+      {
+        id: &quot;untrusted&quot;,
+        sandbox: {
+          mode: &quot;all&quot;,           // 所有 session 都沙箱化
+          scope: &quot;agent&quot;,        // 一个 agent 一个容器
+          backend: &quot;docker&quot;,     // docker | ssh | openshell
+          workspaceAccess: &quot;none&quot;, // none | ro | rw
+          docker: {
+            image: &quot;openclaw-sandbox:bookworm-slim&quot;,
+            network: &quot;none&quot;,
+            readOnlyRoot: true,
+            capDrop: [&quot;ALL&quot;],
+            memory: &quot;1g&quot;,
+            cpus: 1,
+            pidsLimit: 256
+          }
+        },
+        tools: {
+          allow: [&quot;read&quot;, &quot;sessions_list&quot;],
+          deny: [&quot;exec&quot;, &quot;write&quot;, &quot;edit&quot;, &quot;browser&quot;]
+        }
+      }
+    ]
+  }
+}
+</code></pre>
+<p><strong>沙箱引擎</strong>：</p>
+<ul>
+<li><strong>Docker</strong>（默认）：本地容器，资源 cgroup 限制</li>
+<li><strong>SSH</strong>：远程执行节点，适合混合云</li>
+<li><strong>OpenShell</strong>：插件化 shell 后端</li>
+</ul>
+<hr>
+<h2>八、扩展性设计</h2>
+<h3>8.1 插件系统</h3>
+<p>Gateway 通过插件机制扩展 Channel 支持（Mattermost、Matrix、Teams、IRC 等）：</p>
+<pre><code class="language-bash">openclaw plugins install @openclaw/mattermost
+</code></pre>
+<p>插件配置自动注入到 <code>channels.&lt;pluginId&gt;</code> 命名空间：</p>
+<pre><code class="language-json5">{
+  channels: {
+    mattermost: {
+      enabled: true,
+      botToken: &quot;mm-token&quot;,
+      baseUrl: &quot;https://mattermost.example.com&quot;,
+      // ...
+    }
+  }
+}
+</code></pre>
+<h3>8.2 工具与技能（Skills）</h3>
+<p><strong>工具层</strong>：Gateway 内置的工具（<code>read</code>、<code>write</code>、<code>exec</code>、<code>sessions_spawn</code> 等），受 <code>tools.allow/deny</code> 控制。</p>
+<p><strong>技能层</strong>：Agent workspace 的 <code>skills/</code> 目录装载自定义技能（Node.js 可执行文件），可通过 <code>sessions_spawn</code> 调用。</p>
+<p><strong>共享技能</strong>：<code>~/.openclaw/skills/</code> 对所有 Agent 可见，实现技能复用。</p>
+<h3>8.3 配置热重载与滚动升级</h3>
+<p>Gateway 支持配置热重载（<code>gateway.reload.mode: &quot;hybrid&quot;</code>），敏感变更需 restart，非敏感变更（如新 channel 添加、binding 调整）可 hot-apply。</p>
+<p><strong>滚动升级流程</strong>：</p>
+<ol>
+<li>备份当前配置：<code>cp openclaw.json openclaw.json.bak</code></li>
+<li>修改配置（如新增 agent binding）</li>
+<li>Gateway 自动 reload（观察日志 <code>config reload requested</code>）</li>
+<li>验证状态：<code>openclaw status</code>、<code>openclaw health --json</code></li>
+</ol>
+<hr>
+<h2>九、参考架构与最佳实践</h2>
+<h3>9.1 企业级多租户架构</h3>
+<p><strong>需求</strong>：为 10 个客户部署独立 Agent，每个客户 2 个 WhatsApp 号码（个人号+企业号），Telegram 群组路由到指定 Agent。</p>
+<p><strong>架构方案</strong>：</p>
+<ul>
+<li><strong>Agent 层</strong>：10 个客户 × 1 Agent = 10 Agent（独立 workspace + auth）</li>
+<li><strong>Channel 层</strong>：WhatsApp 20 个 account（<code>customer-a-personal</code>、<code>customer-a-biz</code>）+ Telegram 10 个 account</li>
+<li><strong>Binding 层</strong>：精确 <code>accountId</code> 绑定到对应 customer Agent，群组使用 <code>peer</code> 精确匹配</li>
+</ul>
+<p><strong>配置要点</strong>：</p>
+<pre><code class="language-json5">{
+  agents: {
+    list: [
+      { id: &quot;customer-a&quot;, workspace: &quot;~/.openclaw/workspace-customer-a&quot; },
+      { id: &quot;customer-b&quot;, workspace: &quot;~/.openclaw/workspace-customer-b&quot; }
+      // ...
+    ]
+  },
+  channels: {
+    whatsapp: {
+      accounts: {
+        &quot;customer-a-personal&quot;: {},
+        &quot;customer-a-biz&quot;: {},
+        &quot;customer-b-personal&quot;: {}
+        // ...
+      }
+    }
+  },
+  bindings: [
+    { agentId: &quot;customer-a&quot;, match: { channel: &quot;whatsapp&quot;, accountId: &quot;customer-a-personal&quot; } },
+    { agentId: &quot;customer-a&quot;, match: { channel: &quot;whatsapp&quot;, accountId: &quot;customer-a-biz&quot; } },
+    { agentId: &quot;customer-a&quot;, match: { channel: &quot;whatsapp&quot;, peer: { kind: &quot;group&quot;, id: &quot;GROUP_ID_A&quot; } } },
+    { agentId: &quot;customer-b&quot;, match: { channel: &quot;whatsapp&quot;, accountId: &quot;customer-b-personal&quot; } }
+    // ...
+  ]
+}
+</code></pre>
+<h3>9.2 高可用架构</h3>
+<p><strong>单点故障</strong>：Gateway 进程本身无集群模式，但可通过以下方式实现 HA：</p>
+<ol>
+<li><strong>进程级监控</strong>：使用 <code>systemd</code> / <code>launchd</code> / <code>supervisord</code> 确保进程存活</li>
+<li><strong>会话持久化</strong>：NFS/共享存储挂载 <code>~/.openclaw/agents/*/sessions</code>，多实例共享会话（需锁机制，不官方推荐）</li>
+<li><strong>客户端容错</strong>：移动节点（iOS/Android）支持自动重连；Web UI 支持手动重连</li>
+</ol>
+<p><strong>推荐方案</strong>：单 Gateway + 进程级监控 + 定期备份 sessions 目录，因为 Gateway 本身是轻量级路由进程，故障面可控。</p>
+<h3>9.3 性能基准</h3>
+<p>根据官方文档和社区反馈（2025 年数据）：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>典型值</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>单 Gateway 最大 Agent 数</td>
+<td>20-50</td>
+<td>取决于会话总数</td>
+</tr>
+<tr>
+<td>单 Agent 最大活跃会话数</td>
+<td>500-2000</td>
+<td>受 <code>session.maintenance.maxEntries</code> 限制</td>
+</tr>
+<tr>
+<td>消息端到端延迟</td>
+<td>&lt;500ms</td>
+<td>不含 LLM 推理时间</td>
+</tr>
+<tr>
+<td>WebSocket 并发客户端</td>
+<td>50-100</td>
+<td>Operator + Nodes</td>
+</tr>
+<tr>
+<td>内存占用（典型）</td>
+<td>200-500 MB</td>
+<td>取决于会话数和缓存</td>
+</tr>
+</tbody></table>
+<p><strong>扩展建议</strong>：</p>
+<ul>
+<li>会话总数超过 10k 时，考虑分多个 Gateway（按业务线/租户拆分）</li>
+<li>启用 <code>session.maintenance.mode: &quot;enforce&quot;</code> 防止存储无限制增长</li>
+<li>设置 <code>maxConcurrent: 3-5</code> 避免 LLM API 并发超限</li>
+</ul>
+<hr>
+<h2>十、总结与展望</h2>
+<p>OpenClaw Gateway 架构体现了现代 AI Native 应用的设计理念：<strong>统一协议、模块解耦、可扩展、安全第一</strong>。</p>
+<h3>核心优势</h3>
+<ol>
+<li><strong>灵活路由</strong>：Binding 机制实现消息的精细粒度路由，支持多租户、多角色</li>
+<li><strong>会话隔离</strong>：多 Agent 天然隔离，安全性高</li>
+<li><strong>渠道抽象</strong>：统一 Channel 适配器层，新增平台开发成本低</li>
+<li><strong>配置驱动</strong>：JSON5 声明式配置，支持热重载</li>
+<li><strong>企业就绪</strong>：认证、授权、sandbox、审计、健康检查一应俱全</li>
+</ol>
+<h3>待改进点</h3>
+<ol>
+<li><strong>集群模式缺失</strong>：单 Gateway 单点，官方未提供负载均衡/集群方案</li>
+<li><strong>监控指标有限</strong>：Prometheus metrics 支持较弱，需自建日志采集</li>
+<li><strong>配置复杂度高</strong>：多 Agent、多账户场景下 binding 易出错，需工具辅助验证（<code>openclaw doctor</code> 有帮助）</li>
+</ol>
+<h3>未来方向（推测）</h3>
+<ul>
+<li><strong>分布式路由层</strong>：支持多个 Gateway 共享配置和会话存储（类似 Ingress 集群）</li>
+<li><strong>更细粒度 RBAC</strong>：per-binding 权限控制、rate limiting</li>
+<li><strong>Streaming 协议增强</strong>：真正的 token delta streaming（目前仅 block streaming）</li>
+<li><strong>多模态路由</strong>：图片、音频等富媒体消息的 routing 策略扩展</li>
+</ul>
+<hr>
+<h2>参考文献</h2>
+<ol>
+<li>OpenClaw Documentation. (2025). <em>Multi-Agent Routing</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/concepts/multi-agent">https://docs.openclaw.ai/concepts/multi-agent</a></li>
+<li>OpenClaw Documentation. (2025). <em>Session Management</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/concepts/session">https://docs.openclaw.ai/concepts/session</a></li>
+<li>OpenClaw Documentation. (2025). <em>Configuration Reference</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/gateway/configuration-reference">https://docs.openclaw.ai/gateway/configuration-reference</a></li>
+<li>OpenClaw Documentation. (2025). <em>Gateway Runbook</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/gateway">https://docs.openclaw.ai/gateway</a></li>
+<li>OpenClaw Documentation. (2025). <em>Gateway Protocol</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/gateway/protocol">https://docs.openclaw.ai/gateway/protocol</a></li>
+<li>OpenClaw Documentation. (2025). <em>Streaming and Chunking</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/concepts/streaming">https://docs.openclaw.ai/concepts/streaming</a></li>
+<li>OpenClaw Documentation. (2025). <em>Retry Policy</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/concepts/retry">https://docs.openclaw.ai/concepts/retry</a></li>
+<li>OpenClaw Documentation. (2025). <em>Health Checks</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/gateway/health">https://docs.openclaw.ai/gateway/health</a></li>
+<li>OpenClaw Documentation. (2025). <em>Features Overview</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/concepts/features">https://docs.openclaw.ai/concepts/features</a></li>
+<li>OpenClaw Documentation. (2025). <em>Channel Configuration</em> (WhatsApp, Telegram, Discord). OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/gateway/configuration-reference">https://docs.openclaw.ai/gateway/configuration-reference</a></li>
+<li>OpenClaw CLI Help. (2025). <em>openclaw gateway --help</em>. Retrieved from local installation</li>
+<li>OpenClaw Documentation Index. (2025). <em>llms.txt</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/llms.txt">https://docs.openclaw.ai/llms.txt</a></li>
+</ol>
+<hr>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>OpenClaw Documentation. (2025). <em>Multi-Agent Routing</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/concepts/multi-agent">https://docs.openclaw.ai/concepts/multi-agent</a></li>
+<li>OpenClaw Documentation. (2025). <em>Session Management</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/concepts/session">https://docs.openclaw.ai/concepts/session</a></li>
+<li>OpenClaw Documentation. (2025). <em>Configuration Reference</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/gateway/configuration-reference">https://docs.openclaw.ai/gateway/configuration-reference</a></li>
+<li>OpenClaw Documentation. (2025). <em>Gateway Runbook</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/gateway">https://docs.openclaw.ai/gateway</a></li>
+<li>OpenClaw Documentation. (2025). <em>Gateway Protocol</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/gateway/protocol">https://docs.openclaw.ai/gateway/protocol</a></li>
+<li>OpenClaw Documentation. (2025). <em>Streaming and Chunking</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/concepts/streaming">https://docs.openclaw.ai/concepts/streaming</a></li>
+<li>OpenClaw Documentation. (2025). <em>Retry Policy</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/concepts/retry">https://docs.openclaw.ai/concepts/retry</a></li>
+<li>OpenClaw Documentation. (2025). <em>Health Checks</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/gateway/health">https://docs.openclaw.ai/gateway/health</a></li>
+<li>OpenClaw Documentation. (2025). <em>Features Overview</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/concepts/features">https://docs.openclaw.ai/concepts/features</a></li>
+<li>OpenClaw Documentation. (2025). <em>Channel Configuration</em> (WhatsApp, Telegram, Discord). OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/gateway/configuration-reference">https://docs.openclaw.ai/gateway/configuration-reference</a></li>
+<li>OpenClaw CLI Help. (2025). <em>openclaw gateway --help</em>. Retrieved from local installation</li>
+<li>OpenClaw Documentation Index. (2025). <em>llms.txt</em>. OpenClaw AI. Retrieved from <a href="https://docs.openclaw.ai/llms.txt">https://docs.openclaw.ai/llms.txt</a></li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>

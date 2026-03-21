@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACP 协议详解</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>ACP 协议详解</h1>
+  <div class="meta">2026-03-21 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>Agent Communication Protocol (ACP) 是一个新兴的开放标准，旨在标准化 AI 代理之间的通信方式。与 Model Context Protocol (MCP) 专注于为单个模型提供上下文不同，ACP 解决了多代理系统中互操作性、编排和协作的核心问题。本报告深入分析 ACP 的协议设计目标、消息格式、流控机制，并详细探讨其与 MCP 的互补关系。ACL 采用 REST-based 架构和 JSON-RPC 2.0 消息信封，提供了轻量级、SDK-optional 的设计，使其易于集成到现有系统中。通过双总线架构（ACP 负责代理间通信，MCP 负责上下文接入），组织可以构建灵活、可扩展的多代理生态系统[1][2]。</p>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. 协议设计目标</h2>
+<h3>1.1 核心设计原则</h3>
+<p>ACP 诞生于对 AI 代理互操作性的迫切需求。在 ACP 出现之前，每个编辑器（如 VS Code、JetBrains、Neovim）都需要为每个 AI 代理（如 Claude Code、Gemini CLI）单独开发集成，造成&quot;组合爆炸&quot;问题[5]。ACP 的目标是像 Language Server Protocol (LSP) 标准化语言服务器一样，标准化 AI 代理与客户端（编辑器、CLI 等）之间的通信[3][4][16]。</p>
+<p>ACP 的核心设计目标包括：</p>
+<p><strong>1. 开放性与去中心化</strong> - ACP 由 Linux Foundation 管理开放治理，确保协议发展不受单一供应商控制。IBM Research 主导开发，BeeAI 框架提供主要实现[1][17]。这种治理模式鼓励社区贡献和广泛采纳。</p>
+<p><strong>2. 轻量级与低门槛</strong> - 协议设计强调&quot;SDK-optional&quot;：代理可以直接通过 HTTP 客户端（如 curl、Postman）进行通信，无需专用库[1][2]。REST-based 架构使用大多数开发者熟悉的 HTTP 约定，降低了学习曲线和集成成本[8]。</p>
+<p><strong>3. 传输中立性</strong> - 虽然默认支持 stdio 传输（本地子进程通信），但 ACP 是传输无关的，支持 HTTP/SSE（远程场景）、WebSocket 等任何双向流[4][15]。这使协议适用于本地开发和生产部署。</p>
+<p><strong>4. 多模态支持</strong> - 消息可以包含结构化数据、纯文本、图像、embeddings 等多种内容类型。协议使用 MimeTypes 进行内容识别，使任何数据格式都能无缝处理而无需修改协议[2]。</p>
+<p><strong>5. 异步优先</strong> - ACP 默认异步通信，适合长运行或多步骤任务。同时支持同步请求用于低延迟交互场景。长运行操作使用 Server-Sent Events (SSE) 进行流式传输[1][13]。</p>
+<p><strong>6. 离线发现能力</strong> - 代理可以嵌入元数据到分发包中，实现离线发现。这对 scale-to-zero 环境（如云原生部署）至关重要，因为代理可能处于非活动状态时仍能被发现[1]。</p>
+<p><strong>7. 向后兼容性</strong> - 协议通过版本协商（initialize 方法）确保向后兼容。扩展机制允许添加自定义功能同时保持协议兼容性[4]。</p>
+<h3>1.2 应用场景</h3>
+<p>ACP 的设计支持多种使用场景：</p>
+<ul>
+<li><strong>编辑器-Agent 集成</strong>: 标准化的方式让 Zed、JetBrains、Neovim、Obsidian 等编辑器与 Claude Code、Gemini CLI、OpenCode、Goose、Codex CLI 等代理通信[5][6][16]</li>
+<li><strong>多代理编排</strong>: 通过代理网络协调复杂工作流，如一个代理处理用户意图，另一个执行代码修改，第三个进行测试验证[10][11]</li>
+<li><strong>企业集成</strong>: 在组织内跨团队、框架和运行时环境实现代理互操作[1][2]</li>
+<li><strong>混合架构</strong>: 结合 ACP（代理协作）和 MCP（上下文访问）构建完整 AI 系统[11][12]</li>
+</ul>
+<hr>
+<h2>2. 消息格式</h2>
+<h3>2.1 传输层</h3>
+<p>ACP 支持多种传输机制，主要分为两类：</p>
+<p><strong>1. Stdio 传输</strong> - 代理作为子进程运行，客户端通过 stdin/stdout 通信。这是本地开发最常见的模式，特别适合编辑器集成（如 Zed 配置 agents.opencode.command）[5][16]。</p>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;id&quot;: 1,
+  &quot;method&quot;: &quot;initialize&quot;,
+  &quot;params&quot;: {
+    &quot;agentName&quot;: &quot;my-agent&quot;,
+    &quot;version&quot;: &quot;1.0&quot;
+  }
+}
+</code></pre>
+<p><strong>2. HTTP/SSE 传输</strong> - 用于远程代理或云部署。HTTP 提供 RESTful 端点，SSE 支持流式响应[2][13]。典型端点：</p>
+<ul>
+<li><code>POST /rpc</code> - JSON-RPC 请求端点</li>
+<li><code>GET /events</code> - Server-Sent Events 流</li>
+</ul>
+<h3>2.2 JSON-RPC 2.0 消息结构</h3>
+<p>ACP 严格遵循 JSON-RPC 2.0 规范，定义三种消息类型：</p>
+<p><strong>Request（请求）</strong> - 客户端或代理发起的请求-响应对：</p>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;method&quot;: &quot;session/prompt&quot;,
+  &quot;params&quot;: {
+    &quot;sessionId&quot;: &quot;sess_123&quot;,
+    &quot;message&quot;: {
+      &quot;role&quot;: &quot;user&quot;,
+      &quot;content&quot;: &quot;Add error handling to auth.ts&quot;
+    }
+  },
+  &quot;id&quot;: 42
+}
+</code></pre>
+<p><strong>Response（响应）</strong> - 对请求的成功或错误响应：</p>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: {
+    &quot;messages&quot;: [...]
+  },
+  &quot;id&quot;: 42
+}
+</code></pre>
+<p>或错误响应：</p>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;error&quot;: {
+    &quot;code&quot;: -32602,
+    &quot;message&quot;: &quot;Invalid params: missing sessionId&quot;
+  },
+  &quot;id&quot;: 42
+}
+</code></pre>
+<p><strong>Notification（通知）</strong> - 单向消息，不期望响应：</p>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;method&quot;: &quot;session/update&quot;,
+  &quot;params&quot;: {
+    &quot;chunks&quot;: [
+      {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;I&#39;ll add try-catch blocks...&quot;}
+    ]
+  }
+}
+</code></pre>
+<h3>2.3 方法定义</h3>
+<p>ACP 定义了核心方法集合，分为客户端方法、代理方法和通知：</p>
+<p><strong>客户端方法（Client → Agent）</strong>:</p>
+<ul>
+<li><code>initialize</code>: 建立连接，协商协议版本和代理能力[4]</li>
+<li><code>session/request_permission</code>: 请求用户授权工具调用</li>
+<li><code>session/new</code>: 创建新会话</li>
+<li><code>session/load</code>: 加载现有会话（需要 <code>loadSession</code> capability）</li>
+<li><code>session/prompt</code>: 发送用户提示</li>
+<li><code>session/set_mode</code>: 切换代理操作模式</li>
+<li><code>session/cancel</code>: 取消正在进行的操作</li>
+</ul>
+<p><strong>代理方法（Agent → Client）</strong>:</p>
+<ul>
+<li><code>fs/read_text_file</code>: 读取文件（包括未保存的编辑）</li>
+<li><code>fs/write_text_file</code>: 写入/创建文件</li>
+<li><code>terminal/create</code>: 启动 shell 命令</li>
+<li><code>terminal/output</code>: 获取命令输出</li>
+<li><code>terminal/wait_for_exit</code>: 等待命令完成</li>
+<li><code>terminal/kill</code>: 终止运行中的命令</li>
+</ul>
+<p><strong>通知（双向）</strong>:</p>
+<ul>
+<li><code>session/update</code>: 代理发送会话更新（消息块、工具调用、计划、命令更新、模式变更）[4]</li>
+</ul>
+<h4>典型消息序列图</h4>
+<p>下面展示一个完整的 ACP 会话交互序列，包括初始化、提示发送、流式响应、工具调用和会话结束：</p>
+<div class="mermaid">sequenceDiagram
+    participant C as Client (Editor)
+    participant A as Agent (Server)
+
+    Note over C,A: 初始化阶段
+    C->>A: initialize(params)
+    A-->>C: result(capabilities)
+    
+    Note over C,A: 会话创建
+    C->>A: session/new(params)
+    A-->>C: result(sessionId)
+    
+    Note over C,A: 用户提示
+    C->>A: session/prompt(sessionId, message)
+    
+    Note over C,A: 流式响应
+    A-->>C: session/update(chunk1)
+    A-->>C: session/update(chunk2)
+    
+    Note over C,A: 工具调用请求
+    A-->>C: session/update(tool_use: read file)
+    
+    Note over C,A: 工具执行结果
+    C-->>A: (用户批准)
+    A-->>C: session/update(tool_result)
+    
+    Note over C,A: 最终响应
+    A-->>C: session/update(final message)
+    
+    Note over C,A: 会话结束(可选)
+    C->>A: session/cancel(sessionId)</div>
+<h3>2.4 消息内容结构</h3>
+<p>ACP 使用结构化消息内容，支持多部分消息（MessagePart）：</p>
+<pre><code class="language-json">{
+  &quot;role&quot;: &quot;user&quot;,
+  &quot;parts&quot;: [
+    {
+      &quot;contentType&quot;: &quot;text/plain&quot;,
+      &quot;content&quot;: &quot;Analyze this code&quot;
+    },
+    {
+      &quot;contentType&quot;: &quot;text/x-python&quot;,
+      &quot;content&quot;: &quot;def foo(): pass&quot;
+    }
+  ]
+}
+</code></pre>
+<p>关键要求：</p>
+<ul>
+<li>所有文件路径必须是绝对路径[4]</li>
+<li>行号从 1 开始编号[4]</li>
+</ul>
+<h3>2.5 扩展机制</h3>
+<p>ACP 内置扩展性支持，允许在不破坏兼容性的情况下添加自定义功能[15]:</p>
+<ul>
+<li><code>ExtRequest</code>: 发送协议规范外的任意请求</li>
+<li><code>ExtResponse</code>: 响应 ExtRequest</li>
+<li><code>ExtNotification</code>: 发送单向通知</li>
+<li>自定义能力和模式扩展</li>
+</ul>
+<hr>
+<h2>3. 流控机制</h2>
+<h3>3.1 会话生命周期管理</h3>
+<p>ACP 采用显式的会话模型管理长期交互：</p>
+<pre><code>Client → Agent: initialize (协商版本/能力)
+Client → Agent: session/new (创建会话 ID)
+Client → Agent: session/prompt (发送提示)
+Agent → Client: session/update (流式响应块)
+Agent → Client: session/update (工具调用)
+Agent → Client: session/update (最终响应)
+Client → Agent: session/cancel (可选取消)
+</code></pre>
+<p>会话 ID 在 <code>session/new</code> 响应中返回，后续操作通过 <code>sessionId</code> 引用会话：</p>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: {
+    &quot;sessionId&quot;: &quot;sess_abc123&quot;
+  },
+  &quot;id&quot;: 1
+}
+</code></pre>
+<h3>3.2 流式响应 (Streaming)</h3>
+<p>对于长运行任务或交互式应用，ACP 支持两种流式模式：</p>
+<p><strong>1. Server-Sent Events (SSE)</strong> - HTTP 传输下使用 SSE 流式传输响应块[1][13]:</p>
+<pre><code>Content-Type: text/event-stream
+
+data: {&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;session/update&quot;,&quot;params&quot;:{&quot;chunks&quot;:[{&quot;role&quot;:&quot;assistant&quot;,&quot;content&quot;:&quot;I&#39;ll &quot;}]}}
+data: {&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;session/update&quot;,&quot;params&quot;:{&quot;chunks&quot;:[{&quot;role&quot;:&quot;assistant&quot;,&quot;content&quot;:&quot;add error &quot;}]}}
+data: {&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;session/update&quot;,&quot;params&quot;:{&quot;chunks&quot;:[{&quot;role&quot;:&quot;assistant&quot;,&quot;content&quot;:&quot;handling...&quot;}]}}
+</code></pre>
+<p><strong>2. 通知序列</strong> - 代理通过多次 <code>session/update</code> 通知发送增量更新：</p>
+<pre><code class="language-json">// Chunk 1
+{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;method&quot;: &quot;session/update&quot;,
+  &quot;params&quot;: {
+    &quot;chunks&quot;: [{&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;I&#39;ll analyze&quot;}]
+  }
+}
+
+// Chunk 2 (tool call)
+{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;method&quot;: &quot;session/update&quot;,
+  &quot;params&quot;: {
+    &quot;chunks&quot;: [{
+      &quot;type&quot;: &quot;tool_use&quot;,
+      &quot;name&quot;: &quot;read&quot;,
+      &quot;input&quot;: {&quot;filePath&quot;: &quot;/abs/path/auth.ts&quot;}
+    }]
+  }
+}
+
+// Chunk 3 (tool result)
+{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;method&quot;: &quot;session/update&quot;,
+  &quot;params&quot;: {
+    &quot;chunks&quot;: [{
+      &quot;type&quot;: &quot;tool_result&quot;,
+      &quot;content&quot;: &quot;// file contents...&quot;
+    }]
+  }
+}
+</code></pre>
+<h3>3.3 权限和流控</h3>
+<p>ACP 实现细粒度权限控制：</p>
+<p><strong>权限请求流程</strong>:</p>
+<ol>
+<li>代理需要执行敏感操作（写入文件、执行终端命令）</li>
+<li>代理发送 <code>session/update</code> 通知包含工具调用</li>
+<li>客户端（编辑器）拦截并向用户显示权限对话框</li>
+<li>用户批准或拒绝，客户端通过 <code>session/request_permission</code> 通知代理结果</li>
+</ol>
+<p><strong>取消机制</strong>:</p>
+<ul>
+<li>客户端可随时发送 <code>session/cancel</code> 通知（无响应期望）[4]</li>
+<li>代理应停止当前操作并清理资源</li>
+</ul>
+<p><strong>背压处理</strong>:
+协议本身不强制背压，由传输层处理。HTTP/2 或 Unix 套接字提供自然流控，stdout 缓冲区满时代理应阻塞写入[2]。</p>
+<h3>3.4 错误恢复</h3>
+<p>所有方法遵循标准 JSON-RPC 错误处理[4]:</p>
+<ul>
+<li>预定义错误码（如 -32602 无效参数、-32603 内部错误）</li>
+<li>自定义错误码可扩展</li>
+<li>Notifications 永不返回错误（最佳-effort）</li>
+</ul>
+<p>超时场景：</p>
+<ul>
+<li>同步请求：客户端应设置合理超时</li>
+<li>异步流：客户端必须处理代理静默失败（心跳缺失）</li>
+</ul>
+<hr>
+<h2>4. 与 MCP 的关系</h2>
+<h3>4.1 MCP 与 ACP 的定位差异</h3>
+<p>Model Context Protocol (MCP) 和 ACP 解决 AI 生态系统中的不同层次问题[6][8]:</p>
+<p><strong>MCP（模型上下文协议）</strong>:</p>
+<ul>
+<li><strong>聚焦点</strong>: 给单个 LLM/Agent 提供结构化上下文</li>
+<li><strong>类比</strong>: &quot;USB-C 端口&quot;连接模型与数据源/工具[4][9]</li>
+<li><strong>架构</strong>: Host（LLM 应用）→ MCP Servers（数据/工具提供者）[11]</li>
+<li><strong>传输</strong>: JSON-RPC 2.0 over stdio/SSE</li>
+<li><strong>能力</strong>: 资源访问、工具调用、提示模板、内存扩展</li>
+<li><strong>治理</strong>: Anthropic 发起，社区驱动</li>
+</ul>
+<p><strong>ACP（代理通信协议）</strong>:</p>
+<ul>
+<li><strong>聚焦点</strong>: 代理与代理、代理与客户端（编辑器/UI）之间的标准化通信</li>
+<li><strong>类比</strong>: &quot;互联网协议&quot;层，让多代理系统互操作[1]</li>
+<li><strong>架构</strong>: 代理作为对等节点或客户端-服务器，通过标准化消息交换[10]</li>
+<li><strong>传输</strong>: REST-based + JSON-RPC 2.0 信封[2]</li>
+<li><strong>能力</strong>: 会话管理、多模态消息、异步编排、跨组织协作</li>
+<li><strong>治理</strong>: Linux Foundation/BeeAI（IBM Research）</li>
+</ul>
+<p><strong>核心区别</strong>:</p>
+<ul>
+<li>MCP: <code>Model ← Context</code> (单向增强)[6]</li>
+<li>ACP: <code>Agent ↔ Agent/Client</code> (双向对话)[6][9]</li>
+</ul>
+<h3>4.2 双总线互补架构</h3>
+<p>在实际系统中，MCP 和 ACP 可以协同工作，形成&quot;双总线&quot;架构[11][12]:</p>
+<div class="mermaid">graph TB
+    subgraph "ACP 层（Agent 间通信）"
+        A[Agent A<br/>ACP Client]
+        B[Agent B<br/>ACP Server]
+        C[Agent C<br/>Orchestrator]
+    end
+    
+    subgraph "MCP 层（上下文接入）"
+        D[MCP Server - Database]
+        E[MCP Server - File System]
+        F[MCP Server - APIs]
+    end
+    
+    subgraph "客户端层"
+        G[Client<br/>(Editor/UI)]
+    end
+    
+    G -- ACP --> A
+    G -- ACP --> B
+    A -- ACP 请求 --> B
+    B -- ACP 响应 --> A
+    C -- ACP 协调 --> A
+    C -- ACP 协调 --> B
+    
+    B -- MCP 查询 --> D
+    B -- MCP 读取 --> E
+    B -- MCP 调用 --> F
+    
+    style A fill:#e1f5fe
+    style B fill:#e1f5fe
+    style C fill:#e1f5fe
+    style D fill:#f3e5f5
+    style E fill:#f3e5f5
+    style F fill:#f3e5f5
+    style G fill:#e8f5e8</div>
+<pre><code>                  ┌─────────────────┐
+                  │  External Tools │
+                  │   &amp; Data (DB,   │
+                  │    APIs, Files) │
+                  └────────┬────────┘
+                           │ MCP
+                           ▼
+┌─────────────┐      ┌─────────────┐
+│   Agent A    │◄────►│   Agent B    │
+│ (ACP Client) │      │ (ACP Server) │
+└─────────────┘      └─────────────┘
+         │                   │
+         └─────────┬─────────┘
+                   │ ACP
+                   ▼
+           ┌──────────────┐
+           │   Client     │
+           │ (Editor/UI)  │
+           └──────────────┘
+</code></pre>
+<p><strong>工作流程示例</strong>:</p>
+<ol>
+<li>用户通过编辑器（ACP Client）发送提示 &quot;查询用户订单&quot;</li>
+<li>编辑器通过 ACP 发送 <code>session/prompt</code> 到订单代理（Agent A）</li>
+<li>订单代理需要用户数据，通过 ACP 向数据库代理（Agent B）发送请求</li>
+<li>数据库代理内部使用 MCP 连接到 Postgres MCP 服务器获取数据</li>
+<li>数据库代理返回结果给订单代理（通过 ACP）</li>
+<li>订单代理处理并返回最终响应给编辑器（通过 ACP）[11]</li>
+</ol>
+<p>在此架构中：</p>
+<ul>
+<li><strong>ACP 层</strong>: 代理间职责分工、协调、消息路由</li>
+<li><strong>MCP 层</strong>: 每个代理独立接入外部上下文和工具</li>
+</ul>
+<h3>4.3 技术特性对比</h3>
+<p>多家机构对协议特性进行了详细比较[7]。下表总结了关键差异：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>MCP</th>
+<th>ACP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>主要用途</strong></td>
+<td>模型上下文增强</td>
+<td>代理通信与编排</td>
+</tr>
+<tr>
+<td><strong>通信方向</strong></td>
+<td>Host ←→ Servers (星型)</td>
+<td>Agent ↔ Agent/Client (网状)</td>
+</tr>
+<tr>
+<td><strong>传输协议</strong></td>
+<td>JSON-RPC 2.0</td>
+<td>REST + JSON-RPC 2.0</td>
+</tr>
+<tr>
+<td><strong>会话模型</strong></td>
+<td>有状态连接</td>
+<td>可无状态（HTTP），也可有状态会话</td>
+</tr>
+<tr>
+<td><strong>资源消耗</strong></td>
+<td>较高（会话管理开销）</td>
+<td>较低（无状态设计）[9]</td>
+</tr>
+<tr>
+<td><strong>生态系统</strong></td>
+<td>Anthropic + OpenAI + MS + Google</td>
+<td>Linux Foundation + IBM + 多家企业</td>
+</tr>
+<tr>
+<td><strong>实现难度</strong></td>
+<td>需要 SDK 知识</td>
+<td>熟悉 REST 即可入门[8]</td>
+</tr>
+<tr>
+<td><strong>扩展性</strong></td>
+<td>通过新 MCP servers</td>
+<td>ExtRequest/ExtNotification</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>单代理+多工具集成</td>
+<td>多代理系统、编辑器-代理 UI</td>
+</tr>
+</tbody></table>
+<h3>4.4 集成决策指南</h3>
+<p><strong>何时使用 MCP</strong>:</p>
+<ul>
+<li>需要为 LLM/Agent 提供丰富上下文（文件、数据库、API）[6][9]</li>
+<li>构建独立代理，框架已提供 MCP 支持</li>
+<li>目标用户在 Anthropic/OpenAI 生态</li>
+<li>需要大量现成工具服务器</li>
+</ul>
+<p><strong>何时使用 ACP</strong>:</p>
+<ul>
+<li>多代理协作场景（代理间直接对话）[6][9]</li>
+<li>标准化的编辑器-代理集成（避&quot;组合爆炸&quot;）[5]</li>
+<li>跨组织/框架边界通信[2]</li>
+<li>需要云原生、scale-to-zero 部署[1]</li>
+</ul>
+<p><strong>何时两者都用</strong>:</p>
+<ul>
+<li>构建企业级 AI 平台，需要多代理编排 + 丰富的上下文接入[11][12]</li>
+<li>代理需要调用外部工具（MCP），同时与其他代理协调（ACP）</li>
+</ul>
+<hr>
+<h2>5. 协议演进与标准化</h2>
+<h3>5.1 治理与社区</h3>
+<p>ACP 现已成为 Agent2Agent (A2A) 协议的一部分，在 Linux Foundation 下管理[1][17]。这一变化确保：</p>
+<ul>
+<li>开放治理和透明度[17]</li>
+<li>避免供应商锁定</li>
+<li>长期稳定性</li>
+</ul>
+<p>主要实现框架：</p>
+<ul>
+<li><strong>BeeAI Framework</strong>: IBM Research 的生产级框架，提供 Python 和 TypeScript SDK[1][17]</li>
+<li><strong>i-am-bee/acp</strong>: 开源实现，包含 OpenAPI 规范、SDK、示例[13]</li>
+<li><strong>agentclientprotocol/python-sdk</strong>: 官方 Python 库[14]</li>
+<li><strong>@agentclientprotocol/sdk</strong>: 官方 TypeScript 库[15]</li>
+</ul>
+<h3>5.2 生产就绪功能</h3>
+<p>最新版本（2025-2026）支持的功能包括[13]:</p>
+<ul>
+<li><strong>Trajectory Metadata</strong>: 跟踪多步骤推理和工具调用链</li>
+<li><strong>Distributed Sessions</strong>: 基于 URI 的会话跨多服务器实例连续性</li>
+<li><strong>RAG LlamaIndex Agent</strong>: 内置 RAG 代理示例</li>
+<li><strong>Citation Metadata</strong>: 改进的来源追踪和归因</li>
+<li><strong>High Availability</strong>: 集中存储（Redis/PostgreSQL）支持</li>
+<li><strong>Message Role Parameter</strong>: 更好的代理标识</li>
+</ul>
+<h3>5.3 与竞争协议的对比</h3>
+<p>除了 MCP，ACP 还与其他代理协议竞争[10]:</p>
+<ul>
+<li><strong>A2A (Agent-to-Agent Protocol)</strong>: Google 发起，对标 ACP，但更面向 Google 生态。使用 JSON-RPC，强调 Peer-to-Peer 实时协作[10]。</li>
+<li><strong>ANP (Agent Network Protocol)</strong>: Cisco 推出，完全去中心化设计[10]。</li>
+<li><strong>ACP</strong> 定位为 brokered model，适合企业友好型编排[10]。</li>
+</ul>
+<p>选择建议:</p>
+<ul>
+<li>Context-heavy → MCP</li>
+<li>Real-time collaboration → A2A</li>
+<li>Standard interoperability → ACP</li>
+</ul>
+<hr>
+<h2>6. 结论</h2>
+<p>ACP 协议代表 AI 代理互操作性的重要里程碑。通过 REST-based 架构、JSON-RPC 2.0 消息信封、SDK-optional 设计，它显著降低了代理与编辑器、代理与代理之间集成的门槛。核心设计目标——开放性、轻量级、传输中立、多模态、异步优先——使其适应从本地开发到云原生生产部署的多种场景。</p>
+<p>ACP 与 MCP 的关系是互补而非竞争。双总线架构清晰划分职责：ACP 负责代理间通信和编排，MCP 负责单个代理的上下文接入。这种分工使开发者可以灵活组合两种协议，构建分层、可扩展的 AI 系统。</p>
+<p>随着 Linux Foundation 治理和 BeeAI 生态系统的成熟，ACP 有望成为多代理编排的事实标准。对于规划 AI 系统的组织，建议：</p>
+<ol>
+<li>评估是否需要多代理协作（需要 → ACP）</li>
+<li>评估是否需要丰富工具/数据接入（需要 → MCP）</li>
+<li>根据供应商锁定偏好选择协议组合</li>
+<li>优先考虑生产就绪的 SDK（Python/TypeScript）</li>
+<li>关注协议成熟度和社区活跃度</li>
+</ol>
+<p>ACP 的演进仍在进行中，分布式会话、高可用支持、轨迹元数据等新特性表明协议正快速成熟。开发者应关注 2026-2027 年的标准化进程和更多商业采纳案例。</p>
+<hr>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>IBM Research. Agent Communication Protocol (2025). <a href="https://research.ibm.com/projects/agent-communication-protocol">https://research.ibm.com/projects/agent-communication-protocol</a> [accessed 2026-03-21]</li>
+<li>Agent Communication Protocol Architecture. <a href="https://agentcommunicationprotocol.dev/core-concepts/architecture">https://agentcommunicationprotocol.dev/core-concepts/architecture</a> [accessed 2026-03-21]</li>
+<li>Agent Client Protocol. Get Started - Introduction. <a href="https://agentclientprotocol.com/get-started/introduction">https://agentclientprotocol.com/get-started/introduction</a> [accessed 2026-03-21]</li>
+<li>Agent Client Protocol. Protocol Overview. <a href="https://agentclientprotocol.com/protocol/overview">https://agentclientprotocol.com/protocol/overview</a> [accessed 2026-03-21]</li>
+<li>Phil Schmid. The Agent Client Protocol Overview (2026-02-01). <a href="https://www.philschmid.de/acp-overview">https://www.philschmid.de/acp-overview</a> [accessed 2026-03-21]</li>
+<li>Outshift (Cisco). MCP and ACP: Decoding the language of models and agents. <a href="https://outshift.cisco.com/blog/ai-ml/mcp-acp-decoding-language-of-models-and-agents">https://outshift.cisco.com/blog/ai-ml/mcp-acp-decoding-language-of-models-and-agents</a> [accessed 2026-03-21]</li>
+<li>Lucidworks. MCP vs. ACP: Key Differences in AI Protocols. <a href="https://lucidworks.com/blog/mcp-vs-acp-whats-the-difference-and-when-should-each-be-used">https://lucidworks.com/blog/mcp-vs-acp-whats-the-difference-and-when-should-each-be-used</a> [accessed 2026-03-21]</li>
+<li>Niklas Heidloff. Evolving Standards for agentic Systems: MCP and ACP (2025). <a href="https://heidloff.net/article/mcp-acp/">https://heidloff.net/article/mcp-acp/</a> [accessed 2026-03-21]</li>
+<li>Boomi. What Is MCP, ACP, and A2A? AI Agent Protocols Explained. <a href="https://boomi.com/blog/what-is-mcp-acp-a2a/">https://boomi.com/blog/what-is-mcp-acp-a2a/</a> [accessed 2026-03-21]</li>
+<li>Hernani Costa. AI Agent Protocols: MCP vs A2A vs ANP vs ACP. DEV Community (2025). <a href="https://dev.to/dr_hernani_costa/ai-agent-protocols-mcp-vs-a2a-vs-anp-vs-acp-4k98">https://dev.to/dr_hernani_costa/ai-agent-protocols-mcp-vs-a2a-vs-anp-vs-acp-4k98</a> [accessed 2026-03-21]</li>
+<li>Petro&#39;s Tech Chronicles. ACP vs MCP: Dual Bus Architecture. <a href="https://www.petrostechchronicles.com/blog/ACP_vs_MCP">https://www.petrostechchronicles.com/blog/ACP_vs_MCP</a> [accessed 2026-03-21]</li>
+<li>Camunda. MCP, ACP, and A2A, Oh My! The Growing World of Inter-agent Communication (2025-05). <a href="https://camunda.com/blog/2025/05/mcp-acp-a2a-growing-world-inter-agent-communication/">https://camunda.com/blog/2025/05/mcp-acp-a2a-growing-world-inter-agent-communication/</a> [accessed 2026-03-21]</li>
+<li>i-am-bee/acp GitHub Repository. <a href="https://github.com/i-am-bee/acp">https://github.com/i-am-bee/acp</a> [accessed 2026-03-21]</li>
+<li>Agent Client Protocol - Python SDK Documentation. <a href="https://agentclientprotocol.github.io/python-sdk/">https://agentclientprotocol.github.io/python-sdk/</a> [accessed 2026-03-21]</li>
+<li>Agent Client Protocol - TypeScript SDK Documentation. <a href="https://agentclientprotocol.com/libraries/typescript">https://agentclientprotocol.com/libraries/typescript</a> [accessed 2026-03-21]</li>
+<li>Zed Industries. Intro to Agent Client Protocol (ACP) (2025-10-24). <a href="https://block.github.io/goose/blog/2025/10/24/intro-to-agent-client-protocol-acp/">https://block.github.io/goose/blog/2025/10/24/intro-to-agent-client-protocol-acp/</a> [accessed 2026-03-21]</li>
+<li>Agent Communication Protocol Quickstart. <a href="https://agentcommunicationprotocol.dev/introduction/quickstart">https://agentcommunicationprotocol.dev/introduction/quickstart</a> [accessed 2026-03-21]</li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>

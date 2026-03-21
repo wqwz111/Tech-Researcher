@@ -522,20 +522,20 @@ ACP 的演进仍在进行中，分布式会话、高可用支持、轨迹元数�
 
 <!-- REFERENCE START -->
 ## 参考文献
-1. IBM Research. Agent Communication Protocol (2025). https://research.ibm.com/projects/agent-communication-protocol
-2. Agent Communication Protocol Architecture. https://agentcommunicationprotocol.dev/core-concepts/architecture
-3. Agent Client Protocol. Get Started - Introduction. https://agentclientprotocol.com/get-started/introduction
-4. Agent Client Protocol. Protocol Overview. https://agentclientprotocol.com/protocol/overview
-5. Phil Schmid. The Agent Client Protocol Overview (2026-02-01). https://www.philschmid.de/acp-overview
-6. Outshift (Cisco). MCP and ACP: Decoding the language of models and agents. https://outshift.cisco.com/blog/ai-ml/mcp-acp-decoding-language-of-models-and-agents
-7. Lucidworks. MCP vs. ACP: Key Differences in AI Protocols. https://lucidworks.com/blog/mcp-vs-acp-whats-the-difference-and-when-should-each-be-used
-8. Niklas Heidloff. Evolving Standards for agentic Systems: MCP and ACP (2025). https://heidloff.net/article/mcp-acp/
-9. Boomi. What Is MCP, ACP, and A2A? AI Agent Protocols Explained. https://boomi.com/blog/what-is-mcp-acp-a2a/
-10. Hernani Costa. AI Agent Protocols: MCP vs A2A vs ANP vs ACP. DEV Community (2025). https://dev.to/dr_hernani_costa/ai-agent-protocols-mcp-vs-a2a-vs-anp-vs-acp-4k98
-11. Petro's Tech Chronicles. ACP vs MCP: Dual Bus Architecture. https://www.petrostechchronicles.com/blog/ACP_vs_MCP
-12. Camunda. MCP, ACP, and A2A, Oh My! The Growing World of Inter-agent Communication (2025-05). https://camunda.com/blog/2025/05/mcp-acp-a2a-growing-world-inter-agent-communication/
-13. i-am-bee/acp GitHub Repository. https://github.com/i-am-bee/acp
-14. Agent Client Protocol - Python SDK Documentation. https://agentclientprotocol.github.io/python-sdk/
-15. Agent Client Protocol - TypeScript SDK Documentation. https://agentclientprotocol.com/libraries/typescript
-16. Zed Industries. Intro to Agent Client Protocol (ACP) (2025-10-24). https://block.github.io/goose/blog/2025/10/24/intro-to-agent-client-protocol-acp/
-17. Agent Communication Protocol Quickstart. https://agentcommunicationprotocol.dev/introduction/quickstart
+1. IBM Research. Agent Communication Protocol (2025). https://research.ibm.com/projects/agent-communication-protocol [accessed 2026-03-21]
+2. Agent Communication Protocol Architecture. https://agentcommunicationprotocol.dev/core-concepts/architecture [accessed 2026-03-21]
+3. Agent Client Protocol. Get Started - Introduction. https://agentclientprotocol.com/get-started/introduction [accessed 2026-03-21]
+4. Agent Client Protocol. Protocol Overview. https://agentclientprotocol.com/protocol/overview [accessed 2026-03-21]
+5. Phil Schmid. The Agent Client Protocol Overview (2026-02-01). https://www.philschmid.de/acp-overview [accessed 2026-03-21]
+6. Outshift (Cisco). MCP and ACP: Decoding the language of models and agents. https://outshift.cisco.com/blog/ai-ml/mcp-acp-decoding-language-of-models-and-agents [accessed 2026-03-21]
+7. Lucidworks. MCP vs. ACP: Key Differences in AI Protocols. https://lucidworks.com/blog/mcp-vs-acp-whats-the-difference-and-when-should-each-be-used [accessed 2026-03-21]
+8. Niklas Heidloff. Evolving Standards for agentic Systems: MCP and ACP (2025). https://heidloff.net/article/mcp-acp/ [accessed 2026-03-21]
+9. Boomi. What Is MCP, ACP, and A2A? AI Agent Protocols Explained. https://boomi.com/blog/what-is-mcp-acp-a2a/ [accessed 2026-03-21]
+10. Hernani Costa. AI Agent Protocols: MCP vs A2A vs ANP vs ACP. DEV Community (2025). https://dev.to/dr_hernani_costa/ai-agent-protocols-mcp-vs-a2a-vs-anp-vs-acp-4k98 [accessed 2026-03-21]
+11. Petro's Tech Chronicles. ACP vs MCP: Dual Bus Architecture. https://www.petrostechchronicles.com/blog/ACP_vs_MCP [accessed 2026-03-21]
+12. Camunda. MCP, ACP, and A2A, Oh My! The Growing World of Inter-agent Communication (2025-05). https://camunda.com/blog/2025/05/mcp-acp-a2a-growing-world-inter-agent-communication/ [accessed 2026-03-21]
+13. i-am-bee/acp GitHub Repository. https://github.com/i-am-bee/acp [accessed 2026-03-21]
+14. Agent Client Protocol - Python SDK Documentation. https://agentclientprotocol.github.io/python-sdk/ [accessed 2026-03-21]
+15. Agent Client Protocol - TypeScript SDK Documentation. https://agentclientprotocol.com/libraries/typescript [accessed 2026-03-21]
+16. Zed Industries. Intro to Agent Client Protocol (ACP) (2025-10-24). https://block.github.io/goose/blog/2025/10/24/intro-to-agent-client-protocol-acp/ [accessed 2026-03-21]
+17. Agent Communication Protocol Quickstart. https://agentcommunicationprotocol.dev/introduction/quickstart [accessed 2026-03-21]
