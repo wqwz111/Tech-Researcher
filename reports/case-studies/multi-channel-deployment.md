@@ -4,11 +4,11 @@
 
 ## Executive Summary
 
-OpenClaw 是目前开源 AI Agent 领域中渠道覆盖最广的框架之一，原生支持 22 个通讯平台（截至 2026 年 3 月），从大众化的 WhatsApp/Telegram 到企业级的 Microsoft Teams/Slack，再到隐私导向的 Signal，几乎覆盖了全球主流 IM 生态。本文基于 OpenClaw 官方文档和实际部署经验，深入分析各渠道的技术实现差异（Baileys / grammY / Discord Gateway / signal-cli）、统一的路由与会话隔离机制、多账号管理策略，以及企业级多渠道路由（Binding）的最佳实践。核心结论：**Telegram 是最快的入门渠道**（纯 Bot Token 即可），**WhatsApp 是用户基数最大的渠道**（但需要 QR 配对），**Signal 是隐私最强的渠道**（但依赖 signal-cli 外部进程），**Discord 是团队协作最灵活的渠道**（Guild + Forum + 线程绑定）。
+OpenClaw 是目前开源 AI Agent 领域中渠道覆盖最广的框架之一，原生支持 21 个通讯平台（截至 2026 年 3 月），从大众化的 WhatsApp/Telegram 到企业级的 Microsoft Teams/Slack，再到隐私导向的 Signal，几乎覆盖了全球主流 IM 生态。本文基于 OpenClaw 官方文档和实际部署经验，深入分析各渠道的技术实现差异（Baileys / grammY / Discord Gateway / signal-cli）、统一的路由与会话隔离机制、多账号管理策略，以及企业级多渠道路由（Binding）的最佳实践。核心结论：**Telegram 是最快的入门渠道**（纯 Bot Token 即可），**WhatsApp 是用户基数最大的渠道**（但需要 QR 配对），**Signal 是隐私最强的渠道**（但依赖 signal-cli 外部进程），**Discord 是团队协作最灵活的渠道**（Guild + Forum + 线程绑定）。
 
 ## 1. 渠道全景
 
-### 1.1 支持渠道列表（22 个）
+### 1.1 支持渠道列表（21 个）
 
 OpenClaw 的渠道生态分为**内置渠道**和**插件渠道**两类：
 
@@ -233,7 +233,7 @@ signal-cli -a +<BOT_PHONE_NUMBER> verify <VERIFICATION_CODE>
 **常见坑**：
 - **需独立号码**：注册新号码会注销该号码的 Signal 主客户端
 - **Captcha 流程**：需从 `signalcaptchas.org` 获取，且需在同一 IP 注册
-- **Java 依赖**：若用 JVM 版本需要 JRE 25+
+- **Java 依赖**：若用 JVM 版本需要 JDK 24
 - **旧版 signal-cli 会失效**：Signal 服务端 API 变更可能导致旧版无法使用
 - **媒体大小限制**：默认仅 8MB（比其他渠道小）
 - **外部守护进程模式**：可通过 `httpUrl` 指向自行管理的 signal-cli 实例
@@ -480,3 +480,4 @@ openclaw doctor
 10. grammY — Telegram Bot Framework. https://grammy.dev/
 11. signal-cli — Signal CLI 客户端. https://github.com/AsamK/signal-cli
 12. BlueBubbles — iMessage macOS 服务端. https://bluebubbles.app/
+

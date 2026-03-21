@@ -499,7 +499,7 @@ flowchart LR
 
 **生态现状（截至 2025 年 3 月）**:
 - 官方参考服务器：文件系统、GitHub、Slack、Google Maps、PostgreSQL、Puppeteer 等（[github.com/modelcontextprotocol](https://github.com/modelcontextprotocol)）
-- 社区服务器：超过 1000+ 个 MCP Server（参考 [mcp.so](https://mcp.so) 服务器目录）
+- 社区服务器：超过 1000+ 个 MCP Server（参考 [mcp.so](https://mcp.so) 服务器目录 [accessed 2025-03-20] / [glama.ai/mcp/servers](https://glama.ai/mcp/servers) [accessed 2025-03-20]）
 - 框架支持：OpenClaw、Claude Desktop、Cursor、Zed、Continue 等已原生集成
 
 **MCP 的优势**:
