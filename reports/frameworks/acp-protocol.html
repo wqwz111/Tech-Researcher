@@ -542,16 +542,18 @@
     &quot;version&quot;: &quot;1.0&quot;
   }
 }
-</code></pre>
-<p><strong>2. HTTP/SSE 传输</strong> - 用于远程代理或云部署。HTTP 提供 RESTful 端点，SSE 支持流式响应[2][13]。典型端点：</p>
-<ul>
-<li><code>POST /rpc</code> - JSON-RPC 请求端点</li>
-<li><code>GET /events</code> - Server-Sent Events 流</li>
-</ul>
-<h3>2.2 JSON-RPC 2.0 消息结构</h3>
-<p>ACP 严格遵循 JSON-RPC 2.0 规范，定义三种消息类型：</p>
-<p><strong>Request（请求）</strong> - 客户端或代理发起的请求-响应对：</p>
-<pre><code class="language-json">{
+
+**2. HTTP/SSE 传输** - 用于远程代理或云部署。HTTP 提供 RESTful 端点，SSE 支持流式响应[2][13]。典型端点：
+- `POST /rpc` - JSON-RPC 请求端点
+- `GET /events` - Server-Sent Events 流
+
+### 2.2 JSON-RPC 2.0 消息结构
+
+ACP 严格遵循 JSON-RPC 2.0 规范，定义三种消息类型：
+
+**Request（请求）** - 客户端或代理发起的请求-响应对：
+```json
+{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;method&quot;: &quot;session/prompt&quot;,
   &quot;params&quot;: {
@@ -563,18 +565,20 @@
   },
   &quot;id&quot;: 42
 }
-</code></pre>
-<p><strong>Response（响应）</strong> - 对请求的成功或错误响应：</p>
-<pre><code class="language-json">{
+
+**Response（响应）** - 对请求的成功或错误响应：
+```json
+{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
     &quot;messages&quot;: [...]
   },
   &quot;id&quot;: 42
 }
-</code></pre>
-<p>或错误响应：</p>
-<pre><code class="language-json">{
+
+或错误响应：
+```json
+{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;error&quot;: {
     &quot;code&quot;: -32602,
@@ -582,9 +586,10 @@
   },
   &quot;id&quot;: 42
 }
-</code></pre>
-<p><strong>Notification（通知）</strong> - 单向消息，不期望响应：</p>
-<pre><code class="language-json">{
+
+**Notification（通知）** - 单向消息，不期望响应：
+```json
+{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;method&quot;: &quot;session/update&quot;,
   &quot;params&quot;: {
@@ -593,34 +598,35 @@
     ]
   }
 }
-</code></pre>
-<h3>2.3 方法定义</h3>
-<p>ACP 定义了核心方法集合，分为客户端方法、代理方法和通知：</p>
-<p><strong>客户端方法（Client → Agent）</strong>:</p>
-<ul>
-<li><code>initialize</code>: 建立连接，协商协议版本和代理能力[4]</li>
-<li><code>session/request_permission</code>: 请求用户授权工具调用</li>
-<li><code>session/new</code>: 创建新会话</li>
-<li><code>session/load</code>: 加载现有会话（需要 <code>loadSession</code> capability）</li>
-<li><code>session/prompt</code>: 发送用户提示</li>
-<li><code>session/set_mode</code>: 切换代理操作模式</li>
-<li><code>session/cancel</code>: 取消正在进行的操作</li>
-</ul>
-<p><strong>代理方法（Agent → Client）</strong>:</p>
-<ul>
-<li><code>fs/read_text_file</code>: 读取文件（包括未保存的编辑）</li>
-<li><code>fs/write_text_file</code>: 写入/创建文件</li>
-<li><code>terminal/create</code>: 启动 shell 命令</li>
-<li><code>terminal/output</code>: 获取命令输出</li>
-<li><code>terminal/wait_for_exit</code>: 等待命令完成</li>
-<li><code>terminal/kill</code>: 终止运行中的命令</li>
-</ul>
-<p><strong>通知（双向）</strong>:</p>
-<ul>
-<li><code>session/update</code>: 代理发送会话更新（消息块、工具调用、计划、命令更新、模式变更）[4]</li>
-</ul>
-<h4>典型消息序列图</h4>
-<p>下面展示一个完整的 ACP 会话交互序列，包括初始化、提示发送、流式响应、工具调用和会话结束：</p>
+
+### 2.3 方法定义
+
+ACP 定义了核心方法集合，分为客户端方法、代理方法和通知：
+
+**客户端方法（Client → Agent）**:
+- `initialize`: 建立连接，协商协议版本和代理能力[4]
+- `session/request_permission`: 请求用户授权工具调用
+- `session/new`: 创建新会话
+- `session/load`: 加载现有会话（需要 `loadSession` capability）
+- `session/prompt`: 发送用户提示
+- `session/set_mode`: 切换代理操作模式
+- `session/cancel`: 取消正在进行的操作
+
+**代理方法（Agent → Client）**:
+- `fs/read_text_file`: 读取文件（包括未保存的编辑）
+- `fs/write_text_file`: 写入/创建文件
+- `terminal/create`: 启动 shell 命令
+- `terminal/output`: 获取命令输出
+- `terminal/wait_for_exit`: 等待命令完成
+- `terminal/kill`: 终止运行中的命令
+
+**通知（双向）**:
+- `session/update`: 代理发送会话更新（消息块、工具调用、计划、命令更新、模式变更）[4]
+
+#### 典型消息序列图
+
+下面展示一个完整的 ACP 会话交互序列，包括初始化、提示发送、流式响应、工具调用和会话结束：
+
 <div class="mermaid">sequenceDiagram
     participant C as Client (Editor)
     participant A as Agent (Server)
@@ -651,10 +657,12 @@
     A-->>C: session/update(final message)
     
     Note over C,A: 会话结束(可选)
-    C->>A: session/cancel(sessionId)</div>
-<h3>2.4 消息内容结构</h3>
-<p>ACP 使用结构化消息内容，支持多部分消息（MessagePart）：</p>
-<pre><code class="language-json">{
+    C->>A: session/cancel(sessionId)
+
+### 2.4 消息内容结构
+
+ACP 使用结构化消息内容，支持多部分消息（MessagePart）：</div>json
+{
   &quot;role&quot;: &quot;user&quot;,
   &quot;parts&quot;: [
     {
@@ -667,32 +675,35 @@
     }
   ]
 }
+
+关键要求：
+- 所有文件路径必须是绝对路径[4]
+- 行号从 1 开始编号[4]
+
+### 2.5 扩展机制
+
+ACP 内置扩展性支持，允许在不破坏兼容性的情况下添加自定义功能[15]:
+
+- `ExtRequest`: 发送协议规范外的任意请求
+- `ExtResponse`: 响应 ExtRequest
+- `ExtNotification`: 发送单向通知
+- 自定义能力和模式扩展
+
+---
+
+## 3. 流控机制
+
+### 3.1 会话生命周期管理
+
+ACP 采用显式的会话模型管理长期交互：
 </code></pre>
-<p>关键要求：</p>
-<ul>
-<li>所有文件路径必须是绝对路径[4]</li>
-<li>行号从 1 开始编号[4]</li>
-</ul>
-<h3>2.5 扩展机制</h3>
-<p>ACP 内置扩展性支持，允许在不破坏兼容性的情况下添加自定义功能[15]:</p>
-<ul>
-<li><code>ExtRequest</code>: 发送协议规范外的任意请求</li>
-<li><code>ExtResponse</code>: 响应 ExtRequest</li>
-<li><code>ExtNotification</code>: 发送单向通知</li>
-<li>自定义能力和模式扩展</li>
-</ul>
-<hr>
-<h2>3. 流控机制</h2>
-<h3>3.1 会话生命周期管理</h3>
-<p>ACP 采用显式的会话模型管理长期交互：</p>
-<pre><code>Client → Agent: initialize (协商版本/能力)
+<p>Client → Agent: initialize (协商版本/能力)
 Client → Agent: session/new (创建会话 ID)
 Client → Agent: session/prompt (发送提示)
 Agent → Client: session/update (流式响应块)
 Agent → Client: session/update (工具调用)
 Agent → Client: session/update (最终响应)
-Client → Agent: session/cancel (可选取消)
-</code></pre>
+Client → Agent: session/cancel (可选取消)</p>
 <p>会话 ID 在 <code>session/new</code> 响应中返回，后续操作通过 <code>sessionId</code> 引用会话：</p>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
@@ -701,16 +712,17 @@ Client → Agent: session/cancel (可选取消)
   },
   &quot;id&quot;: 1
 }
-</code></pre>
-<h3>3.2 流式响应 (Streaming)</h3>
-<p>对于长运行任务或交互式应用，ACP 支持两种流式模式：</p>
-<p><strong>1. Server-Sent Events (SSE)</strong> - HTTP 传输下使用 SSE 流式传输响应块[1][13]:</p>
-<pre><code>Content-Type: text/event-stream
 
-data: {&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;session/update&quot;,&quot;params&quot;:{&quot;chunks&quot;:[{&quot;role&quot;:&quot;assistant&quot;,&quot;content&quot;:&quot;I&#39;ll &quot;}]}}
-data: {&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;session/update&quot;,&quot;params&quot;:{&quot;chunks&quot;:[{&quot;role&quot;:&quot;assistant&quot;,&quot;content&quot;:&quot;add error &quot;}]}}
-data: {&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;session/update&quot;,&quot;params&quot;:{&quot;chunks&quot;:[{&quot;role&quot;:&quot;assistant&quot;,&quot;content&quot;:&quot;handling...&quot;}]}}
+### 3.2 流式响应 (Streaming)
+
+对于长运行任务或交互式应用，ACP 支持两种流式模式：
+
+**1. Server-Sent Events (SSE)** - HTTP 传输下使用 SSE 流式传输响应块[1][13]:
 </code></pre>
+<p>Content-Type: text/event-stream</p>
+<p>data: {&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;session/update&quot;,&quot;params&quot;:{&quot;chunks&quot;:[{&quot;role&quot;:&quot;assistant&quot;,&quot;content&quot;:&quot;I&#39;ll &quot;}]}}
+data: {&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;session/update&quot;,&quot;params&quot;:{&quot;chunks&quot;:[{&quot;role&quot;:&quot;assistant&quot;,&quot;content&quot;:&quot;add error &quot;}]}}
+data: {&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;session/update&quot;,&quot;params&quot;:{&quot;chunks&quot;:[{&quot;role&quot;:&quot;assistant&quot;,&quot;content&quot;:&quot;handling...&quot;}]}}</p>
 <p><strong>2. 通知序列</strong> - 代理通过多次 <code>session/update</code> 通知发送增量更新：</p>
 <pre><code class="language-json">// Chunk 1
 {
@@ -745,64 +757,67 @@ data: {&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;session/upda
     }]
   }
 }
-</code></pre>
-<h3>3.3 权限和流控</h3>
-<p>ACP 实现细粒度权限控制：</p>
-<p><strong>权限请求流程</strong>:</p>
-<ol>
-<li>代理需要执行敏感操作（写入文件、执行终端命令）</li>
-<li>代理发送 <code>session/update</code> 通知包含工具调用</li>
-<li>客户端（编辑器）拦截并向用户显示权限对话框</li>
-<li>用户批准或拒绝，客户端通过 <code>session/request_permission</code> 通知代理结果</li>
-</ol>
-<p><strong>取消机制</strong>:</p>
-<ul>
-<li>客户端可随时发送 <code>session/cancel</code> 通知（无响应期望）[4]</li>
-<li>代理应停止当前操作并清理资源</li>
-</ul>
-<p><strong>背压处理</strong>:
-协议本身不强制背压，由传输层处理。HTTP/2 或 Unix 套接字提供自然流控，stdout 缓冲区满时代理应阻塞写入[2]。</p>
-<h3>3.4 错误恢复</h3>
-<p>所有方法遵循标准 JSON-RPC 错误处理[4]:</p>
-<ul>
-<li>预定义错误码（如 -32602 无效参数、-32603 内部错误）</li>
-<li>自定义错误码可扩展</li>
-<li>Notifications 永不返回错误（最佳-effort）</li>
-</ul>
-<p>超时场景：</p>
-<ul>
-<li>同步请求：客户端应设置合理超时</li>
-<li>异步流：客户端必须处理代理静默失败（心跳缺失）</li>
-</ul>
-<hr>
-<h2>4. 与 MCP 的关系</h2>
-<h3>4.1 MCP 与 ACP 的定位差异</h3>
-<p>Model Context Protocol (MCP) 和 ACP 解决 AI 生态系统中的不同层次问题[6][8]:</p>
-<p><strong>MCP（模型上下文协议）</strong>:</p>
-<ul>
-<li><strong>聚焦点</strong>: 给单个 LLM/Agent 提供结构化上下文</li>
-<li><strong>类比</strong>: &quot;USB-C 端口&quot;连接模型与数据源/工具[4][9]</li>
-<li><strong>架构</strong>: Host（LLM 应用）→ MCP Servers（数据/工具提供者）[11]</li>
-<li><strong>传输</strong>: JSON-RPC 2.0 over stdio/SSE</li>
-<li><strong>能力</strong>: 资源访问、工具调用、提示模板、内存扩展</li>
-<li><strong>治理</strong>: Anthropic 发起，社区驱动</li>
-</ul>
-<p><strong>ACP（代理通信协议）</strong>:</p>
-<ul>
-<li><strong>聚焦点</strong>: 代理与代理、代理与客户端（编辑器/UI）之间的标准化通信</li>
-<li><strong>类比</strong>: &quot;互联网协议&quot;层，让多代理系统互操作[1]</li>
-<li><strong>架构</strong>: 代理作为对等节点或客户端-服务器，通过标准化消息交换[10]</li>
-<li><strong>传输</strong>: REST-based + JSON-RPC 2.0 信封[2]</li>
-<li><strong>能力</strong>: 会话管理、多模态消息、异步编排、跨组织协作</li>
-<li><strong>治理</strong>: Linux Foundation/BeeAI（IBM Research）</li>
-</ul>
-<p><strong>核心区别</strong>:</p>
-<ul>
-<li>MCP: <code>Model ← Context</code> (单向增强)[6]</li>
-<li>ACP: <code>Agent ↔ Agent/Client</code> (双向对话)[6][9]</li>
-</ul>
-<h3>4.2 双总线互补架构</h3>
-<p>在实际系统中，MCP 和 ACP 可以协同工作，形成&quot;双总线&quot;架构[11][12]:</p>
+
+### 3.3 权限和流控
+
+ACP 实现细粒度权限控制：
+
+**权限请求流程**:
+1. 代理需要执行敏感操作（写入文件、执行终端命令）
+2. 代理发送 `session/update` 通知包含工具调用
+3. 客户端（编辑器）拦截并向用户显示权限对话框
+4. 用户批准或拒绝，客户端通过 `session/request_permission` 通知代理结果
+
+**取消机制**:
+- 客户端可随时发送 `session/cancel` 通知（无响应期望）[4]
+- 代理应停止当前操作并清理资源
+
+**背压处理**:
+协议本身不强制背压，由传输层处理。HTTP/2 或 Unix 套接字提供自然流控，stdout 缓冲区满时代理应阻塞写入[2]。
+
+### 3.4 错误恢复
+
+所有方法遵循标准 JSON-RPC 错误处理[4]:
+- 预定义错误码（如 -32602 无效参数、-32603 内部错误）
+- 自定义错误码可扩展
+- Notifications 永不返回错误（最佳-effort）
+
+超时场景：
+- 同步请求：客户端应设置合理超时
+- 异步流：客户端必须处理代理静默失败（心跳缺失）
+
+---
+
+## 4. 与 MCP 的关系
+
+### 4.1 MCP 与 ACP 的定位差异
+
+Model Context Protocol (MCP) 和 ACP 解决 AI 生态系统中的不同层次问题[6][8]:
+
+**MCP（模型上下文协议）**:
+- **聚焦点**: 给单个 LLM/Agent 提供结构化上下文
+- **类比**: &quot;USB-C 端口&quot;连接模型与数据源/工具[4][9]
+- **架构**: Host（LLM 应用）→ MCP Servers（数据/工具提供者）[11]
+- **传输**: JSON-RPC 2.0 over stdio/SSE
+- **能力**: 资源访问、工具调用、提示模板、内存扩展
+- **治理**: Anthropic 发起，社区驱动
+
+**ACP（代理通信协议）**:
+- **聚焦点**: 代理与代理、代理与客户端（编辑器/UI）之间的标准化通信
+- **类比**: &quot;互联网协议&quot;层，让多代理系统互操作[1]
+- **架构**: 代理作为对等节点或客户端-服务器，通过标准化消息交换[10]
+- **传输**: REST-based + JSON-RPC 2.0 信封[2]
+- **能力**: 会话管理、多模态消息、异步编排、跨组织协作
+- **治理**: Linux Foundation/BeeAI（IBM Research）
+
+**核心区别**:
+- MCP: `Model ← Context` (单向增强)[6]
+- ACP: `Agent ↔ Agent/Client` (双向对话)[6][9]
+
+### 4.2 双总线互补架构
+
+在实际系统中，MCP 和 ACP 可以协同工作，形成&quot;双总线&quot;架构[11][12]:
+
 <div class="mermaid">graph TB
     subgraph "ACP 层（Agent 间通信）"
         A[Agent A<br/>ACP Client]
@@ -838,10 +853,7 @@ data: {&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;method&quot;:&quot;session/upda
     style E fill:#f3e5f5
     style F fill:#f3e5f5
     style G fill:#e8f5e8</div>
-<pre><code>                       ▼
-               ▼
-</code></pre>
-<pre><code>
+
 **工作流程示例**:
 1. 用户通过编辑器（ACP Client）发送提示 &quot;查询用户订单&quot;
 2. 编辑器通过 ACP 发送 `session/prompt` 到订单代理（Agent A）

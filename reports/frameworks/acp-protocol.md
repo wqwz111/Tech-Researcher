@@ -57,7 +57,6 @@ ACP 支持多种传输机制，主要分为两类：
     "version": "1.0"
   }
 }
-```
 
 **2. HTTP/SSE 传输** - 用于远程代理或云部署。HTTP 提供 RESTful 端点，SSE 支持流式响应[2][13]。典型端点：
 - `POST /rpc` - JSON-RPC 请求端点
@@ -81,7 +80,6 @@ ACP 严格遵循 JSON-RPC 2.0 规范，定义三种消息类型：
   },
   "id": 42
 }
-```
 
 **Response（响应）** - 对请求的成功或错误响应：
 ```json
@@ -92,7 +90,6 @@ ACP 严格遵循 JSON-RPC 2.0 规范，定义三种消息类型：
   },
   "id": 42
 }
-```
 
 或错误响应：
 ```json
@@ -104,7 +101,6 @@ ACP 严格遵循 JSON-RPC 2.0 规范，定义三种消息类型：
   },
   "id": 42
 }
-```
 
 **Notification（通知）** - 单向消息，不期望响应：
 ```json
@@ -117,7 +113,6 @@ ACP 严格遵循 JSON-RPC 2.0 规范，定义三种消息类型：
     ]
   }
 }
-```
 
 ### 2.3 方法定义
 
@@ -179,7 +174,6 @@ sequenceDiagram
     
     Note over C,A: 会话结束(可选)
     C->>A: session/cancel(sessionId)
-```
 
 ### 2.4 消息内容结构
 
@@ -199,7 +193,6 @@ ACP 使用结构化消息内容，支持多部分消息（MessagePart）：
     }
   ]
 }
-```
 
 关键要求：
 - 所有文件路径必须是绝对路径[4]
@@ -230,7 +223,6 @@ Agent → Client: session/update (流式响应块)
 Agent → Client: session/update (工具调用)
 Agent → Client: session/update (最终响应)
 Client → Agent: session/cancel (可选取消)
-```
 
 会话 ID 在 `session/new` 响应中返回，后续操作通过 `sessionId` 引用会话：
 
@@ -242,7 +234,6 @@ Client → Agent: session/cancel (可选取消)
   },
   "id": 1
 }
-```
 
 ### 3.2 流式响应 (Streaming)
 
@@ -255,7 +246,6 @@ Content-Type: text/event-stream
 data: {"jsonrpc":"2.0","method":"session/update","params":{"chunks":[{"role":"assistant","content":"I'll "}]}}
 data: {"jsonrpc":"2.0","method":"session/update","params":{"chunks":[{"role":"assistant","content":"add error "}]}}
 data: {"jsonrpc":"2.0","method":"session/update","params":{"chunks":[{"role":"assistant","content":"handling..."}]}}
-```
 
 **2. 通知序列** - 代理通过多次 `session/update` 通知发送增量更新：
 ```json
@@ -292,7 +282,6 @@ data: {"jsonrpc":"2.0","method":"session/update","params":{"chunks":[{"role":"as
     }]
   }
 }
-```
 
 ### 3.3 权限和流控
 
@@ -390,10 +379,6 @@ graph TB
     style E fill:#f3e5f5
     style F fill:#f3e5f5
     style G fill:#e8f5e8
-```
-
-                           ▼
-                   ▼
 ```
 
 **工作流程示例**:
