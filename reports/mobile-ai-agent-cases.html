@@ -556,6 +556,38 @@
 <li><strong>Kimi</strong>：月之暗面（Moonshot AI）开发的AI助手，以超长上下文处理能力著称，在移动端提供深度文档分析和对话功能[15]。</li>
 <li><strong>Claude Mobile</strong>：Anthropic将Claude模型的能力扩展到移动端，注重安全性与指令遵循[16]。</li>
 </ul>
+<h3>2.5 五大产品架构对比</h3>
+<p><div class="mermaid">graph LR
+    subgraph "端侧处理"
+        A1[Apple<br/>A-series NPU]
+        G1[Google<br/>Gemini Nano]
+        S1[Samsung<br/>Qualcomm NPU]
+        D1[豆包<br/>火山引擎端侧]
+        Q1[Qwen<br/>通义端侧推理]
+    end
+    
+    subgraph "云边协同"
+        A2[Private Cloud<br/>Compute]
+        G2[Google Cloud<br/>Gemini Pro/Ultra]
+        S2[Google Cloud +<br/>三星云]
+        D2[火山引擎<br/>云服务]
+        Q2[阿里云<br/>PAI平台]
+    end
+    
+    subgraph "第三方集成"
+        A3[ChatGPT<br/>Gemini]
+        G3[第三方扩展]
+        S3[Google生态]
+        D3[字节生态<br/>抖音/飞书]
+        Q3[阿里生态<br/>淘宝/支付宝]
+    end
+    
+    A1 --> A2 --> A3
+    G1 --> G2 --> G3
+    S1 --> S2 --> S3
+    D1 --> D2 --> D3
+    Q1 --> Q2 --> Q3</div>
+<strong>图 1: 五大产品架构对比（端侧 → 云端 → 第三方集成）</strong></p>
 <h2>3. 关键技术架构剖析</h2>
 <h3>3.1 端侧模型（On-device LLM）</h3>
 <p>端侧模型是移动端Agent的基石，其核心挑战是在有限的存储（通常&lt;10GB）、内存（&lt;1GB）和算力（NPU）下实现可用性能。</p>
@@ -584,7 +616,7 @@
     
     style C fill:#e1f5fe
     style F fill:#f3e5f5</div>
-<strong>图 1: 端云协同任务路由示意图</strong></p>
+<strong>图 2: 端云协同任务路由示意图</strong></p>
 <p>延迟和隐私的平衡策略：</p>
 <ol>
 <li><strong>敏感数据不出设备</strong>：生物识别信息、私人通信优先端侧处理。</li>
@@ -659,9 +691,30 @@
 <h3>6.1 核心结论</h3>
 <ol>
 <li><strong>移动端与桌面/Web Agent的差异</strong>：移动端Agent的核心差异在于<strong>交互模态的丰富性</strong>（集成多传感器）、<strong>使用场景的碎片化与即时性</strong>，以及对<strong>隐私和离线能力</strong>的更高要求。</li>
-<li><strong>端云协同的平衡</strong>：通过<strong>智能任务路由</strong>、<strong>分级处理机制</strong>和<strong>先进的隐私保护技术</strong>（如PCC），可以在延迟、隐私和功能间取得有效平衡。纯端侧处理适用于高频、简单、敏感任务；云端处理应对复杂、知识密集型任务。</li>
-<li><strong>成功的商业化路径</strong>：目前最成功的商业模式是<strong>硬件增值</strong>（苹果、三星）和<strong>生态协同</strong>（谷歌、字节）。纯粹的订阅制在消费者市场尚未成为主流，因为AI功能更多被视为提升主业务竞争力的手段。</li>
 </ol>
+<p><div class="mermaid">graph TD
+    subgraph "移动端 Agent"
+        M1[多模态输入<br/>语音/相机/手势] --> M2[资源受限<br/>CPU/RAM/电池]
+        M2 --> M3[端侧推理优先<br/>低延迟/隐私保护]
+        M3 --> M4[碎片化场景<br/>碎片时间/即时响应]
+        M1 --> M5[传感器融合<br/>位置/运动/环境]
+    end
+    
+    subgraph "桌面/Web Agent"
+        D1[文本/图像为主<br/>键鼠交互] --> D2[资源充裕<br/>GPU/大内存]
+        D2 --> D3[云端推理为主<br/>高算力/长上下文]
+        D3 --> D4[沉浸式场景<br/>深度任务/长时间]
+        D1 --> D6[浏览器/API集成<br/>MCP协议]
+    end
+    
+    M4 --> C{共同目标<br/>智能任务完成}
+    D4 --> C
+    
+    style M3 fill:#e1f5fe
+    style D3 fill:#f3e5f5</div>
+<strong>图 3: 移动端 vs 桌面端 Agent 差异对比</strong>
+2.  <strong>端云协同的平衡</strong>：通过<strong>智能任务路由</strong>、<strong>分级处理机制</strong>和<strong>先进的隐私保护技术</strong>（如PCC），可以在延迟、隐私和功能间取得有效平衡。纯端侧处理适用于高频、简单、敏感任务；云端处理应对复杂、知识密集型任务。
+3.  <strong>成功的商业化路径</strong>：目前最成功的商业模式是<strong>硬件增值</strong>（苹果、三星）和<strong>生态协同</strong>（谷歌、字节）。纯粹的订阅制在消费者市场尚未成为主流，因为AI功能更多被视为提升主业务竞争力的手段。</p>
 <h3>6.2 未来趋势</h3>
 <ol>
 <li><strong>端侧模型能力飞跃</strong>：随着芯片算力提升和模型优化技术进步，端侧将能处理更复杂的多模态任务。</li>
@@ -678,17 +731,17 @@
   <ol>
 <li>Russell, S., &amp; Norvig, P. (2020). <em>Artificial Intelligence: A Modern Approach</em> (4th ed.). Pearson. <a href="https://www.pearson.com/en-us/subject-catalog/p/artificial-intelligence-a-modern-approach/P200000006158/9780134610993">https://www.pearson.com/en-us/subject-catalog/p/artificial-intelligence-a-modern-approach/P200000006158/9780134610993</a></li>
 <li>Padgham, L., &amp; Winikoff, M. (2004). <em>Developing Intelligent Agent Systems: A Practical Guide</em>. John Wiley &amp; Sons. <a href="https://www.wiley.com/en-us/Developing+Intelligent+Agent+Systems%3A+A+Practical+Guide-p-9780470861219">https://www.wiley.com/en-us/Developing+Intelligent+Agent+Systems%3A+A+Practical+Guide-p-9780470861219</a></li>
-<li>Wikipedia contributors. (2026, March 21). <em>Apple Intelligence</em>. Wikipedia. <a href="https://en.wikipedia.org/wiki/Apple_Intelligence">https://en.wikipedia.org/wiki/Apple_Intelligence</a></li>
-<li>Wikipedia contributors. (2026, March 21). <em>Gemini (chatbot)</em>. Wikipedia. <a href="https://en.wikipedia.org/wiki/Gemini_chatbot">https://en.wikipedia.org/wiki/Gemini_chatbot</a></li>
+<li>Apple. (2024). <em>Apple Intelligence</em>. <a href="https://www.apple.com/apple-intelligence/">https://www.apple.com/apple-intelligence/</a></li>
+<li>Google. (2023). <em>Introducing Gemini: our largest and most capable AI model</em>. <a href="https://blog.google/technology/ai/google-gemini-ai/">https://blog.google/technology/ai/google-gemini-ai/</a></li>
 <li>TechCrunch. (2025). <em>The Future of AI on Your Phone</em>. <a href="https://techcrunch.com/2025/02/20/">https://techcrunch.com/2025/02/20/</a></li>
 <li>Apple. (2024). <em>Apple Intelligence - Built for Privacy</em>. <a href="https://www.apple.com/apple-intelligence/">https://www.apple.com/apple-intelligence/</a></li>
-<li>OpenAI. (2024). <em>ChatGPT integration with Apple devices</em>. <a href="https://arstechnica.com/gadgets/2024/06/apple-intelligence-every-ai-feature-announced-at-wwdc-2024/">https://arstechnica.com/gadgets/2024/06/apple-intelligence-every-ai-feature-announced-at-wwdc-2024/</a></li>
+<li>Ars Technica. (2024). <em>Apple Intelligence: Every AI feature announced at WWDC 2024</em>. <a href="https://arstechnica.com/gadgets/2024/06/apple-intelligence-every-ai-feature-announced-at-wwdc-2024/">https://arstechnica.com/gadgets/2024/06/apple-intelligence-every-ai-feature-announced-at-wwdc-2024/</a></li>
 <li>Google. (2025). <em>Gemini on Android</em>. <a href="https://deepmind.google/technologies/gemini/">https://deepmind.google/technologies/gemini/</a></li>
-<li>Wikipedia contributors. (2026, March 21). <em>Samsung Galaxy AI</em>. Wikipedia. <a href="https://en.wikipedia.org/wiki/Samsung_Galaxy_AI">https://en.wikipedia.org/wiki/Samsung_Galaxy_AI</a></li>
-<li>Wikipedia contributors. (2026, March 21). <em>Doubao</em>. Wikipedia. <a href="https://en.wikipedia.org/wiki/Doubao">https://en.wikipedia.org/wiki/Doubao</a></li>
-<li>Wikipedia contributors. (2026, March 21). <em>Qwen</em>. Wikipedia. <a href="https://en.wikipedia.org/wiki/Tongyi_Qianwen">https://en.wikipedia.org/wiki/Tongyi_Qianwen</a></li>
+<li>Samsung. (2024). <em>Galaxy AI: The new intelligent experience</em>. <a href="https://www.samsung.com/us/smartphones/galaxy-ai/">https://www.samsung.com/us/smartphones/galaxy-ai/</a></li>
+<li>ByteDance. (2024). <em>豆包 (Doubao) - AI智能助手</em>. <a href="https://www.doubao.com/">https://www.doubao.com/</a></li>
+<li>Alibaba Cloud. (2024). <em>Qwen: Open-source large language model family</em>. <a href="https://qwenlm.github.io/">https://qwenlm.github.io/</a></li>
 <li>高通. (2025). <em>Qualcomm AI Engine</em>. <a href="https://www.qualcomm.com/products/mobile/snapdragon/smartphones/snapdragon-8-series-mobile-platforms">https://www.qualcomm.com/products/mobile/snapdragon/smartphones/snapdragon-8-series-mobile-platforms</a></li>
-<li>联合国贸易和发展会议（UNCTAD）. (2025). <em>数字经济报告</em>. <a href="https://www.itu.int/en/ITU-D/Statistics/Pages/stat/default.aspx">https://www.itu.int/en/ITU-D/Statistics/Pages/stat/default.aspx</a></li>
+<li>国际电信联盟（ITU）. (2025). <em>ICT统计数据库</em>. <a href="https://www.itu.int/en/ITU-D/Statistics/Pages/stat/default.aspx">https://www.itu.int/en/ITU-D/Statistics/Pages/stat/default.aspx</a></li>
 <li>Kimi (月之暗面). (2025). <em>Kimi技术博客</em>. <a href="https://kimi.ai/blog">https://kimi.ai/blog</a></li>
 <li>Anthropic. (2025). <em>Claude AI</em>. <a href="https://www.anthropic.com/claude">https://www.anthropic.com/claude</a></li>
 <li>欧盟委员会. (2024). <em>Artificial Intelligence Act</em>. <a href="https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai">https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai</a></li>

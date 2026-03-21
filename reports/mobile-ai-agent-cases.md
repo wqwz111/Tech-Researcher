@@ -51,6 +51,42 @@ Galaxy AI随Galaxy S24系列于2024年1月推出，其特点是将AI功能深度
 - **Kimi**：月之暗面（Moonshot AI）开发的AI助手，以超长上下文处理能力著称，在移动端提供深度文档分析和对话功能[15]。
 - **Claude Mobile**：Anthropic将Claude模型的能力扩展到移动端，注重安全性与指令遵循[16]。
 
+### 2.5 五大产品架构对比
+
+```mermaid
+graph LR
+    subgraph "端侧处理"
+        A1[Apple<br/>A-series NPU]
+        G1[Google<br/>Gemini Nano]
+        S1[Samsung<br/>Qualcomm NPU]
+        D1[豆包<br/>火山引擎端侧]
+        Q1[Qwen<br/>通义端侧推理]
+    end
+    
+    subgraph "云边协同"
+        A2[Private Cloud<br/>Compute]
+        G2[Google Cloud<br/>Gemini Pro/Ultra]
+        S2[Google Cloud +<br/>三星云]
+        D2[火山引擎<br/>云服务]
+        Q2[阿里云<br/>PAI平台]
+    end
+    
+    subgraph "第三方集成"
+        A3[ChatGPT<br/>Gemini]
+        G3[第三方扩展]
+        S3[Google生态]
+        D3[字节生态<br/>抖音/飞书]
+        Q3[阿里生态<br/>淘宝/支付宝]
+    end
+    
+    A1 --> A2 --> A3
+    G1 --> G2 --> G3
+    S1 --> S2 --> S3
+    D1 --> D2 --> D3
+    Q1 --> Q2 --> Q3
+```
+**图 1: 五大产品架构对比（端侧 → 云端 → 第三方集成）**
+
 ## 3. 关键技术架构剖析
 
 ### 3.1 端侧模型（On-device LLM）
@@ -82,7 +118,7 @@ graph TD
     style C fill:#e1f5fe
     style F fill:#f3e5f5
 ```
-**图 1: 端云协同任务路由示意图**
+**图 2: 端云协同任务路由示意图**
 
 延迟和隐私的平衡策略：
 1.  **敏感数据不出设备**：生物识别信息、私人通信优先端侧处理。
@@ -145,6 +181,30 @@ graph TD
 
 ### 6.1 核心结论
 1.  **移动端与桌面/Web Agent的差异**：移动端Agent的核心差异在于**交互模态的丰富性**（集成多传感器）、**使用场景的碎片化与即时性**，以及对**隐私和离线能力**的更高要求。
+
+```mermaid
+graph TD
+    subgraph "移动端 Agent"
+        M1[多模态输入<br/>语音/相机/手势] --> M2[资源受限<br/>CPU/RAM/电池]
+        M2 --> M3[端侧推理优先<br/>低延迟/隐私保护]
+        M3 --> M4[碎片化场景<br/>碎片时间/即时响应]
+        M1 --> M5[传感器融合<br/>位置/运动/环境]
+    end
+    
+    subgraph "桌面/Web Agent"
+        D1[文本/图像为主<br/>键鼠交互] --> D2[资源充裕<br/>GPU/大内存]
+        D2 --> D3[云端推理为主<br/>高算力/长上下文]
+        D3 --> D4[沉浸式场景<br/>深度任务/长时间]
+        D1 --> D6[浏览器/API集成<br/>MCP协议]
+    end
+    
+    M4 --> C{共同目标<br/>智能任务完成}
+    D4 --> C
+    
+    style M3 fill:#e1f5fe
+    style D3 fill:#f3e5f5
+```
+**图 3: 移动端 vs 桌面端 Agent 差异对比**
 2.  **端云协同的平衡**：通过**智能任务路由**、**分级处理机制**和**先进的隐私保护技术**（如PCC），可以在延迟、隐私和功能间取得有效平衡。纯端侧处理适用于高频、简单、敏感任务；云端处理应对复杂、知识密集型任务。
 3.  **成功的商业化路径**：目前最成功的商业模式是**硬件增值**（苹果、三星）和**生态协同**（谷歌、字节）。纯粹的订阅制在消费者市场尚未成为主流，因为AI功能更多被视为提升主业务竞争力的手段。
 
@@ -159,17 +219,17 @@ graph TD
 
 1. Russell, S., & Norvig, P. (2020). *Artificial Intelligence: A Modern Approach* (4th ed.). Pearson. https://www.pearson.com/en-us/subject-catalog/p/artificial-intelligence-a-modern-approach/P200000006158/9780134610993
 2. Padgham, L., & Winikoff, M. (2004). *Developing Intelligent Agent Systems: A Practical Guide*. John Wiley & Sons. https://www.wiley.com/en-us/Developing+Intelligent+Agent+Systems%3A+A+Practical+Guide-p-9780470861219
-3. Wikipedia contributors. (2026, March 21). *Apple Intelligence*. Wikipedia. https://en.wikipedia.org/wiki/Apple_Intelligence
-4. Wikipedia contributors. (2026, March 21). *Gemini (chatbot)*. Wikipedia. https://en.wikipedia.org/wiki/Gemini_chatbot
+3. Apple. (2024). *Apple Intelligence*. https://www.apple.com/apple-intelligence/
+4. Google. (2023). *Introducing Gemini: our largest and most capable AI model*. https://blog.google/technology/ai/google-gemini-ai/
 5. TechCrunch. (2025). *The Future of AI on Your Phone*. https://techcrunch.com/2025/02/20/
 6. Apple. (2024). *Apple Intelligence - Built for Privacy*. https://www.apple.com/apple-intelligence/
-7. OpenAI. (2024). *ChatGPT integration with Apple devices*. https://arstechnica.com/gadgets/2024/06/apple-intelligence-every-ai-feature-announced-at-wwdc-2024/
+7. Ars Technica. (2024). *Apple Intelligence: Every AI feature announced at WWDC 2024*. https://arstechnica.com/gadgets/2024/06/apple-intelligence-every-ai-feature-announced-at-wwdc-2024/
 8. Google. (2025). *Gemini on Android*. https://deepmind.google/technologies/gemini/
-9. Wikipedia contributors. (2026, March 21). *Samsung Galaxy AI*. Wikipedia. https://en.wikipedia.org/wiki/Samsung_Galaxy_AI
-10. Wikipedia contributors. (2026, March 21). *Doubao*. Wikipedia. https://en.wikipedia.org/wiki/Doubao
-11. Wikipedia contributors. (2026, March 21). *Qwen*. Wikipedia. https://en.wikipedia.org/wiki/Tongyi_Qianwen
+9. Samsung. (2024). *Galaxy AI: The new intelligent experience*. https://www.samsung.com/us/smartphones/galaxy-ai/
+10. ByteDance. (2024). *豆包 (Doubao) - AI智能助手*. https://www.doubao.com/
+11. Alibaba Cloud. (2024). *Qwen: Open-source large language model family*. https://qwenlm.github.io/
 12. 高通. (2025). *Qualcomm AI Engine*. https://www.qualcomm.com/products/mobile/snapdragon/smartphones/snapdragon-8-series-mobile-platforms
-13. 联合国贸易和发展会议（UNCTAD）. (2025). *数字经济报告*. https://www.itu.int/en/ITU-D/Statistics/Pages/stat/default.aspx
+13. 国际电信联盟（ITU）. (2025). *ICT统计数据库*. https://www.itu.int/en/ITU-D/Statistics/Pages/stat/default.aspx
 14. Kimi (月之暗面). (2025). *Kimi技术博客*. https://kimi.ai/blog
 15. Anthropic. (2025). *Claude AI*. https://www.anthropic.com/claude
 16. 欧盟委员会. (2024). *Artificial Intelligence Act*. https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai
