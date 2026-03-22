@@ -1,7 +1,7 @@
 URL Validation Report
 =====================
-Total URLs: 10
-Passed (200-399): 10
+Total URLs: 12
+Passed (200-399): 12
 Failed: 0
 Pass rate: 100.0%
 

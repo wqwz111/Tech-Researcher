@@ -267,8 +267,8 @@ timeline
 5. ggml-org. llama.cpp — LLM Inference in C/C++ (2025). https://github.com/ggml-org/llama.cpp
 6. RISC-V International. RISC-V Vector Extension Specification (2024). https://github.com/riscv/riscv-v-spec
 7. Lin, J. et al. AWQ: Activation-aware Weight Quantization (2024). https://arxiv.org/abs/2306.00978
-8. Wikipedia. Snapdragon (2025). https://en.wikipedia.org/wiki/Snapdragon
+8. Qualcomm. Snapdragon Mobile Platforms (2025). https://www.qualcomm.com/snapdragon
 9. Wikipedia. Edge Computing (2025). https://en.wikipedia.org/wiki/Edge_computing
 10. Hugging Face. Introduction to GGUF (2024). https://huggingface.co/blog/introduction-to-ggml
 11. Microsoft. ONNX Runtime GenAI (2025). https://github.com/microsoft/onnxruntime-genai
-12. Meta AI. LLaMA 3 Model Card (2024). https://ai.meta.com/llama/
+12. Meta AI. The Llama 3 Herd of Models (2024). https://arxiv.org/abs/2407.21783
