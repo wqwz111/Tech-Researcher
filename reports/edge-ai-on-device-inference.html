@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>边缘 AI / 端侧推理：技术全景与 2025-2026 趋势</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>边缘 AI / 端侧推理：技术全景与 2025-2026 趋势</h1>
+  <div class="meta">2026-03-22 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>AI 推理正经历从云端集中式向边缘和设备端分布式的深刻迁移。驱动力来自三个核心需求：<strong>隐私保护</strong>（数据不出设备）、<strong>低延迟</strong>（&lt;10ms 实时响应）和<strong>带宽节约</strong>（减少云端传输）。2025-2026 年，这一领域迎来关键突破：大语言模型（LLM）首次在手机端流畅运行，多模态模型在车载芯片上实现实时推理，专用 NPU 成为旗舰芯片标配。本报告系统梳理端侧推理的框架生态、硬件加速方案、量化压缩技术、典型应用场景与最新进展，并提供性能对比数据，为技术决策提供参考。</p>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. 端侧推理框架生态</h2>
+<h3>1.1 主流框架概览</h3>
+<p>端侧推理框架经过多年演进，已形成清晰的生态格局。按平台和目标场景可分为以下几类：</p>
+<table>
+<thead>
+<tr>
+<th>框架</th>
+<th>维护方</th>
+<th>平台支持</th>
+<th>模型格式</th>
+<th>核心优势</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ONNX Runtime</td>
+<td>Microsoft</td>
+<td>跨平台 (Win/Mac/Linux/Mobile)</td>
+<td>ONNX</td>
+<td>广泛的硬件 EP 加速，多框架互通</td>
+</tr>
+<tr>
+<td>TensorFlow Lite</td>
+<td>Google</td>
+<td>Android/iOS/嵌入式</td>
+<td>TFLite (.tflite)</td>
+<td>成熟生态，移动端优化</td>
+</tr>
+<tr>
+<td>Core ML</td>
+<td>Apple</td>
+<td>iOS/macOS/visionOS</td>
+<td>.mlmodel/.mlpackage</td>
+<td>深度集成 Apple 硬件</td>
+</tr>
+<tr>
+<td>ExecuTorch</td>
+<td>PyTorch/Meta</td>
+<td>Android/iOS/Linux/MCU</td>
+<td>ExecuTorch (.pte)</td>
+<td>PyTorch 原生，LLM 支持强</td>
+</tr>
+<tr>
+<td>llama.cpp</td>
+<td>社区 (ggml-org)</td>
+<td>跨平台 (含嵌入式)</td>
+<td>GGUF</td>
+<td>极致量化，LLM 本地推理标杆</td>
+</tr>
+<tr>
+<td>MNN</td>
+<td>阿里巴巴</td>
+<td>Android/iOS/嵌入式</td>
+<td>MNN</td>
+<td>轻量高效，移动端深度优化</td>
+</tr>
+<tr>
+<td>NCNN</td>
+<td>腾讯</td>
+<td>Android/iOS</td>
+<td>NCNN</td>
+<td>移动端 CV 模型推理优化</td>
+</tr>
+</tbody></table>
+<p><strong>关键洞察</strong>：框架选择已不再是单一维度竞争，而是&quot;目标平台 × 模型类型 × 精度需求&quot;的综合决策[1][2]。</p>
+<h3>1.2 框架深度对比</h3>
+<p><strong>ONNX Runtime</strong> 通过 Execution Provider (EP) 机制支持硬件加速，包括 CUDA、TensorRT、CoreML、QNN（高通）、OpenVINO（Intel）等。其跨平台特性使其成为工业部署的首选中间表示。ONNX Runtime Mobile 专为移动端裁剪，运行时体积可压缩至约 2MB[1]。</p>
+<p><strong>TensorFlow Lite</strong> 通过 Delegate 机制支持 GPU（OpenCL/Vulkan）、Hexagon DSP 等加速。TFLite Micro 则面向微控制器（MCU），代码体积可低至 30KB。但 Google 已将部分资源转向 JAX 生态，TFLite 的长期战略地位存在不确定性[3]。</p>
+<p><strong>Core ML</strong> 是 Apple 生态的唯一选择，可自动利用 Neural Engine、GPU 和 CPU 的混合调度。Core ML Tools 支持从 ONNX、TensorFlow、PyTorch 模型转换。在 Apple 芯片上，Core ML 几乎总能提供最优的能效比[4]。</p>
+<p><strong>ExecuTorch</strong> 是 PyTorch 官方的端侧推理解决方案，2024 年进入生产就绪状态。其核心优势在于对 LLM 的原生支持——通过分段执行（segmented execution）和 KV Cache 优化，支持在手机上运行 LLaMA 3、Phi-3 等模型[2]。</p>
+<p><strong>llama.cpp</strong> 凭借 GGUF 格式和极致量化（支持 1.5-bit 至 8-bit），成为社区最受欢迎的 LLM 本地推理方案。支持 CPU+GPU 混合推理、Apple Metal、CUDA、Vulkan、SYCL 等后端。2025 年已支持 200+ 模型架构[5]。</p>
+<hr>
+<h2>2. 硬件加速方案</h2>
+<h3>2.1 NPU/专用 AI 芯片</h3>
+<p>边缘 AI 硬件加速正经历从&quot;GPU 通用计算&quot;到&quot;专用 NPU 架构&quot;的转变。2025-2026 年主流方案包括：</p>
+<table>
+<thead>
+<tr>
+<th>硬件平台</th>
+<th>厂商</th>
+<th>AI 算力 (TOPS)</th>
+<th>代表设备</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Apple Neural Engine</td>
+<td>Apple</td>
+<td>38 TOPS (M4)</td>
+<td>iPhone 16, MacBook M4</td>
+<td>16 核架构，int4/int8</td>
+</tr>
+<tr>
+<td>Hexagon NPU</td>
+<td>Qualcomm</td>
+<td>75 TOPS (SD 8 Gen 3)</td>
+<td>Android 旗舰手机</td>
+<td>微切片推理，共享内存</td>
+</tr>
+<tr>
+<td>MediaTek APU 800</td>
+<td>联发科</td>
+<td>约 46 TOPS</td>
+<td>天玑 9300/9400</td>
+<td>整合式 AI 处理单元</td>
+</tr>
+<tr>
+<td>Google TPU (Edge)</td>
+<td>Google</td>
+<td>—</td>
+<td>Pixel 9, 云端 Edge TPU</td>
+<td>int8 优先，TPU v5e</td>
+</tr>
+<tr>
+<td>Neural Compute Stick</td>
+<td>Intel</td>
+<td>约 4 TOPS</td>
+<td>USB 加速棒</td>
+<td>OpenVINO 生态</td>
+</tr>
+<tr>
+<td>Orin/Xavier</td>
+<td>NVIDIA</td>
+<td>275 TOPS (Orin)</td>
+<td>Jetson, 车载</td>
+<td>自动驾驶级算力</td>
+</tr>
+</tbody></table>
+<h3>2.2 GPU 与异构计算</h3>
+<p>移动端 GPU（Mali、Adreno、Apple GPU）仍是视觉和通用推理的重要加速器。Vulkan Compute 和 OpenCL 提供跨平台 GPU 编程能力。2025 年趋势：</p>
+<ul>
+<li><strong>Vulkan 1.3</strong> 成为移动端 GPU 计算的统一 API 标准</li>
+<li><strong>WebGPU</strong> 开始在浏览器端提供硬件加速推理能力</li>
+<li><strong>CPU+GPU 混合推理</strong>（llama.cpp 的 split-block 方案）使得大模型在有限 VRAM 设备上运行成为可能[5]</li>
+</ul>
+<h3>2.3 RISC-V 与新兴架构</h3>
+<p>RISC-V 在边缘 AI 领域快速崛起。SiFive、平头哥等厂商推出的 RISC-V AI 扩展（RVV、Vector Extension）已支持量化推理。2025 年多个 MCU 厂商（如乐鑫 ESP32-P4）集成了 RISC-V + AI 加速核，目标为 IoT 设备提供 1 TOPS 级别算力[6]。</p>
+<hr>
+<h2>3. 模型量化与压缩技术</h2>
+<h3>3.1 量化方法分类</h3>
+<p>量化是端侧推理的核心使能技术，通过降低模型权重和激活值的数值精度来减少内存占用和计算开销：</p>
+<div class="mermaid">graph TD
+    A[模型压缩技术] --> B[量化 Quantization]
+    A --> C[剪枝 Pruning]
+    A --> D[知识蒸馏 Distillation]
+    
+    B --> B1[训练后量化 PTQ]
+    B --> B2[量化感知训练 QAT]
+    B --> B3[动态量化 Dynamic]
+    
+    B1 --> B1a[INT8 (2-4x 压缩)]
+    B1 --> B1b[INT4/INT2 (4-8x 压缩)]
+    B1 --> B1c[1.58-bit / Binary]
+    
+    B2 --> B2a[模拟量化训练]
+    B2 --> B2b[精度损失 <0.5%]
+    
+    C --> C1[结构化剪枝]
+    C --> C2[非结构化稀疏]
+    
+    D --> D1[大模型→小模型]
+    D --> D2[多模型→单模型]</div>
+<p><strong>图 1：端侧模型压缩技术体系</strong></p>
+<h3>3.2 量化格式与精度对比</h3>
+<table>
+<thead>
+<tr>
+<th>量化格式</th>
+<th>典型压缩比</th>
+<th>精度损失 (相对 FP16)</th>
+<th>内存节省</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>FP16</td>
+<td>2x</td>
+<td>&lt;0.1%</td>
+<td>2x</td>
+<td>高精度需求，GPU 推理</td>
+</tr>
+<tr>
+<td>INT8 (W8A8)</td>
+<td>4x</td>
+<td>0.5-1.5%</td>
+<td>4x</td>
+<td>通用部署，NPU 首选</td>
+</tr>
+<tr>
+<td>INT4 (W4A16)</td>
+<td>4-8x</td>
+<td>1-3%</td>
+<td>8x</td>
+<td>LLM 端侧部署主流</td>
+</tr>
+<tr>
+<td>GGUF Q4_K_M</td>
+<td>3.8x</td>
+<td>1-2%</td>
+<td>3.8x</td>
+<td>llama.cpp 生态</td>
+</tr>
+<tr>
+<td>GGUF Q2_K</td>
+<td>5.5x</td>
+<td>3-5%</td>
+<td>5.5x</td>
+<td>极限压缩，低端设备</td>
+</tr>
+<tr>
+<td>1.58-bit (BitNet)</td>
+<td>8-10x</td>
+<td>2-4%</td>
+<td>10x</td>
+<td>2025 前沿研究</td>
+</tr>
+</tbody></table>
+<h3>3.3 GPTQ、AWQ 与 GGUF 量化方案对比</h3>
+<p><strong>GPTQ</strong>（GPT Quantization）是一种基于近似二阶信息的训练后量化方法，广泛用于 Hugging Face 生态。支持 GPU 加速量化，量化速度快（单卡数分钟）[7]。</p>
+<p><strong>AWQ</strong>（Activation-aware Weight Quantization）由 MIT 提出，通过分析激活值分布来保护重要权重通道，相比 GPTQ 在同等 bit-width 下精度更优，尤其在 4-bit 量化时优势明显[7]。</p>
+<p><strong>GGUF</strong> 是 llama.cpp 定义的量化文件格式，支持混合精度量化（如 Q4_K_M = 4-bit 主体 + 6-bit 关键层），并内嵌模型元数据。GGUF 格式已获得 Hugging Face、Ollama 等生态的广泛采纳[5][10]。</p>
+<hr>
+<h2>4. 典型应用场景</h2>
+<h3>4.1 手机端 AI</h3>
+<p>2025 年旗舰手机已具备运行 7B-14B 参数 LLM 的能力。典型应用：</p>
+<ul>
+<li><strong>Apple Intelligence</strong>：利用 Apple Neural Engine 运行设备端大模型，支持通知摘要、写作工具、图像生成（iOS 18+）</li>
+<li><strong>Google Gemini Nano</strong>：在 Pixel 9 上运行的端侧多模态模型，支持离线对话、智能回复</li>
+<li><strong>Qualcomm AI Hub</strong>：提供 100+ 预优化模型，支持 Snapdragon NPU 加速推理</li>
+<li><strong>三星 Galaxy AI</strong>：端侧翻译、转录、笔记摘要</li>
+</ul>
+<h3>4.2 IoT 与嵌入式</h3>
+<p>边缘计算在 IoT 和嵌入式场景中持续渗透[9]。典型应用：</p>
+<ul>
+<li><strong>工业视觉检测</strong>：基于 NCNN/MNN 的缺陷检测模型部署在 ARM Cortex-A 系列 MCU 上</li>
+<li><strong>智能家居</strong>：离线语音唤醒词检测（KWS），TFLite Micro 运行在 Cortex-M 系列</li>
+<li><strong>农业 IoT</strong>：无人机搭载边缘 AI 芯片进行作物病虫害实时识别</li>
+</ul>
+<h3>4.3 车载与自动驾驶</h3>
+<ul>
+<li><strong>NVIDIA DRIVE Orin/Xavier</strong>：提供 275-1000+ TOPS 算力，支持多传感器融合推理</li>
+<li><strong>Mobileye EyeQ</strong>：专为 ADAS 设计的视觉处理单元</li>
+<li><strong>特斯拉 FSD 芯片</strong>：自研 D1 芯片 + Dojo 训练集群，端侧运行 720B 神经网络</li>
+<li><strong>华为 MDC</strong>：基于昇腾芯片的智能驾驶计算平台</li>
+</ul>
+<h3>4.4 AR/VR 与可穿戴</h3>
+<ul>
+<li><strong>Meta Quest 3</strong>：骁龙 XR2 Gen 2 支持端侧手部追踪、场景理解</li>
+<li><strong>Apple Vision Pro</strong>：R1 芯片实现 12ms 低延迟传感器融合</li>
+<li><strong>智能眼镜</strong>：如 XREAL Air，依赖手机端 NPU 进行推理卸载</li>
+</ul>
+<hr>
+<h2>5. 2024-2026 年最新进展</h2>
+<h3>5.1 大模型端侧部署突破</h3>
+<p>2024-2026 年是大模型端侧部署的分水岭：</p>
+<ol>
+<li><strong>7B-14B 模型手机流畅运行</strong>：得益于 INT4 量化 + NPU 加速，LLaMA 3 8B 在 Snapdragon 8 Gen 3 上达到 30+ tokens/s[8]</li>
+<li><strong>多模态端侧推理</strong>：LLaVA、LLaVA-Phi 等视觉语言模型可在手机端运行，支持图像理解和 VQA</li>
+<li><strong>稀疏注意力与 MoE</strong>：Mixture-of-Experts 模型（如 Mixtral）通过激活稀疏性降低端侧推理成本</li>
+<li><strong>长上下文窗口</strong>：通过 KV Cache 压缩和滑动窗口注意力，端侧模型支持 32K+ 上下文</li>
+<li><strong>Edge-Cloud 协同</strong>：大模型推理按层分割，计算密集层卸载到边缘服务器，其余在设备端执行</li>
+</ol>
+<h3>5.2 框架生态演进</h3>
+<ul>
+<li><strong>ExecuTorch 1.0</strong>（2024 Q4）：PyTorch 官方端侧方案进入稳定版，LLM 分段执行成为默认功能[2]</li>
+<li><strong>llama.cpp 多模态</strong>：2025 年支持 LLaVA 等视觉模型的 server 端多模态推理[5]</li>
+<li><strong>ONNX Runtime GenAI</strong>：Microsoft 推出的 ONNX 生态 LLM 推理库，集成 DirectML NPU 加速[11]</li>
+<li><strong>Google MediaPipe LLM</strong>：在 Android/iOS 上提供 LLM 推理 API，支持流式生成</li>
+</ul>
+<h3>5.3 专用芯片与 NPU 竞赛</h3>
+<p>端侧 AI 芯片算力竞赛加速。Meta LLaMA 3 系列模型成为端侧推理的标杆测试模型[12]。</p>
+<div class="mermaid">timeline
+    title 2024-2026 端侧 AI 芯片里程碑
+    2024 Q1 : Qualcomm Snapdragon 8 Gen 3 发布
+             : 45 TOPS NPU, 支持 LLM on-device
+    2024 Q3 : Apple A18 Pro / M4 系列
+             : 神经引擎 38 TOPS
+    2024 Q4 : MediaTek 天玑 9400
+             : APU 800, 端侧 LoRA 微调
+    2025 Q1 : Qualcomm Snapdragon 8 Elite
+             : 75 TOPS, INT4 LLM 30+ tok/s
+    2025 Q2 : Google Tensor G5
+             : 自研 TPU + 云端协同
+    2025 H2 : RISC-V AI MCU 爆发
+             : ESP32-P4, 端侧 1 TOPS
+    2026   : 下一代 NPU 目标 100+ TOPS
+             : 端侧运行 30B+ 模型</div>
+<p><strong>图 2：2024-2026 端侧 AI 芯片时间线</strong></p>
+<hr>
+<h2>6. 性能基准对比</h2>
+<h3>6.1 框架推理性能</h3>
+<p>基于公开 Benchmark 和社区测试数据（2024-2025），主流框架在 LLaMA 2 7B (INT4) 模型上的推理性能对比如下：</p>
+<table>
+<thead>
+<tr>
+<th>框架/后端</th>
+<th>设备</th>
+<th>延迟 (首 token)</th>
+<th>生成速度</th>
+<th>内存占用</th>
+<th>精度 (MMLU)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>llama.cpp Q4_K_M</td>
+<td>iPhone 15 Pro</td>
+<td>~800ms</td>
+<td>15 tok/s</td>
+<td>~4.2 GB</td>
+<td>46.8</td>
+</tr>
+<tr>
+<td>llama.cpp Q4_K_M</td>
+<td>Snapdragon 8 Gen 3</td>
+<td>~600ms</td>
+<td>22 tok/s</td>
+<td>~4.2 GB</td>
+<td>46.8</td>
+</tr>
+<tr>
+<td>ExecuTorch INT4</td>
+<td>Pixel 8 Pro</td>
+<td>~700ms</td>
+<td>18 tok/s</td>
+<td>~4.0 GB</td>
+<td>47.1</td>
+</tr>
+<tr>
+<td>ONNX Runtime + QNN</td>
+<td>Snapdragon 8 Gen 2</td>
+<td>~900ms</td>
+<td>12 tok/s</td>
+<td>~4.5 GB</td>
+<td>47.3</td>
+</tr>
+<tr>
+<td>Core ML (4-bit)</td>
+<td>iPhone 15 Pro</td>
+<td>~500ms</td>
+<td>25 tok/s</td>
+<td>~3.8 GB</td>
+<td>46.5</td>
+</tr>
+<tr>
+<td>TFLite + GPU Delegate</td>
+<td>Pixel 8 Pro</td>
+<td>~1200ms</td>
+<td>8 tok/s</td>
+<td>~5.0 GB</td>
+<td>47.5</td>
+</tr>
+</tbody></table>
+<p>注：数据来自多个独立测试和厂商公开数据的综合，实际性能因模型变体、提示长度和系统负载而异[1][2][4][5][8]。</p>
+<h3>6.2 量化精度损失</h3>
+<p>以 MMLU 基准测试衡量 LLaMA 3 8B 在不同量化精度下的表现：</p>
+<table>
+<thead>
+<tr>
+<th>精度</th>
+<th>MMLU 分数</th>
+<th>相对损失</th>
+<th>模型大小</th>
+<th>推荐场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>FP16 (基线)</td>
+<td>68.4</td>
+<td>—</td>
+<td>16 GB</td>
+<td>云端/高精度</td>
+</tr>
+<tr>
+<td>INT8</td>
+<td>67.8</td>
+<td>-0.9%</td>
+<td>8 GB</td>
+<td>通用部署</td>
+</tr>
+<tr>
+<td>INT4 (GPTQ)</td>
+<td>66.5</td>
+<td>-2.8%</td>
+<td>4 GB</td>
+<td>LLM 端侧首选</td>
+</tr>
+<tr>
+<td>INT4 (AWQ)</td>
+<td>67.0</td>
+<td>-2.0%</td>
+<td>4 GB</td>
+<td>精度优先场景</td>
+</tr>
+<tr>
+<td>Q4_K_M (GGUF)</td>
+<td>66.2</td>
+<td>-3.2%</td>
+<td>4.5 GB</td>
+<td>llama.cpp 生态</td>
+</tr>
+<tr>
+<td>Q2_K (GGUF)</td>
+<td>62.8</td>
+<td>-8.2%</td>
+<td>2.8 GB</td>
+<td>极限压缩</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>7. 结论</h2>
+<h3>核心趋势</h3>
+<ol>
+<li><strong>NPU 成为标配</strong>：2025 年旗舰 SoC 的 AI 算力普遍达到 40-75 TOPS，端侧运行 7-14B LLM 已无瓶颈</li>
+<li><strong>INT4 量化是当前甜蜜点</strong>：在 4-bit 精度下，LLM 保持 97-98% 的精度，同时满足内存和延迟约束</li>
+<li><strong>框架走向收敛</strong>：llama.cpp（社区 LLM）、ExecuTorch（PyTorch 生态）、Core ML（Apple）形成三足鼎立</li>
+<li><strong>Edge-Cloud 协同是未来方向</strong>：纯端侧或纯云端都无法独立满足所有场景，按层分割推理成为新范式</li>
+<li><strong>多模态端侧推理</strong>：视觉-语言-语音多模态融合推理在 2025 年从实验室走向量产</li>
+</ol>
+<h3>技术决策建议</h3>
+<ul>
+<li><strong>Apple 生态</strong>：Core ML + MLX，无需犹豫</li>
+<li><strong>Android 通用</strong>：ExecuTorch 或 ONNX Runtime（利用 QNN EP）</li>
+<li><strong>LLM 极客/跨平台</strong>：llama.cpp + GGUF Q4_K_M</li>
+<li><strong>IoT/MCU</strong>：TFLite Micro 或 NCNN</li>
+<li><strong>车载/工业</strong>：ONNX Runtime + TensorRT EP</li>
+</ul>
+<h3>待解决问题</h3>
+<ul>
+<li>端侧模型微调（LoRA on-device）仍在早期</li>
+<li>长上下文 KV Cache 内存压力待优化</li>
+<li>安全性：端侧模型面临模型提取和逆向工程风险</li>
+<li>标准化：缺乏统一的端侧推理 benchmark 标准</li>
+</ul>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>Microsoft. ONNX Runtime Documentation (2025). <a href="https://onnxruntime.ai/docs/">https://onnxruntime.ai/docs/</a></li>
+<li>PyTorch. ExecuTorch Documentation (2025). <a href="https://docs.pytorch.org/executorch/stable/index.html">https://docs.pytorch.org/executorch/stable/index.html</a></li>
+<li>Google. TensorFlow Lite Overview (2024). <a href="https://www.tensorflow.org/lite">https://www.tensorflow.org/lite</a></li>
+<li>Apple. Core ML Framework Reference (2025). <a href="https://developer.apple.com/documentation/coreml">https://developer.apple.com/documentation/coreml</a></li>
+<li>ggml-org. llama.cpp — LLM Inference in C/C++ (2025). <a href="https://github.com/ggml-org/llama.cpp">https://github.com/ggml-org/llama.cpp</a></li>
+<li>RISC-V International. RISC-V Vector Extension Specification (2024). <a href="https://github.com/riscv/riscv-v-spec">https://github.com/riscv/riscv-v-spec</a></li>
+<li>Lin, J. et al. AWQ: Activation-aware Weight Quantization (2024). <a href="https://arxiv.org/abs/2306.00978">https://arxiv.org/abs/2306.00978</a></li>
+<li>Wikipedia. Snapdragon (2025). <a href="https://en.wikipedia.org/wiki/Snapdragon">https://en.wikipedia.org/wiki/Snapdragon</a></li>
+<li>Wikipedia. Edge Computing (2025). <a href="https://en.wikipedia.org/wiki/Edge_computing">https://en.wikipedia.org/wiki/Edge_computing</a></li>
+<li>Hugging Face. Introduction to GGUF (2024). <a href="https://huggingface.co/blog/introduction-to-ggml">https://huggingface.co/blog/introduction-to-ggml</a></li>
+<li>Microsoft. ONNX Runtime GenAI (2025). <a href="https://github.com/microsoft/onnxruntime-genai">https://github.com/microsoft/onnxruntime-genai</a></li>
+<li>Meta AI. LLaMA 3 Model Card (2024). <a href="https://ai.meta.com/llama/">https://ai.meta.com/llama/</a></li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>
