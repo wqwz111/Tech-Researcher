@@ -83,9 +83,9 @@ graph TD
     B --> B2[量化感知训练 QAT]
     B --> B3[动态量化 Dynamic]
     
-    B1 --> B1a[INT8 (2-4x 压缩)]
-    B1 --> B1b[INT4/INT2 (4-8x 压缩)]
-    B1 --> B1c[1.58-bit / Binary]
+    B1 --> B1a["INT8, 2-4x压缩"]
+    B1 --> B1b["INT4/INT2, 4-8x压缩"]
+    B1 --> B1c["1.58-bit or Binary"]
     
     B2 --> B2a[模拟量化训练]
     B2 --> B2b[精度损失 <0.5%]
