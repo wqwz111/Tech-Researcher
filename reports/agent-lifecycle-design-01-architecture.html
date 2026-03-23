@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 架构模式：分层、事件驱动、Actor 模型如何选？</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>Agent 架构模式：分层、事件驱动、Actor 模型如何选？</h1>
+  <div class="meta">2026-03-23 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>Agent 架构模式的选择直接决定了多 Agent 系统的可扩展性、可靠性和维护成本。2024-2026 年间，主流 Agent 框架从早期的单体循环（ReAct Loop）快速分化为四种核心架构范式：<strong>分层架构（Hierarchical）</strong>、<strong>事件驱动架构（Event-Driven）</strong>、<strong>Actor 模型（Actor Model）</strong> 和 <strong>图驱动编排（Graph Orchestration）</strong>。每种模式在控制流表达能力、并发模型、故障隔离和通信拓扑上存在本质差异。</p>
+<p>本报告通过对比四种架构模式的原理、适用场景和局限性，并结合 OpenClaw、AutoGPT、LangGraph、CrewAI、AutoGen 等实际框架的架构分析，给出一个<strong>三维度决策框架</strong>（任务复杂度 × 并发需求 × 容错要求），帮助架构师在具体场景中做出合理选型。</p>
+<p><strong>核心结论</strong>：没有银弹。分层架构适合流程固定的业务场景；事件驱动适合高吞吐、松耦合的异步系统；Actor 模型适合需要强隔离和弹性扩展的长驻型 Agent；图驱动编排（如 LangGraph）则是当前 LLM Agent 领域最灵活的通用方案。</p>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. 四种主流 Agent 架构模式对比</h2>
+<h3>1.1 分层架构（Hierarchical Architecture）</h3>
+<p>分层架构将系统按职责划分为多个层级（如感知层、规划层、执行层、记忆层），上层向下层传递指令，下层向上层返回结果[1][2]。</p>
+<p><strong>核心特征</strong>：</p>
+<ul>
+<li><strong>严格的方向性</strong>：信息流通常从上至下（指令）和从下至上（反馈），不存在跨层直接通信</li>
+<li><strong>职责清晰</strong>：每层只关注自己的抽象级别，降低认知复杂度</li>
+<li><strong>CrewAI 是典型代表</strong>：其 Role-Based 设计（Manager → Agent → Task）本质上是分层的——Manager Agent 分解任务，Worker Agent 执行，结果逐层汇报[3]</li>
+</ul>
+<p><strong>适用场景</strong>：</p>
+<ul>
+<li>业务流程固定的场景（如文档审批流水线、ETL 数据管道）</li>
+<li>团队成员角色明确的多 Agent 协作（如「研究员 → 分析师 → 写手」流水线）</li>
+<li>需要严格控制权限和访问范围的企业系统</li>
+</ul>
+<p><strong>局限性</strong>：</p>
+<ul>
+<li>灵活性差：新增或调整层级需要重构</li>
+<li>跨层通信开销大：中间层容易成为瓶颈</li>
+<li>不适合需要动态路由或循环迭代的任务</li>
+</ul>
+<h3>1.2 事件驱动架构（Event-Driven Architecture）</h3>
+<p>事件驱动架构通过事件（Event）实现 Agent 间的松耦合通信。Agent 作为事件的生产者或消费者，通过消息中间件（如 Kafka、Redpanda）异步交互[4][5]。</p>
+<p><strong>核心特征</strong>：</p>
+<ul>
+<li><strong>发布-订阅模式</strong>：Agent 不需要知道谁消费自己的事件，解耦发送方和接收方</li>
+<li><strong>异步处理</strong>：事件生产者不等待消费者处理完成，提高吞吐量</li>
+<li><strong>可追溯性</strong>：事件流天然形成审计日志</li>
+<li>Confluent 提出了四种事件驱动多 Agent 模式：黑板模式（Blackboard）、竞拍模式（Auction）、链式模式（Chain）和监督者模式（Supervisor）[4]</li>
+</ul>
+<p><strong>适用场景</strong>：</p>
+<ul>
+<li>IoT 和实时操作系统（事件源密集、延迟敏感）</li>
+<li>企业级微服务集成（如 Confluent + Kafka 构建的 Agent 编排）</li>
+<li>需要水平扩展和弹性伸缩的高吞吐系统</li>
+</ul>
+<p><strong>局限性</strong>：</p>
+<ul>
+<li>调试困难：异步调用链难以追踪</li>
+<li>事件排序和一致性保障复杂</li>
+<li>对于需要强事务性的场景不太适合</li>
+</ul>
+<h3>1.3 Actor 模型（Actor Model）</h3>
+<p>Actor 模型将每个 Agent 封装为一个独立的 Actor，拥有私有状态和邮箱，通过异步消息传递通信，同一时刻只处理一条消息[6][7]。</p>
+<p><strong>核心特征</strong>：</p>
+<ul>
+<li><strong>天然隔离</strong>：每个 Actor 拥有独立状态，不存在共享可变状态，无需锁机制</li>
+<li><strong>故障隔离 + 监督（Supervision）</strong>：父 Actor 可以监控子 Actor，实现 &quot;let it crash&quot; 容错策略</li>
+<li><strong>弹性扩展</strong>：支持位置透明性（Location Transparency），可无缝跨节点分布式部署</li>
+<li>主流实现：Akka（JVM）、Orleans（.NET）、Thespian（Python）[6][7][8]</li>
+</ul>
+<p><strong>适用场景</strong>：</p>
+<ul>
+<li>需要管理数千个长驻 Agent 的系统（如电信、金融交易系统）</li>
+<li>要求强隔离性和高可用性的企业级部署</li>
+<li>Agent 之间需要频繁、异步通信的场景</li>
+</ul>
+<p><strong>局限性</strong>：</p>
+<ul>
+<li>学习曲线陡峭：需要理解 Actor 生命周期、消息传递语义</li>
+<li>Python 生态中 Actor 框架相对薄弱（Thespian 成熟度不如 Akka）</li>
+<li>对于简单任务过于复杂（&quot;用大炮打蚊子&quot;）</li>
+</ul>
+<h3>1.4 图驱动编排（Graph Orchestration）</h3>
+<p>图驱动编排将 Agent 工作流建模为有向图（Directed Graph），节点（Node）是计算步骤，边（Edge）是状态转移条件。LangGraph 是该模式的代表[3][9]。</p>
+<p><strong>核心特征</strong>：</p>
+<ul>
+<li><strong>精确控制流</strong>：开发者可以显式定义每一步的转移逻辑，支持条件分支、循环和回退</li>
+<li><strong>持久化状态</strong>：内置检查点（Checkpointing）机制，支持 Human-in-the-loop</li>
+<li><strong>流式输出</strong>：支持中间结果的实时流式返回</li>
+<li><strong>可组合性</strong>：子图可以嵌套，构建复杂的多层级工作流</li>
+</ul>
+<p><strong>适用场景</strong>：</p>
+<ul>
+<li>需要精确控制流程的复杂工作流（如内容生产管线、代码审查流程）</li>
+<li>需要 Human-in-the-loop 审批的企业流程</li>
+<li>需要循环和条件分支的动态任务规划</li>
+</ul>
+<p><strong>局限性</strong>：</p>
+<ul>
+<li>学习成本较高（需要理解图论和状态管理概念）</li>
+<li>对于简单任务来说过于复杂</li>
+<li>图结构越复杂，调试越困难</li>
+</ul>
+<hr>
+<h2>2. 架构对比图：Mermaid 可视化</h2>
+<h3>图 1：四种 Agent 架构模式对比矩阵</h3>
+<div class="mermaid">graph TB
+    subgraph "分层架构 Hierarchical"
+        H1[管理层<br>Task Decomposition]
+        H2[协调层<br>Coordination]
+        H3[执行层<br>Execution]
+        H4[数据层<br>Data Access]
+        H1 --> H2 --> H3 --> H4
+        H4 -.->|反馈| H3 -.->|汇报| H2 -.->|报告| H1
+    end
+
+    subgraph "事件驱动架构 Event-Driven"
+        E1[事件生产者<br>Event Producer]
+        E2[消息中间件<br>Event Bus / Kafka]
+        E3[消费者 A<br>Agent Alpha]
+        E4[消费者 B<br>Agent Beta]
+        E5[消费者 C<br>Agent Gamma]
+        E1 -->|发布事件| E2
+        E2 -->|订阅| E3
+        E2 -->|订阅| E4
+        E2 -->|订阅| E5
+        E3 -->|发布新事件| E2
+    end
+
+    subgraph "Actor 模型 Actor Model"
+        A1[Supervisor Actor]
+        A2[Agent Actor A<br>State + Mailbox]
+        A3[Agent Actor B<br>State + Mailbox]
+        A4[Agent Actor C<br>State + Mailbox]
+        A1 -->|消息| A2
+        A1 -->|消息| A3
+        A1 -->|消息| A4
+        A2 <-->|异步消息| A3
+        A3 <-->|异步消息| A4
+    end
+
+    subgraph "图驱动编排 Graph Orchestration"
+        G1((START))
+        G2[Plan Node]
+        G3{条件判断}
+        G4[Research Node]
+        G5[Write Node]
+        G6[Review Node]
+        G7((END))
+        G1 --> G2 --> G3
+        G3 -->|需要研究| G4 --> G5 --> G6
+        G3 -->|直接写作| G5
+        G6 -->|需要修改| G4
+        G6 -->|通过| G7
+    end</div>
+<h3>图 2：架构选型决策流程图</h3>
+<div class="mermaid">flowchart TD
+    Start[开始: 我需要构建 Agent 系统] --> Q1{任务流程是否固定<br>且可预先定义？}
+    
+    Q1 -->|是| Q2{需要并行处理<br>大量独立任务？}
+    Q1 -->|否| Q3{Agent 之间需要<br>异步松耦合通信？}
+    
+    Q2 -->|是| Hierarchical[✅ 分层架构<br>如: CrewAI 流水线]
+    Q2 -->|否| Q4{需要精确控制<br>流程分支和循环？}
+    
+    Q3 -->|是| EventDriven[✅ 事件驱动架构<br>如: Kafka + Agent]
+    Q3 -->|否| Q5{需要管理大量<br>长驻独立 Agent？}
+    
+    Q4 -->|是| GraphOrch[✅ 图驱动编排<br>如: LangGraph]
+    Q4 -->|否| Hierarchical
+    
+    Q5 -->|是| ActorModel[✅ Actor 模型<br>如: Akka / Orleans]
+    Q5 -->|否| GraphOrch
+    
+    Hierarchical --> Eval[评估维度:<br>1. 任务复杂度<br>2. 并发需求<br>3. 容错要求]
+    EventDriven --> Eval
+    GraphOrch --> Eval
+    ActorModel --> Eval
+
+    style Hierarchical fill:#e1f5fe,stroke:#0288d1
+    style EventDriven fill:#fff3e0,stroke:#f57c00
+    style ActorModel fill:#e8f5e9,stroke:#388e3c
+    style GraphOrch fill:#f3e5f5,stroke:#7b1fa2</div>
+<hr>
+<h2>3. 实际案例：主流框架的架构分析</h2>
+<h3>3.1 OpenClaw：Gateway + Event-Driven + Skills 插件</h3>
+<p>OpenClaw 采用 <strong>网关（Gateway）架构</strong>，核心设计是事件驱动的消息路由层[10]：</p>
+<ul>
+<li><strong>Gateway</strong>：中央网关负责认证、消息路由和会话管理</li>
+<li><strong>Agent</strong>：处理推理和工具执行，每个 Agent 拥有独立的 Workspace（内存隔离）</li>
+<li><strong>Skills</strong>：模块化插件系统，通过 ClawHub 分发</li>
+<li><strong>Nodes</strong>：支持跨设备远程执行，形成分布式拓扑</li>
+</ul>
+<p>OpenClaw 的架构本质上是 <strong>事件驱动 + 分层的混合体</strong>：Gateway 接收来自多通道（Telegram/WhatsApp/Discord）的消息事件，路由到对应 Agent，Agent 内部通过 Heartbeat + Cron 实现主动行为。其子 Agent 编排采用 1:N 的主编-探针模式，符合分层架构特征[10]。</p>
+<h3>3.2 AutoGPT：Loop-Based 自主 Agent</h3>
+<p>AutoGPT 是最早的自主 Agent 框架之一，采用 <strong>Think-Plan-Act 循环架构</strong>[10]：</p>
+<pre><code>Goal → Think → Plan → Act → Observe → Think → ... → Done
+</code></pre>
+<p>核心特征是单一 Agent 在闭环中持续迭代直到完成目标。它本质上是 <strong>管道式架构（Pipeline）</strong> 的变体——每一步都是线性的，Agent 自身既是规划者也是执行者。这种架构在 bounded task（如「写一篇调研报告」）上表现良好，但在复杂多 Agent 协作上能力有限[10][11]。</p>
+<h3>3.3 LangGraph：Stateful Graph Orchestration</h3>
+<p>LangGraph 是 LangChain 生态中的图编排框架，采用 <strong>有向图 + 持久化状态</strong> 架构[9][10]：</p>
+<ul>
+<li><strong>节点（Nodes）</strong>：代表计算步骤（Agent 调用、工具执行）</li>
+<li><strong>边（Edges）</strong>：代表状态转移条件</li>
+<li><strong>检查点（Checkpointing）</strong>：支持断点恢复和 Human-in-the-loop</li>
+<li><strong>子图嵌套</strong>：支持模块化复用</li>
+</ul>
+<p>LangGraph 适合需要 <strong>精确控制流程</strong> 的场景，是 2025-2026 年 LLM Agent 领域增长最快的框架。根据 2026 年开发者调查，62% 需要复杂状态管理的 Agent 工作流选择了 LangGraph[12]。</p>
+<h3>3.4 CrewAI：Role-Based 分层团队</h3>
+<p>CrewAI 采用 <strong>角色驱动的分层架构</strong>[3][10]：</p>
+<ul>
+<li><strong>Crew</strong>：顶层容器，管理一组 Agent</li>
+<li><strong>Agent</strong>：拥有角色（Role）、目标（Goal）、背景故事（Backstory）</li>
+<li><strong>Task</strong>：分配给特定 Agent 的工作单元</li>
+<li><strong>Process</strong>：Sequential（顺序）或 Hierarchical（分层管理）</li>
+</ul>
+<p>CrewAI 的 Sequential 模式本质上是管道架构，Hierarchical 模式是分层架构。它对初学者最友好，但在需要循环和条件分支的复杂场景中能力受限[10]。</p>
+<h3>3.5 AutoGen：Multi-Agent Conversations</h3>
+<p>Microsoft AutoGen 采用 <strong>对话驱动的多 Agent 协作</strong> 架构[10]：</p>
+<ul>
+<li>Agent 之间通过结构化消息传递协作</li>
+<li>支持 GroupChat（多 Agent 讨论）和 Nested Conversation（嵌套对话）</li>
+<li>内置代码执行沙箱</li>
+</ul>
+<p>AutoGen 在 <strong>协商式问题求解</strong>（如代码审查、头脑风暴）上表现出色，但在生产部署中需要大量自定义基础设施[10][12]。</p>
+<hr>
+<h2>4. 多 Agent 系统通信拓扑设计</h2>
+<p>多 Agent 系统的通信拓扑直接影响系统性能和扩展性。2024-2025 年的研究表明，通信拓扑的选择不是任意的，需要与任务特征匹配[13][14]。</p>
+<h3>4.1 四种主要通信拓扑</h3>
+<table>
+<thead>
+<tr>
+<th>拓扑</th>
+<th>描述</th>
+<th>适用场景</th>
+<th>代表框架</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Manager → Workers</strong></td>
+<td>层级分发，Manager 分解任务，Worker 并行执行</td>
+<td>文档处理、爬虫、OCR</td>
+<td>CrewAI (Hierarchical)、MetaGPT</td>
+</tr>
+<tr>
+<td><strong>Peer Debate / Socratic</strong></td>
+<td>对等辩论，Agent 从不同角度论证</td>
+<td>代码审查、研究创新</td>
+<td>AutoGen GroupChat</td>
+</tr>
+<tr>
+<td><strong>Blackboard / Shared KG</strong></td>
+<td>共享知识图谱，Agent 读写共享状态</td>
+<td>企业分析、复杂 RAG</td>
+<td>LangGraph、Graphiti</td>
+</tr>
+<tr>
+<td><strong>Swarm / Market</strong></td>
+<td>竞价式任务分配，Agent 竞争获取任务</td>
+<td>资源分配、游戏 AI</td>
+<td>OpenAI Swarm、VillagerBench</td>
+</tr>
+</tbody></table>
+<h3>4.2 新兴研究：自适应拓扑设计</h3>
+<p>2025 年 ICML 发表的 <strong>G-Designer</strong> 研究提出用图神经网络（GNN）动态生成任务自适应的通信拓扑[14]。该方法将多 Agent 系统建模为网络，利用变分图自编码器（VGAE）编码 Agent 特征和任务特征，解码出最优通信拓扑。实验表明，G-Designer 在 MMLU 上达到 84.5% 准确率，同时将 Token 消耗降低 95.33%。</p>
+<p><strong>关键发现</strong>：通信拓扑应随任务难度动态调整，固定拓扑在复杂任务中要么通信不足（信息衰减），要么通信过度（Token 浪费）[14]。</p>
+<hr>
+<h2>5. 架构选型决策框架</h2>
+<p>基于对四种架构模式的分析和实际框架案例的考察，我们提出一个<strong>三维度决策框架</strong>：</p>
+<h3>5.1 三维度评估模型</h3>
+<p><strong>维度 1：任务复杂度（Task Complexity）</strong></p>
+<ul>
+<li>低（单一任务，线性流程）→ Single Agent + Tools（AutoGPT 风格）</li>
+<li>中（多步骤，可分解）→ 分层架构（CrewAI）或图编排（LangGraph）</li>
+<li>高（动态规划，条件分支）→ 图编排（LangGraph）或事件驱动</li>
+</ul>
+<p><strong>维度 2：并发需求（Concurrency Demand）</strong></p>
+<ul>
+<li>低（串行处理可接受）→ 图编排（LangGraph）或分层（CrewAI）</li>
+<li>中（部分并行）→ 事件驱动（Kafka + Agent）</li>
+<li>高（数千 Agent 并发）→ Actor 模型（Akka/Orleans）</li>
+</ul>
+<p><strong>维度 3：容错要求（Fault Tolerance）</strong></p>
+<ul>
+<li>低（可重试）→ 任意模式</li>
+<li>中（需优雅降级）→ 事件驱动（天然解耦）</li>
+<li>高（需 Supervision Tree）→ Actor 模型（Let it crash）</li>
+</ul>
+<h3>5.2 决策矩阵</h3>
+<div class="mermaid">graph LR
+    subgraph "决策矩阵：任务复杂度 × 并发需求"
+        direction TB
+        M1[低复杂度 + 低并发<br>→ Single Agent + Tools<br>AutoGPT / ReAct]
+        M2[低复杂度 + 高并发<br>→ 事件驱动架构<br>Kafka + Worker Pools]
+        M3[中复杂度 + 低并发<br>→ 分层架构<br>CrewAI Sequential]
+        M4[中复杂度 + 高并发<br>→ 图驱动编排<br>LangGraph + Subgraphs]
+        M5[高复杂度 + 高并发<br>→ Actor 模型<br>Akka / Orleans]
+        M6[需要循环/条件分支<br>→ 图驱动编排<br>LangGraph]
+    end</div>
+<h3>5.3 实际选型建议</h3>
+<table>
+<thead>
+<tr>
+<th>你的场景</th>
+<th>推荐架构</th>
+<th>推荐框架</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内容生产流水线</td>
+<td>分层（Sequential）</td>
+<td>CrewAI</td>
+<td>角色定义直观，上手快</td>
+</tr>
+<tr>
+<td>复杂业务流程审批</td>
+<td>图驱动</td>
+<td>LangGraph</td>
+<td>精确控制流 + Human-in-the-loop</td>
+</tr>
+<tr>
+<td>IoT 实时事件处理</td>
+<td>事件驱动</td>
+<td>Kafka + Custom Agents</td>
+<td>高吞吐 + 低延迟</td>
+</tr>
+<tr>
+<td>金融交易 Agent 系统</td>
+<td>Actor 模型</td>
+<td>Akka / Orleans</td>
+<td>强隔离 + 高可用</td>
+</tr>
+<tr>
+<td>个人 AI 助手</td>
+<td>Gateway + 事件驱动</td>
+<td>OpenClaw</td>
+<td>多通道 + 持久化 + 插件生态</td>
+</tr>
+<tr>
+<td>自主任务执行</td>
+<td>管道/循环</td>
+<td>AutoGPT</td>
+<td>简单直接，适合 bounded task</td>
+</tr>
+<tr>
+<td>代码审查/头脑风暴</td>
+<td>对等对话</td>
+<td>AutoGen</td>
+<td>多视角讨论，GroupChat 模式</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>6. 2024-2026 年 Agent 架构演进趋势</h2>
+<h3>6.1 三大演进方向</h3>
+<p><strong>趋势 1：协议标准化（MCP 协议的崛起）</strong>
+Model Context Protocol（MCP）在 2024-2025 年成为 Agent 工具调用的事实标准。Microsoft 在 Windows 11 中原生集成 MCP，将其比作&quot;AI 应用的 USB-C&quot;[15]。标准化协议降低了 Agent 与工具集成的 N×M 问题，使架构选择更聚焦于编排层而非集成层。</p>
+<p><strong>趋势 2：记忆系统分层化</strong>
+2024 年起，Agent 记忆系统从单一向量存储演进为多层架构：快速向量缓存（近期会话）→ 知识图谱（因果推理和溯源）→ 潜能块（长上下文保持）。Mem0 等动态记忆管理系统通过智能合并和去重，相比朴素 RAG 实现 26% 更高的准确率和 91% 的延迟降低[15]。</p>
+<p><strong>趋势 3：从固定拓扑到自适应拓扑</strong>
+传统的固定通信拓扑（如纯 Manager-Worker）正在被自适应拓扑取代。G-Designer（ICML 2025）等工作表明，根据任务难度动态调整 Agent 通信结构，可以同时提升性能和降低 Token 消耗[14]。</p>
+<h3>6.2 架构融合趋势</h3>
+<p>2025-2026 年的一个显著趋势是<strong>架构模式的融合</strong>。单一模式已无法满足复杂场景：</p>
+<ul>
+<li>LangGraph 在图编排之上支持事件流式输出（事件驱动特征）</li>
+<li>CrewAI 在分层架构中引入 Hierarchical Manager（管理层级）</li>
+<li>OpenClaw 在事件驱动网关上支持子 Agent 编排（分层特征）</li>
+</ul>
+<p><strong>未来方向</strong>：架构选型将从&quot;选一种&quot;变为&quot;组合多种&quot;，关键在于理解每种模式的边界和适配点。</p>
+<hr>
+<h2>7. 结论</h2>
+<p>Agent 架构模式没有绝对的优劣之分，只有<strong>场景匹配度</strong>的差异。本报告的核心贡献是建立了一个系统化的选型框架：</p>
+<ol>
+<li><strong>分层架构</strong>：适合角色明确、流程固定的场景（CrewAI），上手快但灵活性有限</li>
+<li><strong>事件驱动</strong>：适合高吞吐、松耦合的异步系统（Kafka + Agents），解耦能力强但调试困难</li>
+<li><strong>Actor 模型</strong>：适合需要强隔离和弹性扩展的长驻型 Agent（Akka/Orleans），容错性强但学习曲线陡峭</li>
+<li><strong>图驱动编排</strong>：适合需要精确控制流程的复杂工作流（LangGraph），灵活性最高但也最复杂</li>
+</ol>
+<p><strong>给架构师的建议</strong>：</p>
+<ul>
+<li>从任务特征出发，不要从框架出发</li>
+<li>先用最简单的架构验证可行性，再按需升级</li>
+<li>关注 MCP 协议标准化带来的架构解耦红利</li>
+<li>预留架构演进空间：2025-2026 年 Agent 架构仍在快速迭代</li>
+</ul>
+<hr>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>Sohail Akbar. &quot;The Ultimate Guide to AI Agent Architectures in 2025&quot; (2025). <a href="https://dev.to/sohail-akbar/the-ultimate-guide-to-ai-agent-architectures-in-2025-2j1c">https://dev.to/sohail-akbar/the-ultimate-guide-to-ai-agent-architectures-in-2025-2j1c</a></li>
+<li>Nexaitech. &quot;AI Agent Architecture Patterns in 2025: The Powerful Way Multi-Agent Systems Really Scale&quot; (2025). <a href="https://nexaitech.com/multi-ai-agent-architecutre-patterns-for-scale/">https://nexaitech.com/multi-ai-agent-architecutre-patterns-for-scale/</a></li>
+<li>Heyuan110. &quot;OpenClaw vs AutoGPT vs CrewAI 2026: Which AI Agent Framework Is Best?&quot; (2026). <a href="https://www.heyuan110.com/posts/ai/2026-03-05-openclaw-vs-ai-agents/">https://www.heyuan110.com/posts/ai/2026-03-05-openclaw-vs-ai-agents/</a></li>
+<li>Confluent. &quot;Four Design Patterns for Event-Driven, Multi-Agent Systems&quot; (2025). <a href="https://www.confluent.io/blog/event-driven-multi-agent-systems/">https://www.confluent.io/blog/event-driven-multi-agent-systems/</a></li>
+<li>Prathamesh Shinde. &quot;The Rise of Agentic Microservices: Building AI-First, Event-Driven Architectures in 2025&quot; (2025). <a href="https://medium.com/@prathameshshinde0555/the-rise-of-agentic-microservices-building-ai-first-event-driven-architectures-in-2025-e2d4f788867a">https://medium.com/@prathameshshinde0555/the-rise-of-agentic-microservices-building-ai-first-event-driven-architectures-in-2025-e2d4f788867a</a></li>
+<li>Kartikeya Sharma. &quot;Building a Multi-Agent AI System with the Actor Model: A Deep Dive into Scalable, Concurrent AI&quot; (2025). <a href="https://medium.com/@kartikeyasharma/building-a-multi-agent-ai-system-with-the-actor-model-a-deep-dive-into-scalable-concurrent-ai-2e838c9815d9">https://medium.com/@kartikeyasharma/building-a-multi-agent-ai-system-with-the-actor-model-a-deep-dive-into-scalable-concurrent-ai-2e838c9815d9</a></li>
+<li>Pradeep L. &quot;The Akka Actor Model: A Foundation for Concurrent AI Agents&quot; (2025). <a href="https://pradeepl.com/blog/agentic-ai/akka-actor-model-agentic-ai/">https://pradeepl.com/blog/agentic-ai/akka-actor-model-agentic-ai/</a></li>
+<li>Akka Documentation. &quot;How the Actor Model Meets the Needs of Modern, Distributed Systems&quot; (2025). <a href="https://doc.akka.io/libraries/akka-core/current/typed/guide/actors-intro.html">https://doc.akka.io/libraries/akka-core/current/typed/guide/actors-intro.html</a></li>
+<li>LangChain. &quot;LangGraph: Stateful Graph Orchestration for LLM Applications&quot; (2025). <a href="https://github.com/langchain-ai/langgraph">https://github.com/langchain-ai/langgraph</a></li>
+<li>OpenClaw Documentation. &quot;OpenClaw Architecture Overview&quot; (2026). <a href="https://github.com/openclaw/openclaw">https://github.com/openclaw/openclaw</a></li>
+<li>AutoGPT. &quot;AutoGPT: Autonomous AI Agent Platform&quot; (2024). <a href="https://github.com/Significant-Gravitas/AutoGPT">https://github.com/Significant-Gravitas/AutoGPT</a></li>
+<li>&quot;Autogen vs CrewAI vs LangGraph 2026 Comparison Guide&quot; (2026). <a href="https://python.plainenglish.io/autogen-vs-crewai-vs-langgraph-2026-comparison-guide-fd8490397977">https://python.plainenglish.io/autogen-vs-crewai-vs-langgraph-2026-comparison-guide-fd8490397977</a></li>
+<li>Samir Anama. &quot;Designing Cooperative Agent Architectures in 2025&quot; (2025). <a href="https://samiranama.com/posts/Designing-Cooperative-Agent-Architectures-in-2025/">https://samiranama.com/posts/Designing-Cooperative-Agent-Architectures-in-2025/</a></li>
+<li>Kun Wang et al. &quot;G-Designer: Architecting Multi-agent Communication Topologies via Graph Neural Networks&quot; (ICML 2025). <a href="https://icml.cc/virtual/2025/poster/45567">https://icml.cc/virtual/2025/poster/45567</a></li>
+<li>O&#39;Reilly. &quot;Designing Effective Multi-Agent Architectures&quot; (2025). <a href="https://www.oreilly.com/radar/designing-effective-multi-agent-architectures/">https://www.oreilly.com/radar/designing-effective-multi-agent-architectures/</a></li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>

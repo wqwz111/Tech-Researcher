@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 组件设计：Agent / 工具 / 记忆 / 状态的职责边界</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>Agent 组件设计：Agent / 工具 / 记忆 / 状态的职责边界</h1>
+  <div class="meta">2026-03-23 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>Agent 系统不是&quot;加了工具的聊天机器人&quot;——它是一个<strong>有状态的、目标驱动的软件系统</strong>，LLM 只是其中的推理组件，而非决策权威[1]。随着 2025-2026 年 Agent 框架的爆发式增长（LangGraph、CrewAI、OpenAI Agents SDK 等），业界逐渐形成共识：Agent 系统的核心挑战不在模型能力，而在<strong>组件设计的职责边界</strong>。</p>
+<p>本报告拆解 Agent 系统的五个核心组件（Agent、工具、记忆、状态管理器、调度器），厘清它们之间的接口定义与依赖关系，并回答三个关键设计问题：记忆与状态的本质区别、工具粒度的把控原则、组件耦合度的评估方法。</p>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. Agent 系统核心组件拆分</h2>
+<h3>1.1 五组件模型</h3>
+<p>一个生产级 Agent 系统可拆解为以下五个核心组件[1][2]：</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>职责</th>
+<th>核心产出</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Agent（推理核心）</strong></td>
+<td>目标分解、选项生成、工具选择、不确定性表达</td>
+<td>行动决策</td>
+</tr>
+<tr>
+<td><strong>工具层（Tool）</strong></td>
+<td>与外部世界的交互接口（API、数据库、文件系统）</td>
+<td>确定性结果</td>
+</tr>
+<tr>
+<td><strong>记忆（Memory）</strong></td>
+<td>跨会话的知识持久化（语义、情节、程序性记忆）</td>
+<td>索引化的上下文</td>
+</tr>
+<tr>
+<td><strong>状态管理器（State）</strong></td>
+<td>当前任务的会话级工作数据管理</td>
+<td>可序列化的状态快照</td>
+</tr>
+<tr>
+<td><strong>调度器（Orchestrator）</strong></td>
+<td>步骤执行控制、重试、终止条件、防止死循环</td>
+<td>可控的执行流</td>
+</tr>
+</tbody></table>
+<p>这五组件的分层关系如下图所示：</p>
+<div class="mermaid">graph TB
+    subgraph "Agent Runtime"
+        O[调度器 Orchestrator]
+        A[Agent 推理核心]
+        S[状态管理器 State]
+        M[记忆系统 Memory]
+        T[工具层 Tool Layer]
+        P[策略与安全层 Policy]
+    end
+
+    O -->|控制循环| A
+    A -->|查询| M
+    A -->|读写| S
+    A -->|调用| T
+    O -->|执行前检查| P
+    T -->|结果| S
+    S -->|状态持久化| P2[(持久化存储)]
+    M -->|上下文注入| A
+
+    style A fill:#4A90D9,color:#fff
+    style T fill:#7B68EE,color:#fff
+    style M fill:#2ECC71,color:#fff
+    style S fill:#F39C12,color:#fff
+    style O fill:#E74C3C,color:#fff</div>
+<h3>1.2 各组件的职责边界与接口定义</h3>
+<p><strong>Agent（推理核心）</strong></p>
+<ul>
+<li>输入：当前目标 + 工具输出 + 记忆检索结果 + 状态快照</li>
+<li>输出：结构化行动决策（JSON schema 约束）</li>
+<li>约束：不直接触发执行、不在 Prompt 中编码业务逻辑[1]</li>
+<li>红线：Agent 不应成为控制循环的拥有者</li>
+</ul>
+<p><strong>工具层（Tool）</strong></p>
+<ul>
+<li>输入：强类型参数</li>
+<li>输出：结构化数据（非文本）</li>
+<li>设计要求：幂等性、失败感知、显式输入/输出 schema[3][7]</li>
+<li>红线：工具返回数据而非自然语言，由 Agent 推理工具输出</li>
+</ul>
+<p><strong>记忆（Memory）</strong></p>
+<ul>
+<li>Letta/MemGPT 模型的四层记忆[5]：<ul>
+<li><strong>消息缓冲区</strong>：最近对话（工作记忆）</li>
+<li><strong>核心记忆</strong>：可编辑的上下文块（类比 RAM）</li>
+<li><strong>回溯记忆</strong>：完整交互历史（类比磁盘）</li>
+<li><strong>归档记忆</strong>：显式存储的处理后知识（向量/图数据库）</li>
+</ul>
+</li>
+<li>接口：读取（检索） + 写入（策略驱动）</li>
+</ul>
+<p><strong>状态管理器（State）</strong></p>
+<ul>
+<li>存储内容：当前目标、任务进度、中间决策、工具输出、置信度[1]</li>
+<li>设计原则：显式、版本化、可序列化；状态转换尽可能确定性</li>
+<li>持久化：使用 Redis/DB/事件存储，不在 Prompt 中维护隐藏状态</li>
+<li>LangGraph 的 StateGraph 和 Checkpointing 是典型实现[9]</li>
+</ul>
+<p><strong>调度器（Orchestrator）</strong></p>
+<ul>
+<li>职责：控制步骤执行、管理重试/降级、执行终止条件、防止死循环[1]</li>
+<li>模式：Plan → Execute → Evaluate 循环、状态机执行、图工作流</li>
+<li>铁律：<strong>Agent 不控制循环，系统控制循环</strong></li>
+</ul>
+<hr>
+<h2>2. 组件间的依赖关系与数据流</h2>
+<h3>2.1 组件数据流图</h3>
+<p>以下展示了一次典型任务执行中的数据流转：</p>
+<div class="mermaid">sequenceDiagram
+    participant U as 用户
+    participant O as 调度器
+    participant A as Agent
+    participant S as 状态管理器
+    participant M as 记忆
+    participant T as 工具
+    participant P as 策略层
+
+    U->>O: 提交任务
+    O->>S: 初始化状态
+    O->>A: 注入目标 + 上下文
+
+    loop 推理循环
+        A->>M: 检索相关记忆
+        M-->>A: 返回上下文块
+        A->>S: 读取当前状态
+        S-->>A: 返回状态快照
+        A->>A: 推理（LLM 生成行动决策）
+        A->>O: 提交行动决策
+
+        O->>P: 策略检查（执行前）
+        P-->>O: 批准/拒绝
+
+        alt 批准
+            O->>T: 调用工具
+            T-->>O: 返回结构化结果
+            O->>S: 更新状态
+            O->>A: 传入工具结果
+        else 拒绝
+            O->>A: 反馈策略约束
+        end
+
+        O->>O: 检查终止条件
+    end
+
+    O->>S: 持久化最终状态
+    O->>M: 写入会话记录
+    O-->>U: 返回结果</div>
+<h3>2.2 组件依赖图</h3>
+<div class="mermaid">graph LR
+    subgraph "依赖方向（上层依赖下层）"
+        direction BT
+        D1[调度器] --> D2[策略层]
+        D1 --> D3[Agent]
+        D3 --> D4[记忆]
+        D3 --> D5[状态]
+        D3 --> D6[工具层]
+        D6 --> D7[外部系统]
+        D4 --> D8[(向量DB)]
+        D4 --> D9[(文档DB)]
+        D5 --> D10[(Redis/事件存储)]
+    end
+
+    style D1 fill:#E74C3C,color:#fff
+    style D3 fill:#4A90D9,color:#fff
+    style D4 fill:#2ECC71,color:#fff
+    style D5 fill:#F39C12,color:#fff
+    style D6 fill:#7B68EE,color:#fff</div>
+<hr>
+<h2>3. 关键问题一：记忆（Memory）与状态（State）的区别与联系</h2>
+<h3>3.1 概念辨析</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>状态（State）</th>
+<th>记忆（Memory）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>生命周期</strong></td>
+<td>会话内（session-scoped）</td>
+<td>跨会话（cross-session）</td>
+</tr>
+<tr>
+<td><strong>内容</strong></td>
+<td>当前目标、中间决策、工具输出</td>
+<td>历史交互、用户偏好、领域知识</td>
+</tr>
+<tr>
+<td><strong>存储</strong></td>
+<td>内存/Redis（高性能）</td>
+<td>向量DB/文档DB（持久化）</td>
+</tr>
+<tr>
+<td><strong>更新频率</strong></td>
+<td>每步更新</td>
+<td>事件驱动写入</td>
+</tr>
+<tr>
+<td><strong>访问模式</strong></td>
+<td>全量快照</td>
+<td>按需检索</td>
+</tr>
+<tr>
+<td><strong>类比</strong></td>
+<td>进程的栈帧</td>
+<td>文件系统</td>
+</tr>
+</tbody></table>
+<h3>3.2 联系与交互</h3>
+<p>状态与记忆并非独立运作——它们通过以下模式交互[1][5]：</p>
+<ol>
+<li><strong>状态 → 记忆</strong>：任务完成时，关键状态信息被压缩并写入长期记忆（如&quot;用户偏好使用 Markdown 格式&quot;）</li>
+<li><strong>记忆 → 状态</strong>：新任务开始时，记忆检索结果注入初始状态上下文</li>
+<li><strong>记忆衰减</strong>：记忆相关性随时间衰减（TTL + 使用频率双重维度）[10]</li>
+</ol>
+<h3>3.3 常见混淆与陷阱</h3>
+<ul>
+<li><strong>陷阱 1</strong>：把 LLM 的上下文窗口当记忆——Anthropic 明确指出&quot;上下文是有限资源，每个新 token 都在消耗注意力预算&quot;[6]</li>
+<li><strong>陷阱 2</strong>：把状态藏在 Prompt 中——应使用显式状态对象 + 持久化[1]</li>
+<li><strong>陷阱 3</strong>：所有框架都将上下文窗口等同于记忆——Mem0 团队指出&quot;大多数 Agentic 框架混淆了上下文窗口与持久记忆&quot;[4]</li>
+</ul>
+<hr>
+<h2>4. 关键问题二：工具（Tool）的粒度把控</h2>
+<h3>4.1 原子工具 vs 组合工具</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>原子工具</th>
+<th>组合工具</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>定义</strong></td>
+<td>执行单一确定性操作</td>
+<td>封装多个步骤的业务流程</td>
+</tr>
+<tr>
+<td><strong>优势</strong></td>
+<td>灵活组合、可重用、易测试</td>
+<td>降低 LLM 决策负担</td>
+</tr>
+<tr>
+<td><strong>劣势</strong></td>
+<td>LLM 需要更多推理步骤</td>
+<td>降低灵活性、增加耦合</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>通用能力（bash、文件读写、搜索）</td>
+<td>领域特定流程（部署、审批）</td>
+</tr>
+</tbody></table>
+<h3>4.2 最佳实践：多层动作空间</h3>
+<p>Claude Code、Manus 等生产级 Agent 采用<strong>多层动作空间</strong>策略[6]：</p>
+<ul>
+<li><strong>第一层</strong>：少量原子工具（~12-20 个）——bash、文件读写、搜索</li>
+<li><strong>第二层</strong>：通过 CodeAct 编写和执行代码链式操作</li>
+<li><strong>第三层</strong>：渐进式披露（Progressive Disclosure）——工具定义按需加载</li>
+</ul>
+<blockquote>
+<p>&quot;Claude Code 使用约十几个工具。Manus 使用少于 20 个工具。&quot; — Lance Martin (2026)[6]</p>
+</blockquote>
+<h3>4.3 工具设计五原则</h3>
+<ol>
+<li><strong>强类型接口</strong>：每个工具都有显式输入/输出 schema[1]</li>
+<li><strong>幂等性</strong>：Agent 可能重试，工具必须处理重复调用[7]</li>
+<li><strong>参数协调</strong>：接受多种输入格式（&quot;2024-01-15&quot; / &quot;昨天&quot;），内部规范化[7]</li>
+<li><strong>失败引导恢复</strong>：错误信息应指导 Agent 如何重试，而非仅报告失败[7]</li>
+<li><strong>返回数据而非文本</strong>：工具返回结构化数据，由 Agent 推理结果[1]</li>
+</ol>
+<h3>4.4 反模式：工具过多的代价</h3>
+<p>MCP 规模化使用时，工具定义会过载上下文窗口。GitHub MCP Server 有 35 个工具，约 26K tokens 的工具定义[6]。过多工具还会因功能重叠而混淆模型[8]。</p>
+<hr>
+<h2>5. 关键问题三：组件耦合度评估</h2>
+<h3>5.1 高内聚低耦合在 Agent 系统中的体现</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>高内聚表现</th>
+<th>低耦合表现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agent</td>
+<td>只负责推理决策，不包含业务规则</td>
+<td>通过标准接口访问工具和记忆</td>
+</tr>
+<tr>
+<td>工具</td>
+<td>每个工具独立可测试</td>
+<td>不依赖其他工具的内部实现</td>
+</tr>
+<tr>
+<td>记忆</td>
+<td>读写策略集中管理</td>
+<td>不关心谁写入、谁读取</td>
+</tr>
+<tr>
+<td>状态</td>
+<td>显式 schema，版本化</td>
+<td>序列化为 JSON，可任意替换存储后端</td>
+</tr>
+<tr>
+<td>调度器</td>
+<td>只控制循环和终止</td>
+<td>不包含具体业务逻辑</td>
+</tr>
+</tbody></table>
+<h3>5.2 耦合度评估框架</h3>
+<p>从四个维度评估组件间的耦合度[1][2][4]：</p>
+<ol>
+<li><p><strong>接口耦合</strong>：组件间通过何种接口通信？</p>
+<ul>
+<li>✅ 强类型 schema（低耦合）</li>
+<li>❌ 自由文本传递（高耦合）</li>
+</ul>
+</li>
+<li><p><strong>数据耦合</strong>：共享数据的范围？</p>
+<ul>
+<li>✅ 最小化共享状态（低耦合）</li>
+<li>❌ 全局共享对象（高耦合）</li>
+</ul>
+</li>
+<li><p><strong>控制耦合</strong>：一个组件是否控制另一个的内部流程？</p>
+<ul>
+<li>✅ 事件驱动/回调（低耦合）</li>
+<li>❌ 直接调用内部方法（高耦合）</li>
+</ul>
+</li>
+<li><p><strong>时间耦合</strong>：组件是否依赖精确的执行顺序？</p>
+<ul>
+<li>✅ 异步、最终一致（低耦合）</li>
+<li>❌ 同步阻塞、严格顺序（高耦合）</li>
+</ul>
+</li>
+</ol>
+<h3>5.3 典型反模式</h3>
+<table>
+<thead>
+<tr>
+<th>反模式</th>
+<th>表现</th>
+<th>危害</th>
+<th>修复方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Monolithic Mega-Prompt</td>
+<td>500+ 行指令塞入单个 Prompt</td>
+<td>注意力稀释，步骤遗漏[8]</td>
+<td>分解为多 Agent + 工作流层</td>
+</tr>
+<tr>
+<td>Invisible State</td>
+<td>依赖 LLM 记住发生了什么</td>
+<td>不可预测、不可调试[8]</td>
+<td>显式状态对象 + 持久化</td>
+</tr>
+<tr>
+<td>Agent-as-Business-Process</td>
+<td>用 Agent 近似替代确定性流程</td>
+<td>不可审计、不合规范[8]</td>
+<td>确定性工作流 + Agent 解释层</td>
+</tr>
+<tr>
+<td>All-or-Nothing Autonomy</td>
+<td>要么完全自由要么完全受限</td>
+<td>安全或效率不可兼得[8]</td>
+<td>分级授权 + 人工审批阈值</td>
+</tr>
+<tr>
+<td>God Agent</td>
+<td>单个 Agent 承担所有职责</td>
+<td>内聚度低、难以维护[8]</td>
+<td>按职责拆分为专业子 Agent</td>
+</tr>
+<tr>
+<td>Memory = Vector DB</td>
+<td>把 RAG 等同于记忆系统</td>
+<td>缺少记忆结构化管理[4][5]</td>
+<td>多层记忆架构</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>6. 三层模型：Agent / Skill / MCP</h2>
+<p>AI Agent Architecture 社区提出的三层责任分离模型值得参考[2]：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>职责</th>
+<th>负责</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agent</td>
+<td>编排、决策</td>
+<td>任务流</td>
+<td>Claude Code, Cursor</td>
+</tr>
+<tr>
+<td>Skill</td>
+<td>领域知识、指南</td>
+<td>最佳实践</td>
+<td>SOLID 原则、翻译指南</td>
+</tr>
+<tr>
+<td>MCP</td>
+<td>外部连接</td>
+<td>工具定义</td>
+<td>deepl-mcp, rfcxml-mcp</td>
+</tr>
+</tbody></table>
+<p>决策流程：</p>
+<ul>
+<li>&quot;应该怎么做&quot; → Skill</li>
+<li>&quot;怎么执行&quot; → MCP</li>
+<li>&quot;谁来做&quot; → Sub-agent</li>
+</ul>
+<p>这三层代表的是<strong>责任分离</strong>，不是部署拓扑。</p>
+<hr>
+<h2>7. 结论</h2>
+<p>Agent 系统的组件设计遵循一个核心原则：<strong>LLM 提供推理能力，架构提供可靠性，Agent 从中涌现</strong>[1]。</p>
+<p><strong>三条设计铁律</strong>：</p>
+<ol>
+<li><strong>状态必须显式</strong>——不要让 LLM 记住发生了什么，用结构化状态对象</li>
+<li><strong>工具必须强类型</strong>——返回数据而非文本，提供幂等性和错误恢复指导</li>
+<li><strong>记忆必须分层</strong>——短期/核心/回溯/归档四层架构，非单一向量 DB</li>
+</ol>
+<p><strong>优先投资顺序</strong>（资源有限时）[1]：
+显式状态管理 → 确定性调度 → 结构化工具接口 → 记忆治理 → 可观测性 → 模型质量</p>
+<p>模型会迭代，架构债会累积。在 2026 年的 Agent 系统设计中，组件边界的清晰度决定了系统是否可交付、可治理、可扩展。</p>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>Exabeam. Agentic AI Frameworks: Key Components &amp; Top 8 Options in 2026 (2026). <a href="https://www.exabeam.com/explainers/agentic-ai/agentic-ai-frameworks-key-components-top-8-options/">https://www.exabeam.com/explainers/agentic-ai/agentic-ai-frameworks-key-components-top-8-options/</a></li>
+<li>Bonji. The MCP, Skills, and Agent Three-Layer Model | AI Agent Architecture (2026). <a href="https://shuji-bonji.github.io/ai-agent-architecture/concepts/03-architecture">https://shuji-bonji.github.io/ai-agent-architecture/concepts/03-architecture</a></li>
+<li>Orq.ai. AI Agent Architecture: Core Principles &amp; Tools in 2025 (2025). <a href="https://orq.ai/blog/ai-agent-architecture">https://orq.ai/blog/ai-agent-architecture</a></li>
+<li>Mem0. Agentic Frameworks Guide 2025 | Build AI Agents (2025). <a href="https://mem0.ai/blog/agentic-frameworks-ai-agents">https://mem0.ai/blog/agentic-frameworks-ai-agents</a></li>
+<li>Letta. Agent Memory: How to Build Agents that Learn and Remember (2025). <a href="https://www.letta.com/blog/agent-memory">https://www.letta.com/blog/agent-memory</a></li>
+<li>Lance Martin. Agent design patterns (2026). <a href="https://rlancemartin.github.io/2026/01/09/agent_design/">https://rlancemartin.github.io/2026/01/09/agent_design/</a></li>
+<li>Arcade.dev. 54 Patterns for Building Better MCP Tools (2026). <a href="https://www.arcade.dev/blog/mcp-tool-patterns">https://www.arcade.dev/blog/mcp-tool-patterns</a></li>
+<li>Tungsten Automation. Enterprise AI Agents: Agentic Design Patterns Explained (2025). <a href="https://www.tungstenautomation.de/learn/blog/build-enterprise-grade-ai-agents-agentic-design-patterns">https://www.tungstenautomation.de/learn/blog/build-enterprise-grade-ai-agents-agentic-design-patterns</a></li>
+<li>LangChain. LangChain AI Agents: Complete Implementation Guide 2025 (2025). <a href="https://www.digitalapplied.com/blog/langchain-ai-agents-guide-2025">https://www.digitalapplied.com/blog/langchain-ai-agents-guide-2025</a></li>
+<li>LangChain Docs. Memory overview (2025). <a href="https://docs.langchain.com/oss/python/langgraph/memory">https://docs.langchain.com/oss/python/langgraph/memory</a></li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>
