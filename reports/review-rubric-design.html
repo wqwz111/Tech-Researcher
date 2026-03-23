@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>技术报告质量评审标准与评分体系设计</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>技术报告质量评审标准与评分体系设计</h1>
+  <div class="meta">2026-03-23 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>技术报告的质量评审是学术研究与工程实践中不可或缺的环节。本报告系统梳理了三大评审标准来源——学术会议评审体系（以 NeurIPS、ICML 为代表）、业界文档质量标准（以 Google、Microsoft 为代表）、以及 AI 时代报告撰写的特殊需求——并在此基础上设计了一套<strong>九维均等评分体系</strong>。该体系包含 9 个核心维度、每个维度 5 分满分（总计 45 分），配有细化评分细则和可操作的审稿清单，适用于技术研究报告的质量控制与持续改进。</p>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. 学术会议评审标准体系</h2>
+<h3>1.1 NeurIPS 2024 评审框架</h3>
+<p>NeurIPS 2024 的评审指南（Reviewer Guidelines）定义了学术论文评审的核心维度[1]：</p>
+<ul>
+<li><strong>原创性 (Originality)</strong>：论文是否提出了新的想法或方法？原创性可以来自现有思想的创造性组合、新领域的应用、或去除已有理论的限制性假设。</li>
+<li><strong>质量 (Quality)</strong>：技术是否扎实？实验设计是否合理？</li>
+<li><strong>清晰度 (Clarity)</strong>：论文是否写得清楚、易读？</li>
+<li><strong>重要性 (Significance)</strong>：工作是否对领域有足够影响？</li>
+</ul>
+<p>NeurIPS 特别强调：评审完成后，被接受论文的评审意见和元评审将公开，这倒逼评审者给出建设性、专业化的反馈[1]。</p>
+<h3>1.2 ICML 2024 评审评分体系</h3>
+<p>ICML 2024 采用了更为结构化的评分量表[2]：</p>
+<table>
+<thead>
+<tr>
+<th>分数</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>8: Strong Accept</td>
+<td>重要且有影响力的问题，方法新颖、评估优秀</td>
+</tr>
+<tr>
+<td>7: Accept</td>
+<td>技术扎实，至少一个 AI 子领域有高影响，评估优秀</td>
+</tr>
+<tr>
+<td>6: Weak Accept</td>
+<td>技术合理但贡献有限</td>
+</tr>
+<tr>
+<td>5: Borderline</td>
+<td>技术可接受但有明显不足</td>
+</tr>
+<tr>
+<td>4: Weak Reject</td>
+<td>有一定价值但不足以接受</td>
+</tr>
+<tr>
+<td>3: Reject</td>
+<td>技术或评估有明显缺陷</td>
+</tr>
+<tr>
+<td>2: Strong Reject</td>
+<td>严重技术缺陷、评估差、可复现性低</td>
+</tr>
+<tr>
+<td>1: Definite Reject</td>
+<td>几乎没有可取之处</td>
+</tr>
+</tbody></table>
+<p>ICML 还引入了<strong>伦理审查 (Ethics Review)</strong> 机制，涵盖歧视/偏见、隐私安全、法律合规、研究诚信等方面[2]。</p>
+<h3>1.3 学术评审的核心维度抽象</h3>
+<p>从 NeurIPS 和 ICML 的实践中，可以抽象出学术评审的 6 个核心维度：</p>
+<div class="mermaid">quadrantChart
+    title 学术评审核心维度矩阵
+    x-axis "可操作性低" --> "可操作性高"
+    y-axis "主观性强" --> "客观性强"
+    quadrant-1 "需具体化"
+    quadrant-2 "理想维度"
+    quadrant-3 "难以量化"
+    quadrant-4 "可标准化"
+    "原创性": [0.3, 0.7]
+    "技术扎实度": [0.8, 0.8]
+    "实验可复现性": [0.9, 0.9]
+    "清晰度": [0.7, 0.5]
+    "重要性/影响力": [0.4, 0.6]
+    "伦理合规": [0.85, 0.85]</div>
+<hr>
+<h2>2. 业界文档质量评估标准</h2>
+<h3>2.1 技术文档质量评估框架</h3>
+<p>业界对技术文档质量的评估已形成成熟框架。Utica University 的技术报告评审标准[3]将评分维度与权重设定为：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>权重</th>
+<th>评估要点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>技术内容</td>
+<td>20%</td>
+<td>分析方法、理论框架、数据支撑</td>
+</tr>
+<tr>
+<td>结构与组织</td>
+<td>15%</td>
+<td>逻辑流程、章节安排、过渡衔接</td>
+</tr>
+<tr>
+<td>图表与方程</td>
+<td>15%</td>
+<td>图表清晰、标注规范、支持正文</td>
+</tr>
+<tr>
+<td>格式规范</td>
+<td>15%</td>
+<td>封面页、目录、版式统一</td>
+</tr>
+<tr>
+<td>语言表达</td>
+<td>15%</td>
+<td>语法、拼写、用词准确度</td>
+</tr>
+<tr>
+<td>引用与文献</td>
+<td>15%</td>
+<td>来源正确标注、格式统一</td>
+</tr>
+<tr>
+<td>专业性</td>
+<td>5%</td>
+<td>整体呈现的专业感</td>
+</tr>
+</tbody></table>
+<p>这一权重分配的核心理念是：<strong>技术内容是灵魂，但呈现方式同样决定读者是否能有效获取信息</strong>。</p>
+<h3>2.2 Draft.dev 技术写作评估模型</h3>
+<p>Draft.dev 的评估框架[4]提出了三大类别十个属性：</p>
+<p><strong>写作能力 (Writing Skills)</strong></p>
+<ul>
+<li>语言规范性（Grammar &amp; Style）</li>
+<li>组织能力（Organization）</li>
+<li>语言掌控力（Language Mastery）</li>
+</ul>
+<p><strong>技术专业度 (Technical Expertise)</strong></p>
+<ul>
+<li>观点发展（Idea Development）</li>
+<li>知识深度（Depth of Knowledge）</li>
+<li>市场需求匹配（Demand Alignment）</li>
+<li>正确性（Correctness）</li>
+</ul>
+<p><strong>工作习惯 (Work Habits)</strong></p>
+<ul>
+<li>沟通响应性</li>
+<li>对反馈的积极态度</li>
+<li>独立工作能力</li>
+</ul>
+<h3>2.3 微软文档质量标准</h3>
+<p>Microsoft Learn 的文档体系[5]强调了技术文档的四大原则：</p>
+<ul>
+<li><strong>准确性</strong>：技术内容正确无误</li>
+<li><strong>可发现性</strong>：通过搜索和导航容易找到</li>
+<li><strong>可读性</strong>：面向目标读者，语言清晰</li>
+<li><strong>完整性</strong>：覆盖用户完成任务所需的所有信息</li>
+</ul>
+<hr>
+<h2>3. AI 时代报告撰写的特殊需求</h2>
+<h3>3.1 AI 生成内容的引用验证</h3>
+<p>AI 时代的技术报告面临独特的引用风险。SemanticCite 系统[6]的研究表明，AI 生成的引用存在&quot;幻觉&quot;问题——看似可信的作者名、期刊名和年份可能是完全虚构的。</p>
+<p>STARD-AI 报告指南[7]为 AI 诊断研究设定了最低报告标准，包括：</p>
+<ul>
+<li>系统架构描述</li>
+<li>训练数据的完整说明</li>
+<li>评估指标的选择理由</li>
+<li>局限性的明确陈述</li>
+</ul>
+<h3>3.2 AI 报告的特殊评审维度</h3>
+<p>基于上述研究，AI 时代的技术报告需要在传统评审维度上增加以下特殊考量：</p>
+<div class="mermaid">graph TD
+    A[AI 报告评审特殊维度] --> B[引用可验证性]
+    A --> C[可复现性]
+    A --> D[伦理合规]
+    A --> E[版本时效性]
+    
+    B --> B1[所有引用附带可访问 URL]
+    B --> B2[AI 生成引用需人工验证]
+    B --> B3[引用时效 ≤ 2年]
+    
+    C --> C1[代码/数据可获取]
+    C --> C2[环境配置可复现]
+    C --> C3[实验步骤清晰]
+    
+    D --> D1[偏见检测]
+    D --> D2[隐私保护说明]
+    D --> D3[潜在负面影响评估]
+    
+    E --> E1[工具/框架版本标注]
+    E --> E2[API 版本日期]
+    E --> E3[过时内容标记]</div>
+<hr>
+<h2>4. 优化评分体系设计</h2>
+<h3>4.1 均等评分模型</h3>
+<p>综合学术标准、业界实践和 AI 时代需求，本报告提出<strong>九维均等评分体系</strong>（Total = 45分 = 9 × 5）。每个维度同等权重（5分），避免加权偏差，同时通过维度细化标准体现调研精华[8][9]。该体系将可复现性、AI 特殊要求等调研成果融入各维度定义中。</p>
+<div class="mermaid">graph LR
+    A[45分制评分体系] --> B1[1. 信息时效性]
+    A --> B2[2. 引用链接]
+    A --> B3[3. 无文本示意图]
+    A --> B4[4. 事实准确性]
+    A --> B5[5. 来源质量]
+    A --> B6[6. 逻辑完整性]
+    A --> B7[7. Executive Summary]
+    A --> B8[8. 章节结构]
+    A --> B9[9. 可操作性]
+    
+    B1 --> C1[版本标注·API日期]
+    B2 --> C2[URL验证·访问时间]
+    B3 --> C3[Mermaid·信息图]
+    B4 --> C4[AI引用验证·无幻觉]
+    B5 --> C5[3+独立来源·权威性]
+    B6 --> C6[深度洞察·局限性]
+    B7 --> C7[独立可读·核心结论]
+    B8 --> C8[模板遵循·分隔符]
+    B9 --> C9[技术决策·可复现]</div>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>维度</th>
+<th>满分</th>
+<th>核心考量</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>信息时效性</td>
+<td>5</td>
+<td>内容、工具版本、API 日期的时效性</td>
+</tr>
+<tr>
+<td>2</td>
+<td>引用链接</td>
+<td>5</td>
+<td>所有引用附带可访问 URL，100% 可验证</td>
+</tr>
+<tr>
+<td>3</td>
+<td>无文本示意图</td>
+<td>5</td>
+<td>Mermaid 图、信息图的数量与质量</td>
+</tr>
+<tr>
+<td>4</td>
+<td>事实准确性</td>
+<td>5</td>
+<td>技术内容正确无误，无幻觉引用</td>
+</tr>
+<tr>
+<td>5</td>
+<td>来源质量</td>
+<td>5</td>
+<td>来源权威性、独立性、可追溯性</td>
+</tr>
+<tr>
+<td>6</td>
+<td>逻辑完整性</td>
+<td>5</td>
+<td>分析有深度，超越表面描述</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Executive Summary</td>
+<td>5</td>
+<td>摘要可独立理解，涵盖核心结论</td>
+</tr>
+<tr>
+<td>8</td>
+<td>章节结构</td>
+<td>5</td>
+<td>章节顺序规范，模板遵循度</td>
+</tr>
+<tr>
+<td>9</td>
+<td>可操作性</td>
+<td>5</td>
+<td>结论对读者有实际指导价值</td>
+</tr>
+</tbody></table>
+<h3>4.2 各维度评分细则</h3>
+<h4>1. 信息时效性（5分）</h4>
+<table>
+<thead>
+<tr>
+<th>分值</th>
+<th>标准</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td>所有引用 ≤ 2年，工具/框架标注版本号（如 LangChain 0.3.0），API 标注版本日期</td>
+</tr>
+<tr>
+<td>4</td>
+<td>大部分引用 ≤ 2年，旧文献均标注原因，版本号基本完整</td>
+</tr>
+<tr>
+<td>3</td>
+<td>时效分布不均，部分引用超过 2年且未说明原因</td>
+</tr>
+<tr>
+<td>2</td>
+<td>过时内容较多，缺少版本标注</td>
+</tr>
+<tr>
+<td>0-1</td>
+<td>信息严重过时，无任何时效标注</td>
+</tr>
+</tbody></table>
+<h4>2. 引用链接（5分）</h4>
+<table>
+<thead>
+<tr>
+<th>分值</th>
+<th>标准</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td>所有引用附带可访问 URL，标注访问时间，100% 可验证</td>
+</tr>
+<tr>
+<td>4</td>
+<td>大部分引用有 URL，个别访问失败但有替代来源</td>
+</tr>
+<tr>
+<td>3</td>
+<td>引用有 URL 但验证不完整，缺少部分访问时间</td>
+</tr>
+<tr>
+<td>2</td>
+<td>URL 缺失较多，验证覆盖率 &lt; 70%</td>
+</tr>
+<tr>
+<td>0-1</td>
+<td>大量引用无 URL 或不可验证</td>
+</tr>
+</tbody></table>
+<h4>3. 无文本示意图（5分）</h4>
+<table>
+<thead>
+<tr>
+<th>分值</th>
+<th>标准</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td>Mermaid 图 ≥ 1 张 + 信息图，有效传达核心观点，无纯文本示意图</td>
+</tr>
+<tr>
+<td>4</td>
+<td>有 Mermaid 图和信息图，但部分图表与内容关联较弱</td>
+</tr>
+<tr>
+<td>3</td>
+<td>图表数量不足（缺 Mermaid 或信息图之一），或质量一般</td>
+</tr>
+<tr>
+<td>2</td>
+<td>仅有少量低质量图表，或存在纯文本示意图</td>
+</tr>
+<tr>
+<td>0-1</td>
+<td>无图表或图表与内容无关</td>
+</tr>
+</tbody></table>
+<h4>4. 事实准确性（5分）</h4>
+<table>
+<thead>
+<tr>
+<th>分值</th>
+<th>标准</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td>技术内容准确无误，AI 生成引用已人工验证，无幻觉引用</td>
+</tr>
+<tr>
+<td>4</td>
+<td>技术内容基本准确，个别细节有误但不影响主体</td>
+</tr>
+<tr>
+<td>3</td>
+<td>存在少量事实错误，但核心论点成立</td>
+</tr>
+<tr>
+<td>2</td>
+<td>多处事实错误，影响可信度</td>
+</tr>
+<tr>
+<td>0-1</td>
+<td>关键事实错误，或存在未验证的 AI 生成引用</td>
+</tr>
+</tbody></table>
+<h4>5. 来源质量（5分）</h4>
+<table>
+<thead>
+<tr>
+<th>分值</th>
+<th>标准</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td>关键论点有 3+ 独立来源，含官方文档和权威分析</td>
+</tr>
+<tr>
+<td>4</td>
+<td>大部分论点有多来源支撑，个别仅有单一来源</td>
+</tr>
+<tr>
+<td>3</td>
+<td>来源数量勉强够用（2-3个），权威性一般</td>
+</tr>
+<tr>
+<td>2</td>
+<td>来源单一或权威性不足</td>
+</tr>
+<tr>
+<td>0-1</td>
+<td>无可靠来源，或来源不可追溯</td>
+</tr>
+</tbody></table>
+<h4>6. 逻辑完整性（5分）</h4>
+<table>
+<thead>
+<tr>
+<th>分值</th>
+<th>标准</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td>分析有深度，有独到洞察，超越表面罗列；结论与证据链完整；说明了方法/模型的局限性</td>
+</tr>
+<tr>
+<td>4</td>
+<td>分析较深入，但洞察力一般；基本覆盖因果关系</td>
+</tr>
+<tr>
+<td>3</td>
+<td>分析停留在描述层面，缺乏深度</td>
+</tr>
+<tr>
+<td>2</td>
+<td>逻辑跳跃明显，论证不充分</td>
+</tr>
+<tr>
+<td>0-1</td>
+<td>无分析，纯信息堆砌</td>
+</tr>
+</tbody></table>
+<h4>7. Executive Summary（5分）</h4>
+<table>
+<thead>
+<tr>
+<th>分值</th>
+<th>标准</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td>摘要独立可读，涵盖背景、核心发现、关键结论（读者不读正文也能理解）</td>
+</tr>
+<tr>
+<td>4</td>
+<td>摘要基本完整，但需结合正文才能完全理解</td>
+</tr>
+<tr>
+<td>3</td>
+<td>摘要过于简略，缺少关键结论</td>
+</tr>
+<tr>
+<td>2</td>
+<td>摘要结构混乱，与正文关联弱</td>
+</tr>
+<tr>
+<td>0-1</td>
+<td>无摘要或摘要完全不可用</td>
+</tr>
+</tbody></table>
+<h4>8. 章节结构（5分）</h4>
+<table>
+<thead>
+<tr>
+<th>分值</th>
+<th>标准</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td>严格遵循：Executive Summary → 正文 → 结论 → 参考文献；含 <code>&lt;!-- REFERENCE START --&gt;</code> 分隔符；引用格式 [n] 与参考文献一一对应</td>
+</tr>
+<tr>
+<td>4</td>
+<td>章节顺序正确，格式基本规范，有轻微偏差</td>
+</tr>
+<tr>
+<td>3</td>
+<td>章节顺序有误或缺少关键分隔符</td>
+</tr>
+<tr>
+<td>2</td>
+<td>结构松散，章节间缺乏逻辑衔接</td>
+</tr>
+<tr>
+<td>0-1</td>
+<td>结构混乱，无法导航</td>
+</tr>
+</tbody></table>
+<h4>9. 可操作性（5分）</h4>
+<table>
+<thead>
+<tr>
+<th>分值</th>
+<th>标准</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td>读者能直接基于结论做出技术决策；附带代码/数据/环境配置，可复现</td>
+</tr>
+<tr>
+<td>4</td>
+<td>结论有价值，提供关键步骤和工具版本，基本可复现</td>
+</tr>
+<tr>
+<td>3</td>
+<td>结论偏泛，实操指导不足；有工具提及但缺配置细节</td>
+</tr>
+<tr>
+<td>2</td>
+<td>结论缺乏针对性，无法指导行动</td>
+</tr>
+<tr>
+<td>0-1</td>
+<td>结论无实际价值</td>
+</tr>
+</tbody></table>
+<h3>4.3 评分等级对照</h3>
+<table>
+<thead>
+<tr>
+<th>总分</th>
+<th>等级</th>
+<th>行动</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>40-45</td>
+<td>⭐ 优秀</td>
+<td>直接发布</td>
+</tr>
+<tr>
+<td>32-39</td>
+<td>✅ 良好</td>
+<td>微调后发布</td>
+</tr>
+<tr>
+<td>24-31</td>
+<td>⚠️ 需修改</td>
+<td>明确修改意见后重审</td>
+</tr>
+<tr>
+<td>0-23</td>
+<td>❌ 不合格</td>
+<td>打回重写</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>5. 审稿清单 (Review Checklist)</h2>
+<p>采用分析型评分量表（Analytic Rubric），逐维度评估比整体评分更具可操作性[9]。审稿清单按 45 分制九大维度组织，每项对应 5 分评分。</p>
+<h3>5.1 时效与引用清单（维度 1-2，满分 10）</h3>
+<ul>
+<li><input disabled="" type="checkbox"> 所有引用时效是否 ≤ 2年？旧文献是否说明原因？</li>
+<li><input disabled="" type="checkbox"> 工具/框架是否标注了版本号？API 是否标注版本日期？</li>
+<li><input disabled="" type="checkbox"> 所有参考文献是否附带可访问 URL？</li>
+<li><input disabled="" type="checkbox"> 是否标注了访问时间？</li>
+<li><input disabled="" type="checkbox"> 引用链接是否 100% 可验证？</li>
+</ul>
+<h3>5.2 可视化与准确性清单（维度 3-4，满分 10）</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Mermaid 图是否 ≥ 1 张？是否有效传达核心观点？</li>
+<li><input disabled="" type="checkbox"> 是否有信息图（由调色板生成）？</li>
+<li><input disabled="" type="checkbox"> 是否存在纯文本示意图？（应避免）</li>
+<li><input disabled="" type="checkbox"> 技术内容是否准确无误？</li>
+<li><input disabled="" type="checkbox"> AI 生成的引用是否已人工验证？（详见 AI 引用最佳实践[10]）</li>
+</ul>
+<h3>5.3 来源与分析清单（维度 5-6，满分 10）</h3>
+<ul>
+<li><input disabled="" type="checkbox"> 关键论点是否有 3+ 独立来源支撑？</li>
+<li><input disabled="" type="checkbox"> 来源是否包含官方文档或权威分析？</li>
+<li><input disabled="" type="checkbox"> 技术分析是否超越表面描述？</li>
+<li><input disabled="" type="checkbox"> 结论是否有完整的证据链支撑？</li>
+<li><input disabled="" type="checkbox"> 是否说明了方法/模型的局限性？</li>
+</ul>
+<h3>5.4 结构与可操作性清单（维度 7-9，满分 15）</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Executive Summary 是否可独立理解？涵盖背景、核心发现、关键结论？</li>
+<li><input disabled="" type="checkbox"> 章节是否按：Executive Summary → 正文 → 结论 → 参考文献 排列？</li>
+<li><input disabled="" type="checkbox"> 是否包含 <code>&lt;!-- REFERENCE START --&gt;</code> 分隔符？</li>
+<li><input disabled="" type="checkbox"> 正文引用标记 [n] 是否与参考文献序号一一对应？</li>
+<li><input disabled="" type="checkbox"> 结论是否可操作、能指导技术决策？</li>
+<li><input disabled="" type="checkbox"> 是否提供了代码/数据/环境配置，读者可复现？</li>
+<li><input disabled="" type="checkbox"> 是否评估了潜在负面影响？</li>
+</ul>
+<hr>
+<h2>6. 结论</h2>
+<p>本报告通过系统分析三大来源的评审标准，构建了一套适合技术研究报告的<strong>九维均等评分体系</strong>（45 分制）。该体系的核心设计原则包括：</p>
+<ol>
+<li><strong>均等维度</strong>：9 个维度 × 5 分，避免加权偏差，每项都不可忽视</li>
+<li><strong>调研精华融合</strong>：将可复现性融入&quot;可操作性&quot;维度，AI 特殊要求融入&quot;事实准确性&quot;和&quot;信息时效性&quot;维度</li>
+<li><strong>5 分梯度细化</strong>：每维度 1-5 分均有明确标准，消除评审主观性</li>
+<li><strong>清单化执行</strong>：四大审稿清单对应 9 个维度，让审稿从&quot;凭感觉&quot;变为&quot;按清单逐项检查&quot;</li>
+</ol>
+<p>这套体系既借鉴了学术会议的严谨性，又融入了业界文档的实用性，是技术研究报告质量控制的有效工具。</p>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>NeurIPS. &quot;2024 Reviewer Guidelines&quot; (2024). <a href="https://neurips.cc/Conferences/2024/ReviewerGuidelines">https://neurips.cc/Conferences/2024/ReviewerGuidelines</a></li>
+<li>ICML. &quot;Reviewer Instructions 2024&quot; (2024). <a href="https://icml.cc/Conferences/2024/ReviewerInstructions">https://icml.cc/Conferences/2024/ReviewerInstructions</a></li>
+<li>Utica University. &quot;Technical Report Evaluation Rubric&quot; (n.d.). <a href="https://www.utica.edu/academic/Assessment/new/technical%20report%20rubric.pdf">https://www.utica.edu/academic/Assessment/new/technical%20report%20rubric.pdf</a></li>
+<li>Draft.dev. &quot;How to Create a Technical Writing Rubric&quot; (2024). <a href="https://draft.dev/learn/technical-writing-rubric">https://draft.dev/learn/technical-writing-rubric</a></li>
+<li>Microsoft. &quot;Technical Documentation - Microsoft Learn&quot; (2025). <a href="https://learn.microsoft.com/en-us/docs/">https://learn.microsoft.com/en-us/docs/</a></li>
+<li>SemanticCite. &quot;Citation Verification with AI-Powered Full-Text Analysis&quot; (2025). <a href="https://arxiv.org/html/2511.16198v1">https://arxiv.org/html/2511.16198v1</a></li>
+<li>Nature Medicine. &quot;The STARD-AI reporting guideline for diagnostic accuracy studies&quot; (2025). <a href="https://www.nature.com/articles/s41591-025-03953-8">https://www.nature.com/articles/s41591-025-03953-8</a></li>
+<li>Product School. &quot;Weighted Scoring Model: Step-by-Step Implementation Guide&quot; (2024). <a href="https://productschool.com/blog/product-fundamentals/weighted-scoring-model">https://productschool.com/blog/product-fundamentals/weighted-scoring-model</a></li>
+<li>Brown University. &quot;Designing Grading Rubrics&quot; (2024). <a href="https://sheridan.brown.edu/resources/course-design/feedback-student-learning/grading-criteria-rubrics/designing-grading">https://sheridan.brown.edu/resources/course-design/feedback-student-learning/grading-criteria-rubrics/designing-grading</a></li>
+<li>Human Writes AI. &quot;Best Practices for AI-Generated Citations&quot; (2025). <a href="https://humanwritesai.com/blog/best-practices-for-citations">https://humanwritesai.com/blog/best-practices-for-citations</a></li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>
