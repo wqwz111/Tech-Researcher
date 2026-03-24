@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 状态与记忆：短期/长期/工作记忆的实现</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>Agent 状态与记忆：短期/长期/工作记忆的实现</h1>
+  <div class="meta">2026-03-24 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>记忆是 Agent 区别于普通 LLM 调用的核心能力。本报告系统分析了 Agent 记忆的分层架构（Working/Episodic/Semantic/Procedural）、实现机制（向量存储/知识图谱/关系数据库）、检索策略（TTL + 使用频率衰减）以及持久化方案。报告以 Letta（MemGPT）、LangGraph、OpenClaw 等主流框架为案例，提供从开发到生产的完整技术选型指南。</p>
+<p><strong>核心结论</strong>：单一记忆类型无法满足复杂 Agent 需求，混合架构（Episodic + Semantic + Working Memory）已成为 2025 年事实标准。向量存储选型应按规模分层：开发阶段用 Chroma，生产环境用 PostgreSQL + pgvector 或托管服务（Pinecone/Weaviate）。</p>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. 记忆分层架构</h2>
+<h3>1.1 四层记忆模型</h3>
+<p>Agent 记忆受人类认知科学启发，形成四层分层架构[1][8]：</p>
+<div class="mermaid">graph TB
+    subgraph "Agent 记忆分层架构"
+        direction TB
+        WM[Working Memory<br/>工作记忆]
+        EM[Episodic Memory<br/>情景记忆]
+        SM[Semantic Memory<br/>语义记忆]
+        PM[Procedural Memory<br/>程序记忆]
+        
+        WM -->|"session 内"| EM
+        WM -->|"实时查询"| SM
+        EM -->|"consolidation"| SM
+        SM -->|"指导行动"| PM
+        PM -->|"工具调用反馈"| WM
+        
+        style WM fill:#e1f5fe
+        style EM fill:#fff3e0
+        style SM fill:#f3e5f5
+        style PM fill:#e8f5e9
+    end</div>
+<p><strong>Working Memory（工作记忆）</strong>：相当于 Agent 的 &quot;RAM&quot;，存储当前 session 的活跃上下文。实现方式通常为滑动窗口或 KV Cache，容量受限于 LLM 上下文窗口[8]。</p>
+<p><strong>Episodic Memory（情景记忆）</strong>：存储具体的事件和对话历史，按时间序列组织。例如用户说过 &quot;我偏好深色模式&quot; 这类原始记录[2]。OpenClaw 将其保存为 <code>memory/YYYY-MM-DD.md</code> 格式的 markdown 文件[2]。</p>
+<p><strong>Semantic Memory（语义记忆）</strong>：存储结构化知识和事实，如用户偏好、领域知识。通常通过向量索引实现语义检索[1][5]。</p>
+<p><strong>Procedural Memory（程序记忆）</strong>：存储 &quot;如何做&quot; 的知识，包括工具使用模式、决策流程。表现为 Agent 的行为策略和工具调用序列[8]。</p>
+<h3>1.2 Letta 的三层记忆实现</h3>
+<p>Letta（原 MemGPT）提出了 LLM-as-OS 范式，将记忆分为三层[6]：</p>
+<table>
+<thead>
+<tr>
+<th>记忆层</th>
+<th>用途</th>
+<th>可见性</th>
+<th>存储方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Core Memory</td>
+<td>关键用户信息</td>
+<td>始终注入上下文</td>
+<td>Memory Blocks</td>
+</tr>
+<tr>
+<td>Recall Memory</td>
+<td>对话历史</td>
+<td>按需检索</td>
+<td>数据库持久化</td>
+</tr>
+<tr>
+<td>Archival Memory</td>
+<td>长期归档</td>
+<td>语义搜索</td>
+<td>向量存储</td>
+</tr>
+</tbody></table>
+<p>核心创新在于 <strong>Self-Editing Memory</strong> —— Agent 通过工具调用自主管理记忆块，实现记忆的读写更新[6]。</p>
+<hr>
+<h2>2. 短期记忆实现</h2>
+<h3>2.1 对话上下文管理</h3>
+<p>短期记忆的核心是维护对话状态，主流框架采用两种模式：</p>
+<p><strong>模式一：Checkpointer（检查点）</strong>
+LangGraph 使用 Checkpointer 保存对话线程状态[4][5]：</p>
+<pre><code class="language-python"># LangGraph Checkpointer 示例
+from langgraph.checkpoint.postgres import PostgresSaver
+
+checkpointer = PostgresSaver(conn=pool)
+checkpointer.setup()  # 自动创建 checkpoints 表
+
+# 每个 thread_id 对应一个独立对话
+config = {&quot;configurable&quot;: {&quot;thread_id&quot;: &quot;t456&quot;}}
+</code></pre>
+<p><strong>模式二：滑动窗口 + 压缩</strong>
+保留最近 N 轮对话，对更早的历史进行摘要压缩。优点是成本可控，缺点是可能丢失细节[2]。</p>
+<h3>2.2 工作记忆（Working Memory）</h3>
+<p>工作记忆是当前活跃任务的临时存储，类似于开发者的剪贴板或笔记本[8]：</p>
+<div class="mermaid">sequenceDiagram
+    participant U as 用户
+    participant A as Agent
+    participant WM as Working Memory
+    participant EM as Episodic Memory
+    participant SM as Semantic Memory
+    
+    U->>A: 输入查询
+    A->>WM: 检查活跃任务状态
+    A->>EM: 检索相关历史事件
+    A->>SM: 查询语义相关知识
+    
+    Note over A: 上下文合并<br/>(Context Merger)
+    
+    A->>A: LLM 推理
+    A->>WM: 更新工作状态
+    A->>EM: 记录本次交互
+    A->>U: 返回结果
+    
+    Note over A,WM: Session 结束
+    A->>SM: 执行 Consolidation
+    A->>WM: 清空/归档</div>
+<p>工作记忆的关键设计参数[1]：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>推荐值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>window_size</td>
+<td>滑动窗口大小</td>
+<td>5-10 事件</td>
+</tr>
+<tr>
+<td>token_budget</td>
+<td>上下文令牌限制</td>
+<td>1000-3000</td>
+</tr>
+<tr>
+<td>priority</td>
+<td>优先级排序</td>
+<td>episodic_recent &gt; semantic_policy</td>
+</tr>
+<tr>
+<td>dedupe</td>
+<td>去重策略</td>
+<td>source + hash</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>3. 长期记忆实现</h2>
+<h3>3.1 三种存储方案对比</h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>适用场景</th>
+<th>优势</th>
+<th>劣势</th>
+<th>代表工具</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>向量存储</td>
+<td>语义检索、模糊匹配</td>
+<td>相似度搜索快</td>
+<td>精确查询弱</td>
+<td>Pinecone, Chroma, Weaviate</td>
+</tr>
+<tr>
+<td>知识图谱</td>
+<td>关系推理、实体关联</td>
+<td>关系查询强</td>
+<td>构建成本高</td>
+<td>Neo4j, Amazon Neptune</td>
+</tr>
+<tr>
+<td>关系数据库</td>
+<td>结构化查询、事务</td>
+<td>ACID 保证、成熟</td>
+<td>语义能力弱</td>
+<td>PostgreSQL, MySQL</td>
+</tr>
+</tbody></table>
+<h3>3.2 向量存储选型</h3>
+<p>2025 年主流向量数据库对比[10]：</p>
+<div class="mermaid">graph LR
+    subgraph "开发/原型阶段"
+        CH[Chroma<br/>轻量级本地<br/>适合 PoC]
+    end
+    
+    subgraph "中小规模生产"
+        WE[Weaviate<br/>混合搜索<br/>BM25 + 向量]
+        CO[Cohere<br/>嵌入原生<br/>多语言支持]
+    end
+    
+    subgraph "大规模生产"
+        PC[Pinecone<br/>全托管<br/>50K QPS]
+        PG[PostgreSQL + pgvector<br/>SQL 生态<br/>成本可控]
+    end
+    
+    CH -->|"规模增长"| WE
+    WE -->|"性能需求"| PC
+    CH -->|"SQL 集成"| PG
+    
+    style CH fill:#c8e6c9
+    style WE fill:#bbdefb
+    style PC fill:#fff9c4
+    style PG fill:#fff9c4</div>
+<p><strong>推荐方案</strong>：PostgreSQL + pgvector 是 2025 年的性价比之选[12]：</p>
+<pre><code class="language-python"># PostgresStore 配置（LangGraph）
+from langgraph.store.postgres import PostgresStore
+
+store = PostgresStore(
+    conn=pool,
+    index={
+        &quot;dims&quot;: 1536,  # embedding 维度
+        &quot;embed&quot;: &quot;openai:text-embedding-3-small&quot;,
+        &quot;fields&quot;: [&quot;text&quot;]  # 需要向量化的字段
+    }
+)
+store.setup()  # 自动创建表 + 启用 pgvector 扩展
+</code></pre>
+<h3>3.3 MongoDB 方案</h3>
+<p>MongoDB 官方提供了 LangGraph 集成，适合已有 MongoDB 基础设施的团队[5]：</p>
+<pre><code class="language-python"># MongoDB Store 特性
+- 跨线程记忆存储（cross-thread memory）
+- 灵活过滤（flexible filtering）
+- 语义搜索（semantic search）
+- 与 MongoDB Atlas 深度集成
+</code></pre>
+<hr>
+<h2>4. 记忆检索与衰减</h2>
+<h3>4.1 混合检索策略</h3>
+<p>2025 年的最佳实践是 <strong>Episodic + Semantic 混合检索</strong>[1]：</p>
+<ol>
+<li><strong>Episodic 路径</strong>：按时间窗口取最近 N 个事件（recency）</li>
+<li><strong>Semantic 路径</strong>：向量相似度搜索 Top-K 相关知识（relevance）</li>
+<li><strong>Merge 层</strong>：去重、优先级排序、Token 预算控制</li>
+</ol>
+<p>配置示例[1]：</p>
+<pre><code class="language-json">{
+  &quot;episodic_window&quot;: {
+    &quot;mode&quot;: &quot;last_n_events&quot;,
+    &quot;n&quot;: 5,
+    &quot;filters&quot;: {&quot;session_id&quot;: &quot;sess_7&quot;}
+  },
+  &quot;semantic_retrieval&quot;: {
+    &quot;top_k&quot;: 5,
+    &quot;filters&quot;: {&quot;tags&quot;: [&quot;policy&quot;], &quot;pii&quot;: false},
+    &quot;reranker&quot;: {&quot;enabled&quot;: true, &quot;model&quot;: &quot;cross_encoder_mini&quot;}
+  },
+  &quot;merge_policy&quot;: {
+    &quot;dedupe&quot;: &quot;source+hash&quot;,
+    &quot;priority&quot;: [&quot;episodic_recent&quot;, &quot;semantic_policy&quot;],
+    &quot;token_budget&quot;: 3000
+  }
+}
+</code></pre>
+<h3>4.2 相关性衰减机制</h3>
+<p>记忆衰减结合 TTL 和使用频率两个维度[9]：</p>
+<div class="mermaid">graph TD
+    subgraph "记忆生命周期"
+        INGEST[记忆录入] --> ACTIVE[活跃状态]
+        ACTIVE -->|频繁访问| HOT[热点记忆]
+        ACTIVE -->|偶尔访问| WARM[温记忆]
+        ACTIVE -->|长期未访问| COLD[冷记忆]
+        
+        HOT -->|访问频率下降| WARM
+        WARM -->|TTL 到期| ARCHIVE[归档]
+        COLD -->|TTL 到期| ARCHIVE
+        ARCHIVE -->|彻底过期| PURGE[清除]
+        
+        HOT -->|用户显式保留| PERM[永久记忆]
+    end
+    
+    style ACTIVE fill:#c8e6c9
+    style HOT fill:#ffeb3b
+    style ARCHIVE fill:#ffcdd2
+    style PURGE fill:#f44336,color:#fff</div>
+<p>衰减因子计算：</p>
+<pre><code>relevance_score = base_score × recency_weight × access_weight × explicit_boost
+
+其中：
+- recency_weight = exp(-age_days / ttl_days)
+- access_weight = log(access_count + 1) / log(max_access + 1)
+- explicit_boost = 1.5 if 用户标记重要，否则 1.0
+</code></pre>
+<p><strong>TTL 推荐值</strong>[1][9]：</p>
+<table>
+<thead>
+<tr>
+<th>记忆类型</th>
+<th>TTL 建议</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Session 临时</td>
+<td>0（仅当前 session）</td>
+<td>工作记忆</td>
+</tr>
+<tr>
+<td>对话历史</td>
+<td>30 天</td>
+<td>Episodic，可 consolidation</td>
+</tr>
+<tr>
+<td>用户偏好</td>
+<td>永久（需显式标记）</td>
+<td>Semantic，Core Memory</td>
+</tr>
+<tr>
+<td>临时上下文</td>
+<td>24 小时</td>
+<td>任务相关缓存</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>5. 持久化与恢复</h2>
+<h3>5.1 持久化策略</h3>
+<p><strong>Checkpoint 模式</strong>（对话状态快照）[4][5]：</p>
+<pre><code class="language-python"># Checkpointer 自动保存每个 super-step 的状态
+from langgraph.checkpoint.postgres import PostgresSaver
+
+checkpointer = PostgresSaver(conn=pool)
+checkpointer.setup()
+
+# 恢复时指定 thread_id
+config = {&quot;configurable&quot;: {&quot;thread_id&quot;: &quot;t456&quot;, &quot;checkpoint_id&quot;: &quot;abc123&quot;}}
+state = graph.get_state(config)  # 获取历史状态
+</code></pre>
+<p><strong>Store 模式</strong>（跨线程长期记忆）[5][11]：</p>
+<pre><code class="language-python"># Store 提供跨 session 的持久化
+store.put(
+    namespace=(&quot;email_assistant&quot;, &quot;triage_preferences&quot;),
+    key=&quot;user_rule_1&quot;,
+    value={&quot;rule&quot;: &quot;always ask before deleting&quot;, &quot;importance&quot;: 0.9}
+)
+
+# 语义检索
+results = store.search(
+    namespace=(&quot;email_assistant&quot;,),
+    query=&quot;用户偏好设置&quot;,
+    limit=5
+)
+</code></pre>
+<h3>5.2 恢复策略</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>恢复方式</th>
+<th>实现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>对话续接</td>
+<td>Checkpoint 恢复</td>
+<td><code>graph.invoke(input, config)</code></td>
+</tr>
+<tr>
+<td>跨 session 记忆</td>
+<td>Store 检索</td>
+<td><code>store.search(namespace, query)</code></td>
+</tr>
+<tr>
+<td>灾难恢复</td>
+<td>数据库备份</td>
+<td>pg_dump / mongodump</td>
+</tr>
+<tr>
+<td>迁移</td>
+<td>Schema 导出导入</td>
+<td>Export/Import API</td>
+</tr>
+</tbody></table>
+<h3>5.3 OpenClaw 的 File-First 方案</h3>
+<p>OpenClaw 采用文件系统作为记忆存储，具有零依赖、Git 友好的优势[2]：</p>
+<pre><code>~/.openclaw/workspace/
+├── MEMORY.md          # Semantic Memory（长期知识）
+├── SOUL.md            # Procedural Memory（行为规范）
+└── memory/
+    ├── 2026-03-24.md  # Episodic Memory（当日记录）
+    └── 2026-03-23.md
+</code></pre>
+<p><strong>优点</strong>：版本控制、人类可读、无需额外基础设施
+<strong>局限</strong>：大规模语义检索效率低，建议搭配向量索引</p>
+<hr>
+<h2>6. 与设计阶段的衔接</h2>
+<p>本报告与 [设计·02] Agent 组件设计 中的记忆部分形成呼应，补充了实现层面的具体方案：</p>
+<table>
+<thead>
+<tr>
+<th>设计阶段定义</th>
+<th>开发阶段实现</th>
+<th>本报告覆盖</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>记忆组件接口</td>
+<td>Store / Checkpointer API</td>
+<td>第 5 章</td>
+</tr>
+<tr>
+<td>短期记忆策略</td>
+<td>滑动窗口 / Checkpoint</td>
+<td>第 2 章</td>
+</tr>
+<tr>
+<td>长期记忆存储</td>
+<td>向量 DB / 图 DB / RDBMS 选型</td>
+<td>第 3 章</td>
+</tr>
+<tr>
+<td>记忆生命周期</td>
+<td>TTL + 频率衰减 + Consolidation</td>
+<td>第 4 章</td>
+</tr>
+<tr>
+<td>记忆分层定义</td>
+<td>Working/Episodic/Semantic/Procedural</td>
+<td>第 1 章</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>7. 结论</h2>
+<p>Agent 记忆实现的关键要点：</p>
+<ol>
+<li><p><strong>分层是必须的</strong>：Working/Episodic/Semantic/Procedural 四层模型已成为共识，单一记忆类型无法满足复杂场景[1][8]</p>
+</li>
+<li><p><strong>混合检索是标配</strong>：Episodic（时间序列）+ Semantic（向量搜索）+ Reranker（精排）三阶段检索是 2025 年最佳实践[1]</p>
+</li>
+<li><p><strong>PostgreSQL + pgvector 是性价比之王</strong>：同时支持 Checkpointer（短期）和 Store（长期），SQL 生态成熟，成本可控[12]</p>
+</li>
+<li><p><strong>TTL + 频率 = 智能衰减</strong>：纯 TTL 过于机械，需结合访问频率实现自适应记忆管理[9]</p>
+</li>
+<li><p><strong>Memory Consolidation 是关键一步</strong>：定期将 Episodic 压缩为 Semantic，防止记忆爆炸[2][6]</p>
+</li>
+<li><p><strong>Letta 的 Self-Editing Memory 代表前沿方向</strong>：Agent 自主管理上下文窗口，实现动态记忆分配[6][7]</p>
+</li>
+</ol>
+<hr>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>Principia Agentica. Memory in Agents: Episodic vs. Semantic, and the Hybrid That Works (2025). <a href="https://principia-agentica.io/blog/2025/09/19/memory-in-agents-episodic-vs-semantic-and-the-hybrid-that-works/">https://principia-agentica.io/blog/2025/09/19/memory-in-agents-episodic-vs-semantic-and-the-hybrid-that-works/</a></li>
+<li>Damian Galarza. How AI Agents Remember Things (2026). <a href="https://damiangalarza.com/posts/2026-02-17-how-ai-agents-remember-things/">https://damiangalarza.com/posts/2026-02-17-how-ai-agents-remember-things/</a></li>
+<li>Sai Kumar Yava. Building AI Agents That Actually Remember: A Deep Dive Into Memory Architectures (2025). <a href="https://pub.towardsai.net/building-ai-agents-that-actually-remember-a-deep-dive-into-memory-architectures-db79a15dba70">https://pub.towardsai.net/building-ai-agents-that-actually-remember-a-deep-dive-into-memory-architectures-db79a15dba70</a></li>
+<li>Sparkco. Mastering LangGraph State Management in 2025. <a href="https://sparkco.ai/blog/mastering-langgraph-state-management-in-2025">https://sparkco.ai/blog/mastering-langgraph-state-management-in-2025</a></li>
+<li>MongoDB. Powering Long-Term Memory For Agents With LangGraph and MongoDB (2025). <a href="https://www.mongodb.com/company/blog/product-release-announcements/powering-long-term-memory-for-agents-langgraph">https://www.mongodb.com/company/blog/product-release-announcements/powering-long-term-memory-for-agents-langgraph</a></li>
+<li>Piyush Jhamb. Stateful AI Agents: A Deep Dive into Letta (MemGPT) Memory Models (2025). <a href="https://medium.com/@piyush.jhamb4u/stateful-ai-agents-a-deep-dive-into-letta-memgpt-memory-models-a2ffc01a7ea1">https://medium.com/@piyush.jhamb4u/stateful-ai-agents-a-deep-dive-into-letta-memgpt-memory-models-a2ffc01a7ea1</a></li>
+<li>Letta. Lessons from ReAct, MemGPT, &amp; Claude Code (2025). <a href="https://www.letta.com/blog/letta-v1-agent">https://www.letta.com/blog/letta-v1-agent</a></li>
+<li>arXiv. Memory in the Age of AI Agents: A Survey (2025). <a href="https://arxiv.org/abs/2512.13564">https://arxiv.org/abs/2512.13564</a></li>
+<li>ChanAI. Build Your Own AI Agent Memory System (2025). <a href="https://www.chanl.ai/es/blog/build-your-own-ai-agent-memory-system">https://www.chanl.ai/es/blog/build-your-own-ai-agent-memory-system</a></li>
+<li>Propelius. Vector Databases Compared: Pinecone vs Weaviate vs Chroma (2025). <a href="https://propelius.ai/blogs/vector-databases-compared-pinecone-weaviate-chroma/">https://propelius.ai/blogs/vector-databases-compared-pinecone-weaviate-chroma/</a></li>
+<li>FareedKhan. Implementing Long Term Memory in Agentic AI (GitHub, 2025). <a href="https://github.com/FareedKhan-dev/langgraph-long-memory">https://github.com/FareedKhan-dev/langgraph-long-memory</a></li>
+<li>Alon Jaman. Building Infinite Memory Agents: A Master Guide to LangGraph, LangMem and Postgres (2025). <a href="https://medium.com/@alonjamanjeetsinh77/building-infinite-memory-agents-a-master-guide-to-langgraph-langmem-and-postgres-05b3cabd689b">https://medium.com/@alonjamanjeetsinh77/building-infinite-memory-agents-a-master-guide-to-langgraph-langmem-and-postgres-05b3cabd689b</a></li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>

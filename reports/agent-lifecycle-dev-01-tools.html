@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 工具集成：MCP、Function Calling 与插件系统</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>Agent 工具集成：MCP、Function Calling 与插件系统</h1>
+  <div class="meta">2026-03-24 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>工具集成是 Agent 从&quot;对话机器人&quot;进化为&quot;行动主体&quot;的关键一步。本报告深入分析三大主流工具集成方案：Anthropic 的 <strong>Model Context Protocol (MCP)</strong>、OpenAI 的 <strong>Function Calling</strong>、以及 <strong>LangChain 插件系统</strong>，并从安全性、扩展性、生态成熟度三个维度进行对比。核心发现：MCP 正在成为事实上的开放标准，Function Calling 在多模型支持上持续演进，而 LangChain 则提供了最灵活的抽象层。报告还提供了工具权限控制与安全边界的最佳实践。</p>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. 工具集成技术概览</h2>
+<h3>1.1 为什么 Agent 需要工具</h3>
+<p>LLM 本身是封闭系统——无法访问实时数据、无法执行代码、无法调用外部 API。工具（Tools）是 Agent 与外部世界交互的桥梁。没有工具的 Agent 只能&quot;说&quot;，有工具的 Agent 才能&quot;做&quot;[1][2]。</p>
+<p>工具集成解决三个核心问题：</p>
+<ul>
+<li><strong>能力边界突破</strong>：让 LLM 访问数据库、调用 API、执行代码</li>
+<li><strong>实时信息获取</strong>：弥补训练数据的时效性不足</li>
+<li><strong>行动能力</strong>：从&quot;回答问题&quot;到&quot;完成任务&quot;</li>
+</ul>
+<h3>1.2 三大技术路线</h3>
+<div class="mermaid">graph TB
+    subgraph "工具集成技术路线"
+        A["Function Calling<br/>OpenAI 2023 → 多厂商 2024-2025"]
+        B["MCP Protocol<br/>Anthropic 2024 → 开放标准 2025"]
+        C["Plugin System<br/>LangChain/OpenAI GPTs 2023-2024"]
+        
+        A --> D["API 层集成<br/>模型厂商原生支持"]
+        B --> E["协议层集成<br/>标准化通信"]
+        C --> F["框架层集成<br/>开发者抽象"]
+    end
+    
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8</div>
+<hr>
+<h2>2. MCP 协议深度解析</h2>
+<h3>2.1 MCP 架构</h3>
+<p>MCP（Model Context Protocol）是 Anthropic 于 2024 年 11 月开源的协议标准，被比喻为 AI 的&quot;USB-C 接口&quot;——提供标准化的连接方式[1]。</p>
+<p>MCP 采用 <strong>Client-Server 架构</strong>，包含三个核心角色[3]：</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>职责</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>MCP Host</strong></td>
+<td>AI 应用程序，协调管理多个 Client</td>
+<td>Claude Desktop, VS Code</td>
+</tr>
+<tr>
+<td><strong>MCP Client</strong></td>
+<td>维护与 Server 的连接，获取上下文</td>
+<td>Host 内部的连接组件</td>
+</tr>
+<tr>
+<td><strong>MCP Server</strong></td>
+<td>向 Client 提供上下文数据和工具</td>
+<td>Filesystem, Database, Sentry</td>
+</tr>
+</tbody></table>
+<div class="mermaid">sequenceDiagram
+    participant LLM as Language Model
+    participant Client as MCP Client
+    participant Server as MCP Server
+
+    Note over Client,Server: 阶段1: 工具发现
+    Client->>Server: tools/list 请求
+    Server-->>Client: 返回可用工具列表
+    
+    Note over LLM,Client: 阶段2: 工具选择
+    LLM->>Client: 选择要调用的工具
+    
+    Note over Client,Server: 阶段3: 工具调用
+    Client->>Server: tools/call 请求
+    Server-->>Client: 返回工具执行结果
+    Client->>LLM: 处理结果
+    
+    Note over Client,Server: 阶段4: 更新通知
+    Server--)Client: tools/list_changed
+    Client->>Server: tools/list 获取更新
+    Server-->>Client: 更新后的工具列表</div>
+<h3>2.2 MCP 数据层协议</h3>
+<p>MCP 基于 <strong>JSON-RPC 2.0</strong> 协议[6]，定义了三种消息类型：</p>
+<p><strong>请求（Request）</strong>：双向发送，必须包含唯一 ID</p>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;id&quot;: 1,
+  &quot;method&quot;: &quot;tools/list&quot;,
+  &quot;params&quot;: {}
+}
+</code></pre>
+<p><strong>响应（Response）</strong>：包含 result 或 error（不可同时）</p>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;id&quot;: 1,
+  &quot;result&quot;: {
+    &quot;tools&quot;: [...]
+  }
+}
+</code></pre>
+<p><strong>通知（Notification）</strong>：单向消息，无 ID</p>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;method&quot;: &quot;notifications/tools/list_changed&quot;
+}
+</code></pre>
+<h3>2.3 工具定义与调用</h3>
+<p>MCP 工具定义包含以下字段[2]：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>必需</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>✅</td>
+<td>工具唯一标识符</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>string</td>
+<td>❌</td>
+<td>人类可读的显示名称</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>string</td>
+<td>✅</td>
+<td>功能描述</td>
+</tr>
+<tr>
+<td><code>inputSchema</code></td>
+<td>JSON Schema</td>
+<td>✅</td>
+<td>输入参数定义</td>
+</tr>
+<tr>
+<td><code>outputSchema</code></td>
+<td>JSON Schema</td>
+<td>❌</td>
+<td>输出结构定义</td>
+</tr>
+<tr>
+<td><code>annotations</code></td>
+<td>object</td>
+<td>❌</td>
+<td>行为元数据（不可信）</td>
+</tr>
+</tbody></table>
+<p>工具调用支持多种返回类型[2]：</p>
+<ul>
+<li><strong>Text</strong>：纯文本结果</li>
+<li><strong>Image</strong>：Base64 编码图片</li>
+<li><strong>Audio</strong>：Base64 编码音频</li>
+<li><strong>Resource Link</strong>：指向资源的 URI</li>
+<li><strong>Embedded Resource</strong>：内嵌资源数据</li>
+</ul>
+<h3>2.4 传输层设计</h3>
+<p>MCP 支持两种传输机制[3]：</p>
+<table>
+<thead>
+<tr>
+<th>传输方式</th>
+<th>场景</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>STDIO</strong></td>
+<td>本地 Server</td>
+<td>进程间通信，零网络开销，单 Client</td>
+</tr>
+<tr>
+<td><strong>Streamable HTTP</strong></td>
+<td>远程 Server</td>
+<td>支持 SSE 流式传输，多 Client，OAuth 认证</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>3. Function Calling 演进</h2>
+<h3>3.1 发展历程</h3>
+<p>Function Calling 由 OpenAI 于 2023 年 6 月首次提出，经历了快速演进[4]：</p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>里程碑</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2023-06</td>
+<td>OpenAI GPT-3.5-turbo 首次支持 Function Calling</td>
+</tr>
+<tr>
+<td>2024-03</td>
+<td>GPT-4 支持并行调用、Structured Outputs</td>
+</tr>
+<tr>
+<td>2024-11</td>
+<td>Anthropic Claude 加入支持，参数名改为 <code>input_schema</code></td>
+</tr>
+<tr>
+<td>2025</td>
+<td>多厂商（Google、Mistral、Cohere）跟进，形成事实标准</td>
+</tr>
+<tr>
+<td>2025</td>
+<td>OpenAI 引入 Tool Search 和 Namespace 分组</td>
+</tr>
+</tbody></table>
+<h3>3.2 Function Calling 流程</h3>
+<p>OpenAI 的 Function Calling 是一个 <strong>5 步流程</strong>[4]：</p>
+<ol>
+<li><strong>定义工具</strong>：用 JSON Schema 描述函数签名</li>
+<li><strong>发送请求</strong>：将工具定义和用户消息一起发送给模型</li>
+<li><strong>接收调用</strong>：模型返回 tool_call（包含函数名和参数）</li>
+<li><strong>执行函数</strong>：应用端执行函数逻辑</li>
+<li><strong>返回结果</strong>：将执行结果发送给模型生成最终回复</li>
+</ol>
+<pre><code class="language-python"># OpenAI Function Calling 示例 [4]
+tools = [{
+    &quot;type&quot;: &quot;function&quot;,
+    &quot;name&quot;: &quot;get_weather&quot;,
+    &quot;description&quot;: &quot;Retrieves current weather for the given location.&quot;,
+    &quot;parameters&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: {
+            &quot;location&quot;: {&quot;type&quot;: &quot;string&quot;, &quot;description&quot;: &quot;City and country&quot;},
+            &quot;units&quot;: {&quot;type&quot;: &quot;string&quot;, &quot;enum&quot;: [&quot;celsius&quot;, &quot;fahrenheit&quot;]}
+        },
+        &quot;required&quot;: [&quot;location&quot;, &quot;units&quot;]
+    },
+    &quot;strict&quot;: true
+}]
+</code></pre>
+<h3>3.3 OpenAI vs Anthropic 工具定义对比</h3>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>OpenAI</th>
+<th>Anthropic Claude</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>字段名</td>
+<td><code>parameters</code></td>
+<td><code>input_schema</code></td>
+</tr>
+<tr>
+<td>Strict 模式</td>
+<td><code>strict: true</code></td>
+<td><code>strict: true</code></td>
+</tr>
+<tr>
+<td>Namespace</td>
+<td>支持 <code>type: &quot;namespace&quot;</code></td>
+<td>❌ 不支持</td>
+</tr>
+<tr>
+<td>Tool Search</td>
+<td>支持（GPT-5.4+）</td>
+<td>❌ 不支持</td>
+</tr>
+<tr>
+<td>并行调用</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody></table>
+<h3>3.4 Tool Search：延迟加载新范式</h3>
+<p>OpenAI 在 2025 年引入了 <strong>Tool Search</strong> 机制，仅 GPT-5.4 及以上模型支持[4]：</p>
+<ul>
+<li><strong>问题</strong>：当工具数量超过 100+，全量加载会导致上下文膨胀</li>
+<li><strong>方案</strong>：工具声明 <code>defer_loading: true</code>，模型按需搜索加载</li>
+<li><strong>效果</strong>：支持大规模工具生态系统，减少 token 消耗</li>
+</ul>
+<hr>
+<h2>4. 插件系统设计模式</h2>
+<h3>4.1 LangChain Tools 架构</h3>
+<p>LangChain 提供了最成熟的工具抽象层，支持 1000+ 集成[7]：</p>
+<p><strong>核心概念</strong>：</p>
+<ul>
+<li><strong>Tool</strong>：被模型调用的工具，输入由模型生成，输出返回模型</li>
+<li><strong>Toolkit</strong>：一组相关工具的集合</li>
+<li><strong>ToolNode</strong>：在 LangGraph 中执行工具调用的节点</li>
+</ul>
+<p><strong>工具分类</strong>（按功能）[7]：</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>搜索工具</td>
+<td>Brave Search, Google Search</td>
+<td>信息检索</td>
+</tr>
+<tr>
+<td>代码解释器</td>
+<td>E2B, Azure Sessions</td>
+<td>安全执行代码</td>
+</tr>
+<tr>
+<td>数据库</td>
+<td>SQL Database Toolkit</td>
+<td>数据查询</td>
+</tr>
+<tr>
+<td>API 集成</td>
+<td>Requests, Twilio</td>
+<td>外部服务调用</td>
+</tr>
+<tr>
+<td>文件处理</td>
+<td>Wikipedia, Arxiv</td>
+<td>文档读取</td>
+</tr>
+</tbody></table>
+<h3>4.2 工具注册模式</h3>
+<div class="mermaid">graph LR
+    subgraph "工具注册流程"
+        A[定义 Tool Schema] --> B{选择集成方式}
+        B -->|MCP| C[MCP Server 注册]
+        B -->|Function Call| D[API 请求携带]
+        B -->|LangChain| E[继承 BaseTool]
+        
+        C --> F[工具发现 tools/list]
+        D --> G[模型选择调用]
+        E --> H[bind_tools 绑定]
+        
+        F --> G
+        H --> G
+    end</div>
+<h3>4.3 工具发现、注册、调用生命周期</h3>
+<p>完整的工具生命周期包含以下阶段：</p>
+<ol>
+<li><strong>定义阶段</strong>：用 JSON Schema 或类继承定义工具签名</li>
+<li><strong>注册阶段</strong>：将工具注册到 Server/框架/API</li>
+<li><strong>发现阶段</strong>：Client 或模型获取可用工具列表</li>
+<li><strong>选择阶段</strong>：模型根据上下文选择合适的工具</li>
+<li><strong>调用阶段</strong>：执行工具并获取结果</li>
+<li><strong>反馈阶段</strong>：将结果返回给模型处理</li>
+</ol>
+<hr>
+<h2>5. 工具权限控制与安全边界</h2>
+<h3>5.1 安全威胁模型</h3>
+<p>工具集成引入了新的安全风险[2][5]：</p>
+<table>
+<thead>
+<tr>
+<th>威胁类型</th>
+<th>描述</th>
+<th>缓解措施</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Prompt Injection</strong></td>
+<td>恶意输入诱导模型调用危险工具</td>
+<td>输入验证、工具白名单</td>
+</tr>
+<tr>
+<td><strong>权限提升</strong></td>
+<td>工具获取不应有的权限</td>
+<td>最小权限原则、沙箱隔离</td>
+</tr>
+<tr>
+<td><strong>数据泄露</strong></td>
+<td>工具输出包含敏感信息</td>
+<td>输出过滤、脱敏处理</td>
+</tr>
+<tr>
+<td><strong>工具中毒</strong></td>
+<td>恶意 Server 提供虚假工具</td>
+<td>Server 认证、工具签名</td>
+</tr>
+</tbody></table>
+<h3>5.2 MCP 安全机制</h3>
+<p>MCP 规范在安全设计上强调<strong>人类审批（Human-in-the-loop）</strong>[2]：</p>
+<ul>
+<li><strong>必须提供 UI 指示</strong>：清晰展示工具被暴露给 AI</li>
+<li><strong>必须有视觉反馈</strong>：工具调用时提供明确的视觉指示</li>
+<li><strong>必须有确认提示</strong>：对敏感操作要求用户确认</li>
+</ul>
+<pre><code>⚠️ MCP 安全最佳实践 [2]:
+- Server 应声明 tool annotations 行为元数据
+- Client 应将 annotations 视为不可信数据（除非来自可信 Server）
+- 始终保持人类在循环中
+</code></pre>
+<h3>5.3 权限控制模型</h3>
+<table>
+<thead>
+<tr>
+<th>控制级别</th>
+<th>实现方式</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>工具级</strong></td>
+<td>白名单/黑名单</td>
+<td>允许/禁止特定工具</td>
+</tr>
+<tr>
+<td><strong>参数级</strong></td>
+<td>JSON Schema 验证</td>
+<td>限制参数范围和类型</td>
+</tr>
+<tr>
+<td><strong>结果级</strong></td>
+<td>输出过滤</td>
+<td>防止敏感信息泄露</td>
+</tr>
+<tr>
+<td><strong>会话级</strong></td>
+<td>令牌/作用域限制</td>
+<td>限制工具访问范围</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>6. 对比分析与技术选型</h2>
+<h3>6.1 三大方案对比</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>MCP</th>
+<th>Function Calling</th>
+<th>LangChain Tools</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>开放性</strong></td>
+<td>✅ 开源标准</td>
+<td>❌ 厂商锁定</td>
+<td>✅ 开源框架</td>
+</tr>
+<tr>
+<td><strong>模型支持</strong></td>
+<td>多模型（协议层）</td>
+<td>多模型（需适配）</td>
+<td>多模型（框架适配）</td>
+</tr>
+<tr>
+<td><strong>工具发现</strong></td>
+<td>动态 listChanged</td>
+<td>静态定义</td>
+<td>静态绑定</td>
+</tr>
+<tr>
+<td><strong>安全机制</strong></td>
+<td>Human-in-the-loop</td>
+<td>依赖实现</td>
+<td>依赖实现</td>
+</tr>
+<tr>
+<td><strong>生态成熟度</strong></td>
+<td>快速增长中</td>
+<td>最成熟</td>
+<td>最丰富</td>
+</tr>
+<tr>
+<td><strong>传输方式</strong></td>
+<td>STDIO/HTTP</td>
+<td>API 直连</td>
+<td>任意</td>
+</tr>
+<tr>
+<td><strong>延迟加载</strong></td>
+<td>❌</td>
+<td>✅ Tool Search</td>
+<td>❌</td>
+</tr>
+</tbody></table>
+<h3>6.2 技术选型建议</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐方案</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>独立 Agent 应用</strong></td>
+<td>MCP + Function Calling</td>
+<td>标准化 + 原生性能</td>
+</tr>
+<tr>
+<td><strong>多模型兼容</strong></td>
+<td>MCP</td>
+<td>协议层抽象，不绑定特定厂商</td>
+</tr>
+<tr>
+<td><strong>快速原型</strong></td>
+<td>LangChain Tools</td>
+<td>丰富的预置工具，开发速度快</td>
+</tr>
+<tr>
+<td><strong>企业级部署</strong></td>
+<td>MCP + 自定义权限层</td>
+<td>开放标准 + 安全可控</td>
+</tr>
+<tr>
+<td><strong>大规模工具库</strong></td>
+<td>OpenAI Tool Search</td>
+<td>延迟加载，减少上下文压力</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>7. 结论</h2>
+<p>Agent 工具集成已从&quot;各厂商各自为战&quot;走向&quot;标准化协议主导&quot;的阶段。MCP 作为 Anthropic 主导的开源标准，凭借其架构清晰、安全设计完善、多模型支持的优势，正在成为事实上的行业标准。Function Calling 在 OpenAI 生态内持续演进，Tool Search 等创新为大规模工具管理提供了新思路。LangChain 则在框架层提供了最灵活的抽象。</p>
+<p><strong>核心建议</strong>：</p>
+<ol>
+<li><strong>新项目优先采用 MCP</strong>，获得最大的生态兼容性</li>
+<li><strong>保留 Function Calling 支持</strong>，覆盖 OpenAI 生态用户</li>
+<li><strong>安全设计前置</strong>，始终假设工具可能被滥用</li>
+<li><strong>建立工具治理机制</strong>，包括注册、审计、监控</li>
+</ol>
+<p>工具集成的下一波浪潮将是<strong>工具市场的标准化</strong>和<strong>跨 Agent 的工具复用</strong>——MCP 已经为此铺好了路。</p>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>Anthropic. Model Context Protocol Introduction (2025). <a href="https://modelcontextprotocol.io/introduction">https://modelcontextprotocol.io/introduction</a></li>
+<li>Anthropic. MCP Tools Specification (2025-06-18). <a href="https://modelcontextprotocol.io/specification/2025-06-18/server/tools.md">https://modelcontextprotocol.io/specification/2025-06-18/server/tools.md</a></li>
+<li>Anthropic. MCP Architecture Overview (2025). <a href="https://modelcontextprotocol.io/docs/learn/architecture">https://modelcontextprotocol.io/docs/learn/architecture</a></li>
+<li>OpenAI. Function Calling Guide (2025). <a href="https://developers.openai.com/api/docs/guides/function-calling">https://developers.openai.com/api/docs/guides/function-calling</a></li>
+<li>Anthropic. Tool Use with Claude (2025). <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview">https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview</a></li>
+<li>Anthropic. MCP Basic Protocol Specification (2025-06-18). <a href="https://modelcontextprotocol.io/specification/2025-06-18/basic">https://modelcontextprotocol.io/specification/2025-06-18/basic</a></li>
+<li>LangChain. Tool Integrations (2025). <a href="https://docs.langchain.com/oss/python/integrations/tools/">https://docs.langchain.com/oss/python/integrations/tools/</a></li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>
