@@ -20,50 +20,6 @@ AI 驱动的技术研究报告仓库。由 **探针 (Probe)** 团队生成，覆
 
 - 🚀 [Releases — 最新报告发布](https://github.com/wqwz111/Tech-Researcher/releases)
 
-## 📂 报告目录 (33 篇)
-
-```
-reports/
-├── methodology/       # 🔬 方法论 (9 篇)
-│   ├── prompt-engineering
-│   ├── rag-patterns
-│   ├── agent-design-patterns
-│   ├── fine-tuning-strategies
-│   ├── llm-evaluation
-│   ├── agent-memory
-│   ├── multi-agent-collaboration
-│   ├── reasoning-enhancement
-│   └── ai-agent-stability
-├── case-studies/      # 📊 案例实践 (8 篇)
-│   ├── openai-ecosystem
-│   ├── anthropic-enterprise
-│   ├── gemini-multimodal
-│   ├── ai-coding-assistants
-│   ├── ai-finance
-│   ├── ai-healthcare
-│   ├── open-source-deployment
-│   └── rag-production
-├── tools/             # 🛠️ 工具 (8 篇)
-│   ├── langchain-vs-llamaindex
-│   ├── vector-databases
-│   ├── ai-orchestration
-│   ├── openclaw-guide
-│   ├── mcp-ecosystem
-│   ├── ai-devtools
-│   ├── observability-tools
-│   └── ai-security-tools
-├── frameworks/        # 🏗️ 框架 (8 篇)
-│   ├── openai-api
-│   ├── claude-api
-│   ├── inference-frameworks
-│   ├── vllm-production
-│   ├── agent-frameworks
-│   ├── multimodal-frameworks
-│   ├── ai-frontend
-│   └── ai-infrastructure
-└── team.html          # 👥 团队介绍
-```
-
 ## 👥 团队结构 (1:N:1:1:1:N)
 
 | 角色 | 数量 | 职责 |
