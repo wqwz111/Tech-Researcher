@@ -713,8 +713,8 @@
 <td>多厂商（Google、Mistral、Cohere）跟进，形成事实标准</td>
 </tr>
 <tr>
-<td>2025</td>
-<td>OpenAI 引入 Tool Search 和 Namespace 分组</td>
+<td>2026</td>
+<td>OpenAI 正式发布 Tool Search 和 Namespace 分组（gpt-5.4+）[4][8]</td>
 </tr>
 </tbody></table>
 <h3>3.2 Function Calling 流程</h3>
@@ -762,13 +762,13 @@ tools = [{
 <td><code>strict: true</code></td>
 </tr>
 <tr>
-<td>Namespace</td>
-<td>支持 <code>type: &quot;namespace&quot;</code></td>
+<td>Namespace 分组</td>
+<td>支持 <code>type: &quot;namespace&quot;</code>（gpt-5.4+）[4]</td>
 <td>❌ 不支持</td>
 </tr>
 <tr>
-<td>Tool Search</td>
-<td>支持（GPT-5.4+）</td>
+<td>Tool Search 延迟加载</td>
+<td>支持（gpt-5.4+）[4][8]</td>
 <td>❌ 不支持</td>
 </tr>
 <tr>
@@ -777,13 +777,58 @@ tools = [{
 <td>✅</td>
 </tr>
 </tbody></table>
+<blockquote>
+<p>注：Namespace 和 Tool Search 需要 gpt-5.4 及以上模型支持[8]。</p>
+</blockquote>
 <h3>3.4 Tool Search：延迟加载新范式</h3>
-<p>OpenAI 在 2025 年引入了 <strong>Tool Search</strong> 机制，仅 GPT-5.4 及以上模型支持[4]：</p>
+<p>OpenAI 在 Function Calling API 中引入了 <strong>Tool Search</strong> 机制，仅 gpt-5.4 及以上模型支持[4][8]。该机制解决了工具数量膨胀导致的上下文压力问题。</p>
+<p><strong>核心机制</strong>[8]：</p>
 <ul>
-<li><strong>问题</strong>：当工具数量超过 100+，全量加载会导致上下文膨胀</li>
-<li><strong>方案</strong>：工具声明 <code>defer_loading: true</code>，模型按需搜索加载</li>
-<li><strong>效果</strong>：支持大规模工具生态系统，减少 token 消耗</li>
+<li><strong>问题</strong>：当工具数量超过 100+，全量加载会导致上下文膨胀，消耗大量 token</li>
+<li><strong>方案</strong>：工具定义声明 <code>defer_loading: true</code>，模型按需搜索和加载工具</li>
+<li><strong>Namespace 配合</strong>：将延迟加载的工具组织到 <code>type: &quot;namespace&quot;</code> 分组中，模型只需看到 namespace 名称和描述，无需加载内部工具细节[4]</li>
+<li><strong>效果</strong>：支持大规模工具生态系统，显著减少 token 消耗</li>
 </ul>
+<p><strong>两种 Tool Search 模式</strong>[8]：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>说明</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Hosted</strong></td>
+<td>OpenAI 服务端自动搜索延迟工具</td>
+<td>候选工具在请求时已知</td>
+</tr>
+<tr>
+<td><strong>Client-executed</strong></td>
+<td>模型发出搜索调用，应用端执行查找</td>
+<td>工具发现依赖项目/租户状态</td>
+</tr>
+</tbody></table>
+<p><strong>代码示例</strong>（Namespace + defer_loading）[4]：</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;namespace&quot;,
+  &quot;name&quot;: &quot;crm&quot;,
+  &quot;description&quot;: &quot;CRM tools for customer lookup and order management.&quot;,
+  &quot;tools&quot;: [
+    {
+      &quot;type&quot;: &quot;function&quot;,
+      &quot;name&quot;: &quot;list_open_orders&quot;,
+      &quot;description&quot;: &quot;List open orders for a customer ID.&quot;,
+      &quot;defer_loading&quot;: true,
+      &quot;parameters&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: { &quot;customer_id&quot;: { &quot;type&quot;: &quot;string&quot; } },
+        &quot;required&quot;: [&quot;customer_id&quot;]
+      }
+    }
+  ]
+}
+</code></pre>
 <hr>
 <h2>4. 插件系统设计模式</h2>
 <h3>4.1 LangChain Tools 架构</h3>
@@ -1040,10 +1085,11 @@ tools = [{
 <li>Anthropic. Model Context Protocol Introduction (2025). <a href="https://modelcontextprotocol.io/introduction">https://modelcontextprotocol.io/introduction</a></li>
 <li>Anthropic. MCP Tools Specification (2025-06-18). <a href="https://modelcontextprotocol.io/specification/2025-06-18/server/tools.md">https://modelcontextprotocol.io/specification/2025-06-18/server/tools.md</a></li>
 <li>Anthropic. MCP Architecture Overview (2025). <a href="https://modelcontextprotocol.io/docs/learn/architecture">https://modelcontextprotocol.io/docs/learn/architecture</a></li>
-<li>OpenAI. Function Calling Guide (2025). <a href="https://developers.openai.com/api/docs/guides/function-calling">https://developers.openai.com/api/docs/guides/function-calling</a></li>
+<li>OpenAI. Function Calling Guide (2026). <a href="https://developers.openai.com/api/docs/guides/function-calling">https://developers.openai.com/api/docs/guides/function-calling</a></li>
 <li>Anthropic. Tool Use with Claude (2025). <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview">https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview</a></li>
 <li>Anthropic. MCP Basic Protocol Specification (2025-06-18). <a href="https://modelcontextprotocol.io/specification/2025-06-18/basic">https://modelcontextprotocol.io/specification/2025-06-18/basic</a></li>
 <li>LangChain. Tool Integrations (2025). <a href="https://docs.langchain.com/oss/python/integrations/tools/">https://docs.langchain.com/oss/python/integrations/tools/</a></li>
+<li>OpenAI. Tool Search Guide (2026). <a href="https://developers.openai.com/api/docs/guides/tools-tool-search">https://developers.openai.com/api/docs/guides/tools-tool-search</a></li>
 </ol>
 
 
