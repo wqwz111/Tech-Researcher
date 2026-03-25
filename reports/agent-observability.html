@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 日志与可观测性：构建 Metrics/Traces/Logs 三支柱</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>Agent 日志与可观测性：构建 Metrics/Traces/Logs 三支柱</h1>
+  <div class="meta">2026-03-25 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>AI Agent 系统的不可确定性远高于传统微服务——一次用户请求可能触发多轮 LLM 调用、工具执行、规划迭代，整个链路的决策路径难以预测。传统的&quot;打日志+看报错&quot;模式在这种场景下失效：你无法提前知道 Agent 会在哪一步卡住、Token 消耗为何飙升、工具调用为什么失败。</p>
+<p>本报告提出 Agent 可观测性的完整三支柱设计框架：<strong>Metrics</strong>（量化 Agent 健康度）、<strong>Traces</strong>（还原决策路径）、<strong>Logs</strong>（保留上下文细节）。核心观点是：Agent 可观测性不是把传统可观测性&quot;搬过来&quot;，而是需要针对 Agent 特有的行为模式（Token 消耗、规划步数、工具调用成功率、幻觉检测）设计专属指标和采集策略。</p>
+<p>工具选型推荐：OpenTelemetry 作为统一采集层，Prometheus/Grafana 负责 Metrics 存储和可视化，LangSmith/Arize Phoenix 负责 Agent 专属 Trace 分析，结构化日志库（structlog/Logfire）负责 Logs。这套组合既兼容现有运维体系，又能覆盖 Agent 特有需求。</p>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. 可观测性三支柱在 Agent 场景的适配</h2>
+<h3>1.1 从传统可观测性到 Agent 可观测性</h3>
+<p>传统可观测性针对的是确定性系统：请求进来、处理、返回，路径可预测。Agent 系统打破了这个假设——同一个用户请求，Agent 可能走 3 步完成，也可能绕 20 步还没收敛。这意味着可观测性设计需要从&quot;监控已知路径&quot;转向&quot;理解未知行为&quot;[1]。</p>
+<p><strong>三大支柱的角色重新定义：</strong></p>
+<table>
+<thead>
+<tr>
+<th>支柱</th>
+<th>传统系统</th>
+<th>Agent 系统</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Metrics</strong></td>
+<td>QPS、错误率、延迟</td>
+<td>Token 消耗、规划步数、工具成功率、幻觉率</td>
+</tr>
+<tr>
+<td><strong>Traces</strong></td>
+<td>请求经过的服务链</td>
+<td>Agent 决策树（规划→执行→反思→再规划）</td>
+</tr>
+<tr>
+<td><strong>Logs</strong></td>
+<td>错误日志、访问日志</td>
+<td>结构化事件日志（LLM 输入/输出、工具参数/结果、决策依据）</td>
+</tr>
+</tbody></table>
+<p>三者的关系不是并列，而是分层：<strong>Metrics 是仪表盘</strong>（告诉你&quot;有没有问题&quot;），<strong>Traces 是定位器</strong>（告诉你&quot;问题在哪一步&quot;），<strong>Logs 是取证器</strong>（告诉你&quot;为什么会这样&quot;）[2]。</p>
+<div class="mermaid">graph TD
+    A[Agent 收到用户请求] --> B{Metrics: Agent 健康度指标}
+    B -->|正常| C[执行流程]
+    B -->|异常告警| D[Traces: 追踪决策路径]
+    D --> E[定位问题 Span]
+    E --> F[Logs: 查看上下文详情]
+    F --> G[根因分析]
+    
+    C --> H[Token 消耗统计]
+    C --> I[工具调用记录]
+    C --> J[规划步数统计]
+    
+    H --> K[Metrics Dashboard]
+    I --> K
+    J --> K
+    
+    style B fill:#e1f5fe
+    style D fill:#fff3e0
+    style F fill:#f3e5f5</div>
+<h3>1.2 Metrics：Agent 健康度的量化指标</h3>
+<p>Agent 的 Metrics 设计需要覆盖四个维度：<strong>效率</strong>、<strong>质量</strong>、<strong>成本</strong>、<strong>可靠性</strong>。与传统服务不同，Agent 的核心价值在于&quot;智能决策&quot;，因此需要额外关注决策质量指标[3]。</p>
+<p><strong>核心指标体系：</strong></p>
+<p><strong>效率指标：</strong></p>
+<ul>
+<li><code>agent_planning_steps</code>：单次请求的规划迭代次数（Histogram）</li>
+<li><code>agent_loop_iterations</code>：ReAct 循环次数（Histogram）</li>
+<li><code>agent_time_to_first_token</code>：首 Token 延迟（Gauge）</li>
+<li><code>agent_total_duration</code>：端到端处理时长（Histogram）</li>
+</ul>
+<p><strong>成本指标：</strong></p>
+<ul>
+<li><code>agent_token_input</code>：输入 Token 消耗（Counter）</li>
+<li><code>agent_token_output</code>：输出 Token 消耗（Counter）</li>
+<li><code>agent_token_total</code>：总 Token 消耗（Counter）</li>
+<li><code>agent_cost_usd</code>：按模型定价折算的美元成本（Counter）</li>
+</ul>
+<p><strong>质量指标：</strong></p>
+<ul>
+<li><code>agent_tool_call_success_rate</code>：工具调用成功率（Gauge，按工具分组）</li>
+<li><code>agent_hallucination_score</code>：幻觉检测得分（Gauge，0-1）</li>
+<li><code>agent_answer_relevance</code>：回答相关性评分（Gauge，0-1）</li>
+<li><code>agent_user_feedback_positive</code>：用户正向反馈计数（Counter）</li>
+</ul>
+<p><strong>可靠性指标：</strong></p>
+<ul>
+<li><code>agent_error_rate</code>：错误率（Gauge）</li>
+<li><code>agent_timeout_rate</code>：超时率（Gauge）</li>
+<li><code>agent_max_iterations_reached</code>：达到最大迭代次数次数（Counter）</li>
+<li><code>agent_stuck_loops</code>：死循环检测计数（Counter）</li>
+</ul>
+<p>这些指标需要通过 OpenTelemetry SDK 采集，推送到 Prometheus，再由 Grafana 展示[4]。</p>
+<div class="mermaid">graph LR
+    A[Agent Runtime] -->|采集| B[OpenTelemetry SDK]
+    B -->|Metrics| C[OTel Collector]
+    C -->|写入| D[Prometheus]
+    D -->|查询| E[Grafana Dashboard]
+    
+    A -->|Traces| B
+    B --> C
+    C -->|写入| F[Tempo/Jaeger]
+    F -->|查询| E
+    C -->|写入| G[LangSmith]
+    
+    A -->|Structured Logs| H[structlog]
+    H -->|写入| I[Loki]
+    I -->|查询| E
+    
+    style B fill:#e8f5e9
+    style D fill:#e3f2fd
+    style G fill:#fce4ec</div>
+<h3>1.3 Traces：还原 Agent 的决策路径</h3>
+<p>Agent 的执行路径不是线性的，而是树状甚至图状的。一个规划型 Agent（ReAct、Plan-and-Execute）可能在一次请求中经历多次&quot;思考→行动→观察&quot;的循环。Trace 需要捕获的不只是&quot;调了哪个工具&quot;，而是&quot;为什么选择这个工具、基于什么信息、上一步的结果如何影响下一步&quot;。</p>
+<p><strong>Agent Trace 的核心 Span 结构：</strong></p>
+<pre><code>Trace: user_request_abc123
+├── Span: agent_thinking (reasoning)
+│   ├── Attribute: model=gpt-4o
+│   ├── Attribute: planning_strategy=react
+│   └── Event: decided_to_use_tool=web_search
+├── Span: tool_call_web_search
+│   ├── Attribute: tool_name=web_search
+│   ├── Attribute: query=&quot;...&quot;
+│   └── Status: OK
+├── Span: agent_thinking (reasoning)
+│   └── Event: decided_to_use_tool=code_execution
+├── Span: tool_call_code_execution
+│   ├── Attribute: tool_name=python_repl
+│   └── Status: ERROR (timeout)
+├── Span: agent_reflection
+│   └── Event: tool_failed, retry_with_different_approach
+└── Span: agent_final_response
+    └── Attribute: total_tokens=4500
+</code></pre>
+<p>每个 Span 需要包含 Agent 特有的属性：</p>
+<ul>
+<li><code>agent.thinking_duration</code>：推理耗时</li>
+<li><code>agent.planning_step</code>：当前规划步数</li>
+<li><code>agent.tool抉择理由</code>：工具选择的推理依据</li>
+<li><code>agent.context_tokens</code>：上下文窗口占用</li>
+</ul>
+<p>OpenTelemetry 提供了标准化的 Span 模型，但 Agent 场景需要扩展定义语义约定（Semantic Conventions）。目前 LangSmith 和 Arize Phoenix 已经定义了各自的扩展规范[5]。</p>
+<h3>1.4 Logs：结构化的事件取证</h3>
+<p>Agent 的日志不是传统的&quot;ERROR: something went wrong&quot;，而是一系列结构化事件的记录。每条日志需要包含完整的上下文：当时的 prompt、模型响应、工具输入输出、决策依据。</p>
+<p><strong>结构化日志格式（JSON Lines）：</strong></p>
+<pre><code class="language-json">{
+  &quot;timestamp&quot;: &quot;2026-03-25T10:30:00Z&quot;,
+  &quot;level&quot;: &quot;INFO&quot;,
+  &quot;event_type&quot;: &quot;agent_reasoning&quot;,
+  &quot;trace_id&quot;: &quot;abc123&quot;,
+  &quot;span_id&quot;: &quot;def456&quot;,
+  &quot;agent_id&quot;: &quot;research-assistant-v2&quot;,
+  &quot;data&quot;: {
+    &quot;model&quot;: &quot;gpt-4o&quot;,
+    &quot;input_tokens&quot;: 2400,
+    &quot;output_tokens&quot;: 150,
+    &quot;reasoning&quot;: &quot;User asked about X, need to search for latest info&quot;,
+    &quot;tool_selected&quot;: &quot;web_search&quot;,
+    &quot;confidence&quot;: 0.85
+  }
+}
+</code></pre>
+<p><strong>日志级别定义：</strong></p>
+<ul>
+<li><strong>DEBUG</strong>：完整的 prompt/response 内容（用于调试）</li>
+<li><strong>INFO</strong>：关键事件（工具调用、规划变更、完成）</li>
+<li><strong>WARN</strong>：降级行为（工具超时使用默认值、Token 接近限制）</li>
+<li><strong>ERROR</strong>：失败事件（工具调用失败、模型返回格式错误）</li>
+</ul>
+<p>推荐使用 Python 的 structlog 库或 Pydantic Logfire 来实现结构化日志。structlog 支持链式绑定（chaining），可以在 Agent 生命周期的不同阶段附加上下文信息，而不需要手动拼接字符串[6]。</p>
+<hr>
+<h2>2. 工具选型与架构设计</h2>
+<h3>2.1 可观测性架构总览</h3>
+<p>Agent 可观测性架构需要统一采集层（OpenTelemetry）、存储层（Prometheus + Tempo + Loki）和可视化层（Grafana），再叠加 Agent 专属分析平台（LangSmith 或 Arize Phoenix）[7]。</p>
+<div class="mermaid">graph TB
+    subgraph "Agent Runtime"
+        A1[Agent Instance 1]
+        A2[Agent Instance 2]
+        A3[Agent Instance N]
+    end
+    
+    subgraph "采集层 (OpenTelemetry)"
+        SDK[OTel SDK<br/>自动+手动插桩]
+        COLLECTOR[OTel Collector<br/>接收/处理/导出]
+    end
+    
+    subgraph "存储层"
+        PROM[Prometheus<br/>Metrics]
+        TEMPO[Tempo/Jaeger<br/>Traces]
+        LOKI[Loki<br/>Structured Logs]
+    end
+    
+    subgraph "Agent 专属平台"
+        LS[LangSmith<br/>Trace + Eval]
+        AP[Arize Phoenix<br/>Trace + Eval]
+    end
+    
+    subgraph "可视化层"
+        GRAF[Grafana<br/>统一仪表盘]
+    end
+    
+    A1 --> SDK
+    A2 --> SDK
+    A3 --> SDK
+    SDK --> COLLECTOR
+    
+    COLLECTOR -->|Metrics| PROM
+    COLLECTOR -->|Traces| TEMPO
+    COLLECTOR -->|Logs| LOKI
+    COLLECTOR -->|OTLP Export| LS
+    COLLECTOR -->|OTLP Export| AP
+    
+    PROM --> GRAF
+    TEMPO --> GRAF
+    LOKI --> GRAF
+    
+    style SDK fill:#e8f5e9
+    style GRAF fill:#e3f2fd
+    style LS fill:#fff3e0
+    style AP fill:#fce4ec</div>
+<h3>2.2 OpenTelemetry：统一采集标准</h3>
+<p>OpenTelemetry（OTel）是 CNCF 的可观测性标准项目，提供了统一的 API 和 SDK 来采集 Traces、Metrics 和 Logs[8]。对于 Agent 系统，OTel 的价值在于：</p>
+<ol>
+<li><strong>一次埋点，多处消费</strong>：通过 OTLP 协议将数据发送到任意后端（LangSmith、Jaeger、Prometheus 等）</li>
+<li><strong>自动插桩支持</strong>：主流 LLM 框架（LangChain、LlamaIndex）已内置 OTel 集成</li>
+<li><strong>语义约定扩展</strong>：可以定义 Agent 专属的 Span Attributes 和 Metric Labels</li>
+</ol>
+<p><strong>Python 示例——为 Agent 添加 OTel 手动插桩：</strong></p>
+<pre><code class="language-python">from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+
+# 初始化 Tracer
+tracer_provider = TracerProvider()
+otlp_exporter = OTLPSpanExporter(endpoint=os.environ.get(&quot;OTEL_EXPORTER_OTLP_ENDPOINT&quot;))
+tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+trace.set_tracer_provider(tracer_provider)
+
+tracer = trace.get_tracer(&quot;agent-service&quot;)
+
+# 在 Agent 执行流程中使用
+def agent_step(user_input, context):
+    with tracer.start_as_current_span(&quot;agent_reasoning&quot;) as span:
+        span.set_attribute(&quot;agent.model&quot;, &quot;gpt-4o&quot;)
+        span.set_attribute(&quot;agent.context_tokens&quot;, len(context))
+        
+        # 模型调用
+        response = llm.invoke(build_prompt(user_input, context))
+        span.set_attribute(&quot;agent.output_tokens&quot;, response.usage.completion_tokens)
+        
+        # 工具选择
+        tool = select_tool(response)
+        span.add_event(&quot;tool_selected&quot;, {&quot;tool_name&quot;: tool.name})
+        
+        return execute_tool(tool, response.tool_input)
+</code></pre>
+<p>LangSmith 支持通过环境变量 <code>LANGSMITH_OTEL_ENABLED=true</code> 直接接收 OTel 格式的 Trace 数据，无需修改应用代码[9]。</p>
+<h3>2.3 Prometheus + Grafana：Metrics 存储与可视化</h3>
+<p>Prometheus 是 CNCF 毕业项目，采用拉模式（pull-based）采集时序数据，支持强大的 PromQL 查询语言[4]。Grafana 则是事实上的开源可视化标准，支持 Prometheus、Loki、Tempo 等多种数据源的统一仪表盘[10]。</p>
+<p><strong>Agent 专属 Metrics 示例：</strong></p>
+<pre><code class="language-yaml"># prometheus.yml 抓取配置
+scrape_configs:
+  - job_name: &#39;agent-service&#39;
+    static_configs:
+      - targets: [&#39;agent:8080&#39;]
+    metrics_path: &#39;/metrics&#39;
+
+# Grafana Dashboard 核心面板
+# 1. Token 消耗趋势（按模型分组）
+# 2. 工具调用成功率 Top/Bottom 10
+# 3. 规划步数分布（Histogram）
+# 4. 端到端延迟 P50/P95/P99
+# 5. 幻觉率趋势
+# 6. 用户反馈评分趋势
+</code></pre>
+<p><strong>关键 PromQL 查询示例：</strong></p>
+<pre><code class="language-promql"># Agent 每分钟平均 Token 消耗
+rate(agent_token_total_sum[1m]) / rate(agent_token_total_count[1m])
+
+# 工具调用成功率（按工具分组）
+sum(rate(agent_tool_calls_total{status=&quot;success&quot;}[5m])) by (tool_name)
+/
+sum(rate(agent_tool_calls_total[5m])) by (tool_name)
+
+# 规划步数 P95
+histogram_quantile(0.95, sum(rate(agent_planning_steps_bucket[5m])) by (le))
+</code></pre>
+<h3>2.4 Agent 专属分析平台</h3>
+<p>传统 APM 工具无法理解 Agent 的执行语义——它们看到的是&quot;一串 HTTP 请求&quot;，而不是&quot;一个规划-执行-反思的循环&quot;。Agent 专属分析平台（LangSmith、Arize Phoenix、Datadog LLM Observability）提供了面向 LLM/Agent 的原生支持[5][11]：</p>
+<table>
+<thead>
+<tr>
+<th>平台</th>
+<th>核心能力</th>
+<th>适用场景</th>
+<th>开源</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>LangSmith</strong></td>
+<td>Trace 可视化、在线 Eval、Topic 聚类</td>
+<td>LangChain 生态</td>
+<td>部分</td>
+</tr>
+<tr>
+<td><strong>Arize Phoenix</strong></td>
+<td>Trace 分析、RAG 评估、Embedding 可视化</td>
+<td>框架无关</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Datadog LLM Obs</strong></td>
+<td>与现有 Datadog 集成、成本追踪</td>
+<td>已有 Datadog 基础设施</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Langfuse</strong></td>
+<td>开源自托管、Trace、Eval、成本分析</td>
+<td>数据敏感场景</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Pydantic Logfire</strong></td>
+<td>结构化日志 + Trace，与 Pydantic 深度集成</td>
+<td>Pydantic 生态</td>
+<td>部分</td>
+</tr>
+</tbody></table>
+<p><strong>选型建议：</strong></p>
+<ul>
+<li>如果已使用 LangChain/LangGraph → <strong>LangSmith</strong>（原生集成最深）</li>
+<li>如果需要框架无关 + 开源自托管 → <strong>Arize Phoenix</strong> 或 <strong>Langfuse</strong></li>
+<li>如果已有 Datadog 基础设施 → <strong>Datadog LLM Observability</strong>（统一平台）</li>
+<li>如果重度使用 Pydantic → <strong>Pydantic Logfire</strong>（结构化日志最佳实践）</li>
+</ul>
+<hr>
+<h2>3. Agent 特有指标的采集策略</h2>
+<h3>3.1 Token 消耗追踪</h3>
+<p>Token 消耗是 Agent 的&quot;燃料消耗&quot;，直接影响成本。但简单的计数不够——需要区分：哪个 Agent 用了多少 Token？哪类任务消耗最多？是否存在 Token 泄漏（上下文过长导致的无效消耗）？</p>
+<p><strong>分层采集策略：</strong></p>
+<ol>
+<li><strong>应用层</strong>：在 LLM 调用回调中直接获取 <code>usage</code> 对象（OpenAI/Anthropic SDK 均返回）</li>
+<li><strong>Agent 层</strong>：累加单次 Agent 执行的所有 LLM 调用 Token</li>
+<li><strong>用户层</strong>：按 session/user 累计，用于计费和预算控制</li>
+</ol>
+<pre><code class="language-python">from opentelemetry import metrics
+
+meter = metrics.get_meter(&quot;agent-service&quot;)
+token_counter = meter.create_counter(
+    name=&quot;agent.token.usage&quot;,
+    description=&quot;Token usage by agent and model&quot;,
+    unit=&quot;tokens&quot;
+)
+
+def track_llm_call(agent_id: str, model: str, usage):
+    token_counter.add(usage.prompt_tokens, {
+        &quot;agent_id&quot;: agent_id,
+        &quot;model&quot;: model,
+        &quot;type&quot;: &quot;input&quot;
+    })
+    token_counter.add(usage.completion_tokens, {
+        &quot;agent_id&quot;: agent_id,
+        &quot;model&quot;: model,
+        &quot;type&quot;: &quot;output&quot;
+    })
+</code></pre>
+<h3>3.2 工具调用可观测性</h3>
+<p>工具调用是 Agent 与外部世界的接口，也是最容易出错的环节。需要追踪：调用了什么工具、参数是什么、返回了什么、耗时多久、是否成功[3]。</p>
+<p><strong>工具调用的完整可观测性覆盖：</strong></p>
+<pre><code class="language-python">def instrumented_tool_call(tool_name: str, params: dict, tracer, meter):
+    with tracer.start_as_current_span(f&quot;tool_call_{tool_name}&quot;) as span:
+        span.set_attribute(&quot;tool.name&quot;, tool_name)
+        span.set_attribute(&quot;tool.params&quot;, json.dumps(params))
+        span.set_attribute(&quot;tool.timestamp&quot;, datetime.now().isoformat())
+        
+        start_time = time.time()
+        try:
+            result = execute_tool(tool_name, params)
+            duration = time.time() - start_time
+            
+            span.set_status(StatusCode.OK)
+            span.set_attribute(&quot;tool.duration_ms&quot;, duration * 1000)
+            span.set_attribute(&quot;tool.result_size&quot;, len(str(result)))
+            
+            # 记录 Metrics
+            meter.create_counter(&quot;tool_calls_total&quot;).add(1, {
+                &quot;tool&quot;: tool_name, &quot;status&quot;: &quot;success&quot;
+            })
+            
+            return result
+        except Exception as e:
+            duration = time.time() - start_time
+            
+            span.set_status(StatusCode.ERROR, str(e))
+            span.record_exception(e)
+            
+            meter.create_counter(&quot;tool_calls_total&quot;).add(1, {
+                &quot;tool&quot;: tool_name, &quot;status&quot;: &quot;error&quot;
+            })
+            
+            raise
+</code></pre>
+<h3>3.3 规划质量指标</h3>
+<p>规划（Planning）是 Agent 区别于简单 LLM 调用的核心能力。规划质量的度量包括：步数是否合理、是否走了弯路、是否成功收敛[12]。</p>
+<p><strong>关键规划指标：</strong></p>
+<ul>
+<li><strong>规划步数分布</strong>：大多数任务应在 3-7 步完成，过长可能意味着规划失败</li>
+<li><strong>工具选择准确率</strong>：Agent 选择的工具是否是完成任务的最优工具</li>
+<li><strong>回退次数</strong>：Agent 因工具失败而重新规划的次数</li>
+<li><strong>收敛速度</strong>：从开始到首次得到有意义结果的步数</li>
+</ul>
+<pre><code class="language-python">planning_histogram = meter.create_histogram(
+    name=&quot;agent.planning.steps&quot;,
+    description=&quot;Number of planning steps per request&quot;,
+    unit=&quot;steps&quot;
+)
+
+# 在 Agent 完成后记录
+planning_histogram.record(total_steps, {
+    &quot;agent_id&quot;: agent_id,
+    &quot;task_type&quot;: classify_task(user_input),
+    &quot;outcome&quot;: &quot;success&quot; if success else &quot;failed&quot;
+})
+</code></pre>
+<hr>
+<h2>4. 结构化日志实践</h2>
+<h3>4.1 日志设计原则</h3>
+<p>Agent 日志的核心原则是<strong>事件驱动</strong>——每条日志记录的是一个&quot;事件&quot;，而非简单的消息字符串。事件需要包含：触发条件、当前状态、影响范围、关联标识（Trace ID）[6]。</p>
+<p><strong>结构化日志 vs 传统日志：</strong></p>
+<pre><code># 传统日志（难以查询和分析）
+[2026-03-25 10:30:00] INFO: Calling tool web_search with query &quot;AI agents&quot;
+[2026-03-25 10:30:01] INFO: Tool returned 5 results
+[2026-03-25 10:30:02] ERROR: Tool code_execution failed
+
+# 结构化日志（可查询、可聚合、可追踪）
+{&quot;ts&quot;: &quot;2026-03-25T10:30:00Z&quot;, &quot;lvl&quot;: &quot;INFO&quot;, &quot;evt&quot;: &quot;tool_call&quot;, &quot;tool&quot;: &quot;web_search&quot;, &quot;params&quot;: {&quot;query&quot;: &quot;AI agents&quot;}, &quot;trace_id&quot;: &quot;abc123&quot;}
+{&quot;ts&quot;: &quot;2026-03-25T10:30:01Z&quot;, &quot;lvl&quot;: &quot;INFO&quot;, &quot;evt&quot;: &quot;tool_result&quot;, &quot;tool&quot;: &quot;web_search&quot;, &quot;result_count&quot;: 5, &quot;duration_ms&quot;: 1200, &quot;trace_id&quot;: &quot;abc123&quot;}
+{&quot;ts&quot;: &quot;2026-03-25T10:30:02Z&quot;, &quot;lvl&quot;: &quot;ERROR&quot;, &quot;evt&quot;: &quot;tool_error&quot;, &quot;tool&quot;: &quot;code_execution&quot;, &quot;error&quot;: &quot;TimeoutError&quot;, &quot;trace_id&quot;: &quot;abc123&quot;}
+</code></pre>
+<h3>4.2 structlog 实战</h3>
+<p>Python structlog 库支持链式绑定（bind）、线程本地上下文（threadlocal）、以及多种输出格式（JSON、Console）[6]。</p>
+<pre><code class="language-python">import structlog
+
+structlog.configure(
+    processors=[
+        structlog.contextvars.merge_contextvars,
+        structlog.processors.add_log_level,
+        structlog.processors.TimeStamper(fmt=&quot;iso&quot;),
+        structlog.processors.JSONRenderer()
+    ]
+)
+
+logger = structlog.get_logger()
+
+# Agent 执行日志
+logger.info(
+    &quot;agent_reasoning&quot;,
+    agent_id=&quot;research-v2&quot;,
+    model=&quot;gpt-4o&quot;,
+    input_tokens=2400,
+    output_tokens=150,
+    decision=&quot;use_tool&quot;,
+    tool=&quot;web_search&quot;,
+    trace_id=span.get_span_context().trace_id
+)
+
+logger.info(
+    &quot;tool_completed&quot;,
+    tool=&quot;web_search&quot;,
+    query=&quot;latest AI agent papers&quot;,
+    results_count=5,
+    duration_ms=1200,
+    trace_id=span.get_span_context().trace_id
+)
+</code></pre>
+<hr>
+<h2>5. 落地建议与最佳实践</h2>
+<h3>5.1 渐进式接入策略</h3>
+<p>可观测性不是一次性工程，建议分三阶段推进[7]：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>目标</th>
+<th>时间</th>
+<th>产出</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Phase 1：基础可观测</strong></td>
+<td>能看到 Agent 在干什么</td>
+<td>1-2 周</td>
+<td>结构化日志 + 基础 Trace</td>
+</tr>
+<tr>
+<td><strong>Phase 2：量化监控</strong></td>
+<td>能度量 Agent 的表现</td>
+<td>2-4 周</td>
+<td>Metrics 体系 + Grafana 仪表盘</td>
+</tr>
+<tr>
+<td><strong>Phase 3：质量闭环</strong></td>
+<td>能自动发现和改进问题</td>
+<td>1-2 月</td>
+<td>Eval 系统 + 自动告警 + 质量趋势</td>
+</tr>
+</tbody></table>
+<h3>5.2 常见陷阱</h3>
+<ol>
+<li><strong>过度日志</strong>：DEBUG 级别的完整 prompt/response 日志会迅速膨胀存储，建议只在采样或调试时开启</li>
+<li><strong>忽略 Trace 采样</strong>：100% Trace 采集在高并发场景下成本巨大，建议 Head-based sampling（10% 采样率）+ 高优先级请求全采样</li>
+<li><strong>只关注成功路径</strong>：Agent 的失败模式（死循环、幻觉、工具不可用）才是最需要可观测的</li>
+<li><strong>缺少成本分摊</strong>：Token 消耗需要能追溯到具体的用户/任务/Agent，否则无法优化成本</li>
+</ol>
+<hr>
+<h2>7. 结论</h2>
+<p>Agent 可观测性设计的核心不是&quot;记录更多数据&quot;，而是&quot;理解 Agent 的行为模式&quot;。三大支柱各有分工：</p>
+<ul>
+<li><strong>Metrics</strong> 回答&quot;Agent 健不健康&quot;——Token 消耗、工具成功率、规划步数是 Agent 特有的核心指标</li>
+<li><strong>Traces</strong> 回答&quot;Agent 是怎么想的&quot;——规划→执行→反思的决策树比线性调用链更有价值</li>
+<li><strong>Logs</strong> 回答&quot;Agent 当时看到了什么&quot;——结构化的事件日志是事后取证的关键</li>
+</ul>
+<p>工具选型上，<strong>OpenTelemetry + Prometheus + Grafana</strong> 构成了可靠的基础设施层，<strong>LangSmith / Arize Phoenix</strong> 补充了 Agent 专属的分析能力。落地时建议渐进式推进：先基础可观测（日志+Trace），再量化监控（Metrics），最后质量闭环（Eval+告警）。</p>
+<p>最终目标是让 Agent 系统从&quot;黑盒&quot;变成&quot;白盒&quot;——你不仅知道它在运行，还能理解它为什么这样做、做得好不好、怎样能做得更好。</p>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>OpenTelemetry. &quot;Observability Primer&quot; (2025). <a href="https://opentelemetry.io/docs/concepts/observability-primer/">https://opentelemetry.io/docs/concepts/observability-primer/</a></li>
+<li>CNCF. &quot;OpenTelemetry Architecture&quot; (2025). <a href="https://opentelemetry.io/docs/specs/otel/overview/">https://opentelemetry.io/docs/specs/otel/overview/</a></li>
+<li>LangChain. &quot;LangSmith Observability Platform&quot; (2025). <a href="https://www.langchain.com/langsmith/observability">https://www.langchain.com/langsmith/observability</a></li>
+<li>Prometheus. &quot;Overview - Prometheus Documentation&quot; (2025). <a href="https://prometheus.io/docs/introduction/overview/">https://prometheus.io/docs/introduction/overview/</a></li>
+<li>LangChain. &quot;Trace with OpenTelemetry in LangSmith&quot; (2025). <a href="https://docs.langchain.com/langsmith/trace-with-opentelemetry">https://docs.langchain.com/langsmith/trace-with-opentelemetry</a></li>
+<li>Pydantic. &quot;Logfire - Structured Observability&quot; (2025). <a href="https://pydantic.dev/logfire/">https://pydantic.dev/logfire/</a></li>
+<li>Arize AI. &quot;LLM Observability 101&quot; (2025). <a href="https://arize.com/resource/llm-observability-101-ebook/">https://arize.com/resource/llm-observability-101-ebook/</a></li>
+<li>OpenTelemetry. &quot;What is OpenTelemetry&quot; (2025). <a href="https://opentelemetry.io/docs/what-is-opentelemetry/">https://opentelemetry.io/docs/what-is-opentelemetry/</a></li>
+<li>LangChain. &quot;LangSmith OpenTelemetry Integration&quot; (2025). <a href="https://docs.langchain.com/langsmith/trace-with-opentelemetry">https://docs.langchain.com/langsmith/trace-with-opentelemetry</a></li>
+<li>Grafana. &quot;Grafana OSS Documentation&quot; (2025). <a href="https://grafana.com/docs/grafana/latest/">https://grafana.com/docs/grafana/latest/</a></li>
+<li>Langfuse. &quot;Open-source LLM Observability&quot; (2025). <a href="https://langfuse.com/">https://langfuse.com/</a></li>
+<li>LangChain. &quot;LangChain Agents Overview&quot; (2025). <a href="https://docs.langchain.com/oss/python/langchain/overview">https://docs.langchain.com/oss/python/langchain/overview</a></li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>

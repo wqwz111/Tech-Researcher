@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 决策链路追踪：从输入到输出的全链路 Debug</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>Agent 决策链路追踪：从输入到输出的全链路 Debug</h1>
+  <div class="meta">2026-03-25 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>当 Agent 行为异常时，开发者面临的核心挑战是：<strong>从用户输入到最终输出之间，经过了输入解析、规划推理、工具调用、结果整合、输出生成等多个环节，任何一个环节的失败都可能导致不可预测的结果</strong>。传统的日志打印和断点调试已经无法满足非确定性 AI 系统的需求——我们需要专门的链路追踪（Tracing）技术。</p>
+<p>本报告系统梳理了 Agent 请求的完整链路，分析每个环节的典型故障模式，并对比三大主流调试工具（LangSmith、Langfuse、OpenTelemetry）的追踪能力。核心结论：<strong>基于 Trace + Span 的分布式追踪是调试 Agent 系统的基础设施</strong>，开发者应在设计阶段就嵌入追踪能力，而非事后补加。</p>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. Agent 请求的完整链路</h2>
+<h3>1.1 链路全景</h3>
+<p>一个典型的 Agent 请求从用户输入到最终输出，经历五个核心环节。每个环节都有独立的输入、处理逻辑和输出，同时也都是潜在的故障点。</p>
+<div class="mermaid">flowchart TD
+    A[👤 用户输入] --> B[🔍 输入解析]
+    B --> C[🧠 规划推理]
+    C --> D[🔧 工具调用]
+    D --> E[📐 结果整合]
+    E --> F[📝 输出生成]
+    F --> G[✅ 最终输出]
+    
+    C -->|多步规划| C
+    D -->|多次调用| D
+    E -->|需要重试| C
+    
+    style A fill:#e1f5fe
+    style G fill:#c8e6c9
+    style C fill:#fff3e0
+    style D fill:#fff3e0</div>
+<h3>1.2 各环节职责与故障模式</h3>
+<p><strong>环节 1：输入解析（Input Parsing）</strong></p>
+<p>输入解析负责将用户原始输入转化为 Agent 可处理的结构化数据。包括意图识别、实体提取、上下文补全等。</p>
+<table>
+<thead>
+<tr>
+<th>故障类型</th>
+<th>表现</th>
+<th>根因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>意图误识别</td>
+<td>Agent 执行了用户未请求的操作</td>
+<td>Prompt 模糊、训练数据偏差</td>
+</tr>
+<tr>
+<td>实体提取失败</td>
+<td>缺少关键参数</td>
+<td>NER 模型局限、边界情况</td>
+</tr>
+<tr>
+<td>上下文丢失</td>
+<td>多轮对话中遗忘前文</td>
+<td>窗口截断策略不当</td>
+</tr>
+</tbody></table>
+<p><strong>环节 2：规划推理（Planning &amp; Reasoning）</strong></p>
+<p>规划环节决定 Agent 如何分解任务、选择策略。这是 Agent 与传统 Chatbot 的核心差异点[1][2]。</p>
+<table>
+<thead>
+<tr>
+<th>故障类型</th>
+<th>表现</th>
+<th>根因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>幻觉规划</td>
+<td>制定不存在的步骤</td>
+<td>LLM 幻觉</td>
+</tr>
+<tr>
+<td>循环规划</td>
+<td>反复制定相同计划</td>
+<td>缺少进度追踪</td>
+</tr>
+<tr>
+<td>死胡同规划</td>
+<td>规划无法执行的路径</td>
+<td>工具发现不完整</td>
+</tr>
+</tbody></table>
+<p><strong>环节 3：工具调用（Tool Invocation）</strong></p>
+<p>工具调用是 Agent 与外部世界交互的桥梁，也是故障率最高的环节[3]。</p>
+<table>
+<thead>
+<tr>
+<th>故障类型</th>
+<th>表现</th>
+<th>根因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>参数错误</td>
+<td>API 调用返回 400/422</td>
+<td>参数类型不匹配</td>
+</tr>
+<tr>
+<td>超时</td>
+<td>长时间无响应</td>
+<td>网络延迟、API 限流</td>
+</tr>
+<tr>
+<td>幻觉工具</td>
+<td>调用不存在的工具</td>
+<td>Prompt 注入、模型幻觉</td>
+</tr>
+</tbody></table>
+<p><strong>环节 4：结果整合（Result Integration）</strong></p>
+<p>将工具返回的原始数据转化为下一步可用的上下文。</p>
+<table>
+<thead>
+<tr>
+<th>故障类型</th>
+<th>表现</th>
+<th>根因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>格式解析失败</td>
+<td>JSON/XML 解析错误</td>
+<td>工具返回非预期格式</td>
+</tr>
+<tr>
+<td>信息丢失</td>
+<td>关键数据被过滤</td>
+<td>上下文窗口限制</td>
+</tr>
+<tr>
+<td>冲突整合</td>
+<td>多个工具返回矛盾数据</td>
+<td>缺少冲突解决策略</td>
+</tr>
+</tbody></table>
+<p><strong>环节 5：输出生成（Output Generation）</strong></p>
+<p>将整合后的结果转化为最终用户输出。</p>
+<table>
+<thead>
+<tr>
+<th>故障类型</th>
+<th>表现</th>
+<th>根因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>格式不符</td>
+<td>输出不符合用户期望</td>
+<td>Prompt 格式约束不足</td>
+</tr>
+<tr>
+<td>幻觉内容</td>
+<td>捏造工具未返回的数据</td>
+<td>LLM 填充模式</td>
+</tr>
+<tr>
+<td>安全泄露</td>
+<td>输出包含系统 prompt</td>
+<td>Prompt 注入攻击</td>
+</tr>
+</tbody></table>
+<h3>1.3 链路追踪时序图</h3>
+<p>链路追踪的核心在于捕获每个环节的输入输出、耗时和状态。以下是带有 Trace/Span 的完整请求时序：</p>
+<div class="mermaid">sequenceDiagram
+    participant U as 👤 User
+    agent P as 📋 Planner
+    participant T as 🔧 Tool
+    participant L as 🧠 LLM
+    participant Tr as 🔍 Tracer
+
+    U->>P: User Input
+    Note over P: Trace ID: abc-123
+
+    %% Span 1: Input Parsing
+    P->>Tr: span_start("input.parse")
+    P->>P: Intent Recognition
+    P->>Tr: span_end("input.parse", latency=120ms)
+
+    %% Span 2: Planning
+    P->>Tr: span_start("planning.reason")
+    P->>L: Query: "How to solve X?"
+    L-->>P: Plan: [step1, step2, step3]
+    P->>Tr: span_end("planning.reason", latency=2300ms, tokens=847)
+
+    %% Span 3: Tool Call
+    P->>Tr: span_start("tool.execute", tool="search_api")
+    P->>T: POST /search?q=X
+    T-->>P: {results: [...]}
+    P->>Tr: span_end("tool.execute", latency=450ms)
+
+    %% Span 4: Integration
+    P->>Tr: span_start("result.integrate")
+    P->>L: Integrate results with plan
+    L-->>P: Updated context
+    P->>Tr: span_end("result.integrate", latency=1100ms)
+
+    %% Span 5: Output Generation
+    P->>Tr: span_start("output.generate")
+    P->>L: Generate final answer
+    L-->>P: "Based on research..."
+    P->>Tr: span_end("output.generate", latency=1800ms)
+
+    P->>U: Final Response
+    Note over P: Total Trace: abc-123<br/>Duration: 5770ms<br/>Spans: 5</div>
+<h3>1.4 Trace 与 Span 数据模型</h3>
+<p>每个 Trace 包含多个 Span，Span 之间通过 <code>parent_span_id</code> 形成树状结构。以下是 Agent 请求中典型的 Span 层级：</p>
+<div class="mermaid">graph LR
+    subgraph Trace["Trace: abc-123"]
+        direction TB
+        S0["🟢 agent.run<br/>duration: 5770ms"]
+        S1["🔵 input.parse<br/>120ms"]
+        S2["🟠 planning.reason<br/>2300ms / 847 tokens"]
+        S3["🔴 tool.execute<br/>450ms / search_api"]
+        S4["🟣 result.integrate<br/>1100ms"]
+        S5["🔵 output.generate<br/>1800ms"]
+        
+        S0 --> S1
+        S0 --> S2
+        S0 --> S3
+        S0 --> S4
+        S0 --> S5
+    end
+
+    style S0 fill:#e8f5e9
+    style S1 fill:#e3f2fd
+    style S2 fill:#fff3e0
+    style S3 fill:#ffebee
+    style S4 fill:#f3e5f5
+    style S5 fill:#e3f2fd</div>
+<p>每个 Span 的关键属性包括：</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>trace_id</code></td>
+<td>全链路唯一标识</td>
+<td><code>abc-123-def-456</code></td>
+</tr>
+<tr>
+<td><code>span_id</code></td>
+<td>当前 Span 唯一标识</td>
+<td><code>span-001</code></td>
+</tr>
+<tr>
+<td><code>parent_span_id</code></td>
+<td>父 Span ID（根 Span 为空）</td>
+<td><code>span-000</code></td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>操作名称</td>
+<td><code>tool.execute</code></td>
+</tr>
+<tr>
+<td><code>start_time</code></td>
+<td>开始时间戳</td>
+<td><code>2025-03-25T10:00:00Z</code></td>
+</tr>
+<tr>
+<td><code>end_time</code></td>
+<td>结束时间戳</td>
+<td><code>2025-03-25T10:00:00.450Z</code></td>
+</tr>
+<tr>
+<td><code>attributes</code></td>
+<td>自定义属性</td>
+<td><code>{&quot;tool&quot;: &quot;search_api&quot;, &quot;query&quot;: &quot;X&quot;}</code></td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>状态（OK/ERROR）</td>
+<td><code>OK</code></td>
+</tr>
+<tr>
+<td><code>events</code></td>
+<td>里程碑事件</td>
+<td><code>[{&quot;name&quot;: &quot;retry&quot;, &quot;time&quot;: &quot;...&quot;}]</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>2. 上下文传播与关联标识</h2>
+<h3>2.1 上下文传播机制</h3>
+<p>在分布式 Agent 系统中（尤其是多 Agent 协作场景），Trace 信息需要在不同组件间传播。OpenTelemetry 定义了标准的上下文传播协议[4]。</p>
+<div class="mermaid">sequenceDiagram
+    participant A as 🤖 Agent A
+    participant B as 🤖 Agent B  
+    participant C as 🤖 Agent C
+    participant O as 🔍 OTel Collector
+
+    A->>A: span_start("agent_a.plan", trace_id=T1)
+    A->>B: HTTP POST (headers: traceparent=T1)
+    Note over B: Propagate trace_id from header
+    B->>B: span_start("agent_b.execute", parent=T1)
+    B->>C: HTTP POST (headers: traceparent=T1)
+    C->>C: span_start("agent_c.search", parent=T1)
+    C-->>B: Response
+    B-->>A: Response
+    A->>O: Export spans [T1→A→B→C]
+    
+    Note over O: All spans grouped by T1<br/>Full request chain visible</div>
+<h3>2.2 关键关联标识</h3>
+<p>多 Agent 系统中需要以下标识来关联不同维度的数据：</p>
+<table>
+<thead>
+<tr>
+<th>标识</th>
+<th>作用</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>trace_id</code></td>
+<td>关联整个请求链路</td>
+<td>所有 Span 共享</td>
+</tr>
+<tr>
+<td><code>session_id</code></td>
+<td>关联多轮对话</td>
+<td>同一用户会话</td>
+</tr>
+<tr>
+<td><code>agent_id</code></td>
+<td>标识具体 Agent</td>
+<td><code>planner-v2</code></td>
+</tr>
+<tr>
+<td><code>run_id</code></td>
+<td>标识单次执行</td>
+<td>用于重放调试</td>
+</tr>
+<tr>
+<td><code>correlation_id</code></td>
+<td>跨系统关联</td>
+<td>对接外部服务</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>3. 主流调试工具对比</h2>
+<h3>3.1 工具概览</h3>
+<p>2025 年主流的 Agent 调试工具可按定位分为三类：框架绑定型、开源通用型和标准协议型[5][6]。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>LangSmith</th>
+<th>Langfuse</th>
+<th>OpenTelemetry + 生态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>定位</strong></td>
+<td>LangChain 专属调试平台</td>
+<td>开源 LLM 工程平台</td>
+<td>厂商中立的遥测标准</td>
+</tr>
+<tr>
+<td><strong>开源</strong></td>
+<td>SaaS 为主</td>
+<td>✅ Apache 2.0</td>
+<td>✅ CNCF 毕业项目</td>
+</tr>
+<tr>
+<td><strong>自部署</strong></td>
+<td>❌ (仅 SaaS)</td>
+<td>✅ Docker / K8s</td>
+<td>✅ 任意后端</td>
+</tr>
+<tr>
+<td><strong>核心能力</strong></td>
+<td>Trace + Eval + Dataset</td>
+<td>Trace + Prompt + Eval</td>
+<td>Trace + Metrics + Logs</td>
+</tr>
+<tr>
+<td><strong>框架绑定</strong></td>
+<td>LangChain/LangGraph 深度集成</td>
+<td>框架无关 + SDK</td>
+<td>框架无关 + Semantic Conventions</td>
+</tr>
+<tr>
+<td><strong>Agent 可视化</strong></td>
+<td>独立 Agent Timeline</td>
+<td>Trace 瀑布图</td>
+<td>依赖后端 UI（Jaeger/Grafana）</td>
+</tr>
+<tr>
+<td><strong>成本追踪</strong></td>
+<td>✅ Token + Cost</td>
+<td>✅ Token + Cost</td>
+<td>✅ 通过 OTel GenAI Conventions</td>
+</tr>
+<tr>
+<td><strong>多 Agent 支持</strong></td>
+<td>✅ 子 Agent Span 层级</td>
+<td>✅ 嵌套 Trace</td>
+<td>✅ W3C TraceContext</td>
+</tr>
+</tbody></table>
+<h3>3.2 LangSmith：深度集成 LangChain 生态</h3>
+<p>LangSmith 是 LangChain 团队推出的调试平台，与 LangChain/LangGraph 深度集成[7]。其核心功能包括：</p>
+<p><strong>Trace 可视化</strong>：LangSmith 自动捕获 LangChain 链/Agent 的每一步执行，以时间线形式展示。每个 LLM 调用、工具调用、中间步骤都被记录为独立的 Span。</p>
+<p><strong>Agent 调试</strong>：2025 年推出 Polly AI 助手，支持通过对话分析 Trace 数据。开发者可以直接问：&quot;这个 Agent 为什么在第 15 步失败？&quot;[7]</p>
+<p><strong>Dataset 驱动的 Eval</strong>：将生产 Trace 转化为 Dataset，结合自动化评估器（Evaluator）持续验证 Agent 行为。</p>
+<p><strong>适用场景</strong>：</p>
+<ul>
+<li>使用 LangChain/LangGraph 构建的 Agent 系统</li>
+<li>需要快速上手、不想搭建基础设施的团队</li>
+<li>需要 Dataset + Eval 闭环的场景</li>
+</ul>
+<p><strong>局限</strong>：</p>
+<ul>
+<li>SaaS 模式，数据存储在第三方</li>
+<li>对非 LangChain 框架支持有限</li>
+<li>免费额度有限，大规模使用成本高</li>
+</ul>
+<h3>3.3 Langfuse：开源 LLM 可观测性平台</h3>
+<p>Langfuse 是 Apache 2.0 开源的 LLM 可观测性平台，支持自部署，框架无关[8]。</p>
+<p><strong>核心能力</strong>：</p>
+<ul>
+<li><strong>Trace 记录</strong>：支持任意框架的 Trace 上报，提供嵌套 Span 可视化</li>
+<li><strong>Prompt 管理</strong>：版本化管理 Prompt，支持 A/B 测试</li>
+<li><strong>成本分析</strong>：自动计算 Token 使用量和成本</li>
+<li><strong>评估引擎</strong>：支持 LLM-as-Judge、人工反馈等多种评估方式</li>
+</ul>
+<p><strong>集成方式</strong>：</p>
+<pre><code class="language-python"># Langfuse SDK 集成示例
+from langfuse.openai import openai  # 自动追踪 OpenAI 调用
+from langfuse import Langfuse
+
+langfuse = Langfuse()
+
+# 手动创建 Trace
+trace = langfuse.trace(name=&quot;agent-query&quot;, user_id=&quot;user-123&quot;)
+span = trace.span(name=&quot;tool-search&quot;, input={&quot;query&quot;: &quot;X&quot;})
+# ... 执行工具 ...
+span.end(output={&quot;results&quot;: [...]})
+</code></pre>
+<p><strong>适用场景</strong>：</p>
+<ul>
+<li>需要自部署、数据不出内网的团队</li>
+<li>使用多种 Agent 框架（LangGraph、CrewAI、AutoGen 等）</li>
+<li>需要 Prompt 管理和版本化</li>
+</ul>
+<p><strong>局限</strong>：</p>
+<ul>
+<li>社区版功能有限（50k 事件/月免费）</li>
+<li>多 Agent 复杂场景的可视化不如 LangSmith 直观</li>
+</ul>
+<h3>3.4 OpenTelemetry：厂商中立的遥测标准</h3>
+<p>OpenTelemetry（OTel）是 CNCF 毕业项目，定义了分布式追踪、指标和日志的标准[4]。2025 年，OTel GenAI 特别兴趣组正在制定 AI Agent 的语义约定（Semantic Conventions）。</p>
+<p><strong>AI Agent 语义约定</strong>（2025 年草案）[4]：</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>gen_ai.system</code></td>
+<td>模型提供商</td>
+<td><code>openai</code>, <code>anthropic</code></td>
+</tr>
+<tr>
+<td><code>gen_ai.request.model</code></td>
+<td>使用的模型</td>
+<td><code>gpt-4o</code></td>
+</tr>
+<tr>
+<td><code>gen_ai.usage.input_tokens</code></td>
+<td>输入 Token 数</td>
+<td><code>1247</code></td>
+</tr>
+<tr>
+<td><code>gen_ai.usage.output_tokens</code></td>
+<td>输出 Token 数</td>
+<td><code>389</code></td>
+</tr>
+<tr>
+<td><code>gen_ai.operation.name</code></td>
+<td>操作类型</td>
+<td><code>chat</code>, <code>completion</code></td>
+</tr>
+<tr>
+<td><code>gen_ai.agent.name</code></td>
+<td>Agent 名称</td>
+<td><code>planner</code></td>
+</tr>
+<tr>
+<td><code>gen_ai.tool.call.name</code></td>
+<td>工具名称</td>
+<td><code>search</code></td>
+</tr>
+</tbody></table>
+<p><strong>插桩方式</strong>：</p>
+<pre><code class="language-python"># 使用 OpenLLMetry 进行 OTel 插桩
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.trace import set_tracer_provider
+from openinference.instrumentation.openai import OpenAIInstrumentor
+
+set_tracer_provider(TracerProvider())
+OpenAIInstrumentor().instrument()  # 自动捕获所有 OpenAI 调用
+</code></pre>
+<p><strong>适用场景</strong>：</p>
+<ul>
+<li>企业级部署，已有 Prometheus/Grafana/Jaeger 等基础设施[10]</li>
+<li>需要跨框架、跨团队的统一可观测性</li>
+<li>需要与现有 APM 系统（Datadog、New Relic 等）集成[9]</li>
+</ul>
+<p><strong>局限</strong>：</p>
+<ul>
+<li>需要自行搭建后端（Jaeger/Grafana Tempo）</li>
+<li>AI 特定的可视化和评估功能需要额外工具</li>
+<li>语义约定仍在演进中</li>
+</ul>
+<h3>3.5 工具选型决策矩阵</h3>
+<div class="mermaid">quadrantChart
+    title Agent 调试工具选型
+    x-axis "低集成度" --> "高集成度"
+    y-axis "低灵活性" --> "高灵活性"
+    quadrant-1 "灵活但需投入"
+    quadrant-2 "最佳选择"
+    quadrant-3 "谨慎选择"
+    quadrant-4 "快速上手"
+    quadrant-1 "OpenTelemetry + Grafana": [0.8, 0.9]
+    quadrant-2 "Langfuse (自部署)": [0.6, 0.7]
+    quadrant-4 "LangSmith (SaaS)": [0.8, 0.3]</div>
+<hr>
+<h2>4. 常见问题定位模式</h2>
+<h3>4.1 模式一：瓶颈定位（Latency Profiling）</h3>
+<p><strong>场景</strong>：Agent 响应变慢，需要定位耗时最长的环节。</p>
+<p><strong>方法</strong>：查看 Trace 瀑布图，按 Span 耗时排序。</p>
+<pre><code class="language-python"># 分析 Trace 数据定位瓶颈
+traces = langfuse.get_traces(project=&quot;agent-prod&quot;)
+for trace in traces:
+    spans = trace.get_spans()
+    sorted_spans = sorted(spans, key=lambda s: s.duration, reverse=True)
+    print(f&quot;Trace {trace.id}: 最慢环节 = {sorted_spans[i].name} ({sorted_spans[i].duration}ms)&quot;)
+</code></pre>
+<p><strong>典型发现</strong>：</p>
+<ul>
+<li>工具调用占总耗时 60%+ → 优化工具响应或添加缓存</li>
+<li>LLM 规划占大头 → 简化 Prompt 或使用更小的模型做规划</li>
+<li>等待时间（非处理时间）高 → 检查网络延迟和队列积压</li>
+</ul>
+<h3>4.2 模式二：错误回溯（Error Tracing）</h3>
+<p><strong>场景</strong>：Agent 输出错误结果，需要定位错误起源。</p>
+<p><strong>方法</strong>：从错误 Span 向上追溯 Parent Span，找到错误传播路径。</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>操作</th>
+<th>工具支持</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>筛选 <code>status=ERROR</code> 的 Span</td>
+<td>LangSmith Filter / Langfuse Search</td>
+</tr>
+<tr>
+<td>2</td>
+<td>查看 Span 的 Input/Output 详情</td>
+<td>所有工具均支持</td>
+</tr>
+<tr>
+<td>3</td>
+<td>向上追溯 Parent 直到根 Span</td>
+<td>Trace 瀑布图</td>
+</tr>
+<tr>
+<td>4</td>
+<td>对比成功 Trace 的同一环节</td>
+<td>LangSmith Compare / Dataset</td>
+</tr>
+</tbody></table>
+<h3>4.3 模式三：幻觉检测（Hallucination Detection）</h3>
+<p><strong>场景</strong>：Agent 生成了不存在的事实，需要验证哪些信息是模型捏造的。</p>
+<p><strong>方法</strong>：检查 Tool Call Span 的 Output 是否被后续 LLM Span 引用。</p>
+<pre><code>Trace 结构:
+├── tool.search(query=&quot;X&quot;) → Output: [A, B, C]
+└── llm.generate(context=[A, B, C, D]) → Output: &quot;D 是...&quot;
+
+分析: D 在 Tool Output 中不存在 → 幻觉风险！
+</code></pre>
+<h3>4.4 模式四：循环检测（Loop Detection）</h3>
+<p><strong>场景</strong>：Agent 进入死循环，反复执行相同操作。</p>
+<p><strong>方法</strong>：比较同一 Trace 内相似 Span 的 Input 是否重复。</p>
+<pre><code class="language-python"># 检测循环模式
+spans = trace.get_spans(name=&quot;tool.execute&quot;)
+tool_inputs = [hash(span.input) for span in spans]
+if len(tool_inputs) != len(set(tool_inputs)):
+    print(f&quot;⚠️ 检测到循环！重复工具调用: {len(tool_inputs) - len(set(tool_inputs))} 次&quot;)
+</code></pre>
+<hr>
+<h2>5. 最佳实践</h2>
+<h3>5.1 追踪嵌入策略</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>策略</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>设计阶段</strong></td>
+<td>定义 Span 命名规范</td>
+<td>统一 <code>agent.run</code>、<code>tool.execute</code>、<code>llm.generate</code> 等命名</td>
+</tr>
+<tr>
+<td><strong>开发阶段</strong></td>
+<td>使用 SDK 手动插桩</td>
+<td>在关键节点添加 <code>span_start</code>/<code>span_end</code></td>
+</tr>
+<tr>
+<td><strong>测试阶段</strong></td>
+<td>验证 Trace 完整性</td>
+<td>确保每个请求都有完整的 Span 树</td>
+</tr>
+<tr>
+<td><strong>生产阶段</strong></td>
+<td>配置采样策略</td>
+<td>100% 错误 Trace + 按比例采样成功 Trace</td>
+</tr>
+</tbody></table>
+<h3>5.2 关键指标监控</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>说明</th>
+<th>告警阈值示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>trace.duration</code></td>
+<td>单次请求总耗时</td>
+<td>P99 &gt; 10s</td>
+</tr>
+<tr>
+<td><code>trace.span_count</code></td>
+<td>Span 数量</td>
+<td>异常增多可能表示无限循环</td>
+</tr>
+<tr>
+<td><code>trace.error_rate</code></td>
+<td>错误 Trace 占比</td>
+<td>&gt; 5%</td>
+</tr>
+<tr>
+<td><code>tool.call失败率</code></td>
+<td>工具调用失败率</td>
+<td>&gt; 10%</td>
+</tr>
+<tr>
+<td><code>llm.hallucination_score</code></td>
+<td>幻觉评分</td>
+<td>&gt; 0.3（自定义评估器）</td>
+</tr>
+</tbody></table>
+<h3>5.3 生产环境注意事项</h3>
+<ol>
+<li><strong>敏感数据脱敏</strong>：Trace 中可能包含用户输入和 API Key，部署前需脱敏处理</li>
+<li><strong>采样策略</strong>：全量 Trace 成本过高，建议 Tail-based Sampling（保留慢请求和错误请求）</li>
+<li><strong>数据保留</strong>：Trace 数据量大，建议分层保留（热数据 7 天 / 温数据 30 天 / 冷数据 90 天）</li>
+<li><strong>多环境隔离</strong>：开发、测试、生产环境的 Trace 数据应分离存储</li>
+</ol>
+<hr>
+<h2>7. 结论</h2>
+<p>Agent 决策链路追踪不是&quot;锦上添花&quot;，而是生产级 Agent 系统的<strong>必备基础设施</strong>。核心建议：</p>
+<ol>
+<li><strong>尽早嵌入追踪</strong>：在设计阶段定义 Span 规范，而不是事后补加</li>
+<li><strong>选择合适工具</strong>：LangChain 用户选 LangSmith，多框架团队选 Langfuse，企业级选 OpenTelemetry</li>
+<li><strong>建立调试模式</strong>：将瓶颈定位、错误回溯、幻觉检测、循环检测形成标准化流程</li>
+<li><strong>持续监控</strong>：将 Trace 指标纳入告警体系，主动发现问题而非被动响应</li>
+</ol>
+<p>当 Agent 行为异常时，不要靠猜——<strong>看 Trace，看 Span，看数据流</strong>。</p>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>Anthropic. Building Effective Agents (2025). <a href="https://www.anthropic.com/research/building-effective-agents">https://www.anthropic.com/research/building-effective-agents</a></li>
+<li>OpenTelemetry. AI Agent Observability - Evolving Standards and Best Practices (2025). <a href="https://opentelemetry.io/blog/2025/ai-agent-observability/">https://opentelemetry.io/blog/2025/ai-agent-observability/</a></li>
+<li>Maxim AI. Top 5 Leading Agent Observability Tools in 2025 (2025). <a href="https://www.getmaxim.ai/articles/top-5-leading-agent-observability-tools-in-2025/">https://www.getmaxim.ai/articles/top-5-leading-agent-observability-tools-in-2025/</a></li>
+<li>OpenTelemetry. GenAI Semantic Conventions (2025). <a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/">https://opentelemetry.io/docs/specs/semconv/gen-ai/</a></li>
+<li>Comet. Best LLM Observability Tools of 2025 (2025). <a href="https://www.comet.com/site/blog/llm-observability-tools/">https://www.comet.com/site/blog/llm-observability-tools/</a></li>
+<li>Braintrust. 7 Best AI Observability Platforms for LLMs in 2025 (2025). <a href="https://www.braintrust.dev/articles/best-ai-observability-platforms-2025">https://www.braintrust.dev/articles/best-ai-observability-platforms-2025</a></li>
+<li>LangChain Blog. Debugging Deep Agents with LangSmith (2025). <a href="https://blog.langchain.com/debugging-deep-agents-with-langsmith/">https://blog.langchain.com/debugging-deep-agents-with-langsmith/</a></li>
+<li>Langfuse. Comparing Open-Source AI Agent Frameworks (2025). <a href="https://langfuse.com/blog/2025-03-19-ai-agent-comparison">https://langfuse.com/blog/2025-03-19-ai-agent-comparison</a></li>
+<li>Datadog. LLM Observability natively supports OpenTelemetry GenAI Semantic Conventions (2025). <a href="https://www.datadoghq.com/blog/llm-otel-semantic-convention/">https://www.datadoghq.com/blog/llm-otel-semantic-convention/</a></li>
+<li>VictoriaMetrics. AI Agents Observability with OpenTelemetry (2026). <a href="https://victoriametrics.com/blog/ai-agents-observability/">https://victoriametrics.com/blog/ai-agents-observability/</a></li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>
