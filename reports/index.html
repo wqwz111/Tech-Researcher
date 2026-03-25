@@ -199,7 +199,7 @@
     </div>
     <div class="section-body">
     <div class="report-grid">
-      <div class="report-card"><div class="card-cat strategy">策略</div><div class="card-title"><a href="./review-rubric-design.html">技术报告质量评审标准与评分体系设计</a></div><div class="card-desc">系统化设计报告评审标准与 45 分制评分体系，涵盖内容质量、引用规范、结构完整性、可读性与可视化等多维度评估框架</div><div class="card-tags"><span class="card-tag">Review Rubric</span><span class="card-tag">45分制</span><span class="card-tag">审稿标准</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat strategy">策略</div><div class="card-title"><a href="./review-rubric-design.html">技术报告质量评审标准与评分体系设计</a></div><div class="card-desc">技术报告的质量评审是学术研究与工程实践中不可或缺的环节。本报告系统梳理了三大评审标准来源——学术会议评审体系（以 NeurIPS、ICML 为代表）、业界文档质量标准（以 Google、Microsoft 为代表）、以及 AI 时代报告撰写的特殊需求——并在此基础上设计了一套九维均等评分体系。...</div><div class="card-tags"><span class="card-tag">评审</span></div></div>
     </div>
     </div>
   </div>
@@ -255,14 +255,13 @@
     <div class="section-header" onclick="toggleSection('agent-lifecycle')">
       <span class="section-icon">🔧</span>
       <span class="section-title">Agent 设计 Design</span>
-      <span class="section-count">15 篇</span>
+      <span class="section-count">14 篇</span>
       <span class="section-toggle">▼</span>
     </div>
     <div class="section-body">
     <div class="report-grid">
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./multi-agent-collaboration-architecture.html">多 Agent 协作架构 (Multi-Agent Collaboration Architecture)</a></div><div class="card-desc">多 Agent 协作系统正在从学术概念演进为生产级基础设施。2024-2025 年间，随着 Google 发布 A2A (Agent2Agent) 协议[1]、Anthropic 推动 MCP (Model Context Protocol) 标准化[2]，以及 CrewAI[3]、AutoG...</div><div class="card-tags"><span class="card-tag">MCP</span><span class="card-tag">A2A</span><span class="card-tag">Claude</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./chaos-engineering-agent-ops.html">混沌工程在 Agent 运维中的应用</a></div><div class="card-desc">混沌工程通过主动注入故障来验证系统的韧性，正在成为 Agent 运维的重要组成部分[1]。本文探讨了将混沌工程原则应用于 AI Agent 系统的实践方法、核心场景和工具框架。</div><div class="card-tags"><span class="card-tag">工具</span><span class="card-tag">混沌工程</span><span class="card-tag">运维</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./review-rubric-design.html">技术报告质量评审标准与评分体系设计</a></div><div class="card-desc">技术报告的质量评审是学术研究与工程实践中不可或缺的环节。本报告系统梳理了三大评审标准来源——学术会议评审体系（以 NeurIPS、ICML 为代表）、业界文档质量标准（以 Google、Microsoft 为代表）、以及 AI 时代报告撰写的特殊需求——并在此基础上设计了一套九维均等评分体系。...</div><div class="card-tags"><span class="card-tag">评审</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./mobile-ai-agent-cases.html">移动端 AI Agent 案例研究</a></div><div class="card-desc">随着大型语言模型（LLM）技术的成熟和移动端设备算力的提升，移动端AI Agent正从概念走向现实，成为科技巨头竞争的新焦点。本报告深入分析了移动端AI Agent的市场现状、核心产品案例、关键技术架构及商业模式。研究发现，Apple Intelligence、Google Gemini和Sa...</div><div class="card-tags"><span class="card-tag">Gemini</span><span class="card-tag">Mobile</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./agent-security-threat-model.html">Agent 安全威胁模型：Prompt Injection/工具滥用/数据泄露的防御设计</a></div><div class="card-desc">AI Agent 从&quot;只读型&quot;LLM 升级为&quot;读写型&quot;自主系统，安全威胁的本质发生了根本性转变。传统 Web 安全的核心是&quot;输入→处理→输出&quot;三元组，而 Agent 安全的核心是意图→规划→工具调用→反馈循环——攻击面从 HTTP 端点扩展到 LLM 的认知链路[1]。OWASP 2025 年...</div><div class="card-tags"><span class="card-tag">Prompt</span><span class="card-tag">安全</span><span class="card-tag">工具</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./agent-lifecycle-design-06-error-handling.html">Agent 错误处理与容错：重试、降级、断路器</a></div><div class="card-desc">AI Agent 在生产环境中面临着与传统软件截然不同的错误模型。LLM 幻觉、上下文溢出、非确定性输出、工具调用失败等错误不是&quot;边缘情况&quot;，而是日常运营现实[1]。研究表明，合理的错误处理策略可以将 LLM API 失败率降低 90%[6]，而像 VIGIL 这样的自修复框架可以将任务成功率...</div><div class="card-tags"><span class="card-tag">工具</span><span class="card-tag">重试策略</span><span class="card-tag">故障模式</span></div></div>
