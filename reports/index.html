@@ -80,9 +80,6 @@
   .report-card .card-cat.case-studies { color:var(--green); }
   .report-card .card-cat.tools { color:var(--blue); }
   .report-card .card-cat.frameworks { color:var(--orange); }
-  .report-card .card-cat.strategy { color:#facc15; }
-  .report-card .card-cat.design { color:#22d3ee; }
-  .report-card .card-cat.agent-dev { color:#fbbf24; }
   .report-card .card-title { font-size:1rem; font-weight:600; color:var(--text); margin-bottom:.5rem; }
   .report-card .card-title a { color:inherit; }
   .report-card .card-title a:hover { color:var(--accent-hover); }
@@ -100,23 +97,7 @@
     .hero h1 { font-size:1.8rem; }
     .report-grid { grid-template-columns:1fr; }
   }
-
-  /* Pagefind 搜索弹窗空间优化 */
-  #search {
-    --pagefind-ui-scale: 0.7;
-  }
-  .pagefind-ui__search-input {
-    height: 44px !important;
-    padding: 8px 12px !important;
-  }
-  .pagefind-ui__result {
-    padding: 16px !important;
-  }
-  .pagefind-ui__drawer {
-    gap: 24px !important;
-  }
 </style>
-<link href="./_pagefind/pagefind-ui.css" rel="stylesheet">
 </head>
 <body>
 
@@ -133,49 +114,13 @@
   <a href="#case-studies">📊 案例实践</a>
   <a href="#tools">🛠️ 工具</a>
   <a href="#frameworks">🏗️ 框架</a>
-  <a href="#strategy">📐 策略</a>
-  <a href="#agent-lifecycle">🔧 Agent 设计</a>
   <a href="./team.html">👥 团队</a>
   <div class="spacer"></div>
-  <div id="search-toggle" style="cursor:pointer;color:var(--text-muted);font-size:.9rem;padding:.3rem .7rem;border-radius:6px;border:1px solid var(--border);background:var(--bg-code);">🔍 搜索</div>
   <a href="https://github.com/wqwz111/Tech-Researcher/issues" target="_blank" class="gh-btn">💬 Issues</a>
   <button class="theme-btn" onclick="toggleTheme()"><span id="themeIcon">☀️</span></button>
 </div>
 
-<!-- Search Modal — 搜索弹窗（Issue #90 改进：增大边距、圆角、阴影、呼吸感） -->
-<div id="search-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);padding:80px 1.5rem 1.5rem;transition:opacity .15s ease;">
-  <div style="max-width:680px;height:100%;margin:0 auto;display:flex;flex-direction:column;">
-    <div id="search" style="background:var(--bg-card);border-radius:16px;box-shadow:0 24px 64px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.06);overflow-y:auto;min-height:0;flex:1;"></div>
-    <p style="text-align:center;color:var(--text-dim);font-size:.8rem;margin-top:1rem;flex-shrink:0;letter-spacing:.02em;">ESC 关闭 · 由 Pagefind 驱动</p>
-  </div>
-</div>
-
-<script src="./_pagefind/pagefind-ui.js"></script>
-<script>
-  // Search modal toggle
-  const searchModal = document.getElementById('search-modal');
-  const searchToggle = document.getElementById('search-toggle');
-  let pagefindLoaded = false;
-
-  searchToggle.addEventListener('click', () => {
-    searchModal.style.display = 'block';
-    if (!pagefindLoaded) {
-      new PagefindUI({ element: "#search", showSubResults: true });
-      pagefindLoaded = true;
-    }
-    setTimeout(() => document.querySelector('#search input')?.focus(), 100);
-  });
-
-  searchModal.addEventListener('click', (e) => {
-    if (e.target === searchModal) searchModal.style.display = 'none';
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') searchModal.style.display = 'none';
-    if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); searchToggle.click(); }
-  });
-</script>
-
+<!-- Content -->
 <div class="container">
 
   <!-- 全部展开/折叠控制 -->
@@ -188,7 +133,7 @@
     <div class="section-header" onclick="toggleSection('methodology')">
       <span class="section-icon">🔬</span>
       <span class="section-title">方法论 Methodology</span>
-      <span class="section-count">19 篇</span>
+      <span class="section-count">11 篇</span>
       <span class="section-toggle">▼</span>
     </div>
     <div class="section-body">
@@ -204,13 +149,6 @@
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/agent-workflow-orchestration.html">AI Agent 工作流编排模式</a></div><div class="card-desc">heartbeat/cron/subagent 编排 vs 传统 workflow 引擎</div><div class="card-tags"><span class="card-tag">Agent</span><span class="card-tag">编排</span><span class="card-tag">工作流</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/agent-memory-engineering.html">Agent 记忆系统工程化</a></div><div class="card-desc">OpenClaw/MemGPT/Mem0/Zep 记忆架构对比</div><div class="card-tags"><span class="card-tag">记忆</span><span class="card-tag">架构</span><span class="card-tag">工程化</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/multi-agent-team-management.html">多 Agent 团队管理方法论</a></div><div class="card-desc">1:N:1 团队结构的编排与分工模式</div><div class="card-tags"><span class="card-tag">团队</span><span class="card-tag">管理</span><span class="card-tag">编排</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/multi-agent-failure-modes.html">多 Agent 协作故障模式：5 种典型失效与预防策略</a></div><div class="card-desc">规格模糊、错误级联、谄媚偏差、协调死锁、验证缺失的根因分析与预防</div><div class="card-tags"><span class="card-tag">Multi-Agent</span><span class="card-tag">故障模式</span><span class="card-tag">协作</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/agent-tool-permissions.html">Agent 工具权限模型：从 RBAC 到动态授权的范式迁移</a></div><div class="card-desc">RBAC 在 Agent 场景的局限性、四种新兴权限模型、各框架授权实践对比</div><div class="card-tags"><span class="card-tag">权限</span><span class="card-tag">RBAC</span><span class="card-tag">安全</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/ai-agent-stability.html">AI Agent 工作稳定性研究</a></div><div class="card-desc">幻觉累积、上下文丢失、指令偏离、工具调用失败等故障模式与框架级解决方案</div><div class="card-tags"><span class="card-tag">Agent</span><span class="card-tag">稳定性</span><span class="card-tag">故障模式</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/agent-event-mechanism.html">Agent 事件机制的必要性</a></div><div class="card-desc">从交互局限出发，系统分析四大框架事件模型，论证事件机制的必要性与工程挑战</div><div class="card-tags"><span class="card-tag">Agent</span><span class="card-tag">事件机制</span><span class="card-tag">交互模型</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/agent-frameworks-survival.html">Agent 框架生存法则：LangGraph 崛起与 AutoGPT 沉寂的背后</a></div><div class="card-desc">梳理主流 Agent 框架（LangGraph、CrewAI、AutoGen、AutoGPT）发展轨迹与兴衰根因</div><div class="card-tags"><span class="card-tag">LangGraph</span><span class="card-tag">AutoGPT</span><span class="card-tag">Agent框架</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/multi-agent-team-retrospective.html">多 Agent 团队实战复盘：主编+探针+调色板的协作账本</a></div><div class="card-desc">从 30+ 篇报告的真实运营数据中提炼协作模式、故障账本与可复用模式</div><div class="card-tags"><span class="card-tag">Multi-Agent</span><span class="card-tag">实战复盘</span><span class="card-tag">协作模式</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat methodology">方法论</div><div class="card-title"><a href="./methodology/agent-operations.html">Agent 运维从 0 到 1：Heartbeat、异常恢复与可观测性实践</a></div><div class="card-desc">随着 AI Agent 在生产环境的广泛应用，保障其可靠性、可观测性和成本可控性已成为核心挑战。本文系统性梳理了 Agent 运维四大支柱：Heartbeat 健康检查、异常恢复机制、可观测性体系建设以及成本监控治理，并提供可落地的实践指南。</div><div class="card-tags"><span class="card-tag">运维</span><span class="card-tag">Heartbeat</span><span class="card-tag">可观测性</span></div></div>
     </div>
     </div>
   </div>
@@ -220,19 +158,16 @@
     <div class="section-header" onclick="toggleSection('case-studies')">
       <span class="section-icon">📊</span>
       <span class="section-title">案例实践 Case Studies</span>
-      <span class="section-count">13 篇</span>
+      <span class="section-count">11 篇</span>
       <span class="section-toggle">▼</span>
     </div>
     <div class="section-body">
     <div class="report-grid">
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./mobile-ai-agent-cases.html">移动端 AI Agent 案例研究</a></div><div class="card-desc">深入分析 Apple Intelligence、Google Gemini、Samsung Galaxy AI 等移动端 Agent 产品，探讨端云协同架构与商业模式</div><div class="card-tags"><span class="card-tag">Apple Intelligence</span><span class="card-tag">Gemini</span><span class="card-tag">Galaxy AI</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/openai-ecosystem.html">OpenAI 产品生态深度拆解</a></div><div class="card-desc">GPT-4o/o1/o3 模型演进，API 产品线与定价策略，GPTs 生态分析</div><div class="card-tags"><span class="card-tag">GPT-4o</span><span class="card-tag">o1</span><span class="card-tag">API</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/anthropic-enterprise.html">Anthropic Claude 企业级实践</a></div><div class="card-desc">Claude 3.5/4 能力分析，Claude Code 编程实践，Constitutional AI 安全</div><div class="card-tags"><span class="card-tag">Claude</span><span class="card-tag">Claude Code</span><span class="card-tag">Artifacts</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/gemini-multimodal.html">Google Gemini 多模态应用实践</a></div><div class="card-desc">Gemini 2.0 架构，多模态应用场景，Google AI Studio 与 Vertex AI</div><div class="card-tags"><span class="card-tag">Gemini</span><span class="card-tag">多模态</span><span class="card-tag">Vertex AI</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/ai-coding-assistants.html">AI 编程助手实战对比</a></div><div class="card-desc">Copilot vs Cursor vs Claude Code vs Windsurf，效率提升数据分析</div><div class="card-tags"><span class="card-tag">Copilot</span><span class="card-tag">Cursor</span><span class="card-tag">Windsurf</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/ai-finance.html">AI 在金融领域落地案例研究</a></div><div class="card-desc">风控反欺诈、智能投顾、合规文档处理、客服营销自动化深度案例</div><div class="card-tags"><span class="card-tag">风控</span><span class="card-tag">智能投顾</span><span class="card-tag">合规</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/banking-ai-agent.html">AI 智能体在银行系统的应用</a></div><div class="card-desc">智能客服、信贷审批、反洗钱、智能投顾六大场景，7 个国内外银行案例</div><div class="card-tags"><span class="card-tag">银行</span><span class="card-tag">风控</span><span class="card-tag">合规</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/agent-deployment-comparison.html">Agent 私有化部署选型：VPS、树莓派与 Docker 的成本性能三角</a></div><div class="card-desc">95% 场景选 $6-24 VPS 即可，6 家厂商量化对比 + 树莓派实测 + Docker 最佳实践</div><div class="card-tags"><span class="card-tag">VPS</span><span class="card-tag">树莓派</span><span class="card-tag">Docker</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/ai-healthcare.html">AI 在医疗领域落地案例研究</a></div><div class="card-desc">医学影像诊断、药物研发加速、电子病历分析、临床决策辅助</div><div class="card-tags"><span class="card-tag">医学影像</span><span class="card-tag">药物研发</span><span class="card-tag">FDA</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/open-source-deployment.html">开源大模型部署实战指南</a></div><div class="card-desc">Llama 3/Qwen 2.5/DeepSeek 部署方案对比，量化技术与成本分析</div><div class="card-tags"><span class="card-tag">Llama</span><span class="card-tag">DeepSeek</span><span class="card-tag">量化</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat case-studies">案例实践</div><div class="card-title"><a href="./case-studies/rag-production.html">RAG 生产环境踩坑实录</a></div><div class="card-desc">真实生产 RAG 挑战，数据质量、检索失败、幻觉控制、监控优化</div><div class="card-tags"><span class="card-tag">RAG</span><span class="card-tag">幻觉控制</span><span class="card-tag">监控</span></div></div>
@@ -242,32 +177,16 @@
     </div>
   </div>
 
-  <!-- Strategy -->
-  <div class="section" id="strategy">
-    <div class="section-header" onclick="toggleSection('strategy')">
-      <span class="section-icon">📐</span>
-      <span class="section-title">策略 Strategy</span>
-      <span class="section-count">1 篇</span>
-      <span class="section-toggle">▼</span>
-    </div>
-    <div class="section-body">
-    <div class="report-grid">
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat strategy">策略</div><div class="card-title"><a href="./review-rubric-design.html">技术报告质量评审标准与评分体系设计</a></div><div class="card-desc">系统化设计报告评审标准与 45 分制评分体系，涵盖内容质量、引用规范、结构完整性、可读性与可视化等多维度评估框架</div><div class="card-tags"><span class="card-tag">Review Rubric</span><span class="card-tag">45分制</span><span class="card-tag">审稿标准</span></div></div>
-    </div>
-    </div>
-  </div>
-
   <!-- Tools -->
   <div class="section" id="tools">
     <div class="section-header" onclick="toggleSection('tools')">
       <span class="section-icon">🛠️</span>
       <span class="section-title">工具 Tools</span>
-      <span class="section-count">11 篇</span>
+      <span class="section-count">10 篇</span>
       <span class="section-toggle">▼</span>
     </div>
     <div class="section-body">
     <div class="report-grid">
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/clawhub-ecosystem.html">Agent 技能生态观察：ClawHub 热门技能背后的需求图谱</a></div><div class="card-desc">ClawHub 热门技能分类、需求图谱、生态演进方向与开发者建议</div><div class="card-tags"><span class="card-tag">ClawHub</span><span class="card-tag">技能市场</span><span class="card-tag">生态</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/langchain-vs-llamaindex.html">LangChain vs LlamaIndex 深度对比</a></div><div class="card-desc">架构设计哲学差异，核心组件对比，生态系统与选型建议</div><div class="card-tags"><span class="card-tag">LangChain</span><span class="card-tag">LlamaIndex</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/vector-databases.html">向量数据库选型指南 2026</a></div><div class="card-desc">Pinecone/Milvus/Qdrant/Chroma/pgvector 性能基准与选型决策树</div><div class="card-tags"><span class="card-tag">Milvus</span><span class="card-tag">Qdrant</span><span class="card-tag">pgvector</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/ai-orchestration.html">AI 编排平台横向对比</a></div><div class="card-desc">Dify/Coze/n8n/LangFlow/Flowise 可视化编排与代码优先方案对比</div><div class="card-tags"><span class="card-tag">Dify</span><span class="card-tag">n8n</span><span class="card-tag">编排</span></div></div>
@@ -276,8 +195,8 @@
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/ai-devtools.html">AI 开发者工具链全景图</a></div><div class="card-desc">API 网关、Prompt 管理、数据标注、训练工具、端到端工作流</div><div class="card-tags"><span class="card-tag">LiteLLM</span><span class="card-tag">Prompt管理</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/observability-tools.html">AI 可观测性与调试工具研究</a></div><div class="card-desc">LangSmith/LangFuse/Phoenix 追踪，成本监控，质量回归测试</div><div class="card-tags"><span class="card-tag">LangSmith</span><span class="card-tag">LangFuse</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/ai-security-tools.html">AI 安全与防护工具研究</a></div><div class="card-desc">Prompt Injection 防护、内容安全过滤、模型安全评估、隐私保护</div><div class="card-tags"><span class="card-tag">安全</span><span class="card-tag">Prompt Injection</span><span class="card-tag">合规</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/openai-api.html">OpenAI API 最佳实践指南</a></div><div class="card-desc">Function Calling、Structured Output、流式处理、成本优化</div><div class="card-tags"><span class="card-tag">OpenAI</span><span class="card-tag">API</span><span class="card-tag">Function Calling</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./tools/claude-api.html">Anthropic Claude API 深度指南</a></div><div class="card-desc">Tool Use、Computer Use、Prompt Caching、系统提示词最佳实践</div><div class="card-tags"><span class="card-tag">Claude API</span><span class="card-tag">Tool Use</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./agent-debugging-trace.html">Agent 决策链路追踪：从输入到输出的全链路 Debug</a></div><div class="card-desc">系统梳理 Agent 请求的完整链路，分析典型故障模式，对比 LangSmith/Langfuse/OpenTelemetry 三大调试工具</div><div class="card-tags"><span class="card-tag">LangSmith</span><span class="card-tag">Langfuse</span><span class="card-tag">OpenTelemetry</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat tools">工具</div><div class="card-title"><a href="./agent-observability.html">Agent 日志与可观测性：构建 Metrics/Traces/Logs 三支柱</a></div><div class="card-desc">可观测性完整三支柱设计框架：Token 消耗、规划步数、工具调用成功率、幻觉检测等专属指标</div><div class="card-tags"><span class="card-tag">Metrics</span><span class="card-tag">Traces</span><span class="card-tag">Logs</span></div></div>
     </div>
     </div>
   </div>
@@ -287,45 +206,24 @@
     <div class="section-header" onclick="toggleSection('frameworks')">
       <span class="section-icon">🏗️</span>
       <span class="section-title">框架 Frameworks</span>
-      <span class="section-count">9 篇</span>
+      <span class="section-count">8 篇</span>
       <span class="section-toggle">▼</span>
     </div>
     <div class="section-body">
     <div class="report-grid">
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/openai-api.html">OpenAI API 最佳实践指南</a></div><div class="card-desc">Function Calling、Structured Output、流式处理、成本优化</div><div class="card-tags"><span class="card-tag">OpenAI</span><span class="card-tag">API</span><span class="card-tag">Function Calling</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/claude-api.html">Anthropic Claude API 深度指南</a></div><div class="card-desc">Tool Use、Computer Use、Prompt Caching、系统提示词最佳实践</div><div class="card-tags"><span class="card-tag">Claude API</span><span class="card-tag">Tool Use</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/inference-frameworks.html">开源模型推理框架对比研究</a></div><div class="card-desc">vLLM/TGI/SGLang/Ollama 吞吐量延迟对比与选型建议</div><div class="card-tags"><span class="card-tag">vLLM</span><span class="card-tag">SGLang</span><span class="card-tag">Ollama</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/vllm-production.html">vLLM 生产部署完全指南</a></div><div class="card-desc">PagedAttention 原理、部署调优、多模型多租户、运维监控</div><div class="card-tags"><span class="card-tag">vLLM</span><span class="card-tag">PagedAttention</span><span class="card-tag">部署</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/agent-frameworks.html">AI Agent 框架横向对比</a></div><div class="card-desc">LangGraph/CrewAI/AutoGen/MetaGPT/OpenClaw 编程模型与生产就绪度</div><div class="card-tags"><span class="card-tag">LangGraph</span><span class="card-tag">CrewAI</span><span class="card-tag">OpenClaw</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/multimodal-frameworks.html">多模态 AI 框架分析</a></div><div class="card-desc">视觉/音频/视频理解框架，多模态融合策略与应用选型</div><div class="card-tags"><span class="card-tag">多模态</span><span class="card-tag">Vision</span><span class="card-tag">Whisper</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/ai-frontend.html">AI 应用前端框架选型指南</a></div><div class="card-desc">Vercel AI SDK/Streamlit/Gradio，流式响应与聊天界面组件库</div><div class="card-tags"><span class="card-tag">Vercel AI SDK</span><span class="card-tag">Streamlit</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/ai-infrastructure.html">AI 基础设施与云平台对比</a></div><div class="card-desc">AWS Bedrock/Azure OpenAI/Vertex AI/Together AI 定价与企业特性对比</div><div class="card-tags"><span class="card-tag">AWS</span><span class="card-tag">Azure</span><span class="card-tag">GCP</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/enterprise-deployment.html">OpenClaw 企业级部署模式</a></div><div class="card-desc">多租户隔离、高可用性、安全合规的系统化部署方案</div><div class="card-tags"><span class="card-tag">企业级</span><span class="card-tag">部署</span><span class="card-tag">OpenClaw</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./multi-agent-collaboration-architecture.html">多 Agent 协作架构</a></div><div class="card-desc">A2A vs MCP 协议定位差异、协作模式对比、生产级多 Agent 架构设计模式</div><div class="card-tags"><span class="card-tag">Multi-Agent</span><span class="card-tag">A2A</span><span class="card-tag">MCP</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./edge-ai-on-device-inference.html">边缘 AI / 端侧推理</a></div><div class="card-desc">ONNX Runtime、ExecuTorch、llama.cpp 框架对比，NPU 加速与量化压缩技术全景</div><div class="card-tags"><span class="card-tag">Edge AI</span><span class="card-tag">量化</span><span class="card-tag">NPU</span></div></div>
     </div>
     </div>
   </div>
 
 </div>
-
-  <!-- Agent 设计 -->
-  <div class="section" id="agent-lifecycle">
-    <div class="section-header" onclick="toggleSection('agent-lifecycle')">
-      <span class="section-icon">🔧</span>
-      <span class="section-title">Agent 设计 Design</span>
-      <span class="section-count">6 篇</span>
-      <span class="section-toggle">▼</span>
-    </div>
-    <div class="section-body">
-    <div class="report-grid">
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./agent-lifecycle-design-01-architecture.html">[设计·01] Agent 架构模式</a></div><div class="card-desc">分层架构、Actor 模型、Plugin 架构三大主流 Agent 架构模式的对比与选型指南</div><div class="card-tags"><span class="card-tag">架构模式</span><span class="card-tag">Actor</span><span class="card-tag">Plugin</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./agent-lifecycle-design-02-components.html">[设计·02] Agent 组件设计</a></div><div class="card-desc">Memory、Tool、Planner、Executor 四大核心组件的职责边界、接口设计与交互协议</div><div class="card-tags"><span class="card-tag">组件设计</span><span class="card-tag">Memory</span><span class="card-tag">Tool</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./agent-lifecycle-design-03-interfaces.html">[设计·03] Agent 接口与协议</a></div><div class="card-desc">A2A/MCP/ACP 三大 Agent 通信协议的设计理念、消息格式与兼容性分析</div><div class="card-tags"><span class="card-tag">接口协议</span><span class="card-tag">A2A</span><span class="card-tag">MCP</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./agent-lifecycle-design-04-tools.html">[设计·04] 工具系统</a></div><div class="card-desc">Agent 工具定义、调用链路、权限控制与异常处理的完整开发指南</div><div class="card-tags"><span class="card-tag">工具系统</span><span class="card-tag">Function Calling</span><span class="card-tag">权限</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./agent-lifecycle-design-05-memory.html">[设计·05] 记忆系统</a></div><div class="card-desc">短期/长期/工作记忆实现，向量检索策略，Mem0 与 MemGPT 集成实战</div><div class="card-tags"><span class="card-tag">记忆系统</span><span class="card-tag">向量存储</span><span class="card-tag">Mem0</span></div></div>
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./agent-lifecycle-design-06-error-handling.html">[设计·06] 错误处理</a></div><div class="card-desc">指数回退、重试策略、异常恢复与死信队列的工程化实践</div><div class="card-tags"><span class="card-tag">错误处理</span><span class="card-tag">重试策略</span><span class="card-tag">异常恢复</span></div></div>
-    </div>
-    </div>
-  </div>
 
 <!-- Footer -->
 <div class="footer">
