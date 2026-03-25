@@ -441,7 +441,7 @@ if len(tool_inputs) != len(set(tool_inputs)):
 
 ---
 
-## 7. 结论
+## 6. 结论
 
 Agent 决策链路追踪不是"锦上添花"，而是生产级 Agent 系统的**必备基础设施**。核心建议：
 
@@ -455,13 +455,13 @@ Agent 决策链路追踪不是"锦上添花"，而是生产级 Agent 系统的**
 <!-- REFERENCE START -->
 ## 参考文献
 
-1. Anthropic. Building Effective Agents (2025). https://www.anthropic.com/research/building-effective-agents
-2. OpenTelemetry. AI Agent Observability - Evolving Standards and Best Practices (2025). https://opentelemetry.io/blog/2025/ai-agent-observability/
-3. Maxim AI. Top 5 Leading Agent Observability Tools in 2025 (2025). https://www.getmaxim.ai/articles/top-5-leading-agent-observability-tools-in-2025/
-4. OpenTelemetry. GenAI Semantic Conventions (2025). https://opentelemetry.io/docs/specs/semconv/gen-ai/
-5. Comet. Best LLM Observability Tools of 2025 (2025). https://www.comet.com/site/blog/llm-observability-tools/
-6. Braintrust. 7 Best AI Observability Platforms for LLMs in 2025 (2025). https://www.braintrust.dev/articles/best-ai-observability-platforms-2025
-7. LangChain Blog. Debugging Deep Agents with LangSmith (2025). https://blog.langchain.com/debugging-deep-agents-with-langsmith/
-8. Langfuse. Comparing Open-Source AI Agent Frameworks (2025). https://langfuse.com/blog/2025-03-19-ai-agent-comparison
-9. Datadog. LLM Observability natively supports OpenTelemetry GenAI Semantic Conventions (2025). https://www.datadoghq.com/blog/llm-otel-semantic-convention/
-10. VictoriaMetrics. AI Agents Observability with OpenTelemetry (2026). https://victoriametrics.com/blog/ai-agents-observability/
+1. Anthropic. Building Effective Agents (2025). https://www.anthropic.com/research/building-effective-agents — accessed 2026-03-25
+2. OpenTelemetry. AI Agent Observability - Evolving Standards and Best Practices (2025). https://opentelemetry.io/blog/2025/ai-agent-observability/ — accessed 2026-03-25
+3. Maxim AI. Top 5 Leading Agent Observability Tools in 2025 (2025). https://www.getmaxim.ai/articles/top-5-leading-agent-observability-tools-in-2025/ — accessed 2026-03-25
+4. OpenTelemetry. GenAI Semantic Conventions (2025). https://opentelemetry.io/docs/specs/semconv/gen-ai/ — accessed 2026-03-25
+5. Comet. Best LLM Observability Tools of 2025 (2025). https://www.comet.com/site/blog/llm-observability-tools/ — accessed 2026-03-25
+6. Braintrust. 7 Best AI Observability Platforms for LLMs in 2025 (2025). https://www.braintrust.dev/articles/best-ai-observability-platforms-2025 — accessed 2026-03-25
+7. LangChain Blog. Debugging Deep Agents with LangSmith (2025). https://blog.langchain.com/debugging-deep-agents-with-langsmith/ — accessed 2026-03-25
+8. Langfuse. Comparing Open-Source AI Agent Frameworks (2025). https://langfuse.com/blog/2025-03-19-ai-agent-comparison — accessed 2026-03-25
+9. Datadog. LLM Observability natively supports OpenTelemetry GenAI Semantic Conventions (2025). https://www.datadoghq.com/blog/llm-otel-semantic-convention/ — accessed 2026-03-25
+10. VictoriaMetrics. AI Agents Observability with OpenTelemetry (2026). https://victoriametrics.com/blog/ai-agents-observability/ — accessed 2026-03-25
