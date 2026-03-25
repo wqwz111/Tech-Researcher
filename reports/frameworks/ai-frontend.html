@@ -1,1 +1,1439 @@
-✅ ai-frontend.html: 35472 bytes, Mermaid: 1, 占位符: 无
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 应用前端框架选型指南</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>AI 应用前端框架选型指南</h1>
+  <div class="meta">2026-03-25 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>AI 应用的用户体验很大程度上取决于前端框架的选择。本指南对比分析主流 AI 前端方案——Vercel AI SDK（v4+）、LangChain.js、Streamlit、Gradio——从流式响应、聊天界面、部署方案等维度提供选型建议。2026 年更新新增 Vue/Svelte 生态支持和最新 API 变更。</p>
+<p><strong>核心结论：</strong></p>
+<ul>
+<li><strong>Vercel AI SDK v4+</strong> 是 React/Next.js 生态中最成熟的 AI 前端方案，现已支持 Vue/Svelte</li>
+<li><strong>Streamlit</strong> 是数据科学团队快速原型的最佳选择</li>
+<li><strong>Gradio</strong> 适合需要分享模型演示的场景</li>
+<li><strong>LangChain.js</strong> 适合需要复杂后端逻辑的全栈应用</li>
+<li>流式响应是 AI 应用用户体验的核心差异点</li>
+</ul>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <blockquote>
+<p>发布日期：2026-03-15 | 分类：框架 | 作者：探针（2026-03 更新）</p>
+</blockquote>
+<hr>
+<h2>1. 框架概览</h2>
+<h3>1.1 Vercel AI SDK（v4+，截至 2026-03）</h3>
+<p><strong>定位</strong>：TypeScript 生态的 AI 应用工具包
+<strong>许可证</strong>：Apache 2.0
+<strong>GitHub</strong>：<a href="https://github.com/vercel/ai">github.com/vercel/ai</a>
+<strong>当前版本</strong>：v6.x stable（v4 于 2024 年发布，v5/v6 为后续迭代）</p>
+<p>Vercel AI SDK v4 是重大版本升级，统一了提供商接口，引入了 <code>@ai-sdk/*</code> 生态包。v5/v6 在此基础上增加了 AI Gateway、ToolLoopAgent 等企业级功能。</p>
+<p><strong>核心功能（v4+ API）：</strong></p>
+<ul>
+<li><code>useChat</code> Hook：流式聊天状态管理</li>
+<li><code>useCompletion</code> Hook：单次补全</li>
+<li><code>useObject</code> Hook：结构化流式输出</li>
+<li><code>generateText</code> / <code>streamText</code>：服务端核心函数</li>
+<li>多提供商支持：OpenAI、Anthropic、Google、Mistral 等（通过 <code>@ai-sdk/*</code> 包）</li>
+<li>流式传输协议：SSE、Text Stream、Data Stream</li>
+<li>RSC（React Server Components）支持</li>
+<li><strong>Vue 和 Svelte 官方支持</strong>（<code>@ai-sdk/vue</code>、<code>@ai-sdk/svelte</code>）</li>
+</ul>
+<p><strong>React 客户端代码示例（v4+ API）：</strong></p>
+<pre><code class="language-tsx">&quot;use client&quot;;
+
+import { useChat } from &quot;@ai-sdk/react&quot;;
+
+export default function Chat() {
+  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
+    api: &quot;/api/chat&quot;,
+    onError: (error) =&gt; console.error(error),
+  });
+
+  return (
+    &lt;div className=&quot;chat-container&quot;&gt;
+      {messages.map((m) =&gt; (
+        &lt;div key={m.id} className={`message ${m.role}`}&gt;
+          &lt;strong&gt;{m.role === &quot;user&quot; ? &quot;用户&quot; : &quot;AI&quot;}:&lt;/strong&gt;
+          &lt;p&gt;{m.content}&lt;/p&gt;
+        &lt;/div&gt;
+      ))}
+      {error &amp;&amp; &lt;div className=&quot;error&quot;&gt;{error.message}&lt;/div&gt;}
+      &lt;form onSubmit={handleSubmit}&gt;
+        &lt;input
+          value={input}
+          onChange={handleInputChange}
+          placeholder=&quot;输入消息...&quot;
+          disabled={isLoading}
+        /&gt;
+        &lt;button type=&quot;submit&quot; disabled={isLoading}&gt;
+          {isLoading ? &quot;思考中...&quot; : &quot;发送&quot;}
+        &lt;/button&gt;
+      &lt;/form&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p><strong>服务端 API 路由（v4+ API）：</strong></p>
+<pre><code class="language-typescript">// app/api/chat/route.ts
+import { openai } from &quot;@ai-sdk/openai&quot;;
+import { streamText } from &quot;ai&quot;;
+
+export async function POST(req: Request) {
+  const { messages } = await req.json();
+
+  const result = streamText({
+    model: openai(&quot;gpt-4o&quot;),
+    messages,
+    system: &quot;你是一个有帮助的助手。&quot;,
+  });
+
+  return result.toDataStreamResponse();
+}
+</code></pre>
+<p><strong>v4 主要 API 变更（从 v3 迁移）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>v3 API</th>
+<th>v4+ API</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>import { useChat } from &quot;ai/react&quot;</code></td>
+<td><code>import { useChat } from &quot;@ai-sdk/react&quot;</code></td>
+<td>包路径变更</td>
+</tr>
+<tr>
+<td><code>import { OpenAIStream } from &quot;ai&quot;</code></td>
+<td><code>import { streamText } from &quot;ai&quot;</code></td>
+<td>统一流式 API</td>
+</tr>
+<tr>
+<td><code>StreamingTextResponse</code></td>
+<td><code>result.toDataStreamResponse()</code></td>
+<td>响应方式变更</td>
+</tr>
+<tr>
+<td><code>openai(&quot;gpt-4&quot;)</code></td>
+<td><code>openai(&quot;gpt-4o&quot;)</code></td>
+<td>模型参数更新</td>
+</tr>
+<tr>
+<td><code>Configuration</code> 类</td>
+<td><code>@ai-sdk/openai</code> 包</td>
+<td>提供商包独立</td>
+</tr>
+</tbody></table>
+<p><strong>优势：</strong></p>
+<ul>
+<li>类型安全的 TypeScript API</li>
+<li>自动处理流式响应</li>
+<li>内置 loading/error 状态管理</li>
+<li>与 Vercel 部署无缝集成</li>
+<li>支持工具调用的 UI 渲染</li>
+<li>跨框架支持（React/Vue/Svelte）</li>
+</ul>
+<h3>1.2 LangChain.js</h3>
+<p><strong>定位</strong>：JavaScript/TypeScript 的 AI 应用框架
+<strong>许可证</strong>：MIT
+<strong>GitHub</strong>：<a href="https://github.com/langchain-ai/langchainjs">github.com/langchain-ai/langchainjs</a></p>
+<p>LangChain.js 是 Python LangChain 的 JavaScript 移植，提供完整的 AI 应用构建工具链。</p>
+<p><strong>核心功能：</strong></p>
+<ul>
+<li>模型抽象：统一接口调用不同 LLM</li>
+<li>Chain：可组合的工作流</li>
+<li>RAG：检索增强生成</li>
+<li>Memory：对话历史管理</li>
+<li>Agent：工具调用和推理</li>
+</ul>
+<pre><code class="language-typescript">import { ChatOpenAI } from &quot;@langchain/openai&quot;;
+import { HumanMessage, SystemMessage } from &quot;@langchain/core/messages&quot;;
+
+const model = new ChatOpenAI({
+  modelName: &quot;gpt-4o&quot;,
+  streaming: true,
+  callbacks: [{
+    handleLLMNewToken(token: string) {
+      process.stdout.write(token);
+    },
+  }],
+});
+
+const response = await model.invoke([
+  new SystemMessage(&quot;你是一个技术助手。&quot;),
+  new HumanMessage(&quot;解释什么是 TypeScript。&quot;),
+]);
+</code></pre>
+<p><strong>优势：</strong></p>
+<ul>
+<li>功能最完整的 AI 框架</li>
+<li>丰富的工具和集成</li>
+<li>社区生态庞大</li>
+</ul>
+<p><strong>劣势：</strong></p>
+<ul>
+<li>学习曲线较陡</li>
+<li>前端体验需要自行构建</li>
+<li>包体积较大</li>
+</ul>
+<h3>1.3 Streamlit</h3>
+<p><strong>定位</strong>：Python 数据应用快速原型框架
+<strong>许可证</strong>：Apache 2.0
+<strong>GitHub</strong>：<a href="https://github.com/streamlit/streamlit">github.com/streamlit/streamlit</a></p>
+<p>Streamlit 是数据科学领域最流行的 Web 应用框架，对 AI 应用有原生支持。</p>
+<p><strong>核心功能：</strong></p>
+<ul>
+<li><code>st.chat_message</code> / <code>st.chat_input</code>：聊天组件</li>
+<li><code>st.write_stream</code>：流式渲染</li>
+<li>Session State：状态管理</li>
+<li>自动热重载</li>
+<li>一行部署到 Streamlit Cloud</li>
+</ul>
+<pre><code class="language-python">import streamlit as st
+from openai import OpenAI
+
+st.title(&quot;AI 聊天助手&quot;)
+
+# 初始化 OpenAI 客户端
+client = OpenAI(api_key=st.secrets[&quot;OPENAI_API_KEY&quot;])
+
+# 初始化聊天历史
+if &quot;messages&quot; not in st.session_state:
+    st.session_state.messages = []
+
+# 显示聊天历史
+for message in st.session_state.messages:
+    with st.chat_message(message[&quot;role&quot;]):
+        st.markdown(message[&quot;content&quot;])
+
+# 用户输入
+if prompt := st.chat_input(&quot;输入消息...&quot;):
+    st.session_state.messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt})
+    with st.chat_message(&quot;user&quot;):
+        st.markdown(prompt)
+
+    # 流式响应
+    with st.chat_message(&quot;assistant&quot;):
+        stream = client.chat.completions.create(
+            model=&quot;gpt-4o&quot;,
+            messages=[{&quot;role&quot;: m[&quot;role&quot;], &quot;content&quot;: m[&quot;content&quot;]}
+                     for m in st.session_state.messages],
+            stream=True,
+        )
+        response = st.write_stream(
+            chunk.choices[0].delta.content or &quot;&quot;
+            for chunk in stream
+        )
+    st.session_state.messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: response})
+</code></pre>
+<p><strong>优势：</strong></p>
+<ul>
+<li>Python 原生，数据科学友好</li>
+<li>最快的原型速度</li>
+<li>内置组件丰富</li>
+<li>Streamlit Cloud 免费部署</li>
+</ul>
+<p><strong>劣势：</strong></p>
+<ul>
+<li>自定义样式能力有限</li>
+<li>不适合复杂 UI 需求</li>
+<li>每次交互全页面刷新（虽然体验流畅）</li>
+</ul>
+<h3>1.4 Gradio</h3>
+<p><strong>定位</strong>：机器学习模型演示和分享框架
+<strong>许可证</strong>：Apache 2.0
+<strong>GitHub</strong>：<a href="https://github.com/gradio-app/gradio">github.com/gradio-app/gradio</a></p>
+<p>Gradio 专为机器学习演示设计，Hugging Face Spaces 默认使用 Gradio。</p>
+<p><strong>核心功能：</strong></p>
+<ul>
+<li><code>gr.ChatInterface</code>：一行代码创建聊天界面</li>
+<li><code>gr.Blocks</code>：自定义布局</li>
+<li>多模态输入输出（文本、图片、音频、视频）</li>
+<li>HuggingFace Spaces 一键部署</li>
+<li>内置分享链接</li>
+</ul>
+<pre><code class="language-python">import gradio as gr
+from openai import OpenAI
+
+client = OpenAI()
+
+def chat(message, history):
+    messages = [{&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;你是一个有帮助的助手。&quot;}]
+    for human, assistant in history:
+        messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: human})
+        messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: assistant})
+    messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: message})
+
+    stream = client.chat.completions.create(
+        model=&quot;gpt-4o&quot;,
+        messages=messages,
+        stream=True,
+    )
+
+    response = &quot;&quot;
+    for chunk in stream:
+        response += chunk.choices[0].delta.content or &quot;&quot;
+        yield response
+
+demo = gr.ChatInterface(
+    chat,
+    title=&quot;AI 聊天助手&quot;,
+    description=&quot;基于 GPT-4o 的智能对话系统&quot;,
+    examples=[&quot;解释量子计算&quot;, &quot;写一首关于编程的诗&quot;, &quot;什么是 Transformer 架构？&quot;],
+)
+
+demo.launch()
+</code></pre>
+<p><strong>优势：</strong></p>
+<ul>
+<li>最简 API，一行创建界面</li>
+<li>多模态输入输出原生支持</li>
+<li>HuggingFace Spaces 集成</li>
+<li>自动生成分享链接</li>
+</ul>
+<p><strong>劣势：</strong></p>
+<ul>
+<li>复杂自定义布局较困难</li>
+<li>企业级特性较少</li>
+<li>状态管理较弱</li>
+</ul>
+<hr>
+<h2>2. Vue / Svelte 生态支持（2026-03 更新）</h2>
+<h3>2.1 Vercel AI SDK — Vue 集成</h3>
+<p>Vercel AI SDK v4+ 通过 <code>@ai-sdk/vue</code> 包提供 Vue 3 支持：</p>
+<pre><code class="language-vue">&lt;script setup lang=&quot;ts&quot;&gt;
+import { useChat } from &quot;@ai-sdk/vue&quot;;
+
+const { messages, input, handleSubmit, isLoading, error } = useChat({
+  api: &quot;/api/chat&quot;,
+});
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;div class=&quot;chat-container&quot;&gt;
+    &lt;div v-for=&quot;m in messages&quot; :key=&quot;m.id&quot; :class=&quot;[&#39;message&#39;, m.role]&quot;&gt;
+      &lt;strong&gt;{{ m.role === &quot;user&quot; ? &quot;用户&quot; : &quot;AI&quot; }}:&lt;/strong&gt;
+      &lt;p&gt;{{ m.content }}&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div v-if=&quot;error&quot; class=&quot;error&quot;&gt;{{ error.message }}&lt;/div&gt;
+    &lt;form @submit=&quot;handleSubmit&quot;&gt;
+      &lt;input
+        v-model=&quot;input&quot;
+        placeholder=&quot;输入消息...&quot;
+        :disabled=&quot;isLoading&quot;
+      /&gt;
+      &lt;button type=&quot;submit&quot; :disabled=&quot;isLoading&quot;&gt;
+        {{ isLoading ? &quot;思考中...&quot; : &quot;发送&quot; }}
+      &lt;/button&gt;
+    &lt;/form&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+</code></pre>
+<p><strong>Nuxt 3 集成：</strong></p>
+<pre><code class="language-typescript">// server/api/chat.post.ts
+import { openai } from &quot;@ai-sdk/openai&quot;;
+import { streamText } from &quot;ai&quot;;
+
+export default defineEventHandler(async (event) =&gt; {
+  const { messages } = await readBody(event);
+
+  const result = streamText({
+    model: openai(&quot;gpt-4o&quot;),
+    messages,
+  });
+
+  return result.toDataStreamResponse();
+});
+</code></pre>
+<h3>2.2 Vercel AI SDK — Svelte 集成</h3>
+<p>Vercel AI SDK v4+ 通过 <code>@ai-sdk/svelte</code> 包提供 Svelte 支持：</p>
+<pre><code class="language-svelte">&lt;script lang=&quot;ts&quot;&gt;
+  import { useChat } from &quot;@ai-sdk/svelte&quot;;
+
+  const { messages, input, handleSubmit, isLoading } = useChat({
+    api: &quot;/api/chat&quot;,
+  });
+&lt;/script&gt;
+
+&lt;div class=&quot;chat-container&quot;&gt;
+  {#each $messages as m (m.id)}
+    &lt;div class=&quot;message {m.role}&quot;&gt;
+      &lt;strong&gt;{m.role === &quot;user&quot; ? &quot;用户&quot; : &quot;AI&quot;}:&lt;/strong&gt;
+      &lt;p&gt;{m.content}&lt;/p&gt;
+    &lt;/div&gt;
+  {/each}
+  &lt;form on:submit={handleSubmit}&gt;
+    &lt;input
+      bind:value={$input}
+      placeholder=&quot;输入消息...&quot;
+      disabled={$isLoading}
+    /&gt;
+    &lt;button type=&quot;submit&quot; disabled={$isLoading}&gt;
+      {$isLoading ? &quot;思考中...&quot; : &quot;发送&quot;}
+    &lt;/button&gt;
+  &lt;/form&gt;
+&lt;/div&gt;
+</code></pre>
+<p><strong>SvelteKit 集成：</strong></p>
+<pre><code class="language-typescript">// src/routes/api/chat/+server.ts
+import { openai } from &quot;@ai-sdk/openai&quot;;
+import { streamText } from &quot;ai&quot;;
+import type { RequestHandler } from &quot;./$types&quot;;
+
+export const POST: RequestHandler = async ({ request }) =&gt; {
+  const { messages } = await request.json();
+
+  const result = streamText({
+    model: openai(&quot;gpt-4o&quot;),
+    messages,
+  });
+
+  return result.toDataStreamResponse();
+};
+</code></pre>
+<h3>2.3 框架支持对比</h3>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>React</th>
+<th>Vue</th>
+<th>Svelte</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>useChat</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>useCompletion</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>useObject</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>RSC 支持</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Server Actions</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>框架集成</td>
+<td>Next.js</td>
+<td>Nuxt 3</td>
+<td>SvelteKit</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>3. 流式响应与用户体验</h2>
+<h3>3.1 流式响应方案对比</h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>机制</th>
+<th>延迟</th>
+<th>实现复杂度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SSE (Server-Sent Events)</td>
+<td>服务端推送</td>
+<td>低</td>
+<td>中</td>
+</tr>
+<tr>
+<td>WebSocket</td>
+<td>双向通信</td>
+<td>最低</td>
+<td>高</td>
+</tr>
+<tr>
+<td>Streaming Fetch</td>
+<td>ReadableStream</td>
+<td>低</td>
+<td>中</td>
+</tr>
+<tr>
+<td>chunked Transfer-Encoding</td>
+<td>HTTP 分块</td>
+<td>中</td>
+<td>低</td>
+</tr>
+</tbody></table>
+<h3>3.2 Vercel AI SDK v4+ 的流式实现</h3>
+<pre><code class="language-typescript">// 服务端 - 使用 AI SDK v4+ 的流式协议
+import { streamText } from &quot;ai&quot;;
+import { openai } from &quot;@ai-sdk/openai&quot;;
+
+export async function POST(req: Request) {
+  const { messages } = await req.json();
+
+  const result = streamText({
+    model: openai(&quot;gpt-4o&quot;),
+    messages,
+    system: &quot;你是一个有帮助的助手。&quot;,
+  });
+
+  return result.toDataStreamResponse(); // AI SDK 专有协议，支持元数据
+}
+</code></pre>
+<p>Vercel AI SDK v4+ 支持三种流式传输协议：</p>
+<ul>
+<li><strong>Text Stream</strong>：纯文本流</li>
+<li><strong>Data Stream</strong>：包含元数据的结构化流（推荐）</li>
+<li><strong>SSE</strong>：标准 Server-Sent Events</li>
+</ul>
+<h3>3.3 首 Token 延迟优化</h3>
+<table>
+<thead>
+<tr>
+<th>优化策略</th>
+<th>效果</th>
+<th>实现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>边缘函数</td>
+<td>减少网络跳数</td>
+<td>Vercel Edge Functions</td>
+</tr>
+<tr>
+<td>流式传输</td>
+<td>感知延迟降低 60%+</td>
+<td>SSE / Streaming</td>
+</tr>
+<tr>
+<td>预加载</td>
+<td>页面加载优化</td>
+<td>Next.js prefetch</td>
+</tr>
+<tr>
+<td>Skeleton UI</td>
+<td>减少白屏时间</td>
+<td>加载占位符</td>
+</tr>
+<tr>
+<td>缓存</td>
+<td>热点查询加速</td>
+<td>Redis / CDN</td>
+</tr>
+</tbody></table>
+<h3>3.4 流式 Markdown 渲染</h3>
+<p>AI 输出通常是 Markdown 格式，流式渲染需要特殊处理：</p>
+<pre><code class="language-tsx">import { useChat } from &quot;@ai-sdk/react&quot;;
+import { MemoizedReactMarkdown } from &quot;./markdown&quot;;
+
+function StreamingChat() {
+  const { messages } = useChat();
+
+  return messages.map((m) =&gt; (
+    &lt;MemoizedReactMarkdown key={m.id}&gt;
+      {m.content}
+    &lt;/MemoizedReactMarkdown&gt;
+  ));
+}
+</code></pre>
+<p><strong>挑战：</strong></p>
+<ul>
+<li>不完整的 Markdown 语法（代码块未闭合）</li>
+<li>表格/列表在流式中可能错乱</li>
+<li>需要缓冲和智能拆分</li>
+</ul>
+<hr>
+<h2>4. 聊天界面组件库</h2>
+<h3>4.1 现成组件库</h3>
+<table>
+<thead>
+<tr>
+<th>库</th>
+<th>框架</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>@ai-sdk/react</code></td>
+<td>React</td>
+<td>Vercel AI SDK 内置</td>
+</tr>
+<tr>
+<td><code>@ai-sdk/vue</code></td>
+<td>Vue</td>
+<td>Vercel AI SDK 内置（v4+）</td>
+</tr>
+<tr>
+<td><code>@ai-sdk/svelte</code></td>
+<td>Svelte</td>
+<td>Vercel AI SDK 内置（v4+）</td>
+</tr>
+<tr>
+<td><code>assistant-ui</code></td>
+<td>React</td>
+<td>专为 AI 聊天设计的组件库</td>
+</tr>
+<tr>
+<td><code>shadcn/ui</code> + AI</td>
+<td>React</td>
+<td>基于 shadcn 的 AI 聊天模板</td>
+</tr>
+<tr>
+<td><code>chainlit</code></td>
+<td>Python</td>
+<td>专为 LLM 应用设计的 UI</td>
+</tr>
+<tr>
+<td><code>botui</code></td>
+<td>JS</td>
+<td>轻量级聊天组件</td>
+</tr>
+</tbody></table>
+<h3>4.2 assistant-ui 示例</h3>
+<pre><code class="language-tsx">import { AssistantRuntimeProvider } from &quot;@assistant-ui/react&quot;;
+import { useChatRuntime } from &quot;@assistant-ui/react-ai-sdk&quot;;
+import {
+  Thread,
+  ThreadList,
+  Composer,
+  AssistantMessage,
+  UserMessage,
+} from &quot;@assistant-ui/react&quot;;
+
+function ChatApp() {
+  const runtime = useChatRuntime({ api: &quot;/api/chat&quot; });
+
+  return (
+    &lt;AssistantRuntimeProvider runtime={runtime}&gt;
+      &lt;div className=&quot;flex h-screen&quot;&gt;
+        &lt;ThreadList /&gt;
+        &lt;div className=&quot;flex-1 flex flex-col&quot;&gt;
+          &lt;Thread /&gt;
+          &lt;Composer /&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/AssistantRuntimeProvider&gt;
+  );
+}
+</code></pre>
+<h3>4.3 聊天界面最佳实践</h3>
+<ol>
+<li><strong>消息区分</strong>：用户/AI/系统消息使用不同样式</li>
+<li><strong>代码高亮</strong>：集成 <code>react-syntax-highlighter</code> 或 <code>shiki</code></li>
+<li><strong>复制按钮</strong>：代码块和消息都应有复制功能</li>
+<li><strong>重新生成</strong>：允许用户重新生成 AI 回复</li>
+<li><strong>停止生成</strong>：提供停止按钮</li>
+<li><strong>打字指示器</strong>：AI 思考时显示加载动画</li>
+<li><strong>Markdown 渲染</strong>：支持完整的 Markdown 语法</li>
+<li><strong>图片渲染</strong>：支持 AI 生成/返回的图片</li>
+</ol>
+<hr>
+<h2>5. 部署方案</h2>
+<h3>5.1 部署选项对比</h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>适用框架</th>
+<th>成本</th>
+<th>性能</th>
+<th>配置复杂度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Vercel</td>
+<td>AI SDK / Next.js</td>
+<td>低-中</td>
+<td>高</td>
+<td>低</td>
+</tr>
+<tr>
+<td>Streamlit Cloud</td>
+<td>Streamlit</td>
+<td>免费-低</td>
+<td>中</td>
+<td>极低</td>
+</tr>
+<tr>
+<td>HuggingFace Spaces</td>
+<td>Gradio</td>
+<td>免费-低</td>
+<td>中</td>
+<td>极低</td>
+</tr>
+<tr>
+<td>AWS (ECS/Lambda)</td>
+<td>全部</td>
+<td>中-高</td>
+<td>高</td>
+<td>高</td>
+</tr>
+<tr>
+<td>Railway / Render</td>
+<td>全部</td>
+<td>低-中</td>
+<td>中</td>
+<td>低</td>
+</tr>
+<tr>
+<td>Docker 自建</td>
+<td>全部</td>
+<td>按需</td>
+<td>按需</td>
+<td>中</td>
+</tr>
+</tbody></table>
+<h3>5.2 Vercel 部署</h3>
+<pre><code class="language-json">// vercel.json
+{
+  &quot;functions&quot;: {
+    &quot;app/api/chat/route.ts&quot;: {
+      &quot;maxDuration&quot;: 60
+    }
+  }
+}
+</code></pre>
+<pre><code class="language-bash"># 部署
+npx vercel
+
+# 环境变量
+vercel env add OPENAI_API_KEY
+</code></pre>
+<p><strong>注意事项：</strong></p>
+<ul>
+<li>Hobby 计划有函数执行限制（需升级到 Pro）</li>
+<li>Edge Functions 支持流式响应</li>
+<li>自动 HTTPS 和全球 CDN</li>
+</ul>
+<h3>5.3 Docker 自建部署</h3>
+<pre><code class="language-dockerfile">FROM node:20-slim
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --production
+COPY . .
+RUN npm run build
+
+EXPOSE 3000
+CMD [&quot;npm&quot;, &quot;start&quot;]
+</code></pre>
+<pre><code class="language-yaml"># docker-compose.yml
+services:
+  ai-chat:
+    build: .
+    ports:
+      - &quot;3000:3000&quot;
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    restart: unless-stopped
+</code></pre>
+<hr>
+<h2>6. 选型决策框架</h2>
+<h3>6.1 决策树</h3>
+<div class="mermaid">graph TD
+    Q{"你的技术栈是什么？"}
+    REACT["React / Next.js"]
+    VUE["Vue / Nuxt"]
+    SVELTE["Svelte / SvelteKit"]
+    PYTHON["Python"]
+    ANY["不限"]
+
+    C1["需要复杂 AI 逻辑？ → Vercel AI SDK + LangChain.js"]
+    C2["主要需求是聊天？ → Vercel AI SDK"]
+    V1["Vue 全栈？ → Vercel AI SDK + Nuxt"]
+    S1["Svelte 全栈？ → Vercel AI SDK + SvelteKit"]
+    P1["快速原型？ → Streamlit"]
+    P2["模型演示？ → Gradio"]
+    P3["生产应用？ → FastAPI + React/Vue"]
+    A1["最快出活？ → Streamlit / Gradio"]
+    A2["最佳体验？ → Vercel AI SDK"]
+
+    Q --> REACT
+    Q --> VUE
+    Q --> SVELTE
+    Q --> PYTHON
+    Q --> ANY
+    REACT --> C1
+    REACT --> C2
+    VUE --> V1
+    SVELTE --> S1
+    PYTHON --> P1
+    PYTHON --> P2
+    PYTHON --> P3
+    ANY --> A1
+    ANY --> A2</div>
+<h3>6.2 综合评分</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Vercel AI SDK</th>
+<th>LangChain.js</th>
+<th>Streamlit</th>
+<th>Gradio</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>上手速度</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>流式体验</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>自定义程度</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td>生产就绪</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td>社区生态</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>多模态支持</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>多框架支持</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td>文档质量</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+</tbody></table>
+<h3>6.3 选型建议</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>企业级 AI 产品</td>
+<td><strong>Vercel AI SDK</strong></td>
+<td>最完整的 TypeScript AI 工具链，多框架支持</td>
+</tr>
+<tr>
+<td>Vue 全栈应用</td>
+<td><strong>Vercel AI SDK + Nuxt</strong></td>
+<td>Vue 3 官方支持</td>
+</tr>
+<tr>
+<td>Svelte 应用</td>
+<td><strong>Vercel AI SDK + SvelteKit</strong></td>
+<td>Svelte 官方支持</td>
+</tr>
+<tr>
+<td>数据科学团队</td>
+<td><strong>Streamlit</strong></td>
+<td>Python 原生，极速开发</td>
+</tr>
+<tr>
+<td>ML 模型演示</td>
+<td><strong>Gradio</strong></td>
+<td>最简部署，HF Spaces 集成</td>
+</tr>
+<tr>
+<td>复杂 RAG 应用</td>
+<td><strong>LangChain.js</strong></td>
+<td>最丰富的 AI 集成</td>
+</tr>
+<tr>
+<td>快速 MVP</td>
+<td><strong>Streamlit / Gradio</strong></td>
+<td>数小时出活</td>
+</tr>
+<tr>
+<td>自定义 UI</td>
+<td><strong>Vercel AI SDK</strong></td>
+<td>完全控制前端</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>参考来源</h2>
+<ol>
+<li>Vercel AI SDK 文档 — <a href="https://sdk.vercel.ai">sdk.vercel.ai</a></li>
+<li>Vercel AI SDK 迁移指南 v3→v4 — <a href="https://sdk.vercel.ai/docs/migration-guide/4.0">sdk.vercel.ai/docs/migration-guide</a></li>
+<li>Vercel AI SDK GitHub — <a href="https://github.com/vercel/ai">github.com/vercel/ai</a></li>
+<li>LangChain.js 文档 — <a href="https://js.langchain.com">js.langchain.com</a></li>
+<li>Streamlit 文档 — <a href="https://docs.streamlit.io">docs.streamlit.io</a></li>
+<li>Gradio 文档 — <a href="https://www.gradio.app/docs">gradio.app/docs</a></li>
+<li>assistant-ui — <a href="https://www.assistant-ui.com">assistant-ui.com</a></li>
+</ol>
+<hr>
+<p><em>本报告基于 2026 年 3 月各框架版本撰写，前端框架迭代快速，API 可能有变化，请以官方文档为准。Vercel AI SDK 目前稳定版为 v6.x，v4 为重要里程碑版本。</em></p>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>

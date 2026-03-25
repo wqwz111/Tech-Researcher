@@ -1,1 +1,1014 @@
-✅ vllm-production.html: 26238 bytes, Mermaid: 5, 占位符: 无
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vLLM 生产部署完全指南</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>vLLM 生产部署完全指南</h1>
+  <div class="meta">2026-03-25 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>vLLM 是当前最受欢迎的开源 LLM 推理引擎，以其创新的 PagedAttention 技术和活跃的社区生态著称。本指南从架构原理出发，系统覆盖部署配置、性能调优、多租户管理、监控运维等生产部署的全生命周期。</p>
+<p><strong>核心结论：</strong></p>
+<ul>
+<li>PagedAttention 通过分页式 KV Cache 管理，将显存利用率提升 2-4 倍</li>
+<li>生产部署需要系统性调优：批处理参数、内存配置、并行策略</li>
+<li>多模型和多租户场景通过 Ray Serve 或 K8s 部署方案实现</li>
+<li>完善的监控体系（Prometheus + Grafana）是稳定运维的基础</li>
+</ul>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <blockquote>
+<p>发布日期：2026-03-14 | 分类：框架 | 作者：探针</p>
+</blockquote>
+<hr>
+<h2>1. 架构与核心优化</h2>
+<h3>1.1 PagedAttention 原理</h3>
+<p>PagedAttention 是 vLLM 的核心创新，灵感来自操作系统的虚拟内存分页机制。</p>
+<p><strong>传统 KV Cache 问题：</strong></p>
+<ul>
+<li>预分配最大序列长度的连续显存</li>
+<li>实际使用量远小于分配量（通常只用 20-40%）</li>
+<li>显存碎片化严重，无法共享</li>
+</ul>
+<p><strong>PagedAttention 解决方案：</strong></p>
+<div class="mermaid">graph TD
+    POOL["💾 GPU 显存池"]
+    B0["B0"] --- B1["B1"] --- B2["B2"] --- B3["B3"] --- B4["B4"]
+    B5["B5"] --- B6["B6"] --- B7["B7"] --- E1["(空)"] --- E2["(空)"]
+    SA["Seq A [0,3,7]"] --> B0
+    SA --> B3
+    SA --> B7
+    SB["Seq B [1,5]"] --> B1
+    SB --> B5
+    SC["Seq C [2,4,6,8]"] --> B2
+    SC --> B4
+    SC --> B6
+    SC --> B8["B8"]
+    POOL --- SA
+    POOL --- SB
+    POOL --- SC</div>
+<p><strong>关键优势：</strong></p>
+<ul>
+<li><strong>按需分配</strong>：只分配实际需要的 block</li>
+<li><strong>零碎片</strong>：block 可以不连续，消除内部碎片</li>
+<li><strong>共享前缀</strong>：多个序列可共享相同前缀的 KV block（如 Beam Search）</li>
+<li><strong>Copy-on-Write</strong>：需要修改时才复制共享 block</li>
+</ul>
+<h3>1.2 Continuous Batching</h3>
+<p>Continuous Batching（持续批处理）也称 iteration-level scheduling：</p>
+<pre><code>传统静态批处理:
+请求1: [==========] 完成
+请求2: [==================] 完成  
+请求3: [============] 完成
+GPU 利用率: ████████░░░░░░░░ (低，等待最长请求)
+
+Continuous Batching:
+<div class="mermaid">flowchart LR
+    S1["Step 1: [Req1, Req2, Req3]"] --> S2["Step 2: [Req1, Req2, Req4]<br/>← Req3 完成，Req4 加入"]
+    S2 --> S3["Step 3: [Req2, Req4, Req5]<br/>← Req1 完成，Req5 加入"]</div>
+GPU 利用率: ████████████████ (高，始终满载)
+</code></pre>
+<h3>1.3 架构组件</h3>
+<div class="mermaid">graph TD
+    API["🔌 API Server<br/>OpenAI-compatible / Raw API"]
+    AE["⚡ AsyncEngine"]
+    SCHED["Scheduler<br/>Batching"]
+    TOK["Tokenizer<br/>Encoding/Decoding"]
+    MR["🖥️ Model Runner"]
+    WORK["Worker<br/>Model Exec"]
+    KV["KV Cache Manager<br/>PagedAttention"]
+    GPU["💾 GPU Memory"]
+    API --> AE
+    AE --> SCHED
+    AE --> TOK
+    AE --> MR
+    MR --> WORK
+    MR --> KV
+    MR --> GPU</div>
+<hr>
+<h2>2. 部署配置与调优</h2>
+<h3>2.1 基础部署</h3>
+<pre><code class="language-bash"># 最简部署
+vllm serve meta-llama/Llama-3.1-8B-Instruct
+
+# 生产推荐配置
+vllm serve meta-llama/Llama-3.1-70B-Instruct \
+  --host 0.0.0.0 \
+  --port 8000 \
+  --tensor-parallel-size 4 \
+  --max-model-len 8192 \
+  --gpu-memory-utilization 0.90 \
+  --max-num-seqs 256 \
+  --enable-chunked-prefill \
+  --disable-log-requests
+</code></pre>
+<h3>2.2 关键参数详解</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>默认值</th>
+<th>推荐值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--tensor-parallel-size</code></td>
+<td>1</td>
+<td>GPU 数量</td>
+<td>张量并行度</td>
+</tr>
+<tr>
+<td><code>--gpu-memory-utilization</code></td>
+<td>0.9</td>
+<td>0.85-0.95</td>
+<td>GPU 显存使用比例</td>
+</tr>
+<tr>
+<td><code>--max-model-len</code></td>
+<td>模型最大</td>
+<td>按需限制</td>
+<td>最大序列长度</td>
+</tr>
+<tr>
+<td><code>--max-num-seqs</code></td>
+<td>256</td>
+<td>128-512</td>
+<td>最大并发序列数</td>
+</tr>
+<tr>
+<td><code>--enable-chunked-prefill</code></td>
+<td>False</td>
+<td>True</td>
+<td>分块预填充</td>
+</tr>
+<tr>
+<td><code>--enable-prefix-caching</code></td>
+<td>False</td>
+<td>True</td>
+<td>前缀缓存</td>
+</tr>
+<tr>
+<td><code>--swap-space</code></td>
+<td>4GB</td>
+<td>4-16GB</td>
+<td>CPU swap 空间</td>
+</tr>
+<tr>
+<td><code>--max-num-batched-tokens</code></td>
+<td>8192</td>
+<td>4096-16384</td>
+<td>每批最大 token 数</td>
+</tr>
+</tbody></table>
+<h3>2.3 性能调优策略</h3>
+<p><strong>高吞吐量场景：</strong></p>
+<pre><code class="language-bash">vllm serve model \
+  --max-num-seqs 512 \
+  --max-num-batched-tokens 16384 \
+  --enable-chunked-prefill \
+  --gpu-memory-utilization 0.95 \
+  --swap-space 8
+</code></pre>
+<p><strong>低延迟场景：</strong></p>
+<pre><code class="language-bash">vllm serve model \
+  --max-num-seqs 64 \
+  --max-num-batched-tokens 4096 \
+  --enable-prefix-caching \
+  --gpu-memory-utilization 0.90
+</code></pre>
+<p><strong>长上下文场景：</strong></p>
+<pre><code class="language-bash">vllm serve model \
+  --max-model-len 32768 \
+  --gpu-memory-utilization 0.95 \
+  --swap-space 16 \
+  --max-num-seqs 32 \
+  --enable-chunked-prefill
+</code></pre>
+<h3>2.4 量化部署</h3>
+<pre><code class="language-bash"># AWQ 量化模型
+vllm serve TheBloke/Llama-3.1-70B-AWQ --quantization awq
+
+# GPTQ 量化模型
+vllm serve TheBloke/Llama-3.1-70B-GPTQ --quantization gptq
+
+# FP8 量化（H100/A100 80GB）
+vllm serve meta-llama/Llama-3.1-70B-Instruct \
+  --quantization fp8 \
+  --kv-cache-dtype fp8
+</code></pre>
+<hr>
+<h2>3. 多模型与多租户</h2>
+<h3>3.1 多模型部署方案</h3>
+<p><strong>方案 A：多实例 + 负载均衡</strong></p>
+<div class="mermaid">graph TD
+    CLIENT["Client"] --> LB["Nginx / LB"]
+    LB -->|"Model A"| V1["vLLM Instance 1"]
+    LB -->|"Model B"| V2["vLLM Instance 2"]
+    LB -->|"Model C"| V3["vLLM Instance 3"]</div>
+<pre><code class="language-nginx"># Nginx 配置示例
+upstream model_a {
+    server 127.0.0.1:8001;
+    server 127.0.0.1:8002;
+}
+upstream model_b {
+    server 127.0.0.1:8003;
+}
+</code></pre>
+<p><strong>方案 B：Ray Serve 多模型</strong></p>
+<pre><code class="language-python">from ray import serve
+from vllm import LLM
+
+@serve.deployment(num_replicas=2, ray_actor_options={&quot;num_gpus&quot;: 4})
+class Llama70B:
+    def __init__(self):
+        self.llm = LLM(model=&quot;meta-llama/Llama-3.1-70B-Instruct&quot;, tensor_parallel_size=4)
+    
+    async def __call__(self, request):
+        prompt = await request.json()
+        outputs = self.llm.generate([prompt[&quot;prompt&quot;]])
+        return {&quot;text&quot;: outputs[0].outputs[0].text}
+
+@serve.deployment(num_replicas=1, ray_actor_options={&quot;num_gpus&quot;: 1})
+class Llama8B:
+    def __init__(self):
+        self.llm = LLM(model=&quot;meta-llama/Llama-3.1-8B-Instruct&quot;)
+    
+    async def __call__(self, request):
+        prompt = await request.json()
+        outputs = self.llm.generate([prompt[&quot;prompt&quot;]])
+        return {&quot;text&quot;: outputs[0].outputs[0].text}
+
+# 部署
+app = Llama70B.bind()
+serve.run(app, route_prefix=&quot;/v1/chat/completions/llama-70b&quot;)
+</code></pre>
+<h3>3.2 多租户隔离</h3>
+<p><strong>资源隔离策略：</strong></p>
+<ul>
+<li>独立 GPU 分配：不同租户使用不同 GPU</li>
+<li>速率限制：通过 API Gateway 限制每租户 QPS</li>
+<li>优先级队列：vLLM 支持请求优先级（<code>priority</code> 参数）</li>
+</ul>
+<pre><code class="language-python"># 通过 API Gateway（如 Kong）实施租户限流
+# 每个租户有独立的 API Key，映射到不同的速率限制
+
+# vLLM 端接收优先级
+response = client.chat.completions.create(
+    model=&quot;llama-70b&quot;,
+    messages=[...],
+    extra_body={&quot;priority&quot;: 1}  # 高优先级
+)
+</code></pre>
+<h3>3.3 Kubernetes 部署</h3>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-llama-70b
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vllm-llama-70b
+  template:
+    metadata:
+      labels:
+        app: vllm-llama-70b
+    spec:
+      containers:
+      - name: vllm
+        image: vllm/vllm-openai:latest
+        args:
+        - &quot;--model&quot;
+        - &quot;meta-llama/Llama-3.1-70B-Instruct&quot;
+        - &quot;--tensor-parallel-size&quot;
+        - &quot;4&quot;
+        - &quot;--gpu-memory-utilization&quot;
+        - &quot;0.90&quot;
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            nvidia.com/gpu: 4
+          requests:
+            nvidia.com/gpu: 4
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 120
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-llama-70b
+spec:
+  selector:
+    app: vllm-llama-70b
+  ports:
+  - port: 8000
+    targetPort: 8000
+  type: ClusterIP
+</code></pre>
+<hr>
+<h2>4. 监控与运维</h2>
+<h3>4.1 Prometheus 指标</h3>
+<p>vLLM 原生暴露 Prometheus 指标（<code>--enable-metrics</code>）：</p>
+<table>
+<thead>
+<tr>
+<th>指标名称</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>vllm:num_requests_running</code></td>
+<td>Gauge</td>
+<td>正在运行的请求数</td>
+</tr>
+<tr>
+<td><code>vllm:num_requests_waiting</code></td>
+<td>Gauge</td>
+<td>等待中的请求数</td>
+</tr>
+<tr>
+<td><code>vllm:gpu_cache_usage_perc</code></td>
+<td>Gauge</td>
+<td>KV Cache 使用率</td>
+</tr>
+<tr>
+<td><code>vllm:avg_generation_throughput</code></td>
+<td>Gauge</td>
+<td>平均生成吞吐量</td>
+</tr>
+<tr>
+<td><code>vllm:e2e_request_latency</code></td>
+<td>Histogram</td>
+<td>端到端请求延迟</td>
+</tr>
+<tr>
+<td><code>vllm:time_to_first_token</code></td>
+<td>Histogram</td>
+<td>TTFT 分布</td>
+</tr>
+<tr>
+<td><code>vllm:time_per_output_token</code></td>
+<td>Histogram</td>
+<td>每 token 生成时间</td>
+</tr>
+<tr>
+<td><code>vllm:num_preemptions_total</code></td>
+<td>Counter</td>
+<td>抢占次数（OOM 前兆）</td>
+</tr>
+</tbody></table>
+<h3>4.2 Grafana Dashboard</h3>
+<p>推荐监控面板布局：</p>
+<div class="mermaid">graph TD
+    subgraph "监控面板"
+        REQ["📊 Requests<br/>Running/Waiting"]
+        GPU_C["📊 GPU Cache<br/>Usage %"]
+        TPUT["📊 Throughput<br/>tok/s"]
+        LAT["📊 Latency<br/>TTFT + TPOT"]
+        TOKEN["📊 Token Usage<br/>input/output"]
+        ERR["📊 Error Rate<br/>4xx/5xx"]
+    end</div>
+<h3>4.3 日志配置</h3>
+<pre><code class="language-bash"># 日志级别控制
+VLLM_LOG_LEVEL=INFO  # DEBUG / INFO / WARNING / ERROR
+
+# 结构化日志（JSON 格式）
+VLLM_LOGGING_FORMAT_PATH=/path/to/logging_config.json
+
+# 关闭请求日志（生产环境）
+--disable-log-requests
+</code></pre>
+<h3>4.4 常见问题排查</h3>
+<p><strong>问题 1：OOM（Out of Memory）</strong></p>
+<pre><code>症状：CUDA OOM error / 频繁抢占
+排查：
+  1. 检查 gpu_memory_utilization 是否过高
+  2. 减少 max_num_seqs
+  3. 减少 max_model_len
+  4. 启用量化
+  5. 增加 swap_space
+</code></pre>
+<p><strong>问题 2：高延迟</strong></p>
+<pre><code>症状：TTFT &gt; 2s / 生成速度 &lt; 20 tok/s
+排查：
+  1. 检查排队长度（num_requests_waiting）
+  2. 检查 GPU 利用率
+  3. 启用 chunked_prefill
+  4. 检查是否在进行 swap（频繁 swap 说明显存不足）
+  5. 考虑增加 GPU 副本
+</code></pre>
+<p><strong>问题 3：输出质量下降</strong></p>
+<pre><code>症状：生成内容异常 / 重复 / 截断
+排查：
+  1. 检查 max_tokens 是否被截断
+  2. 检查量化精度（尝试 FP16 验证）
+  3. 确认模型加载正确
+  4. 检查 KV Cache dtype 是否匹配
+</code></pre>
+<p><strong>问题 4：模型加载缓慢</strong></p>
+<pre><code>症状：启动时间 &gt; 10 分钟
+排查：
+  1. 使用更快的存储（NVMe SSD）
+  2. 设置 VLLM_USE_MODELSCOPE=false 或 true
+  3. 启用 --load-format sharded（分片加载）
+  4. 检查网络带宽（从 HuggingFace 下载）
+</code></pre>
+<hr>
+<h2>5. 高级特性</h2>
+<h3>5.1 Speculative Decoding</h3>
+<p>投机解码使用小模型快速生成候选 token，大模型并行验证：</p>
+<pre><code class="language-bash">vllm serve meta-llama/Llama-3.1-70B-Instruct \
+  --speculative-model meta-llama/Llama-3.2-1B-Instruct \
+  --num-speculative-tokens 5
+</code></pre>
+<p>效果：可提升 1.5-2.5x 吞吐量，对长输出效果更显著。</p>
+<h3>5.2 Prefix Caching</h3>
+<p>自动缓存共享前缀的 KV Cache，适用于：</p>
+<ul>
+<li>多用户共享相同系统提示</li>
+<li>多轮对话中重复的历史上下文</li>
+<li>RAG 应用中的文档前缀</li>
+</ul>
+<pre><code class="language-bash">vllm serve model --enable-prefix-caching
+</code></pre>
+<h3>5.3 Multi-LoRA</h3>
+<p>支持动态加载多个 LoRA 适配器，无需重启服务：</p>
+<pre><code class="language-bash">vllm serve base-model \
+  --enable-lora \
+  --lora-modules lora_a=./lora_a lora_b=./lora_b \
+  --max-lora-rank 64
+</code></pre>
+<pre><code class="language-python"># 使用指定 LoRA
+response = client.chat.completions.create(
+    model=&quot;base-model&quot;,
+    messages=[...],
+    extra_body={&quot;model&quot;: &quot;lora_a&quot;}  # 使用 lora_a 适配器
+)
+</code></pre>
+<hr>
+<h2>参考来源</h2>
+<ol>
+<li>vLLM 官方文档 — <a href="https://docs.vllm.ai">docs.vllm.ai</a></li>
+<li>PagedAttention 论文 — Kwon et al., &quot;Efficient Memory Management for Large Language Model Serving with PagedAttention&quot;, SOSP 2023<ul>
+<li><a href="https://arxiv.org/abs/2309.06180">https://arxiv.org/abs/2309.06180</a></li>
+</ul>
+</li>
+<li>vLLM GitHub — <a href="https://github.com/vllm-project/vllm">github.com/vllm-project/vllm</a></li>
+<li>vLLM 博客 — <a href="https://blog.vllm.ai">blog.vllm.ai</a></li>
+<li><strong>vLLM v0.6 Release (2024)</strong> — 前缀缓存、Speculative Decoding、多模态支持<ul>
+<li><a href="https://blog.vllm.ai/2024/09/vllm-v060.html">https://blog.vllm.ai/2024/09/vllm-v060.html</a></li>
+</ul>
+</li>
+<li><strong>vLLM v0.7 Release (2025)</strong> — Disaggregated Prefill、FP8 量化增强<ul>
+<li><a href="https://github.com/vllm-project/vllm/releases">https://github.com/vllm-project/vllm/releases</a></li>
+</ul>
+</li>
+<li><strong>Agrawal, A. et al. &quot;Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve&quot; (2024)</strong> — 分块预填充优化<ul>
+<li><a href="https://arxiv.org/abs/2403.02310">https://arxiv.org/abs/2403.02310</a></li>
+</ul>
+</li>
+</ol>
+<hr>
+<p><em>本指南基于 vLLM v0.6.x 版本撰写，vLLM 迭代快速，建议关注 GitHub Release Notes 获取最新特性。</em></p>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>
