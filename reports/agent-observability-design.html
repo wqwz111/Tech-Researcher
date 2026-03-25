@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 可观测性设计：Trace/Metrics/日志的分层设计</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>Agent 可观测性设计：Trace/Metrics/日志的分层设计</h1>
+  <div class="meta">2026-03-25 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>Agent 系统的非确定性使得传统&quot;监控已知路径&quot;的方法失效——同一用户请求可能触发 3 步或 20 步不可预测的推理链路，Token 消耗可能因 LLM 决策不同而波动 10 倍以上[4]。本报告聚焦可观测性的<strong>架构设计决策</strong>（而非工具选型），系统回答三个核心问题：<strong>采集什么数据</strong>、<strong>怎么组织</strong>、<strong>怎么关联</strong>。</p>
+<p>基于对 AgentTrace 三表面模型[1]、OpenTelemetry GenAI 语义约定[2][3]、四层遥测架构[4]等前沿研究的分析，本报告提出 Agent 可观测性的分层设计框架：</p>
+<ul>
+<li><strong>Metrics 层</strong>：量化 Agent 健康度的仪表盘，回答&quot;有没有问题&quot;——包含 Agent 特有指标（Token 消耗归因、规划步数、工具成功率）</li>
+<li><strong>Traces 层</strong>：还原决策路径的定位器，回答&quot;问题在哪一步&quot;——捕获 Agent 特有的树状/图状执行路径</li>
+<li><strong>Logs 层</strong>：保留上下文细节的取证器，回答&quot;为什么会这样&quot;——结构化记录 LLM 输入输出、工具参数结果、决策依据</li>
+</ul>
+<p>核心设计决策：<strong>可观测性应作为一等公民嵌入 Agent 架构</strong>，而非事后补丁。设计时需要在 Agent 生命周期的四个关键嵌入点（规划入口、工具执行、记忆操作、反思阶段）植入采集钩子，并通过统一数据模型和 Trace ID 关联策略实现三层联动。</p>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. Agent 可观测性的本质差异：为什么传统方案不够</h2>
+<h3>1.1 三大颠覆性特征</h3>
+<p>Agent 系统打破了传统可观测性的三个基本假设[4]：</p>
+<table>
+<thead>
+<tr>
+<th>传统假设</th>
+<th>Agent 现实</th>
+<th>可观测性影响</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>确定性执行路径</strong></td>
+<td>同一输入可能触发 3 步或 20 步推理</td>
+<td>Trace 需支持树状/图状结构，不能假设线性链路</td>
+</tr>
+<tr>
+<td><strong>可控资源消耗</strong></td>
+<td>Token 消耗由 LLM 决策自主决定</td>
+<td>需要按决策阶段归因，不能只看总量</td>
+</tr>
+<tr>
+<td><strong>可复现的错误</strong></td>
+<td>LLM 幻觉、非确定性输出无法稳定复现</td>
+<td>Logs 需捕获完整上下文，支持事后因果分析</td>
+</tr>
+</tbody></table>
+<p>这意味着可观测性设计需要从&quot;监控已知路径&quot;转向&quot;理解未知行为&quot;[1]。Agent 的执行路径不是线性的函数调用链，而是 <strong>ReAct 循环</strong>（思考→行动→观察→再思考）构成的动态决策树。一次用户请求可能包含多轮 LLM 调用、工具执行、规划迭代，整个链路的决策路径难以预测[4]。</p>
+<h3>1.2 Metrics/Traces/Logs 的职责重新定义</h3>
+<p>三者的关系不是并列的三个工具，而是<strong>分层递进</strong>的分析链路[1][4]：</p>
+<div class="mermaid">graph TD
+    A[Agent 收到用户请求] --> B{Metrics: Agent 健康度指标}
+    B -->|正常| C[执行完成]
+    B -->|异常告警| D[Traces: 追踪决策路径]
+    D --> E[定位问题 Span]
+    E --> F[Logs: 查看上下文详情]
+    F --> G[根因分析]
+    
+    C --> H[Token 消耗统计]
+    C --> I[工具调用记录]
+    C --> J[规划步数统计]
+    
+    H --> K[Metrics Dashboard]
+    I --> K
+    J --> K
+    
+    style B fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
+    style D fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style F fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px</div>
+<blockquote>
+<p><strong>图 1: Metrics → Traces → Logs 三层递进分析模型</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>核心问题</th>
+<th>数据特征</th>
+<th>保留策略</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Metrics</strong></td>
+<td>有没有问题？</td>
+<td>聚合数值，低基数</td>
+<td>长期存储（月/年）</td>
+</tr>
+<tr>
+<td><strong>Traces</strong></td>
+<td>问题在哪一步？</td>
+<td>结构化 Span 树</td>
+<td>中期存储（周/月）</td>
+</tr>
+<tr>
+<td><strong>Logs</strong></td>
+<td>为什么会这样？</td>
+<td>详细事件流，高基数</td>
+<td>短期存储（天/周），按需采样</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>2. 分层架构设计：四层遥测模型</h2>
+<h3>2.1 四层遥测架构</h3>
+<p>Agent 系统的可观测性不能只在运行时层打补丁，而应在架构层面将遥测嵌入到请求处理的完整链路中[4]。有效的 Agent 遥测架构应分为四层，每层有不同的数据保留和分析需求：</p>
+<div class="mermaid">graph TB
+    subgraph "Layer 1: Gateway Protection"
+        A1[API Gateway] --> A2[认证/限流/DDoS]
+        A2 --> A3[遥测: 请求模式, 认证失败]
+    end
+    
+    subgraph "Layer 2: Guardrails"
+        B1[输入清洗] --> B2[LLM]
+        B2 --> B3[输出过滤]
+        B1 --> B4[遥测: 安全事件, 阻断率]
+        B3 --> B4
+    end
+    
+    subgraph "Layer 3: AI Gateway"
+        C1[模型路由] --> C2[负载均衡/降级]
+        C2 --> C3[响应缓存]
+        C1 --> C4[遥测: Token消耗, 模型选择, 缓存命中]
+    end
+    
+    subgraph "Layer 4: Agent Runtime"
+        D1[规划模块] --> D2[工具执行]
+        D2 --> D3[记忆操作]
+        D3 --> D4[反思/迭代]
+        D1 --> D5[遥测: 决策路径, 工具序列, 上下文窗口利用率]
+        D2 --> D5
+        D3 --> D5
+        D4 --> D5
+    end
+    
+    A3 --> E[统一可观测性平台]
+    B4 --> E
+    C4 --> E
+    D5 --> E
+    
+    style E fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px</div>
+<blockquote>
+<p><strong>图 2: 四层遥测架构——从网关到运行时的完整覆盖</strong></p>
+</blockquote>
+<p><strong>设计决策要点</strong>：每层遥测必须汇聚到<strong>统一平台</strong>，通过 Trace ID 实现跨层关联。一个 Layer 3 的 Token 消耗飙升如果没有 Layer 4 的 Trace 显示&quot;Agent 为什么连续调用工具 40 次&quot;，就是毫无意义的数据[4]。</p>
+<h3>2.2 采集点选择：Agent 生命周期嵌入</h3>
+<p>Agent 可观测性的关键设计决策是在<strong>哪些位置植入采集钩子</strong>。基于 AgentTrace 的三表面模型[1]和 OTel 的语义约定[2][3]，建议在以下四个关键嵌入点进行采集：</p>
+<table>
+<thead>
+<tr>
+<th>嵌入点</th>
+<th>采集层</th>
+<th>数据类型</th>
+<th>设计决策</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>规划入口</strong></td>
+<td>Cognitive + Operational</td>
+<td>LLM 请求/响应、推理链</td>
+<td>解析 CoT/Thinking 标记，提取决策依据</td>
+</tr>
+<tr>
+<td><strong>工具执行</strong></td>
+<td>Operational + Contextual</td>
+<td>工具名/参数/结果/延迟</td>
+<td>自动注入 Span，捕获输入输出</td>
+</tr>
+<tr>
+<td><strong>记忆操作</strong></td>
+<td>Cognitive + Contextual</td>
+<td>读写操作、检索结果</td>
+<td>区分短期/长期记忆，记录检索相关性</td>
+</tr>
+<tr>
+<td><strong>反思阶段</strong></td>
+<td>Cognitive</td>
+<td>自评估、置信度、重规划</td>
+<td>捕获 Agent 自我纠错的轨迹</td>
+</tr>
+</tbody></table>
+<div class="mermaid">flowchart LR
+    subgraph "采集点布局"
+        P1["规划入口<br/>Cognitive+Operational"]
+        P2["工具执行<br/>Operational+Contextual"]
+        P3["记忆操作<br/>Cognitive+Contextual"]
+        P4["反思阶段<br/>Cognitive"]
+    end
+    
+    subgraph "数据输出"
+        O1["Metrics: 规划步数<br/>Token消耗"]
+        O2["Traces: 工具调用链<br/>执行时序"]
+        O3["Logs: 检索内容<br/>记忆读写详情"]
+        O4["Traces: 重规划路径<br/>自我纠错链"]
+    end
+    
+    P1 --> O1
+    P1 --> O4
+    P2 --> O2
+    P3 --> O3
+    P4 --> O4
+    P4 --> O1
+    
+    style P1 fill:#e3f2fd
+    style P2 fill:#f3e5f5
+    style P3 fill:#fff3e0
+    style P4 fill:#e8f5e9</div>
+<blockquote>
+<p><strong>图 3: Agent 生命周期采集点布局与数据映射</strong></p>
+</blockquote>
+<hr>
+<h2>3. 数据模型设计：统一信封与三表面模型</h2>
+<h3>3.1 AgentTrace 的三表面分类法</h3>
+<p>AgentTrace 论文（2025）[1]提出了**认知（Cognitive）、操作（Operational）、上下文（Contextual）**三表面分类法，这是 Agent 可观测性数据模型最重要的架构创新：</p>
+<p><strong>认知表面（Cognitive Surface）</strong>：捕获 Agent 的&quot;思考过程&quot;——LLM 原始提示、补全结果、推理链（Chain-of-Thought）、置信度估计。当 API 支持时（如 OpenAI、Anthropic），还解析 <code>&lt;thinking&gt;</code> 标记和结构化 JSON 字段（如 <code>plan</code>、<code>reflection</code>）[1]。</p>
+<p><strong>操作表面（Operational Surface）</strong>：捕获 Agent 的&quot;显式行为&quot;——方法调用、参数结构、返回值、执行时序。通过 Python 内省和函数包装自动拦截 Agent 类的所有公共方法，每个方法调用产生 start/complete 事件对[1]。</p>
+<p><strong>上下文表面（Contextual Surface）</strong>：捕获 Agent 与&quot;外部世界&quot;的交互——HTTP API、数据库、缓存、向量存储、文件系统。利用 OTel 的自动注入（auto-instrumentation） monkey-patch 标准库，每个交互产生带资源元数据的 Span[1]。</p>
+<h3>3.2 统一信封数据模型</h3>
+<p>三表面的所有日志事件遵循统一信封格式：</p>
+<pre><code>Record = {
+    id: UUID,                    // 全局唯一标识
+    surface: &quot;cognitive&quot;|&quot;operational&quot;|&quot;contextual&quot;,  // 表面类型
+    event: { ... },              // 事件内容（按表面类型结构化）
+    context: {                   // 元数据上下文
+        trace_id: string,        // 关联 Trace ID
+        span_id: string,         // Span 标识
+        parent_span_id?: string, // 父级 Span（用于嵌套）
+        timestamp: UTC,          // 精确时间戳
+        user_id?: string,        // 用户标识（归因用）
+        session_id?: string,     // 会话标识
+        task_id?: string         // 任务标识
+    },
+    metadata: { ... }            // 框架/模型特定元数据
+}
+</code></pre>
+<p>这个数据模型满足四个关键属性[1]：</p>
+<ul>
+<li><strong>一致性（Consistency）</strong>：Schema 合规的表示</li>
+<li><strong>因果性（Causality）</strong>：时间保真度</li>
+<li><strong>保真性（Fidelity）</strong>：忠实于 Agent 内外部行为</li>
+<li><strong>互操作性（Interoperability）</strong>：分析就绪、框架无关</li>
+</ul>
+<h3>3.3 双路径存储策略</h3>
+<p>设计决策：<strong>JSONL 文件 + OpenTelemetry Span</strong> 双路径存储[1]</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>格式</th>
+<th>用途</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>本地</td>
+<td>JSONL（行分隔 JSON）</td>
+<td>离线检查、回放、流式处理</td>
+<td>Append-only，Schema 写入时验证</td>
+</tr>
+<tr>
+<td>远端</td>
+<td>OTel Span</td>
+<td>实时分布式追踪</td>
+<td>与 Jaeger/Tempo 集成，支持跨服务关联</td>
+</tr>
+</tbody></table>
+<p>这种设计确保<strong>低延迟本地调试</strong>和<strong>可扩展远程可观测性</strong>兼得。当远程导出失败时优雅降级为本地日志[1]。</p>
+<hr>
+<h2>4. Agent 特有可观测性需求的采集策略</h2>
+<h3>4.1 决策路径追踪</h3>
+<p>Agent 执行路径是<strong>树状甚至图状</strong>的——ReAct 循环产生多层嵌套的 Span。Trace 需要捕获的不只是&quot;调了哪个工具&quot;，而是&quot;为什么选择这个工具、基于什么信息、上一步的结果如何影响下一步&quot;[1][7]。</p>
+<p><strong>Span 嵌套结构示例</strong>：</p>
+<pre><code>Trace: user_request_abc123
+├── Span: agent_reasoning (cognitive)      ← 决策：选择工具
+│   ├── Attribute: model=gpt-4o
+│   ├── Attribute: strategy=react
+│   └── Event: decided_to_use=web_search
+├── Span: tool_call_web_search (operational) ← 执行：调用工具
+│   ├── Attribute: tool_name=web_search
+│   ├── Attribute: query=&quot;...&quot;
+│   └── Status: OK
+├── Span: agent_reflection (cognitive)      ← 反思：评估结果
+│   ├── Attribute: confidence=0.85
+│   └── Event: decision=continue_with_result
+└── Span: agent_response_generation (cognitive) ← 生成：输出结果
+    ├── Attribute: output_tokens=256
+    └── Status: OK
+</code></pre>
+<h3>4.2 Token 消耗归因</h3>
+<p>Token 是 Agent 系统的核心成本单元，但简单的总量统计毫无意义。设计决策是<strong>三维归因模型</strong>——按阶段（Reasoning / Tool-use / Response）、按来源（User / System / RAG / History / Tool）、按模型层级（GPT-4 / GPT-3.5 / Local）分别追踪[4]：</p>
+<div class="mermaid">graph TD
+    A[Token 消耗归因] --> B1["按阶段归因<br/>Reasoning / Tool-use / Response"]
+    A --> B2["按来源归因<br/>User / System / RAG / History / Tool"]
+    A --> B3["按模型归因<br/>GPT-4 / GPT-3.5 / Local"]
+    
+    B1 --> C1["定位问题：Agent 是否在过度思考？<br/>是否工具调用过多？<br/>输出是否过于冗长？"]
+    B2 --> C2["定位问题：RAG 检索是否拉取过多文档？<br/>工具返回是否过于臃肿？<br/>上下文历史是否需要压缩？"]
+    B3 --> C3["定位问题：是否用 GPT-4 做了简单格式化？<br/>模型降级策略是否生效？"]
+    
+    style B1 fill:#e3f2fd
+    style B2 fill:#fff3e0
+    style B3 fill:#f3e5f5</div>
+<blockquote>
+<p><strong>图 4: Token 消耗三维归因模型</strong></p>
+</blockquote>
+<p><strong>实现要点</strong>：在每个 LLM 调用的 Span 上标注 <code>step_type</code>（reasoning / tool_call / response_gen）和 <code>context_sources</code>（user_input / rag_context / conversation_history / tool_output），使 Token 消耗可以按任意维度聚合分析[4]。</p>
+<h3>4.3 工具调用链</h3>
+<p>工具调用是 Agent 与外部世界的接口，也是最常见的失败点。设计要点：</p>
+<p><strong>采集策略</strong>：</p>
+<ul>
+<li>每个工具调用生成独立 Span，作为 Agent Span 的子级</li>
+<li>Span 属性包含：<code>gen_ai.tool.name</code>、<code>gen_ai.tool.definitions</code>（OTel 语义约定）[2]</li>
+<li>记录工具输入参数（脱敏后）和完整输出</li>
+<li>捕获工具调用延迟和错误信息</li>
+</ul>
+<p><strong>关联设计</strong>：</p>
+<ul>
+<li>工具 Span 通过 <code>parent_span_id</code> 链接到触发它的认知 Span</li>
+<li>同一 Trace 内的工具 Span 按时间顺序排列，支持时序分析</li>
+<li>工具调用失败时，触发&quot;反思 Span&quot;记录 Agent 的重试决策</li>
+</ul>
+<h3>4.4 OTel GenAI 语义约定对齐</h3>
+<p>设计决策时必须考虑与 OpenTelemetry GenAI 语义约定[2][3]的对齐。关键属性包括：</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>用途</th>
+<th>必要性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>gen_ai.agent.name</code></td>
+<td>Agent 标识</td>
+<td>条件必填</td>
+</tr>
+<tr>
+<td><code>gen_ai.agent.id</code></td>
+<td>Agent 唯一标识</td>
+<td>推荐</td>
+</tr>
+<tr>
+<td><code>gen_ai.operation.name</code></td>
+<td>操作类型</td>
+<td>必填</td>
+</tr>
+<tr>
+<td><code>gen_ai.request.model</code></td>
+<td>模型名称</td>
+<td>必填</td>
+</tr>
+<tr>
+<td><code>gen_ai.usage.input_tokens</code></td>
+<td>输入 Token</td>
+<td>推荐</td>
+</tr>
+<tr>
+<td><code>gen_ai.usage.output_tokens</code></td>
+<td>输出 Token</td>
+<td>推荐</td>
+</tr>
+<tr>
+<td><code>gen_ai.tool.definitions</code></td>
+<td>工具定义</td>
+<td>选择加入</td>
+</tr>
+</tbody></table>
+<p>遵循语义约定的核心价值：<strong>任何下游工具或自定义 Dashboard 都能立即识别数据含义</strong>，实现跨框架互操作性[3]。</p>
+<hr>
+<h2>5. Metrics/Traces/Logs 的协作模式</h2>
+<h3>5.1 Metrics 层：Agent 健康度量化</h3>
+<p>Agent 的 Metrics 设计需要覆盖四个维度，但与传统服务不同，需要<strong>额外关注决策质量指标</strong>：</p>
+<p><strong>效率指标</strong>：</p>
+<ul>
+<li><code>agent_planning_steps</code>：单次请求的规划迭代次数（Histogram）</li>
+<li><code>agent_loop_iterations</code>：ReAct 循环次数（Histogram）</li>
+<li><code>agent_time_to_first_token</code>：首 Token 延迟（Gauge）</li>
+</ul>
+<p><strong>成本指标</strong>：</p>
+<ul>
+<li><code>agent_token_input</code> / <code>agent_token_output</code>：输入/输出 Token（Counter）</li>
+<li><code>agent_cost_by_phase</code>：按阶段（reasoning/tool/response）的美元成本（Counter）</li>
+</ul>
+<p><strong>质量指标</strong>：</p>
+<ul>
+<li><code>agent_tool_call_success_rate</code>：工具调用成功率（Gauge，按工具分组）</li>
+<li><code>agent_hallucination_score</code>：幻觉检测得分（Gauge，0-1）</li>
+<li><code>agent_answer_relevance</code>：回答相关性评分（Gauge，0-1）</li>
+</ul>
+<p><strong>可靠性指标</strong>：</p>
+<ul>
+<li><code>agent_error_rate</code>：错误率（Gauge）</li>
+<li><code>agent_stuck_loops</code>：死循环检测计数（Counter）</li>
+<li><code>agent_max_iterations_reached</code>：达到最大迭代次数计数（Counter）</li>
+</ul>
+<p>这些指标构成了 Agent 健康度的完整视图，覆盖了 IBM 研究者总结的 MELT（Metrics、Events、Logs、Traces）框架在 Agent 场景下的扩展应用[11]。</p>
+<h3>5.2 Traces 层：决策路径还原</h3>
+<p>OTel 的 GenAI Agent Span 语义约定定义了四种核心 Span 类型[2][6]：</p>
+<table>
+<thead>
+<tr>
+<th>Span 类型</th>
+<th>语义</th>
+<th>关键属性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>LLM Span</strong></td>
+<td>模型推理调用</td>
+<td>model, input_tokens, output_tokens, temperature</td>
+</tr>
+<tr>
+<td><strong>Tool Span</strong></td>
+<td>工具执行</td>
+<td>tool_name, input, output, duration</td>
+</tr>
+<tr>
+<td><strong>Memory Span</strong></td>
+<td>记忆读写</td>
+<td>operation, storage_type, key</td>
+</tr>
+<tr>
+<td><strong>Orchestration Span</strong></td>
+<td>Agent 编排</td>
+<td>agent_name, task_description, subtasks</td>
+</tr>
+</tbody></table>
+<p>OTel 的 GenAI 语义约定[5]为这些 Span 类型定义了标准化的属性集。<strong>每种 Span 类型都是必需的</strong>——缺失任何一种都会导致盲区，最终以客户投诉的形式暴露[8]。</p>
+<p><strong>Trace 查询模式</strong>：</p>
+<ul>
+<li>&quot;按质量评分 &lt; 0.7 筛选最近 24h 的 Trace，按失败模式分组&quot;</li>
+<li>&quot;按用户/任务维度聚合 Token 消耗，识别异常值&quot;</li>
+<li>&quot;对比同一任务不同模型的执行路径差异&quot;</li>
+</ul>
+<h3>5.3 Logs 层：结构化事件取证</h3>
+<p>Logs 层的核心设计决策是<strong>结构化优先</strong>——不是自由文本日志，而是 Schema 约束的事件记录。每个日志事件必须包含：</p>
+<ul>
+<li>表面类型标识（cognitive/operational/contextual）</li>
+<li>Trace ID 和 Span ID（用于向上关联）</li>
+<li>结构化事件体（按表面类型有不同的 Schema）</li>
+<li>时间戳（UTC，微秒精度）</li>
+</ul>
+<p><strong>日志采样策略</strong>：</p>
+<ul>
+<li>成功请求：采样 10%，保留完整 Metrics 和精简 Trace</li>
+<li>错误请求：100% 保留，完整 Trace + 完整 Logs</li>
+<li>高 Token 消耗请求（&gt;P99）：100% 保留，用于成本优化分析</li>
+</ul>
+<hr>
+<h2>6. 多 Agent 系统的可观测性扩展</h2>
+<h3>6.1 跨 Agent 关联</h3>
+<p>多 Agent 系统的可观测性在单 Agent 基础上增加了<strong>跨 Agent 关联</strong>的挑战。OTel 正在定义的 Agent Framework 语义约定[3]提出了 Task-Action-Agent-Artifact-Memory 模型：</p>
+<ul>
+<li><strong>Task</strong>：任务定义，包含 <code>gen_ai.task.id</code>、<code>gen_ai.task.description</code></li>
+<li><strong>Action</strong>：执行单元，由 Agent 完成，产生/消费 Artifact</li>
+<li><strong>Agent</strong>：执行主体，可以是单个 Agent 或 Team</li>
+<li><strong>Artifact</strong>：产出物（文件、数据、API 响应）</li>
+<li><strong>Memory</strong>：跨会话/跨任务的状态保持</li>
+</ul>
+<h3>6.2 遥测数据治理</h3>
+<p>在生产级 Agent 系统中，可观测性不仅是&quot;采集数据&quot;，更是<strong>治理机制</strong>[9][10]：</p>
+<ul>
+<li><strong>数据脱敏</strong>：用户输入、工具参数中的 PII 必须在采集时脱敏</li>
+<li><strong>成本控制</strong>：遥测数据本身的存储成本需要预算，采用分级保留策略</li>
+<li><strong>隐私合规</strong>：认知表面（LLM 输入输出）可能包含敏感信息，需要特别处理</li>
+<li><strong>Schema 版本管理</strong>：数据模型会演进，需要向后兼容策略</li>
+</ul>
+<hr>
+<h2>7. 结论</h2>
+<p>Agent 可观测性的架构设计需要三个核心设计决策：</p>
+<p><strong>决策一：嵌入时点</strong> — 可观测性应作为一等公民嵌入 Agent 架构，在规划入口、工具执行、记忆操作、反思阶段四个关键点植入采集钩子，而非事后补丁。</p>
+<p><strong>决策二：数据模型</strong> — 采用三表面分类法（认知/操作/上下文）+ 统一信封格式 + 双路径存储（JSONL + OTel Span），满足一致性、因果性、保真性、互操作性四个关键属性。</p>
+<p><strong>决策三：关联策略</strong> — 通过 Trace ID 实现 Metrics → Traces → Logs 三层联动，通过三维 Token 归因（阶段/来源/模型）实现成本精细化管理，通过与 OTel GenAI 语义约定对齐实现跨框架互操作。</p>
+<p>这些设计决策不是工具选型问题，而是架构能力问题。在设计 Agent 系统时就将可观测性嵌入架构，比事后添加监控工具的成本低一个数量级，效果好一个数量级。</p>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>AlSayyad, A., Huang, K.Y., Pal, R. AgentTrace: A Structured Logging Framework for Agent System Observability (2025). <a href="https://arxiv.org/abs/2602.10133">https://arxiv.org/abs/2602.10133</a></li>
+<li>OpenTelemetry. Semantic Conventions for GenAI Agent and Framework Spans (2025). <a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-agent-spans/">https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-agent-spans/</a></li>
+<li>OpenTelemetry. AI Agent Observability - Evolving Standards and Best Practices (2025). <a href="https://opentelemetry.io/blog/2025/ai-agent-observability/">https://opentelemetry.io/blog/2025/ai-agent-observability/</a></li>
+<li>N-IX. AI Agent Observability: The New Standard for Enterprise AI in 2026 (2026). <a href="https://www.n-ix.com/ai-agent-observability/">https://www.n-ix.com/ai-agent-observability/</a></li>
+<li>OpenTelemetry. Semantic Conventions for Generative AI Systems (2025). <a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/">https://opentelemetry.io/docs/specs/semconv/gen-ai/</a></li>
+<li>OpenTelemetry. Semantic Conventions for Generative AI Agentic Systems - Issue #2664 (2025). <a href="https://github.com/open-telemetry/semantic-conventions/issues/2664">https://github.com/open-telemetry/semantic-conventions/issues/2664</a></li>
+<li>Salesforce. Agent Observability: Building Transparency into AI Systems (2025). <a href="https://www.salesforce.com/agentforce/observability/agent-observability/">https://www.salesforce.com/agentforce/observability/agent-observability/</a></li>
+<li>Chanl. What to Trace When Your AI Agent Hits Production (2025). <a href="https://www.chanl.ai/blog/ai-agent-observability-opentelemetry-production">https://www.chanl.ai/blog/ai-agent-observability-opentelemetry-production</a></li>
+<li>NexAI Tech. AI Agent Architecture Patterns in 2025 (2025). <a href="https://nexaitech.com/multi-ai-agent-architecutre-patterns-for-scale/">https://nexaitech.com/multi-ai-agent-architecutre-patterns-for-scale/</a></li>
+<li>GreenNode. Designing Production-Ready Architecture for AI Agents (2025). <a href="https://greennode.ai/blog/designing-production-ready-architecture-for-ai-agents">https://greennode.ai/blog/designing-production-ready-architecture-for-ai-agents</a></li>
+<li>Paul, K. A Comprehensive Guide to Observability in AI Agents: Best Practices (2025). <a href="https://dev.to/kuldeep_paul/a-comprehensive-guide-to-observability-in-ai-agents-best-practices-4bd4">https://dev.to/kuldeep_paul/a-comprehensive-guide-to-observability-in-ai-agents-best-practices-4bd4</a></li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>
