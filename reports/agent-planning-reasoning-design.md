@@ -429,17 +429,17 @@ Agent 规划范式的选型没有绝对最优解，但有清晰的决策框架�
 <!-- REFERENCE START -->
 ## 参考文献
 
-1. Wollen Labs. "Navigating Modern LLM Agent Architectures" (2025). https://www.wollenlabs.com/blog-posts/navigating-modern-llm-agent-architectures-multi-agents-plan-and-execute-rewoo-tree-of-thoughts-and-react
-2. Yao, S. et al. "ReAct: Synergizing Reasoning and Acting in Language Models" (ICLR 2023). https://arxiv.org/abs/2210.03629
-3. Emergent Mind. "ReAct Architecture: Reason, Act, Reflect" (2026). https://www.emergentmind.com/topics/reason-act-reflect-react-architecture
-4. Coforge. "ReAct, Tree-of-Thought, and Beyond: The Reasoning Frameworks Behind Autonomous AI Agents" (2025). https://www.coforge.com/what-we-know/blog/react-tree-of-thought-and-beyond-the-reasoning-frameworks-behind-autonomous-ai-agents
-5. Li, H. et al. "Focused ReAct: Reiteration and Early Stop for Agentic Reasoning" (2024). https://arxiv.org/abs/2410.10779
-6. LangChain Documentation. "LangGraph Prebuilt Agents" (2025). https://langchain-ai.github.io/langgraph/how-tos/create-react-agent/
-7. James Li. "ReAct vs Plan-and-Execute: A Practical Comparison of LLM Agent Patterns" (2025). https://dev.to/jamesli/react-vs-plan-and-execute-a-practical-comparison-of-llm-agent-patterns-4gh9
-8. Wei, J. et al. "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models" (NeurIPS 2022). https://arxiv.org/abs/2201.11903
-9. Prompt Engineering Guide. "Chain-of-Thought (CoT) Prompting" (2025). https://www.promptingguide.ai/techniques/cot
-10. DigitalApplied. "LangChain AI Agents: Complete Implementation Guide 2025" (2025). https://www.digitalapplied.com/blog/langchain-ai-agents-guide-2025
-11. Zhang, Z. et al. "Cost-Efficient Serving of LLM Agents via Test-Time Plan Caching" (arXiv 2025). https://arxiv.org/abs/2506.14852
-12. Yao, S. et al. ReAct GitHub Repository (2023). https://github.com/ysymyth/ReAct
-13. Louis Bouchard. "ReAct vs Plan-and-Execute: The Architecture Behind Modern AI Agents" (2025). https://louisbouchard.substack.com/p/react-vs-plan-and-execute-the-architecture
-14. Stevens Institute. "The Hidden Economics of AI Agents: Managing Token Costs and Latency" (2026). https://online.stevens.edu/blog/hidden-economics-ai-agents-token-costs-latency/
+1. Wollen Labs. "Navigating Modern LLM Agent Architectures" (2025). https://www.wollenlabs.com/blog-posts/navigating-modern-llm-agent-architectures-multi-agents-plan-and-execute-rewoo-tree-of-thoughts-and-react — accessed 2026-03-25
+2. Yao, S. et al. "ReAct: Synergizing Reasoning and Acting in Language Models" (ICLR 2023). https://arxiv.org/abs/2210.03629 — accessed 2026-03-25
+3. Emergent Mind. "ReAct Architecture: Reason, Act, Reflect" (2026). https://www.emergentmind.com/topics/reason-act-reflect-react-architecture — accessed 2026-03-25
+4. Coforge. "ReAct, Tree-of-Thought, and Beyond: The Reasoning Frameworks Behind Autonomous AI Agents" (2025). https://www.coforge.com/what-we-know/blog/react-tree-of-thought-and-beyond-the-reasoning-frameworks-behind-autonomous-ai-agents — accessed 2026-03-25
+5. Li, H. et al. "Focused ReAct: Reiteration and Early Stop for Agentic Reasoning" (2024). https://arxiv.org/abs/2410.10779 — accessed 2026-03-25
+6. LangChain Documentation. "LangGraph Prebuilt Agents" (2025). https://langchain-ai.github.io/langgraph/how-tos/create-react-agent/ — accessed 2026-03-25
+7. James Li. "ReAct vs Plan-and-Execute: A Practical Comparison of LLM Agent Patterns" (2025). https://dev.to/jamesli/react-vs-plan-and-execute-a-practical-comparison-of-llm-agent-patterns-4gh9 — accessed 2026-03-25
+8. Wei, J. et al. "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models" (NeurIPS 2022). https://arxiv.org/abs/2201.11903 — accessed 2026-03-25
+9. Prompt Engineering Guide. "Chain-of-Thought (CoT) Prompting" (2025). https://www.promptingguide.ai/techniques/cot — accessed 2026-03-25
+10. DigitalApplied. "LangChain AI Agents: Complete Implementation Guide 2025" (2025). https://www.digitalapplied.com/blog/langchain-ai-agents-guide-2025 — accessed 2026-03-25
+11. Zhang, Z. et al. "Cost-Efficient Serving of LLM Agents via Test-Time Plan Caching" (arXiv 2025). https://arxiv.org/abs/2506.14852 — accessed 2026-03-25
+12. Yao, S. et al. ReAct GitHub Repository (2023). https://github.com/ysymyth/ReAct — accessed 2026-03-25
+13. Louis Bouchard. "ReAct vs Plan-and-Execute: The Architecture Behind Modern AI Agents" (2025). https://louisbouchard.substack.com/p/react-vs-plan-and-execute-the-architecture — accessed 2026-03-25
+14. Stevens Institute. "The Hidden Economics of AI Agents: Managing Token Costs and Latency" (2026). https://online.stevens.edu/blog/hidden-economics-ai-agents-token-costs-latency/ — accessed 2026-03-25

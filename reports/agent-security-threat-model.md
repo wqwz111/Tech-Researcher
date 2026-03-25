@@ -454,15 +454,15 @@ Agent 安全不是"安全工具选型"问题，而是**架构级决策**。本�
 <!-- REFERENCE START -->
 ## 参考文献
 
-1. Weng, L. "LLM Powered Autonomous Agents" (2023). https://lilianweng.github.io/posts/2023-06-23-agent/
-2. OWASP. "OWASP Top 10 for Large Language Model Applications v1.1" (2025). https://owasp.org/www-project-top-10-for-large-language-model-applications/
-3. Liu, Y. et al. "Formalizing and Benchmarking Prompt Injection Attacks and Defenses" USENIX Security 2024. https://arxiv.org/abs/2310.12815
-4. Debenedetti, E. et al. "AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents" (2024). https://arxiv.org/abs/2406.13352
-5. Anthropic. "Model Context Protocol (MCP) Architecture" (2025). https://modelcontextprotocol.io/docs/learn/architecture.md
-6. Kang, D. et al. "LLM Agents can Autonomously Hack Websites" ICML 2024. https://arxiv.org/abs/2402.06664
-7. Mehrotra, A. et al. "Tree of Attacks: Jailbreaking Black-Box LLMs Automatically" NeurIPS 2024. https://arxiv.org/abs/2312.02119
-8. Promptfoo. "MCP Proxy: Secure proxy for Model Context Protocol communications" (2025). https://promptfoo.dev/
-9. OWASP GenAI Security Project. "OWASP GenAI Security" (2025). https://genai.owasp.org/
-10. OWASP. "Agentic AI Threat Injection and Vulnerabilities" (2024). https://genai.owasp.org/
-11. Model Context Protocol. "MCP Specification" (2025). https://modelcontextprotocol.io/specification/latest
-12. Hubinger, E. et al. "Training Deceptive LLMs that Persist Through Safety Training" (2024). https://arxiv.org/abs/2401.05566
+1. Weng, L. "LLM Powered Autonomous Agents" (2023). https://lilianweng.github.io/posts/2023-06-23-agent/ — accessed 2026-03-25
+2. OWASP. "OWASP Top 10 for Large Language Model Applications v1.1" (2025). https://owasp.org/www-project-top-10-for-large-language-model-applications/ — accessed 2026-03-25
+3. Liu, Y. et al. "Formalizing and Benchmarking Prompt Injection Attacks and Defenses" USENIX Security 2024. https://arxiv.org/abs/2310.12815 — accessed 2026-03-25
+4. Debenedetti, E. et al. "AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents" (2024). https://arxiv.org/abs/2406.13352 — accessed 2026-03-25
+5. Anthropic. "Model Context Protocol (MCP) Architecture" (2025). https://modelcontextprotocol.io/docs/learn/architecture.md — accessed 2026-03-25
+6. Kang, D. et al. "LLM Agents can Autonomously Hack Websites" ICML 2024. https://arxiv.org/abs/2402.06664 — accessed 2026-03-25
+7. Mehrotra, A. et al. "Tree of Attacks: Jailbreaking Black-Box LLMs Automatically" NeurIPS 2024. https://arxiv.org/abs/2312.02119 — accessed 2026-03-25
+8. Promptfoo. "AI Red Teaming: Automated Vulnerability Testing for AI Applications" (2025). https://promptfoo.dev/red-teaming/ — accessed 2026-03-25
+9. OWASP GenAI Security Project. "OWASP GenAI Security" (2025). https://genai.owasp.org/ — accessed 2026-03-25
+10. OWASP. "Agentic AI Threat Injection and Vulnerabilities" (2024). https://genai.owasp.org/ — accessed 2026-03-25
+11. Model Context Protocol. "MCP Specification" (2025). https://modelcontextprotocol.io/specification/latest — accessed 2026-03-25
+12. Hubinger, E. et al. "Training Deceptive LLMs that Persist Through Safety Training" (2024). https://arxiv.org/abs/2401.05566 — accessed 2026-03-25

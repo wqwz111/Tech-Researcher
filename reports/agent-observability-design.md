@@ -390,14 +390,14 @@ Agent 可观测性的架构设计需要三个核心设计决策：
 <!-- REFERENCE START -->
 ## 参考文献
 
-1. AlSayyad, A., Huang, K.Y., Pal, R. AgentTrace: A Structured Logging Framework for Agent System Observability (2025). https://arxiv.org/abs/2602.10133
-2. OpenTelemetry. Semantic Conventions for GenAI Agent and Framework Spans (2025). https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-agent-spans/
-3. OpenTelemetry. AI Agent Observability - Evolving Standards and Best Practices (2025). https://opentelemetry.io/blog/2025/ai-agent-observability/
-4. N-IX. AI Agent Observability: The New Standard for Enterprise AI in 2026 (2026). https://www.n-ix.com/ai-agent-observability/
-5. OpenTelemetry. Semantic Conventions for Generative AI Systems (2025). https://opentelemetry.io/docs/specs/semconv/gen-ai/
-6. OpenTelemetry. Semantic Conventions for Generative AI Agentic Systems - Issue #2664 (2025). https://github.com/open-telemetry/semantic-conventions/issues/2664
-7. Salesforce. Agent Observability: Building Transparency into AI Systems (2025). https://www.salesforce.com/agentforce/observability/agent-observability/
-8. Chanl. What to Trace When Your AI Agent Hits Production (2025). https://www.chanl.ai/blog/ai-agent-observability-opentelemetry-production
-9. NexAI Tech. AI Agent Architecture Patterns in 2025 (2025). https://nexaitech.com/multi-ai-agent-architecutre-patterns-for-scale/
-10. GreenNode. Designing Production-Ready Architecture for AI Agents (2025). https://greennode.ai/blog/designing-production-ready-architecture-for-ai-agents
-11. Paul, K. A Comprehensive Guide to Observability in AI Agents: Best Practices (2025). https://dev.to/kuldeep_paul/a-comprehensive-guide-to-observability-in-ai-agents-best-practices-4bd4
+1. AlSayyad, A., Huang, K.Y., Pal, R. AgentTrace: A Structured Logging Framework for Agent System Observability (2025). https://arxiv.org/abs/2602.10133 — accessed 2026-03-25
+2. OpenTelemetry. Semantic Conventions for GenAI Agent and Framework Spans (2025). https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-agent-spans/ — accessed 2026-03-25
+3. OpenTelemetry. AI Agent Observability - Evolving Standards and Best Practices (2025). https://opentelemetry.io/blog/2025/ai-agent-observability/ — accessed 2026-03-25
+4. N-IX. AI Agent Observability: The New Standard for Enterprise AI in 2026 (2026). https://www.n-ix.com/ai-agent-observability/ — accessed 2026-03-25
+5. OpenTelemetry. Semantic Conventions for Generative AI Systems (2025). https://opentelemetry.io/docs/specs/semconv/gen-ai/ — accessed 2026-03-25
+6. OpenTelemetry. Semantic Conventions for Generative AI Agentic Systems - Issue #2664 (2025). https://github.com/open-telemetry/semantic-conventions/issues/2664 — accessed 2026-03-25
+7. Salesforce. Agent Observability: Building Transparency into AI Systems (2025). https://www.salesforce.com/agentforce/observability/agent-observability/ — accessed 2026-03-25
+8. Chanl. What to Trace When Your AI Agent Hits Production (2025). https://www.chanl.ai/blog/ai-agent-observability-opentelemetry-production — accessed 2026-03-25
+9. NexAI Tech. AI Agent Architecture Patterns in 2025 (2025). https://nexaitech.com/multi-ai-agent-architecutre-patterns-for-scale/ — accessed 2026-03-25
+10. GreenNode. Designing Production-Ready Architecture for AI Agents (2025). https://greennode.ai/blog/designing-production-ready-architecture-for-ai-agents — accessed 2026-03-25
+11. Paul, K. A Comprehensive Guide to Observability in AI Agents: Best Practices (2025). https://dev.to/kuldeep_paul/a-comprehensive-guide-to-observability-in-ai-agents-best-practices-4bd4 — accessed 2026-03-25
