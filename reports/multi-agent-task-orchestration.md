@@ -239,7 +239,7 @@ flowchart TD
         Classify -->|临时错误| Retry[指数回退重试]
         Classify -->|永久错误| Fallback[降级处理]
         Classify -->|超时| Timeout[超时熔断]
-        Classify →|致命错误| Emergency[紧急停止]
+        Classify -->|致命错误| Emergency[紧急停止]
         
         Retry -->|成功| OK[返回结果]
         Retry -->|超过重试上限| Fallback
