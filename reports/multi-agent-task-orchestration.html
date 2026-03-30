@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多 Subagent 协作的任务管理策略与实现方式</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>多 Subagent 协作的任务管理策略与实现方式</h1>
+  <div class="meta">2026-03-30 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>随着 LLM 驱动的 AI Agent 从单体走向协作，多 Subagent 系统的任务编排已成为架构设计的核心挑战。本报告系统梳理了 2024-2026 年间主流的多 Agent 任务编排模式、状态管理机制、分配策略、结果聚合方法和错误隔离方案，并对比 OpenAI Swarm、CrewAI、LangGraph、AutoGen 和 Google ADK 等框架的实现差异。</p>
+<p>核心发现：</p>
+<ul>
+<li><strong>编排模式已标准化</strong>：Microsoft Azure 架构中心定义了 Sequential、Concurrent、Group Chat、Handoff 和 Magentic 五种核心模式，Google ADK 进一步扩展至 8 种设计模式[1][4]。</li>
+<li><strong>协调成本指数增长</strong>：4 个 Agent 产生 6 个失败点，10 个 Agent 产生 45 个——这决定了多 Agent 系统的适用边界[10]。</li>
+<li><strong>三强格局形成</strong>：LangGraph（生产级复杂度）、CrewAI（快速角色开发）、Microsoft Agent Framework（企业 Azure）成为 2025-2026 年的主流选择[2][6][15]。</li>
+<li><strong>可靠性来自编排层</strong>：单个 Agent 的推理能力不如编排层的规划、执行、验证机制重要[3]。</li>
+<li><strong>企业级 ROI 关注升温</strong>：McKinsey 和行业报告指出多 Agent 编排的实施成本与平台选择是企业关键决策[5]。</li>
+</ul>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. 多 Agent 任务编排的主流模式</h2>
+<h3>1.1 Azure 五大核心编排模式</h3>
+<p>Microsoft Azure 架构中心在 2026 年 2 月更新的指南中定义了五种经过验证的编排模式[1]：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>拓扑结构</th>
+<th>适用场景</th>
+<th>关键特征</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Sequential（顺序流水线）</strong></td>
+<td>线性链</td>
+<td>数据转换、多步骤处理</td>
+<td>Agent 按预定义顺序执行，前一个输出作为下一个输入</td>
+</tr>
+<tr>
+<td><strong>Concurrent（并发）</strong></td>
+<td>扇出/扇入</td>
+<td>可并行化任务（如多角度分析）</td>
+<td>多个 Agent 同时处理同一任务的不同方面</td>
+</tr>
+<tr>
+<td><strong>Group Chat（群聊）</strong></td>
+<td>共享会话</td>
+<td>多方讨论、决策验证</td>
+<td>Agent 在共享对话中协作，类似人类团队会议</td>
+</tr>
+<tr>
+<td><strong>Handoff（交接）</strong></td>
+<td>动态委派</td>
+<td>客服路由、专业领域切换</td>
+<td>根据上下文动态将任务交接给最适合的 Agent</td>
+</tr>
+<tr>
+<td><strong>Magentic（磁性）</strong></td>
+<td>计划者-执行者</td>
+<td>复杂工作流</td>
+<td>中心 Agent 制定计划，其他 Agent 执行外部系统操作</td>
+</tr>
+</tbody></table>
+<div class="mermaid">graph TD
+    subgraph "五种核心编排模式"
+        A1[Sequential] --> B1[Agent1 → Agent2 → Agent3]
+        A2[Concurrent] --> B2[任务 → AgentA<br/>任务 → AgentB<br/>任务 → AgentC]
+        A3[Group Chat] --> B3[(共享会话)]
+        A4[Handoff] --> B4[Router → SpecialistA<br/>Router → SpecialistB]
+        A5[Magentic] --> B5[Planner → Executor1<br/>Planner → Executor2]
+    end
+
+    style A1 fill:#e1f5fe
+    style A2 fill:#f3e5f5
+    style A3 fill:#e8f5e8
+    style A4 fill:#fff3e0
+    style A5 fill:#fce4ec</div>
+<h3>1.2 Google ADK 的八种设计模式</h3>
+<p>Google Agent Development Kit (ADK) 在 2026 年的开发者指南中进一步扩展了设计模式[4]：</p>
+<ol>
+<li><strong>Sequential Pipeline</strong> — 线性链式处理</li>
+<li><strong>Coordinator-Dispatcher</strong> — 中心调度器分发任务</li>
+<li><strong>Hierarchical Task Decomposition</strong> — 层次化任务分解</li>
+<li><strong>Generator-Critic</strong> — 生成者-评审者循环</li>
+<li><strong>Iterative Refinement</strong> — 迭代优化</li>
+<li><strong>Human-in-the-Loop</strong> — 人工介入</li>
+<li><strong>Parallel Branches</strong> — 并行分支</li>
+<li><strong>Composite Patterns</strong> — 复合模式（以上模式的组合）</li>
+</ol>
+<h3>1.3 三种拓扑结构</h3>
+<p>Augment Code 的企业级研究将多 Agent 架构归纳为三种拓扑[13]：</p>
+<table>
+<thead>
+<tr>
+<th>拓扑</th>
+<th>状态所有权</th>
+<th>故障域</th>
+<th>适用规模</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Hub-Spoke（星型）</strong></td>
+<td>集中在 Hub</td>
+<td>Hub 是单点故障</td>
+<td>中小规模（&lt;10 Agent）</td>
+</tr>
+<tr>
+<td><strong>Mesh（P2P）</strong></td>
+<td>分散在各节点</td>
+<td>故障可隔离</td>
+<td>小规模、高耦合任务</td>
+</tr>
+<tr>
+<td><strong>Hierarchical（树型）</strong></td>
+<td>分层所有</td>
+<td>子树可隔离</td>
+<td>大规模（10+ Agent）</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>2. 任务状态跟踪机制</h2>
+<h3>2.1 标准状态模型</h3>
+<p>多 Agent 系统的任务状态遵循经典的有限状态机模型：</p>
+<div class="mermaid">stateDiagram-v2
+    [*] --> Pending : 任务创建
+    Pending --> Running : Agent 开始执行
+    Running --> Completed : 成功完成
+    Running --> Failed : 执行失败
+    Running --> Timeout : 超时
+    Failed --> Running : 重试（≤max_retries）
+    Timeout --> Running : 超时重试
+    Completed --> [*]
+    Failed --> [*] : 超过重试上限</div>
+<h3>2.2 各框架的状态实现</h3>
+<p><strong>CrewAI Flow State</strong> [7]</p>
+<ul>
+<li>提供 <code>self.state</code> 对象，支持字典式和属性式访问</li>
+<li>内置自动状态 ID，支持持久化到外部存储</li>
+<li>与 Crew 执行集成，任务输出自动写入状态</li>
+<li>支持状态可视化和调试日志</li>
+</ul>
+<pre><code class="language-python"># CrewAI Flow State 示例
+class ResearchFlow(Flow):
+    @start()
+    def research(self):
+        self.state[&quot;topic&quot;] = &quot;Multi-Agent Systems&quot;
+        self.state.progress = 0.0
+    
+    @listen(research)
+    def analyze(self):
+        self.state.progress = 50.0
+        # 状态在步骤间自动传递
+</code></pre>
+<p><strong>LangGraph</strong> — 通过 <code>StateGraph</code> 定义状态模式，每个节点可读写状态，边定义状态转换条件。</p>
+<p><strong>AutoGen</strong> — 使用 <code>GroupChatManager</code> 维护对话历史作为隐式状态，Agent 间通过消息传递共享上下文。</p>
+<p><strong>OpenAI Swarm</strong> — <strong>无状态设计</strong>[8]，Agent 之间通过 <code>context_variables</code> 传递参数，但不保留交互历史。这是其设计上的有意取舍——简化实现但限制了复杂决策能力。</p>
+<h3>2.3 超时处理策略</h3>
+<p>Prem AI 的研究提出了多层超时处理框架[12]：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>超时类型</th>
+<th>处理策略</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agent 级</td>
+<td>单次推理超时</td>
+<td>重试 + 降级到更快模型</td>
+</tr>
+<tr>
+<td>Task 级</td>
+<td>任务完成超时</td>
+<td>中断 + 标记为失败 + 触发备用路径</td>
+</tr>
+<tr>
+<td>Workflow 级</td>
+<td>整体流程超时</td>
+<td>紧急收尾 + 部分结果返回</td>
+</tr>
+<tr>
+<td>System 级</td>
+<td>系统响应超时</td>
+<td>熔断 + 人工介入</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>3. 任务分配策略</h2>
+<h3>3.1 负载均衡</h3>
+<p><strong>静态分配</strong>：预定义 Agent 角色和任务映射（CrewAI 的 Process.sequential/hierarchical）</p>
+<p><strong>动态分配</strong>：</p>
+<ul>
+<li><strong>Supervisor 模式</strong>：中央调度器根据 Agent 能力和当前负载分配任务（Kore.ai 企业 SDK 的实现）[9]</li>
+<li><strong>Round Robin</strong>：AutoGen 的 <code>RoundRobinGroupChat</code> 模式按轮次分配[2]</li>
+<li><strong>基于能力的路由</strong>：Handoff 模式中 Router 根据任务类型选择最合适的 Specialist</li>
+</ul>
+<div class="mermaid">flowchart TB
+    subgraph "任务分配策略"
+        Task[新任务到达]
+        Task --> Router{路由决策}
+        
+        Router -->|规则匹配| RuleBased[基于规则分配]
+        Router -->|能力匹配| Capability[基于能力分配]
+        Router -->|负载感知| LoadBased[基于负载分配]
+        Router -->|优先级| Priority[基于优先级调度]
+        
+        RuleBased --> A1[Agent 1]
+        Capability --> A2[Agent 2]
+        LoadBased --> A3[Agent 3]
+        Priority --> A1
+    end
+
+    style Router fill:#ffeb3b</div>
+<h3>3.2 优先级调度</h3>
+<p>企业级系统通常实现多级优先级队列[12]：</p>
+<ul>
+<li><strong>P0（紧急）</strong>：实时任务，直接分配给最可靠的 Agent</li>
+<li><strong>P1（高）</strong>：业务关键，排队但允许抢占低优先级任务</li>
+<li><strong>P2（普通）</strong>：批量处理，FIFO 队列</li>
+<li><strong>P3（低）</strong>：后台任务，在系统空闲时处理</li>
+</ul>
+<h3>3.3 失败重试策略</h3>
+<p>指数回退（Exponential Backoff）是各框架的共识[9][10][12]：</p>
+<table>
+<thead>
+<tr>
+<th>重试次数</th>
+<th>等待时间</th>
+<th>调整策略</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>第 1 次</td>
+<td>0s</td>
+<td>正常重试</td>
+</tr>
+<tr>
+<td>第 2 次</td>
+<td>1s</td>
+<td>降级到更简单的 prompt</td>
+</tr>
+<tr>
+<td>第 3 次</td>
+<td>4s</td>
+<td>切换到更可靠的模型</td>
+</tr>
+<tr>
+<td>第 4 次</td>
+<td>16s</td>
+<td>分配给备用 Agent</td>
+</tr>
+<tr>
+<td>超过上限</td>
+<td>—</td>
+<td>标记失败 + 人工介入</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>4. 结果聚合</h2>
+<h3>4.1 聚合模式</h3>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>机制</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>收集-合并</strong></td>
+<td>等所有 Agent 完成后合并输出</td>
+<td>并行分析、多角度研究</td>
+</tr>
+<tr>
+<td><strong>投票-裁决</strong></td>
+<td>多 Agent 独立产出，取多数或加权</td>
+<td>事实核查、决策验证</td>
+</tr>
+<tr>
+<td><strong>逐步精化</strong></td>
+<td>Agent A 产出 → Agent B 改进 → Agent C 终审</td>
+<td>内容生成、代码审查</td>
+</tr>
+<tr>
+<td><strong>流式聚合</strong></td>
+<td>实时收集各 Agent 的部分结果</td>
+<td>长时任务、实时仪表盘</td>
+</tr>
+</tbody></table>
+<h3>4.2 CrewAI 的状态聚合实践</h3>
+<p>CrewAI Flows 支持通过状态对象实现结果聚合[7]：</p>
+<pre><code class="language-python">@listen(gather_data)
+def synthesize(self):
+    # 从状态中读取多个 Agent 的结果
+    results = self.state.get(&quot;agent_results&quot;, [])
+    summary = &quot;\n&quot;.join(results)
+    self.state[&quot;final_summary&quot;] = summary
+</code></pre>
+<h3>4.3 LangGraph 的条件聚合</h3>
+<p>LangGraph 通过条件边（Conditional Edges）实现灵活的结果路由——根据 Agent 输出决定下一步是聚合、重试还是继续执行。</p>
+<hr>
+<h2>5. 错误隔离</h2>
+<h3>5.1 错误类型与影响范围</h3>
+<p>Galileo AI 的研究指出[10]，多 Agent 系统的失败模式主要有：</p>
+<table>
+<thead>
+<tr>
+<th>失败模式</th>
+<th>原因</th>
+<th>影响范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>上下文丢失</strong></td>
+<td>Agent 间信息传递失败</td>
+<td>单个 Agent → 下游依赖</td>
+</tr>
+<tr>
+<td><strong>无限循环</strong></td>
+<td>Agent 间互相依赖形成死锁</td>
+<td>相关 Agent 子集</td>
+</tr>
+<tr>
+<td><strong>协调失败</strong></td>
+<td>Router/Supervisor 错误分派</td>
+<td>整个系统</td>
+</tr>
+<tr>
+<td><strong>级联错误</strong></td>
+<td>上游错误传播到下游</td>
+<td>执行链的所有 Agent</td>
+</tr>
+<tr>
+<td><strong>上下文窗口溢出</strong></td>
+<td>消息累积超出模型限制</td>
+<td>单个 Agent</td>
+</tr>
+</tbody></table>
+<h3>5.2 隔离策略</h3>
+<p>Toucan Toco 的实践总结了层级化错误处理策略[9]：</p>
+<div class="mermaid">flowchart TD
+    subgraph "错误隔离与处理"
+        E[Agent 执行失败]
+        E --> Classify{错误分类}
+        
+        Classify -->|临时错误| Retry[指数回退重试]
+        Classify -->|永久错误| Fallback[降级处理]
+        Classify -->|超时| Timeout[超时熔断]
+        Classify →|致命错误| Emergency[紧急停止]
+        
+        Retry -->|成功| OK[返回结果]
+        Retry -->|超过重试上限| Fallback
+        
+        Fallback --> Partial[部分结果返回]
+        Timeout --> Partial
+        Emergency --> Notify[通知人工介入]
+        
+        Partial --> Aggregate[聚合层处理]
+        OK --> Aggregate
+    end
+
+    style E fill:#ffcdd2
+    style OK fill:#c8e6c9
+    style Emergency fill:#ff5722,color:white</div>
+<p><strong>结构化错误返回</strong>（Toucan 方案）[9]：</p>
+<pre><code class="language-json">{
+  &quot;error_type&quot;: &quot;temporary&quot;,
+  &quot;category&quot;: &quot;rate_limit&quot;,
+  &quot;metadata&quot;: {
+    &quot;retry_after&quot;: 5,
+    &quot;agent_id&quot;: &quot;researcher-01&quot;
+  }
+}
+</code></pre>
+<p><strong>故障域隔离</strong>（Augment Code 方案）[13]：</p>
+<ul>
+<li>Hub-Spoke：Hub 故障时 Spoke 降级为独立处理</li>
+<li>Hierarchical：子树故障不影响其他子树</li>
+<li>每个 Agent 设置独立的超时和重试策略</li>
+</ul>
+<h3>5.3 可观测性是安全网</h3>
+<p>Zartis 的研究强调[11]，可靠的错误隔离需要完整的可观测性层：</p>
+<ul>
+<li><strong>跟踪 Agent 推理路径</strong>：不是只看输入输出，而是追踪每一步决策</li>
+<li><strong>指标分类</strong>：性能（延迟/完成率）、质量（交接成功率/工具选择准确率）、成本（每 Agent token 消耗）、可靠性（错误聚类/漂移检测）</li>
+<li><strong>防护栏</strong>：人工介入点不是&quot;额外功能&quot;，而是核心基础设施</li>
+</ul>
+<hr>
+<h2>6. 框架对比</h2>
+<h3>6.1 框架特性对比</h3>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>OpenAI Swarm</th>
+<th>CrewAI</th>
+<th>LangGraph</th>
+<th>AutoGen</th>
+<th>Google ADK</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>定位</strong></td>
+<td>教学/实验</td>
+<td>快速开发</td>
+<td>生产级</td>
+<td>企业协作</td>
+<td>Google Cloud</td>
+</tr>
+<tr>
+<td><strong>学习曲线</strong></td>
+<td>低</td>
+<td>中</td>
+<td>高</td>
+<td>中</td>
+<td>中高</td>
+</tr>
+<tr>
+<td><strong>状态管理</strong></td>
+<td>无状态</td>
+<td>Flow State</td>
+<td>StateGraph</td>
+<td>对话历史</td>
+<td>内置</td>
+</tr>
+<tr>
+<td><strong>编排模式</strong></td>
+<td>Handoff</td>
+<td>Sequential/Hierarchical</td>
+<td>任意 DAG</td>
+<td>Round Robin/Group Chat</td>
+<td>8 种模式</td>
+</tr>
+<tr>
+<td><strong>错误处理</strong></td>
+<td>基础</td>
+<td>内置重试</td>
+<td>自定义节点</td>
+<td>管理器级别</td>
+<td>平台级别</td>
+</tr>
+<tr>
+<td><strong>可观测性</strong></td>
+<td>无</td>
+<td>Tracing（AMP）</td>
+<td>LangSmith</td>
+<td>内置日志</td>
+<td>Cloud Monitoring</td>
+</tr>
+<tr>
+<td><strong>生产就绪</strong></td>
+<td>❌ 实验性</td>
+<td>✅</td>
+<td>✅✅</td>
+<td>✅</td>
+<td>✅✅</td>
+</tr>
+<tr>
+<td><strong>企业集成</strong></td>
+<td>无</td>
+<td>有限</td>
+<td>LangSmith 生态</td>
+<td>Microsoft 生态</td>
+<td>GCP/Azure</td>
+</tr>
+</tbody></table>
+<h3>6.2 OpenAI Swarm：简洁的 Handoff 模型</h3>
+<p>Swarm 的核心设计[8]：</p>
+<ul>
+<li><strong>Routines</strong>：将复杂流程编码为 Agent 的指令</li>
+<li><strong>Handoffs</strong>：Agent 通过函数调用将控制权转移给另一个 Agent</li>
+<li><strong>无状态</strong>：不保留对话历史，通过 context_variables 传参</li>
+<li><strong>客户端执行</strong>：几乎全部逻辑在客户端运行，服务端只做 LLM 调用</li>
+</ul>
+<p><strong>优势</strong>：极简设计，易于理解多 Agent 协调的基本原理
+<strong>局限</strong>：不适合生产环境，无状态限制了复杂工作流</p>
+<h3>6.3 CrewAI：角色驱动的快速开发</h3>
+<p>CrewAI 的独特价值[7][14]：</p>
+<ul>
+<li><strong>角色-目标-背景框架</strong>：每个 Agent 由 role/goal/backstory 定义</li>
+<li><strong>Crew 统一编排</strong>：将 Agents + Tasks + Tools 组合成 Crew</li>
+<li><strong>Flow State</strong>：步骤间的状态传递和持久化</li>
+<li><strong>与 Andrew Ng 合作的课程</strong>：降低了多 Agent 开发的学习门槛</li>
+</ul>
+<p><strong>优势</strong>：快速原型开发，适合中小规模系统
+<strong>局限</strong>：复杂工作流的灵活性不如 LangGraph</p>
+<h3>6.4 LangGraph：DAG 驱动的生产级编排</h3>
+<p>LangGraph 成为 2025-2026 年生产部署的首选[2][6]：</p>
+<ul>
+<li><strong>StateGraph</strong>：将工作流建模为有向图，支持任意复杂的分支/循环</li>
+<li><strong>检查点</strong>：支持断点恢复和时间旅行调试</li>
+<li><strong>Human-in-the-Loop</strong>：在图的任意节点插入人工审批</li>
+<li><strong>LangSmith 集成</strong>：完整的可观测性和评估工具链</li>
+<li><strong>47M+ 月 PyPI 下载</strong>：Klarna、Uber、LinkedIn 等企业的生产部署</li>
+</ul>
+<p><strong>优势</strong>：最大灵活性，适合复杂多步工作流
+<strong>局限</strong>：学习曲线陡峭，过度设计简单任务</p>
+<h3>6.5 AutoGen：对话驱动的多 Agent 协作</h3>
+<p>2025 年 10 月，Microsoft 将 AutoGen 与 Semantic Kernel 合并为 Microsoft Agent Framework[15]：</p>
+<ul>
+<li><strong>Group Chat</strong>：Agent 在共享对话中协作</li>
+<li><strong>Round Robin</strong>：按轮次分配发言权</li>
+<li><strong>可定制的对话管理器</strong>：控制谁在什么时候说话</li>
+<li><strong>与 .NET/Azure 生态深度集成</strong></li>
+</ul>
+<p><strong>优势</strong>：适合研究和原型，对话驱动的自然交互
+<strong>局限</strong>：大规模部署的可扩展性有限</p>
+<h3>6.6 Google ADK：云原生的编排平台</h3>
+<p>Google 的 Agent Development Kit 提供最丰富的模式库[4]：</p>
+<ul>
+<li><strong>8 种设计模式</strong>：覆盖从简单流水线到复合模式</li>
+<li><strong>Agent Engine（Agent Engine）</strong>：云托管执行环境</li>
+<li><strong>A2A 协议支持</strong>：实现跨组织的 Agent 互操作</li>
+<li><strong>Cloud Monitoring 集成</strong>：原生可观测性</li>
+</ul>
+<p><strong>优势</strong>：最完整的模式库，云原生部署
+<strong>局限</strong>：与 GCP 绑定较深</p>
+<hr>
+<h2>7. 结论</h2>
+<h3>选择建议</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐框架</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>学习/教学</td>
+<td>OpenAI Swarm</td>
+<td>极简设计，理解核心概念</td>
+</tr>
+<tr>
+<td>快速原型</td>
+<td>CrewAI</td>
+<td>角色驱动，上手快</td>
+</tr>
+<tr>
+<td>生产部署（复杂）</td>
+<td>LangGraph</td>
+<td>DAG 驱动，最大灵活性</td>
+</tr>
+<tr>
+<td>生产部署（Azure）</td>
+<td>Microsoft Agent Framework</td>
+<td>.NET/Azure 原生集成</td>
+</tr>
+<tr>
+<td>生产部署（GCP）</td>
+<td>Google ADK</td>
+<td>云原生，模式丰富</td>
+</tr>
+<tr>
+<td>研究实验</td>
+<td>AutoGen</td>
+<td>对话驱动，易于扩展</td>
+</tr>
+</tbody></table>
+<h3>关键原则</h3>
+<ol>
+<li><strong>不要过早引入多 Agent</strong> — 先证明单 Agent 无法可靠处理[1]</li>
+<li><strong>协调成本是核心约束</strong> — 4 个 Agent = 6 个失败点，10 个 = 45 个[10]</li>
+<li><strong>可靠性来自编排层，不是 Agent 本身</strong> — 可观测性、错误隔离、重试机制是基础设施[3][11]</li>
+<li><strong>状态管理决定系统上限</strong> — 无状态（Swarm）限制复杂度，有状态（LangGraph）支持复杂工作流</li>
+<li><strong>错误处理是核心功能，不是附加项</strong> — 结构化错误返回、故障域隔离、熔断机制缺一不可[9][13]</li>
+</ol>
+<h3>趋势展望</h3>
+<ul>
+<li><strong>标准化协议</strong>：MCP（工具访问）和 A2A（Agent 间通信）正在成为行业标准[3]</li>
+<li><strong>企业级编排平台</strong>：从开源框架向托管平台演进（LangGraph Platform、CrewAI AMP、Google Agent Engine）</li>
+<li><strong>可观测性优先</strong>：Agent 调试和评估工具成为与框架同等重要的基础设施</li>
+<li><strong>混合架构</strong>：Supervisor + Specialists 的分层模式成为企业默认选择[12]</li>
+</ul>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>Microsoft Learn. AI Agent Orchestration Patterns (2026). <a href="https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns">https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns</a></li>
+<li>LinkedIn. Best Agentic AI Frameworks 2025: LangGraph, AutoGen, CrewAI (2025). <a href="https://www.linkedin.com/pulse/best-agentic-ai-frameworks-2025-langgraph-autogen-crewai-ambatwar-kiltf">https://www.linkedin.com/pulse/best-agentic-ai-frameworks-2025-langgraph-autogen-crewai-ambatwar-kiltf</a></li>
+<li>arXiv. The Orchestration of Multi-Agent Systems: Architectures, Protocols, and Enterprise Adoption (2026). <a href="https://arxiv.org/html/2601.13671v1">https://arxiv.org/html/2601.13671v1</a></li>
+<li>Google Developers Blog. Developer&#39;s Guide to Multi-Agent Patterns in ADK (2026). <a href="https://developers.googleblog.com/developers-guide-to-multi-agent-patterns-in-adk/">https://developers.googleblog.com/developers-guide-to-multi-agent-patterns-in-adk/</a></li>
+<li>Onabout.ai. Multi-Agent AI Orchestration: Enterprise Strategy for 2025-2026 (2025). <a href="https://www.onabout.ai/p/mastering-multi-agent-orchestration-architectures-patterns-roi-benchmarks-for-2025-2026">https://www.onabout.ai/p/mastering-multi-agent-orchestration-architectures-patterns-roi-benchmarks-for-2025-2026</a></li>
+<li>Ampcome. 7 Best AI Agent Frameworks Compared (2026). <a href="https://www.ampcome.com/post/top-7-ai-agent-frameworks-in-2025">https://www.ampcome.com/post/top-7-ai-agent-frameworks-in-2025</a></li>
+<li>CrewAI Docs. Mastering Flow State Management (2025). <a href="https://docs.crewai.com/en/guides/flows/mastering-flow-state">https://docs.crewai.com/en/guides/flows/mastering-flow-state</a></li>
+<li>Galileo AI. OpenAI Swarm Framework Guide for Reliable Multi-Agents (2025). <a href="https://galileo.ai/blog/openai-swarm-framework-multi-agents">https://galileo.ai/blog/openai-swarm-framework-multi-agents</a></li>
+<li>Toucan Toco. Error Handling and Observability: Multi-Agent Systems (2025). <a href="https://www.toucantoco.com/en/blog/error-handling-observability-multi-agents-system">https://www.toucantoco.com/en/blog/error-handling-observability-multi-agents-system</a></li>
+<li>Galileo AI. Why Multi-Agent Systems Fail (2025). <a href="https://galileo.ai/blog/why-multi-agent-systems-fail">https://galileo.ai/blog/why-multi-agent-systems-fail</a></li>
+<li>Zartis. Subagents Work Best When You Trust Them to Fail (2025). <a href="https://www.zartis.com/subagents-work-best-when-you-trust-them-to-fail/">https://www.zartis.com/subagents-work-best-when-you-trust-them-to-fail/</a></li>
+<li>Prem AI. Multi-Agent AI Systems: Architecture, Communication, and Coordination (2025). <a href="https://blog.premai.io/multi-agent-ai-systems-architecture-communication-and-coordination/">https://blog.premai.io/multi-agent-ai-systems-architecture-communication-and-coordination/</a></li>
+<li>Augment Code. Multi-Agent AI Architecture Patterns for Enterprise (2025). <a href="https://www.augmentcode.com/guides/multi-agent-ai-architecture-patterns-enterprise">https://www.augmentcode.com/guides/multi-agent-ai-architecture-patterns-enterprise</a></li>
+<li>Turing. A Detailed Comparison of Top 6 AI Agent Frameworks in 2026 (2026). <a href="https://www.turing.com/resources/ai-agent-frameworks">https://www.turing.com/resources/ai-agent-frameworks</a></li>
+<li>DigitalOcean. CrewAI: A Practical Guide to Role-Based Agent Orchestration (2025). <a href="https://www.digitalocean.com/community/tutorials/crewai-crash-course-role-based-agent-orchestration">https://www.digitalocean.com/community/tutorials/crewai-crash-course-role-based-agent-orchestration</a></li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>
