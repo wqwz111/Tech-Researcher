@@ -512,7 +512,7 @@
        ═══════════════════════════════════════════ -->
   <h2>1. Agent 特有的攻击面</h2>
 <h3>1.1 从 LLM 到 Agent：攻击面的质变</h3>
-<p>LLM 和 Agent 的安全风险有本质区别。LLM 攻击的目标是<strong>生成有害文本</strong>，而 Agent 攻击的目标是<strong>执行有害动作</strong>[5][7]：</p>
+<p>LLM 和 Agent 的安全风险有本质区别。LLM 攻击的目标是<strong>生成有害文本</strong>，而 Agent 攻击的目标是<strong>执行有害动作</strong>[5][7]。OWASP Top 10 for LLM Applications 将 Prompt Injection、Data Leakage、Insecure Plugin 等列为关键风险类别，这些风险在 Agent 场景下被进一步放大——工具调用赋予了攻击者直接执行操作的能力[10]。</p>
 <table>
 <thead>
 <tr>
@@ -593,7 +593,7 @@
     &quot;parameters&quot;: {&quot;to&quot;: &quot;string&quot;, &quot;subject&quot;: &quot;string&quot;, &quot;body&quot;: &quot;string&quot;}
 }
 </code></pre>
-<p>这种攻击难以检测，因为恶意指令嵌入在工具元数据中，而非用户输入中。</p>
+<p>这种攻击难以检测，因为恶意指令嵌入在工具元数据中，而非用户输入中。MITRE ATLAS（Adversarial Threat Landscape for AI Systems）框架系统记录了类似攻击模式，将 LLM 攻击分类为 ML-ATK0040 到 ML-ATK0050 等战术技术，为红队测试提供了标准化的攻击知识库[11]。</p>
 <hr>
 <h2>2. 对抗测试工具</h2>
 <h3>2.1 Garak：LLM 漏洞扫描器</h3>
@@ -839,6 +839,7 @@
 <td>不需要预知攻击，但需要微调</td>
 </tr>
 </tbody></table>
+<p>NIST AI Risk Management Framework（AI RMF）提供了一套风险管理方法论，强调&quot;Map-Measure-Manage-Govern&quot;四阶段循环，适用于构建 Agent 安全治理体系[12]。</p>
 <h3>4.2 Circuit Breaker 的工作机制</h3>
 <pre><code>正常请求 → LLM 表征 → 正常输出
 恶意请求 → LLM 表征 → [CB 检测到有害表征模式] → 中断 + 拒绝
@@ -1070,6 +1071,7 @@
 <li><strong>混沌工程扩展</strong>: Agent 场景的混沌实验需要扩展到认知层面——幻觉注入、角色漂移、工具返回值篡改</li>
 <li><strong>评估指标体系化</strong>: 安全、可靠性、性能、恢复四个维度缺一不可，单一指标无法全面评估鲁棒性</li>
 </ol>
+<p>Google 的 Secure AI Framework（SAIF）从组织层面提出了 AI 安全的六大原则——扩展、安全默认、共同责任、最小权限、可验证安全、自适应防御——为 Agent 安全架构提供了顶层指导[13]。</p>
 <p>Agent 安全的核心矛盾是<strong>能力与安全的权衡</strong>——功能越强大，攻击面越广。没有银弹，只有持续的红队测试 + 运行时防御 + 混沌工程的组合拳。</p>
 
 
@@ -1087,6 +1089,10 @@
 <li>Kang D et al. LLM Agents can Autonomously Hack Websites (2024). <a href="https://arxiv.org/abs/2402.06664">https://arxiv.org/abs/2402.06664</a> (accessed 2026-03-30)</li>
 <li>LangSmith. Evaluation Concepts (2025-2026). <a href="https://docs.smith.langchain.com/concepts/evaluation">https://docs.smith.langchain.com/concepts/evaluation</a> (accessed 2026-03-30)</li>
 <li>Arize AI. Phoenix: AI Observability &amp; Evaluation (2025-2026). <a href="https://github.com/Arize-ai/phoenix">https://github.com/Arize-ai/phoenix</a> (accessed 2026-03-30)</li>
+<li>OWASP. Top 10 for Large Language Model Applications (2025). <a href="https://genai.owasp.org/llm-top-10/">https://genai.owasp.org/llm-top-10/</a> (accessed 2026-03-30)</li>
+<li>MITRE. ATLAS: Adversarial Threat Landscape for AI Systems (2024). <a href="https://atlas.mitre.org/">https://atlas.mitre.org/</a> (accessed 2026-03-30)</li>
+<li>NIST. AI Risk Management Framework (AI RMF) (2024). <a href="https://www.nist.gov/artificial-intelligence">https://www.nist.gov/artificial-intelligence</a> (accessed 2026-03-30)</li>
+<li>Google. Secure AI Framework (SAIF) (2024). <a href="https://saif.google/">https://saif.google/</a> (accessed 2026-03-30)</li>
 </ol>
 
 
