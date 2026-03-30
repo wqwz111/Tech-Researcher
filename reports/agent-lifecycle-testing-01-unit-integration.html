@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 单元与集成测试：从 Mock 到端到端验证</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>Agent 单元与集成测试：从 Mock 到端到端验证</h1>
+  <div class="meta">2026-03-30 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>传统软件测试的&quot;排列-操作-断言&quot;模式在 AI Agent 领域几乎失效——LLM 输出的非确定性让断言（assert）无从下手，工具调用的副作用让 mock 无意义，多 Agent 协作的涌现行为让覆盖率成为幻觉[1][4]。这不是测试方法的改良问题，而是测试范式的根本重构。</p>
+<p>本报告系统梳理了 Agent 测试的三大核心挑战：<strong>非确定性评估、工具调用验证、多 Agent 协作测试</strong>，构建了从单元测试到端到端验证的分层测试体系。关键发现：<strong>LLM-as-Judge 已成为 Agent 评估的事实标准</strong>，但其 bias 和 prompt sensitivity 问题需要系统性应对[2]；<strong>LangSmith、LangFuse、Phoenix 三大平台在功能定位上形成差异化竞争</strong>，而非简单的替代关系[1][5][6]；多 Agent 测试的正确率评估必须引入<strong>成本-准确率联合优化</strong>，否则 SOTA 结论可能是误导[4]。</p>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. Agent 测试的特殊性</h2>
+<h3>1.1 为什么传统测试不够？</h3>
+<p>传统单元测试的黄金法则——&quot;给定输入，期望确定输出&quot;——在 Agent 场景下彻底失效。核心差异[1][4]：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>传统软件测试</th>
+<th>Agent 测试</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>输出确定性</strong></td>
+<td>相同输入 → 相同输出</td>
+<td>相同 prompt → 不同输出</td>
+</tr>
+<tr>
+<td><strong>断言方式</strong></td>
+<td>assertEqual(expected, actual)</td>
+<td>语义级评估（相关性、完整性）</td>
+</tr>
+<tr>
+<td><strong>工具 Mock</strong></td>
+<td>Mock 返回固定值</td>
+<td>Mock 需要上下文感知的响应</td>
+</tr>
+<tr>
+<td><strong>测试粒度</strong></td>
+<td>函数级别</td>
+<td>Agent trajectory（轨迹）级别</td>
+</tr>
+<tr>
+<td><strong>失败定义</strong></td>
+<td>异常抛出 / 值不匹配</td>
+<td>部分正确 / 路径偏离 / 幻觉</td>
+</tr>
+<tr>
+<td><strong>回归检测</strong></td>
+<td>值变更 = 回归</td>
+<td>输出变更 ≠ 回归（可能更好）</td>
+</tr>
+</tbody></table>
+<h3>1.2 Agent 测试的三层范式</h3>
+<div class="mermaid">graph TD
+    A[Agent 测试] --> B[组件级测试]
+    A --> C[轨迹级测试]
+    A --> D[端到端测试]
+
+    B --> B1[Prompt 测试]
+    B --> B2[工具调用测试]
+    B --> B3[解析器测试]
+
+    C --> C1[LLM-as-Judge 评估]
+    C --> C2[轨迹覆盖率]
+    C --> C3[中间状态验证]
+
+    D --> D1[场景级成功率]
+    D --> D2[成本-准确率曲线]
+    D --> D3[回归检测]
+
+    style B fill:#DBEAFE,stroke:#2563EB
+    style C fill:#FEF3C7,stroke:#D97706
+    style D fill:#D1FAE5,stroke:#059669</div>
+<blockquote>
+<p><strong>图 1: Agent 测试的三层范式</strong> — 从组件到轨迹到端到端，测试粒度逐层递增</p>
+</blockquote>
+<h3>1.3 LLM-as-Judge：非确定性输出的解法</h3>
+<p>当断言不能用 <code>assertEqual</code> 时，<strong>让另一个 LLM 来评判</strong>成为事实标准[2][5]。LLM-as-Judge 的三种评估模式[2]：</p>
+<table>
+<thead>
+<tr>
+<th>评估模式</th>
+<th>适用场景</th>
+<th>优势</th>
+<th>局限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Pointwise</strong></td>
+<td>单个输出打分</td>
+<td>适合质量评估</td>
+<td>缺乏比较基准</td>
+</tr>
+<tr>
+<td><strong>Pairwise</strong></td>
+<td>两个输出对比</td>
+<td>更可靠的一致性</td>
+<td>只能比较，不能绝对评分</td>
+</tr>
+<tr>
+<td><strong>Listwise</strong></td>
+<td>多输出排序</td>
+<td>适合搜索/推荐</td>
+<td>成本高，上下文长</td>
+</tr>
+</tbody></table>
+<p><strong>LLM-as-Judge 的已知问题</strong>[2][3]：</p>
+<ul>
+<li><strong>Position Bias</strong>: 靠前的答案倾向获得更高分</li>
+<li><strong>Verbosity Bias</strong>: 更长的回答倾向获得更高分</li>
+<li><strong>Self-Bias</strong>: 同模型评估自己时倾向给自己高分</li>
+<li><strong>Domain Expertise</strong>: 专业领域（医疗、法律）评估不可靠</li>
+</ul>
+<p><strong>缓解策略</strong>：混合评估（LLM + 人工）、多模型投票、标准化 Prompt 设计[2]。</p>
+<hr>
+<h2>2. 工具调用的 Mock 与 Stub</h2>
+<h3>2.1 为什么工具 Mock 在 Agent 场景更难？</h3>
+<p>Agent 的工具调用不是简单的 HTTP 请求，而是<strong>上下文依赖的序列</strong>[1][7]：</p>
+<pre><code class="language-python"># 传统 Mock（不够）
+mock_api_call.return_value = {&quot;status&quot;: &quot;success&quot;}
+
+# Agent 需要的 Mock（上下文感知）
+def mock_tool_call(tool_name, params, conversation_history):
+    if tool_name == &quot;search&quot;:
+        # 基于搜索词返回不同结果
+        return mock_search_results(params[&quot;query&quot;])
+    elif tool_name == &quot;file_write&quot;:
+        # 记录写入，供后续验证
+        written_files[params[&quot;path&quot;]] = params[&quot;content&quot;]
+        return {&quot;status&quot;: &quot;success&quot;}
+</code></pre>
+<h3>2.2 推荐的 Mock 策略</h3>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>实现方式</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>固定 Mock</strong></td>
+<td><code>return_value = X</code></td>
+<td>工具输出确定的场景（如版本号查询）</td>
+</tr>
+<tr>
+<td><strong>参数化 Mock</strong></td>
+<td>基于输入参数返回不同输出</td>
+<td>工具行为与输入相关的场景</td>
+</tr>
+<tr>
+<td><strong>录制-回放</strong></td>
+<td>录制真实工具调用，测试时回放</td>
+<td>需要真实工具行为但不想依赖外部服务</td>
+</tr>
+<tr>
+<td><strong>状态 Mock</strong></td>
+<td>维护虚拟状态（文件系统、数据库）</td>
+<td>需要多步操作的场景</td>
+</tr>
+<tr>
+<td><strong>语义 Mock</strong></td>
+<td>使用 LLM 生成模拟响应</td>
+<td>工具输出复杂、非结构化的场景</td>
+</tr>
+</tbody></table>
+<h3>2.3 工具调用测试的关键维度</h3>
+<div class="mermaid">graph LR
+    A[工具调用测试] --> B[参数正确性]
+    A --> C[调用时机]
+    A --> D[错误处理]
+    A --> E[重试逻辑]
+
+    B --> B1[Schema 校验]
+    B --> B2[类型安全]
+    B --> B3[必填参数]
+
+    C --> C1[不应调用时是否调用]
+    C --> C2[应调用时是否遗漏]
+
+    D --> D1[工具报错后的恢复]
+    D --> D2[降级路径]
+
+    E --> E1[指数退避]
+    E --> E2[最大重试次数]</div>
+<blockquote>
+<p><strong>图 2: 工具调用测试的四个关键维度</strong> — 不仅测试&quot;能不能调对&quot;，还测试&quot;该不该调、错了怎么办&quot;</p>
+</blockquote>
+<hr>
+<h2>3. 端到端测试框架</h2>
+<h3>3.1 三大平台对比</h3>
+<p>Agent 测试框架的&quot;三巨头&quot;在功能定位上有明显差异化[1][5][6]：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>LangSmith</th>
+<th>LangFuse</th>
+<th>Phoenix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>定位</strong></td>
+<td>商业化评估平台</td>
+<td>开源 LLM 可观测性</td>
+<td>开源 AI 可观测性</td>
+</tr>
+<tr>
+<td><strong>核心优势</strong></td>
+<td>与 LangChain 深度集成</td>
+<td>轻量、自托管友好</td>
+<td>多框架兼容、实验管理</td>
+</tr>
+<tr>
+<td><strong>评估方式</strong></td>
+<td>Dataset + Evaluator</td>
+<td>LLM-as-Judge + 自定义</td>
+<td>LLM-as-Judge + Spans</td>
+</tr>
+<tr>
+<td><strong>Online 评估</strong></td>
+<td>✅ 生产监控</td>
+<td>✅ 实时评估</td>
+<td>✅ 生产追踪</td>
+</tr>
+<tr>
+<td><strong>Agent 支持</strong></td>
+<td>✅ trajectory 评估</td>
+<td>✅ trace 评估</td>
+<td>✅ OpenTelemetry tracing</td>
+</tr>
+<tr>
+<td><strong>成本</strong></td>
+<td>付费（有免费额度）</td>
+<td>开源免费</td>
+<td>开源免费</td>
+</tr>
+</tbody></table>
+<h3>3.2 LangSmith：全生命周期评估</h3>
+<p>LangSmith 的评估分 <strong>Offline（预部署）</strong> 和 <strong>Online（生产监控）</strong> 两条线[1]：</p>
+<div class="mermaid">graph LR
+    DEV[开发] --> TEST[测试]
+    TEST --> DEPLOY[部署]
+    DEPLOY --> MONITOR[监控]
+    MONITOR --> ITER[迭代]
+
+    DEV -.-> OFF[Offline Evals]
+    TEST -.-> OFF
+    DEPLOY -.-> ON[Online Evals]
+    MONITOR -.-> ON
+    ITER -.-> BOTH[两者结合]
+
+    OFF --> |基准测试| COMPARE[版本对比]
+    OFF --> |回归测试| REGRESS[质量退化检测]
+    OFF --> |单元测试| UNIT[组件正确性]
+
+    ON --> |实时监控| REALTIME[质量追踪]
+    ON --> |异常检测| ANOMALY[边缘情况标记]
+    ON --> |生产反馈| FEEDBACK[问题收集]
+
+    style OFF fill:#F3E8FF,stroke:#9333EA
+    style ON fill:#DBEAFE,stroke:#2563EB</div>
+<blockquote>
+<p><strong>图 3: LangSmith 评估生命周期</strong> — Offline 用于预部署验证，Online 用于生产监控</p>
+</blockquote>
+<p><strong>Agent 评估的关键实践</strong>[1]：</p>
+<ul>
+<li>构建 <strong>Dataset</strong>（5-10 个示例定义&quot;好&quot;的标准）</li>
+<li>使用 <strong>Evaluator</strong> 评分（LLM-as-Judge 或规则判定）</li>
+<li>评估 <strong>Trajectory</strong>（Agent 的工具调用序列是否合理）</li>
+<li>设置 <strong>Online Monitor</strong>（生产流量的持续质量追踪）</li>
+</ul>
+<h3>3.3 LangFuse：轻量级评估</h3>
+<p>LangFuse 的核心理念是<strong>用数据替代猜测</strong>[5]：</p>
+<pre><code class="language-python"># LangFuse 评估示例
+from langfuse import Langfuse
+from langfuse.openai import wrap_openai
+
+langfuse = Langfuse()
+client = wrap_openai(openai.Client())
+
+# 创建数据集
+dataset = langfuse.get_or_create_dataset(name=&quot;agent-test-set&quot;)
+
+# 运行实验
+experiment = dataset.run_experiment(
+    name=&quot;agent-v2-test&quot;,
+    item_evaluator=my_evaluator,  # LLM-as-Judge 或自定义
+    func=lambda item: agent.run(item[&quot;input&quot;])
+)
+</code></pre>
+<h3>3.4 Phoenix：可观测性驱动</h3>
+<p>Phoenix 的独特优势在于<strong>实验管理和 Prompt 版本控制</strong>[6]：</p>
+<ul>
+<li><strong>Datasets</strong>: 版本化测试数据集</li>
+<li><strong>Experiments</strong>: 追踪 prompt/模型/参数变更的效果</li>
+<li><strong>Playground</strong>: 在线调试和优化 prompt</li>
+<li><strong>Prompt Management</strong>: 版本控制 + tag 管理 prompt 变更</li>
+</ul>
+<hr>
+<h2>4. 多 Agent 协作测试</h2>
+<h3>4.1 多 Agent 测试的独特挑战</h3>
+<p>多 Agent 系统的测试不是&quot;每个 Agent 单独测，再加一个集成测试&quot;这么简单[4]：</p>
+<table>
+<thead>
+<tr>
+<th>挑战</th>
+<th>描述</th>
+<th>难度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>涌现行为</strong></td>
+<td>整体行为不等于部分之和</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>竞态条件</strong></td>
+<td>Agent 间时序依赖难以复现</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>信息衰减</strong></td>
+<td>消息在 Agent 间传递时丢失</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>目标冲突</strong></td>
+<td>多 Agent 目标不一致时的行为</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>成本失控</strong></td>
+<td>Agent 间反复通信消耗大量 Token</td>
+<td>⭐⭐⭐</td>
+</tr>
+</tbody></table>
+<h3>4.2 AgentBoard：细粒度评估</h3>
+<p>AgentBoard 提出了**进度率指标（Progress Rate）**来替代简单的成功率[7]：</p>
+<pre><code>Progress Rate = 最终进度 / 理想步数
+</code></pre>
+<p>这解决了传统评估的盲点——一个 Agent 可能最终失败，但在过程中完成了 80% 的有效步骤，这比完全失败的 Agent 更有价值。</p>
+<h3>4.3 成本-准确率联合优化</h3>
+<p>Kapoor et al. 在 &quot;AI Agents That Matter&quot; 中指出了当前 Agent 评估的核心缺陷[4]：</p>
+<blockquote>
+<p><strong>&quot;只关注准确率会导致 SOTA Agent 过度复杂和昂贵，社区对准确率提升来源的结论是错误的。&quot;</strong></p>
+</blockquote>
+<p>正确做法是构建<strong>帕累托前沿（Pareto Frontier）</strong>，在成本和准确率之间寻找最优解：</p>
+<div class="mermaid">graph TD
+    A[Agent 评估框架] --> B[准确率指标]
+    A --> C[成本指标]
+    A --> D[可复现性]
+
+    B --> B1[任务成功率]
+    B --> B2[轨迹质量]
+    B --> B3[步骤效率]
+
+    C --> C1[API 调用次数]
+    C --> C2[Token 消耗]
+    C --> C3[延迟时间]
+
+    D --> D1[Holdout 测试集]
+    D --> D2[标准化评估流程]
+    D --> D3[环境版本锁定]
+
+    B & C --> E[帕累托前沿分析]
+    E --> F[最优 Agent 选择]</div>
+<blockquote>
+<p><strong>图 4: 成本-准确率联合评估框架</strong> — 避免只看准确率的评估陷阱</p>
+</blockquote>
+<hr>
+<h2>5. 实施建议</h2>
+<h3>5.1 单元测试检查清单</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Prompt 变体测试（同一任务不同 Prompt 对比）</li>
+<li><input disabled="" type="checkbox"> 工具参数 Schema 校验</li>
+<li><input disabled="" type="checkbox"> 解析器鲁棒性测试（畸形输入）</li>
+<li><input disabled="" type="checkbox"> 错误处理路径覆盖</li>
+<li><input disabled="" type="checkbox"> LLM-as-Judge 置信度阈值设定</li>
+</ul>
+<h3>5.2 集成测试检查清单</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Agent trajectory 录制与回放</li>
+<li><input disabled="" type="checkbox"> 多步任务端到端成功率</li>
+<li><input disabled="" type="checkbox"> 工具调用序列验证</li>
+<li><input disabled="" type="checkbox"> 成本监控（Token 预算）</li>
+<li><input disabled="" type="checkbox"> 回归检测（新版本不退化）</li>
+</ul>
+<h3>5.3 多 Agent 测试检查清单</h3>
+<ul>
+<li><input disabled="" type="checkbox"> 单 Agent 隔离测试通过</li>
+<li><input disabled="" type="checkbox"> 两两 Agent 交互测试</li>
+<li><input disabled="" type="checkbox"> 信息传递完整性验证</li>
+<li><input disabled="" type="checkbox"> 冲突解决机制测试</li>
+<li><input disabled="" type="checkbox"> 成本-准确率帕累托分析</li>
+</ul>
+<h3>5.4 工具与框架推荐</h3>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>用途</th>
+<th>关键特性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>LangSmith</strong></td>
+<td>全生命周期评估</td>
+<td>Dataset、Evaluator、Online Monitor</td>
+</tr>
+<tr>
+<td><strong>LangFuse</strong></td>
+<td>轻量评估平台</td>
+<td>开源、LLM-as-Judge、Trace</td>
+</tr>
+<tr>
+<td><strong>Phoenix</strong></td>
+<td>可观测性平台</td>
+<td>Experiments、Prompt Management</td>
+</tr>
+<tr>
+<td><strong>AgentBoard</strong></td>
+<td>Agent Benchmark</td>
+<td>进度率、多维分析</td>
+</tr>
+<tr>
+<td><strong>Prometheus</strong></td>
+<td>开源 Evaluator LLM</td>
+<td>自定义 Rubric、Pearson 0.897</td>
+</tr>
+<tr>
+<td><strong>Pytest + Mock</strong></td>
+<td>单元测试基础</td>
+<td>灵活的 Mock 和 Assert</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>结论</h2>
+<p>Agent 测试不是传统软件测试的延伸，而是<strong>测试范式的重构</strong>：</p>
+<ol>
+<li><strong>非确定性评估</strong>: LLM-as-Judge 是解法，但需要警惕 bias；多模型投票 + 人工抽检是当前最佳实践</li>
+<li><strong>工具 Mock 上下文化</strong>: 固定返回值不够，需要参数化和状态感知的 Mock</li>
+<li><strong>评估框架三分天下</strong>: LangSmith（商业化集成）、LangFuse（轻量开源）、Phoenix（可观测性驱动），按需选择</li>
+<li><strong>成本-准确率联合优化</strong>: 只看准确率会得出误导性结论，必须同时看成本</li>
+<li><strong>多 Agent 测试需要分层</strong>: 从单 Agent 隔离到两两交互再到全系统，逐层验证</li>
+</ol>
+<p>Agent 测试的终极目标不是追求 100% 覆盖率（那不可能），而是<strong>建立对 Agent 行为的信心</strong>——知道它在什么条件下可靠，什么条件下会失败，失败时如何优雅降级。</p>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>LangChain. LangSmith Evaluation Concepts (2025-2026). <a href="https://docs.langchain.com/langsmith/evaluation-concepts">https://docs.langchain.com/langsmith/evaluation-concepts</a> (accessed 2026-03-30)</li>
+<li>Arize AI. LLMs as Judges: A Comprehensive Survey on LLM-Based Evaluation Methods (2024). <a href="https://arxiv.org/abs/2412.05579">https://arxiv.org/abs/2412.05579</a> (accessed 2026-03-30)</li>
+<li>Kim S, Shin J, Cho Y et al. Prometheus: Inducing Fine-grained Evaluation Capability in Language Models (2024). <a href="https://arxiv.org/abs/2310.08491">https://arxiv.org/abs/2310.08491</a> (accessed 2026-03-30)</li>
+<li>Kapoor S et al. AI Agents That Matter (2024). <a href="https://arxiv.org/abs/2407.01502">https://arxiv.org/abs/2407.01502</a> (accessed 2026-03-30)</li>
+<li>LangFuse. Evaluation Overview (2025-2026). <a href="https://langfuse.com/docs/evaluation/overview">https://langfuse.com/docs/evaluation/overview</a> (accessed 2026-03-30)</li>
+<li>Arize AI. Phoenix: AI Observability &amp; Evaluation (2025-2026). <a href="https://github.com/Arize-ai/phoenix">https://github.com/Arize-ai/phoenix</a> (accessed 2026-03-30)</li>
+<li>AgentBoard. An Analytical Evaluation Board of Multi-turn LLM Agents (2024). <a href="https://arxiv.org/abs/2401.13178">https://arxiv.org/abs/2401.13178</a> (accessed 2026-03-30)</li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>

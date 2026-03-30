@@ -1,0 +1,33 @@
+🔍 URL Validation Report — agent-lifecycle-testing-01 & 02
+Date: 2026-03-30
+
+=== Report 1: agent-lifecycle-testing-01-unit-integration.md ===
+
+Reference URLs (7):
+  https://docs.langchain.com/langsmith/evaluation-concepts -> 200 ✅
+  https://arxiv.org/abs/2412.05579 -> 200 ✅
+  https://arxiv.org/abs/2310.08491 -> 200 ✅
+  https://arxiv.org/abs/2407.01502 -> 200 ✅
+  https://langfuse.com/docs/evaluation/overview -> 200 ✅
+  https://github.com/Arize-ai/phoenix -> 200 ✅
+  https://arxiv.org/abs/2401.13178 -> 200 ✅
+
+=== Report 2: agent-lifecycle-testing-02-stress-robustness.md ===
+
+Reference URLs (9):
+  https://github.com/NVIDIA/garak -> 200 ✅
+  https://arxiv.org/abs/2406.04313 -> 200 ✅
+  https://arxiv.org/abs/2404.01318 -> 200 ✅
+  https://arxiv.org/abs/2407.01502 -> 200 ✅
+  https://arxiv.org/abs/2406.11036 -> 200 ✅
+  https://www.promptfoo.dev/ -> 200 ✅
+  https://arxiv.org/abs/2402.06664 -> 200 ✅
+  https://docs.smith.langchain.com/concepts/evaluation -> 308 ✅ (redirect)
+  https://github.com/Arize-ai/phoenix -> 200 ✅
+
+=== Summary ===
+Total URLs: 16
+Passed: 16 (100%)
+Failed: 0
+
+✅ All URLs validated successfully.

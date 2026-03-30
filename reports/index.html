@@ -80,6 +80,7 @@
   .report-card .card-cat.case-studies { color:var(--green); }
   .report-card .card-cat.tools { color:var(--blue); }
   .report-card .card-cat.frameworks { color:var(--orange); }
+  .report-card .card-cat.testing { color:#a78bfa; }
   .report-card .card-title { font-size:1rem; font-weight:600; color:var(--text); margin-bottom:.5rem; }
   .report-card .card-title a { color:inherit; }
   .report-card .card-title a:hover { color:var(--accent-hover); }
@@ -116,6 +117,7 @@
   <a href="#tools">🛠️ 工具</a>
   <a href="#frameworks">🏗️ 框架</a>
       <a href="#agent-lifecycle">🔧 Agent 设计</a>
+      <a href="#testing">🧪 测试</a>
   <a href="./team.html">👥 团队</a>
   <div class="spacer"></div>
   <a href="https://github.com/wqwz111/Tech-Researcher/issues" target="_blank" class="gh-btn">💬 Issues</a>
@@ -278,6 +280,22 @@
     </div>
   </div>
 
+  <!-- 测试 Testing -->
+  <div class="section" id="testing">
+    <div class="section-header" onclick="toggleSection('testing')">
+      <span class="section-icon">🧪</span>
+      <span class="section-title">测试 Testing</span>
+      <span class="section-count">2 篇</span>
+      <span class="section-toggle">▼</span>
+    </div>
+    <div class="section-body">
+    <div class="report-grid">
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat testing">测试</div><div class="card-title"><a href="./agent-lifecycle-testing-01-unit-integration.html">Agent 单元与集成测试：从 Mock 到端到端验证</a></div><div class="card-desc">Agent 非确定性输出让传统断言失效，LLM-as-Judge 已成为评估事实标准。本报告构建分层测试体系，对比 LangSmith/LangFuse/Phoenix 三大平台。</div><div class="card-tags"><span class="card-tag">测试</span></div></div>
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat testing">测试</div><div class="card-title"><a href="./agent-lifecycle-testing-02-stress-robustness.html">Agent 压力与鲁棒性：对抗测试、混沌工程与红队防御</a></div><div class="card-desc">Agent 攻击面远大于传统软件——Prompt Injection 可执行未授权操作。本报告梳理 Agent 特有攻击面，评估 Garak/Promptfoo/JailbreakBench 三大工具，提出运行时防御与红队测试结合方案。</div><div class="card-tags"><span class="card-tag">测试</span></div></div>
+    </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- Footer -->
@@ -292,6 +310,54 @@ function toggleTheme() {
   const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
   html.setAttribute('data-theme', next);
   localStorage.setItem('tr-theme', next);
+  document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
+}
+(function() {
+  const saved = localStorage.getItem('tr-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  const icon = document.getElementById('themeIcon');
+  if (icon) icon.textContent = saved === 'light' ? '🌙' : '☀️';
+})();
+
+// 分类折叠功能
+function toggleSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('collapsed');
+}
+
+function toggleAll() {
+  const sections = document.querySelectorAll('.section');
+  const allCollapsed = Array.from(sections).every(s => s.classList.contains('collapsed'));
+  sections.forEach(s => {
+    if (allCollapsed) s.classList.remove('collapsed');
+    else s.classList.add('collapsed');
+  });
+}
+
+// 滚动时高亮当前分类
+(function() {
+  const navLinks = document.querySelectorAll('.nav-bar a[href^="#"]');
+  const sections = document.querySelectorAll('.section[id]');
+  const allLink = document.querySelector('.nav-bar a[href="#"]');
+
+  function highlightNav() {
+    let current = '';
+    sections.forEach(s => {
+      const rect = s.getBoundingClientRect();
+      if (rect.top <= 120) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.classList.remove('active');
+      if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+    });
+    if (!current && allLink) allLink.classList.add('active');
+  }
+  window.addEventListener('scroll', highlightNav);
+})();
+</script>
+</body>
+</html>
+xt);
   document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
 }
 (function() {
