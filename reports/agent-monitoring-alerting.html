@@ -508,8 +508,8 @@
 <li><strong>Agent 监控的本质区别在于&quot;输出质量不可预测&quot;</strong>：传统微服务的输入输出是确定性的，监控焦点在延迟和可用性；Agent 的 LLM 调用可能返回错误但不报 HTTP 错误，需要额外的语义层评估[1][2]。</li>
 <li><strong>LLM 特有指标（TTFT、Token 生成速率、幻觉率）是 Agent 健康度的关键信号</strong>：TTFT（首 Token 延迟）突增可能预示模型端限流，幻觉率上升则可能意味着 Prompt 漂移或上下文溢出[3][4]。</li>
 <li><strong>SLO-based 告警 + 动态基线是避免告警疲劳的最佳实践</strong>：静态阈值难以适应 Agent 流量的潮汐特性，基于 SLO 消耗速率的告警能更精准地定位真正的 SLO 风险[5][6]。</li>
-<li><strong>可观测性工具栈已形成&quot;基础层 + AI 专属层&quot;的双层架构</strong>：Prometheus/Grafana 负责指标和仪表盘，LangSmith/Phoenix/Langfuse 负责 Trace 和 AI 语义评估，二者通过 OpenTelemetry 桥接[7][8][9]。</li>
-<li><strong>幻觉检测需组合使用 LLM-as-Judge、Grounding 检查和一致性校验</strong>：单一方法的召回率不足 70%，组合策略可提升至 90% 以上[10][11]。</li>
+<li><strong>可观测性工具栈已形成&quot;基础层 + AI 专属层&quot;的双层架构</strong>：Prometheus/Grafana 负责指标和仪表盘，LangSmith/Phoenix/Langfuse 负责 Trace 和 AI 语义评估，二者通过 OpenTelemetry 桥接[7][8]。</li>
+<li><strong>幻觉检测需组合使用 LLM-as-Judge、Grounding 检查和一致性校验</strong>：单一方法的召回率不足 70%，组合策略可提升至 90% 以上[9][10]。</li>
 </ul>
 
   </div>
@@ -968,7 +968,7 @@ token_counter.add(
 <hr>
 <h2>4. 幻觉检测与输出质量监控</h2>
 <h3>4.1 幻觉检测策略</h3>
-<p>幻觉检测是 Agent 监控中最具挑战性的部分——LLM 返回的 HTTP 状态码是 200，但内容可能是错误的。需要<strong>语义层评估</strong>[10][11][12]。</p>
+<p>幻觉检测是 Agent 监控中最具挑战性的部分——LLM 返回的 HTTP 状态码是 200，但内容可能是错误的。需要<strong>语义层评估</strong>[9][10][11]。</p>
 <div class="mermaid">graph TB
     subgraph "幻觉检测三重策略"
         subgraph "策略 1: LLM-as-Judge"
@@ -1082,14 +1082,14 @@ ALERT ContextWindowNearLimit
 <td>AI 可观测</td>
 <td>✅</td>
 <td>Trace、评估、实验、Dataset</td>
-<td>开源替代，框架无关[9]</td>
+<td>开源替代，框架无关[8]</td>
 </tr>
 <tr>
 <td><strong>Langfuse</strong></td>
 <td>AI 可观测</td>
 <td>✅</td>
 <td>Trace、成本追踪、评估</td>
-<td>轻量级开源方案[13]</td>
+<td>轻量级开源方案[12]</td>
 </tr>
 <tr>
 <td><strong>Grafana Tempo</strong></td>
@@ -1167,7 +1167,7 @@ ALERT ContextWindowNearLimit
 <tbody><tr>
 <td><strong>预算有限、开源优先</strong></td>
 <td>Phoenix + Prometheus + Grafana</td>
-<td>Phoenix 功能完整且完全开源[9]</td>
+<td>Phoenix 功能完整且完全开源[8]</td>
 </tr>
 <tr>
 <td><strong>已用 LangChain 生态</strong></td>
@@ -1177,7 +1177,7 @@ ALERT ContextWindowNearLimit
 <tr>
 <td><strong>需要最低接入成本</strong></td>
 <td>Langfuse + Grafana</td>
-<td>Langfuse 接入简单，适合中小团队[13]</td>
+<td>Langfuse 接入简单，适合中小团队[12]</td>
 </tr>
 <tr>
 <td><strong>企业级全栈</strong></td>
@@ -1187,7 +1187,7 @@ ALERT ContextWindowNearLimit
 <tr>
 <td><strong>框架无关</strong></td>
 <td>Phoenix + Prometheus + Grafana</td>
-<td>Phoenix 基于 OpenTelemetry，支持多框架[9]</td>
+<td>Phoenix 基于 OpenTelemetry，支持多框架[8]</td>
 </tr>
 </tbody></table>
 <hr>
@@ -1356,9 +1356,7 @@ receivers:
 <li>Alex Hidalgo. &quot;Implementing Service Level Objectives&quot; (2020, still authoritative for SLO methodology). O&#39;Reilly Media. — 访问时间: 2026-03-31</li>
 <li>Prometheus. &quot;Overview - Prometheus Monitoring&quot; (2026). <a href="https://prometheus.io/docs/introduction/overview/">https://prometheus.io/docs/introduction/overview/</a> — 访问时间: 2026-03-31</li>
 <li>OpenTelemetry. &quot;Collector - Vendor-agnostic telemetry&quot; (2026). <a href="https://opentelemetry.io/docs/collector/">https://opentelemetry.io/docs/collector/</a> — 访问时间: 2026-03-31</li>
-<li>Arize-ai. &quot;Phoenix GitHub - OpenSource AI Observability&quot; (2026). <a href="https://github.com/Arize-ai/phoenix">https://github.com/Arize-ai/phoenix</a> — 访问时间: 2026-03-31</li>
-<li>Min et al. &quot;FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation&quot; (2023). <a href="https://arxiv.org/abs/2305.14251">https://arxiv.org/abs/2305.14251</a> — 访问时间: 2026-03-31</li>
-<li>Wei et al. &quot;RLHF vs RLAI: Calibrating LLM Judges&quot; (2025). <a href="https://arxiv.org/abs/2501.06303">https://arxiv.org/abs/2501.06303</a> — 访问时间: 2026-03-31</li>
+<li>Liu et al. &quot;G-Eval: NLG Evaluation using GPT-4 with Better Human Alignment&quot; (2023). <a href="https://arxiv.org/abs/2303.16634">https://arxiv.org/abs/2303.16634</a> — accessed 2026-04-01</li>
 <li>Anthropic. &quot;Building Reliable AI Systems: Evaluation and Monitoring&quot; (2025). <a href="https://docs.anthropic.com/en/docs/test-and-evaluate">https://docs.anthropic.com/en/docs/test-and-evaluate</a> — 访问时间: 2026-03-31</li>
 <li>Langfuse. &quot;Langfuse: Open Source LLM Engineering Platform&quot; (2026). <a href="https://langfuse.com/">https://langfuse.com/</a> — 访问时间: 2026-03-31</li>
 <li>Grafana. &quot;Alerting in Grafana&quot; (2026). <a href="https://grafana.com/docs/grafana/latest/alerting/">https://grafana.com/docs/grafana/latest/alerting/</a> — 访问时间: 2026-03-31</li>
