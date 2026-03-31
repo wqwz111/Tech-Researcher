@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 监控与告警：指标体系、阈值设定、通知渠道</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>Agent 监控与告警：指标体系、阈值设定、通知渠道</h1>
+  <div class="meta">2026-03-31 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>AI Agent 从原型走向生产后，监控与告警是保障系统稳定性和输出质量的最后一道防线。与传统微服务不同，Agent 系统的监控需要同时覆盖<strong>基础设施层</strong>（容器、网络、存储）、<strong>应用层</strong>（请求量、延迟、错误率）和<strong>AI 层</strong>（Token 消耗、幻觉检测、工具调用正确性）三个维度。</p>
+<p>核心发现：</p>
+<ul>
+<li><strong>Agent 监控的本质区别在于&quot;输出质量不可预测&quot;</strong>：传统微服务的输入输出是确定性的，监控焦点在延迟和可用性；Agent 的 LLM 调用可能返回错误但不报 HTTP 错误，需要额外的语义层评估[1][2]。</li>
+<li><strong>LLM 特有指标（TTFT、Token 生成速率、幻觉率）是 Agent 健康度的关键信号</strong>：TTFT（首 Token 延迟）突增可能预示模型端限流，幻觉率上升则可能意味着 Prompt 漂移或上下文溢出[3][4]。</li>
+<li><strong>SLO-based 告警 + 动态基线是避免告警疲劳的最佳实践</strong>：静态阈值难以适应 Agent 流量的潮汐特性，基于 SLO 消耗速率的告警能更精准地定位真正的 SLO 风险[5][6]。</li>
+<li><strong>可观测性工具栈已形成&quot;基础层 + AI 专属层&quot;的双层架构</strong>：Prometheus/Grafana 负责指标和仪表盘，LangSmith/Phoenix/Langfuse 负责 Trace 和 AI 语义评估，二者通过 OpenTelemetry 桥接[7][8][9]。</li>
+<li><strong>幻觉检测需组合使用 LLM-as-Judge、Grounding 检查和一致性校验</strong>：单一方法的召回率不足 70%，组合策略可提升至 90% 以上[10][11]。</li>
+</ul>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. Agent 监控与传统微服务的本质区别</h2>
+<h3>1.1 三维度监控模型</h3>
+<p>传统微服务监控集中在<strong>基础设施层</strong>和<strong>应用层</strong>，而 Agent 系统新增了关键的<strong>AI 语义层</strong>：</p>
+<div class="mermaid">graph TB
+    subgraph "Agent 三层监控模型"
+        subgraph "Layer 1: 基础设施层"
+            CPU[CPU / 内存]
+            NET[网络 I/O]
+            DISK[磁盘 / 存储]
+            CONN[连接池]
+        end
+
+        subgraph "Layer 2: 应用层"
+            QPS[请求量 QPS]
+            LAT[延迟 P50/P95/P99]
+            ERR[错误率]
+            RTO[重试率]
+        end
+
+        subgraph "Layer 3: AI 语义层 ← 新增"
+            TTFT[首 Token 延迟 TTFT]
+            TPS[Token 生成速率]
+            TOK[Token 消耗量]
+            HALL[幻觉率]
+            TOOL[工具调用成功率]
+            CTX[上下文窗口利用率]
+            GROUND[事实性 / Grounding]
+        end
+    end
+
+    Layer1[基础设施层 ✓ 传统] --> Layer2[应用层 ✓ 传统]
+    Layer2 --> Layer3[AI 语义层 ✗ Agent 特有]
+
+    style Layer3 fill:#fce4ec,stroke:#e91e63</div>
+<h3>1.2 核心差异对比</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>传统微服务</th>
+<th>AI Agent</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>输出确定性</strong></td>
+<td>输入→输出确定</td>
+<td>LLM 输出概率性，同输入不同输出</td>
+</tr>
+<tr>
+<td><strong>错误定义</strong></td>
+<td>HTTP 4xx/5xx</td>
+<td>返回 200 但内容幻觉/错误</td>
+</tr>
+<tr>
+<td><strong>延迟特征</strong></td>
+<td>相对稳定（10-500ms）</td>
+<td>高度波动（1-120s），受模型、Prompt 长度影响</td>
+</tr>
+<tr>
+<td><strong>成本模型</strong></td>
+<td>计算资源（可预测）</td>
+<td>Token 计费（与用户输入长度正相关）</td>
+</tr>
+<tr>
+<td><strong>状态复杂度</strong></td>
+<td>连接状态、缓存</td>
+<td>会话记忆、上下文窗口、多轮对话</td>
+</tr>
+<tr>
+<td><strong>质量评估</strong></td>
+<td>不需要（输出确定）</td>
+<td>必须评估输出质量（幻觉、偏见、安全性）</td>
+</tr>
+<tr>
+<td><strong>工具依赖</strong></td>
+<td>内部服务调用</td>
+<td>可能调用外部 MCP 工具、API、数据库</td>
+</tr>
+<tr>
+<td><strong>扩缩挑战</strong></td>
+<td>CPU/内存是主要瓶颈</td>
+<td>Token 吞吐量是瓶颈，GPU 为隐性资源</td>
+</tr>
+</tbody></table>
+<h3>1.3 Agent 特有的故障模式</h3>
+<p>Agent 系统存在传统微服务不会遇到的故障模式：</p>
+<ol>
+<li><strong>幻觉级联（Hallucination Cascade）</strong>：Agent A 的幻觉输出作为 Agent B 的输入，错误被放大</li>
+<li><strong>工具调用死循环</strong>：Agent 无限重试工具调用，消耗 Token 但无进展</li>
+<li><strong>上下文窗口溢出</strong>：长对话导致上下文超限，模型丢弃早期信息</li>
+<li><strong>Prompt 注入</strong>：用户输入绕过安全限制，导致 Agent 行为异常</li>
+<li><strong>Token 经济崩溃</strong>：突发流量导致 Token 成本远超预算</li>
+</ol>
+<hr>
+<h2>2. Agent 核心指标体系</h2>
+<h3>2.1 基础指标（与传统微服务共享）</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>类型</th>
+<th>说明</th>
+<th>典型 SLO</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>请求量 QPS</strong></td>
+<td>Counter</td>
+<td>每秒请求数</td>
+<td>无 SLO，但用于容量规划</td>
+</tr>
+<tr>
+<td><strong>延迟 P50/P95/P99</strong></td>
+<td>Histogram</td>
+<td>端到端响应延迟</td>
+<td>P99 &lt; 10s</td>
+</tr>
+<tr>
+<td><strong>错误率</strong></td>
+<td>Gauge</td>
+<td>5xx / 总请求</td>
+<td>&lt; 0.1%</td>
+</tr>
+<tr>
+<td><strong>活跃实例数</strong></td>
+<td>Gauge</td>
+<td>当前运行的 Agent Pod 数</td>
+<td>&gt;= minReplicas</td>
+</tr>
+<tr>
+<td><strong>并发连接数</strong></td>
+<td>Gauge</td>
+<td>同时活跃的用户会话</td>
+<td>&lt;= maxConnections</td>
+</tr>
+</tbody></table>
+<h3>2.2 LLM 特有指标</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>计算方式</th>
+<th>告警阈值建议</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>TTFT (Time to First Token)</strong></td>
+<td>从请求到收到第一个 Token 的延迟</td>
+<td><code>first_token_timestamp - request_timestamp</code></td>
+<td>P95 &gt; 5s（正常），&gt; 15s（告警）</td>
+</tr>
+<tr>
+<td><strong>Token 生成速率 (Tokens/s)</strong></td>
+<td>模型生成 Token 的速度</td>
+<td><code>output_tokens / generation_time</code></td>
+<td>P5 &lt; 20 tokens/s</td>
+</tr>
+<tr>
+<td><strong>Token 消耗量</strong></td>
+<td>输入 + 输出 Token 总量</td>
+<td>OpenAI API 返回</td>
+<td>单次 &gt; context_window × 0.9</td>
+</tr>
+<tr>
+<td><strong>上下文窗口利用率</strong></td>
+<td>已用 Token / 最大上下文窗口</td>
+<td><code>used_tokens / max_context</code></td>
+<td>&gt; 85% 警告，&gt; 95% 严重</td>
+</tr>
+<tr>
+<td><strong>幻觉率</strong></td>
+<td>输出中不实信息的比例</td>
+<td>LLM-as-Judge 评估</td>
+<td>&gt; 5% 严重告警</td>
+</tr>
+<tr>
+<td><strong>工具调用成功率</strong></td>
+<td>工具调用返回成功 / 总调用</td>
+<td><code>success / total</code></td>
+<td>&lt; 95% 警告</td>
+</tr>
+<tr>
+<td><strong>工具调用延迟</strong></td>
+<td>工具调用的端到端延迟</td>
+<td>Histogram</td>
+<td>P95 &gt; 30s</td>
+</tr>
+<tr>
+<td><strong>Conversation 回合数</strong></td>
+<td>单次对话的轮数</td>
+<td>Count</td>
+<td>异常长对话检测（&gt; 50 轮）</td>
+</tr>
+</tbody></table>
+<h3>2.3 指标采集架构</h3>
+<div class="mermaid">graph LR
+    subgraph "Agent 应用"
+        APP[Agent Runtime]
+        LANG[LangChain / LlamaIndex]
+        OTEL[OpenTelemetry SDK]
+    end
+
+    subgraph "数据管道"
+        COLLECTOR[OTel Collector<br/>接收 / 处理 / 导出]
+        PROM[Prometheus<br/>指标存储]
+        LOKI[Loki / ELK<br/>日志存储]
+        TEMP[Tempo / Jaeger<br/>Trace 存储]
+    end
+
+    subgraph "可视化与告警"
+        GRAF[Grafana<br/>仪表盘]
+        ALERT[Alertmanager<br/>告警路由]
+        LANGSMITH[LangSmith<br/>AI 专有 Trace]
+        PHOENIX[Phoenix<br/>开源 AI 可观测]
+    end
+
+    APP --> OTEL
+    LANG --> OTEL
+    OTEL --> COLLECTOR
+    COLLECTOR --> PROM
+    COLLECTOR --> LOKI
+    COLLECTOR --> TEMP
+    OTEL -.-> LANGSMITH
+    OTEL -.-> PHOENIX
+    PROM --> GRAF
+    PROM --> ALERT
+    TEMP --> GRAF
+    LOKI --> GRAF
+    ALERT --> NOTIFY[通知渠道]</div>
+<h3>2.4 自定义指标埋点示例</h3>
+<pre><code class="language-python">from opentelemetry import metrics
+from opentelemetry.sdk.metrics import MeterProvider
+
+meter = metrics.get_meter(&quot;agent-monitoring&quot;)
+
+# Token 消耗计数器
+token_counter = meter.create_counter(
+    name=&quot;agent.tokens.consumed&quot;,
+    description=&quot;Total tokens consumed per request&quot;,
+    unit=&quot;tokens&quot;
+)
+
+# 幻觉率 Gauge
+hallucination_gauge = meter.create_observable_gauge(
+    name=&quot;agent.output.hallucination_rate&quot;,
+    callbacks=[lambda _: hallucination_rate],
+    description=&quot;Hallucination rate over last 5 minutes&quot;,
+    unit=&quot;ratio&quot;
+)
+
+# 工具调用成功率
+tool_success_rate = meter.create_observable_gauge(
+    name=&quot;agent.tool.success_rate&quot;,
+    callbacks=[lambda _: tool_success],
+    description=&quot;Tool call success rate&quot;,
+    unit=&quot;ratio&quot;
+)
+
+# 记录一次 LLM 调用
+token_counter.add(
+    input_tokens + output_tokens,
+    {&quot;model&quot;: &quot;gpt-4o&quot;, &quot;agent_id&quot;: agent_id, &quot;type&quot;: &quot;output&quot;}
+)
+</code></pre>
+<hr>
+<h2>3. 告警阈值设定策略</h2>
+<h3>3.1 静态阈值 vs 动态基线</h3>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>适用场景</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>静态阈值</strong></td>
+<td>基础设施指标（CPU &gt; 90%）</td>
+<td>简单、可预测</td>
+<td>无法适应流量潮汐，误报率高</td>
+</tr>
+<tr>
+<td><strong>动态基线</strong></td>
+<td>QPS、延迟、Token 消耗</td>
+<td>自适应，低误报</td>
+<td>需要足够历史数据，实现复杂</td>
+</tr>
+<tr>
+<td><strong>SLO 消耗速率</strong></td>
+<td>所有 SLI 指标</td>
+<td>业务语义明确，优先级清晰</td>
+<td>需要先定义 SLO</td>
+</tr>
+<tr>
+<td><strong>组合策略</strong></td>
+<td>生产环境推荐</td>
+<td>兼顾准确性和覆盖度</td>
+<td>维护成本高</td>
+</tr>
+</tbody></table>
+<p><strong>动态基线示例（PromQL）</strong>：</p>
+<pre><code class="language-promql"># 当前延迟 vs 过去 7 天同期均值 + 3σ
+(
+  histogram_quantile(0.99, rate(agent_request_duration_seconds_bucket[5m]))
+  &gt;
+  avg_over_time(histogram_quantile(0.99, rate(agent_request_duration_seconds_bucket[5m]))[7d] offset 1d)
+  + 3 * stddev_over_time(histogram_quantile(0.99, rate(agent_request_duration_seconds_bucket[5m]))[7d] offset 1d)
+)
+</code></pre>
+<h3>3.2 SLO-based 告警（推荐）</h3>
+<p>SLO-based 告警的核心思想：<strong>不是看指标是否超标，而是看 SLO 预算消耗速度是否过快</strong>[5]。</p>
+<div class="mermaid">graph TB
+    subgraph "SLO-based 告警流程"
+        SLO[定义 SLO] --> SLI[选择 SLI]
+        SLI --> BUDGET[计算错误预算]
+        BUDGET --> CONSUME[监控预算消耗速率]
+
+        CONSUME --> CHECK{
+            预算消耗 > 预期?
+        }
+
+        CHECK -- "是" --> ALERT[触发告警]
+        CHECK -- "否" --> OK[继续监控]
+
+        ALERT --> LEVEL分级
+        subgraph "LEVEL 分级"
+            L1[L1: 100% 预算已消耗<br/>→ 立即通知 On-call]
+            L2[L2: 50% 预算已消耗<br/>→ 通知团队]
+            L3[L3: 25% 预算已消耗<br/>→ 记录预警]
+        end
+    end
+
+    style L1 fill:#ffebee,stroke:#f44336
+    style L2 fill:#fff3e0,stroke:#ff9800
+    style L3 fill:#e8f5e9,stroke:#4caf50</div>
+<p><strong>Agent SLO 定义示例</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>SLO</th>
+<th>SLI</th>
+<th>目标</th>
+<th>错误预算（月）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>响应可用性</td>
+<td>成功请求 / 总请求</td>
+<td>99.9%</td>
+<td>43.2 分钟</td>
+</tr>
+<tr>
+<td>P99 延迟</td>
+<td>P99 &lt; 10s</td>
+<td>99.5%</td>
+<td>216 分钟</td>
+</tr>
+<tr>
+<td>幻觉率</td>
+<td>幻觉输出 / 总输出</td>
+<td>&lt; 2%</td>
+<td>14.4 分钟 (等效)</td>
+</tr>
+<tr>
+<td>工具调用成功率</td>
+<td>成功 / 总调用</td>
+<td>98%</td>
+<td>14.4 小时</td>
+</tr>
+</tbody></table>
+<p><strong>告警规则示例（Alertmanager 格式）</strong>：</p>
+<pre><code class="language-yaml">groups:
+- name: agent-slo-burn-rate
+  rules:
+  # 高消耗速率告警（1h 消耗超过 14.4 天预算）
+  - alert: AgentSLOBurnRateCritical
+    expr: |
+      (
+        sum(rate(agent_requests_total{status=~&quot;5..&quot;}[1h]))
+        /
+        sum(rate(agent_requests_total[1h]))
+      ) &gt; (14.4 * 0.001 / 24)
+    for: 5m
+    labels:
+      severity: critical
+      team: agent-platform
+    annotations:
+      summary: &quot;Agent SLO 高消耗速率 - 错误率预算正在快速消耗&quot;
+
+  # 中等消耗速率告警（6h 消耗超过 6 天预算）
+  - alert: AgentSLOBurnRateWarning
+    expr: |
+      (
+        sum(rate(agent_requests_total{status=~&quot;5..&quot;}[6h]))
+        /
+        sum(rate(agent_requests_total[6h]))
+      ) &gt; (6 * 0.001 / 24)
+    for: 30m
+    labels:
+      severity: warning
+</code></pre>
+<h3>3.3 分级告警矩阵</h3>
+<table>
+<thead>
+<tr>
+<th>级别</th>
+<th>名称</th>
+<th>触发条件</th>
+<th>响应时间</th>
+<th>通知渠道</th>
+<th>升级机制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>P0</strong></td>
+<td>严重</td>
+<td>SLO 预算 100% 消耗 / 服务不可用</td>
+<td>5 分钟</td>
+<td>PagerDuty + 电话</td>
+<td>15 分钟未响应 → 升级至上级</td>
+</tr>
+<tr>
+<td><strong>P1</strong></td>
+<td>高</td>
+<td>SLO 预算 50% 消耗 / 幻觉率 &gt; 5%</td>
+<td>30 分钟</td>
+<td>PagerDuty + Slack</td>
+<td>1 小时未响应 → 升级至 P0</td>
+</tr>
+<tr>
+<td><strong>P2</strong></td>
+<td>中</td>
+<td>Token 消耗异常 / 工具成功率 &lt; 95%</td>
+<td>4 小时</td>
+<td>Slack</td>
+<td>8 小时未处理 → 升级至 P1</td>
+</tr>
+<tr>
+<td><strong>P3</strong></td>
+<td>低</td>
+<td>预警性指标偏离基线</td>
+<td>24 小时</td>
+<td>Email / Slack channel</td>
+<td>不主动升级</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>4. 幻觉检测与输出质量监控</h2>
+<h3>4.1 幻觉检测策略</h3>
+<p>幻觉检测是 Agent 监控中最具挑战性的部分——LLM 返回的 HTTP 状态码是 200，但内容可能是错误的。需要<strong>语义层评估</strong>[10][11][12]。</p>
+<div class="mermaid">graph TB
+    subgraph "幻觉检测三重策略"
+        subgraph "策略 1: LLM-as-Judge"
+            JUDGE[评估 LLM]
+            JUDGE -->|打分| SCORE[质量分数 0-1]
+            SCORE -->|< 0.7| FLAG[标记为可疑]
+        end
+
+        subgraph "策略 2: Grounding 检查"
+            EXTRACT[提取事实断言]
+            EXTRACT --> RETRIEVE[检索知识库]
+            RETRIEVE --> MATCH[匹配度计算]
+            MATCH -->|低匹配| FLAG2[标记为未 grounding]
+        end
+
+        subgraph "策略 3: 一致性校验"
+            MULTIPLE[多次调用同一问题]
+            MULTIPLE --> COMPARE[结果一致性对比]
+            COMPARE -->|不一致| FLAG3[标记为不稳定]
+        end
+    end
+
+    FLAG --> AGG[综合判定]
+    FLAG2 --> AGG
+    FLAG3 --> AGG
+    AGG --> DECIDE{
+        幻觉概率 > 阈值?
+    }
+    DECIDE -- "是" --> BLOCK[拦截输出]
+    DECIDE -- "否" --> PASS[放行]
+    BLOCK --> FALLBACK[Fallback 回复]
+
+    style BLOCK fill:#ffebee,stroke:#f44336
+    style FALLBACK fill:#fff3e0,stroke:#ff9800</div>
+<h3>4.2 LLM-as-Judge 实现</h3>
+<pre><code class="language-python">JUDGE_PROMPT = &quot;&quot;&quot;
+你是一个严格的事实性评估器。判断以下 AI 输出是否包含幻觉（虚构事实、错误信息）。
+
+用户问题: {user_input}
+AI 输出: {ai_output}
+参考知识: {retrieved_context}
+
+请按以下维度评分 (0-1):
+1. 事实准确性: 输出中的事实是否与参考知识一致？
+2. 逻辑一致性: 输出的推理过程是否自洽？
+3. 完整性: 是否遗漏了关键信息？
+
+总分 = (事实准确性 * 0.5 + 逻辑一致性 * 0.3 + 完整性 * 0.2)
+总分 &lt; 0.7 判定为幻觉。
+
+请只返回 JSON: {&quot;score&quot;: 0.xx, &quot;is_hallucination&quot;: true/false, &quot;reason&quot;: &quot;...&quot;}
+&quot;&quot;&quot;
+</code></pre>
+<h3>4.3 上下文窗口监控</h3>
+<pre><code class="language-promql"># 上下文窗口利用率
+agent_context_utilization = 
+  agent_tokens_input_total / agent_context_window_max * 100
+
+# 告警：利用率超过 85%
+ALERT ContextWindowNearLimit
+  WHEN agent_context_utilization &gt; 85
+  FOR 5m
+  LABELS { severity: &quot;warning&quot; }
+  ANNOTATIONS {
+    summary: &quot;Agent 上下文窗口利用率超过 85%，可能导致信息丢失&quot;
+  }
+</code></pre>
+<hr>
+<h2>5. 可观测性工具栈</h2>
+<h3>5.1 工具栈全景</h3>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>类型</th>
+<th>开源</th>
+<th>Agent 特有功能</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Prometheus</strong></td>
+<td>指标收集</td>
+<td>✅</td>
+<td>自定义指标、告警规则</td>
+<td>基础指标监控[7]</td>
+</tr>
+<tr>
+<td><strong>Grafana</strong></td>
+<td>可视化</td>
+<td>✅</td>
+<td>仪表盘、告警面板</td>
+<td>指标展示和告警配置</td>
+</tr>
+<tr>
+<td><strong>OpenTelemetry</strong></td>
+<td>统一标准</td>
+<td>✅</td>
+<td>Traces + Metrics + Logs</td>
+<td>统一遥测数据收集[8]</td>
+</tr>
+<tr>
+<td><strong>LangSmith</strong></td>
+<td>AI 可观测</td>
+<td>❌（SaaS）</td>
+<td>Trace、评估、Prompt 管理</td>
+<td>LangChain 生态深度集成[1]</td>
+</tr>
+<tr>
+<td><strong>Phoenix (Arize)</strong></td>
+<td>AI 可观测</td>
+<td>✅</td>
+<td>Trace、评估、实验、Dataset</td>
+<td>开源替代，框架无关[9]</td>
+</tr>
+<tr>
+<td><strong>Langfuse</strong></td>
+<td>AI 可观测</td>
+<td>✅</td>
+<td>Trace、成本追踪、评估</td>
+<td>轻量级开源方案[13]</td>
+</tr>
+<tr>
+<td><strong>Grafana Tempo</strong></td>
+<td>Trace 存储</td>
+<td>✅</td>
+<td>分布式 Trace</td>
+<td>与 Prometheus/Grafana 集成</td>
+</tr>
+</tbody></table>
+<h3>5.2 推荐部署架构</h3>
+<div class="mermaid">graph TB
+    subgraph "Agent 应用层"
+        A1[Agent Pod 1]
+        A2[Agent Pod 2]
+    end
+
+    subgraph "OpenTelemetry 统一采集"
+        SDK[OTel SDK<br/>自动 + 手动埋点]
+        COLLECTOR[OTel Collector<br/>receivers / processors / exporters]
+    end
+
+    subgraph "存储层"
+        PROM[Prometheus<br/>Metrics]
+        LOKI[Loki<br/>Logs]
+        TEMP[Tempo<br/>Traces]
+    end
+
+    subgraph "AI 专属层"
+        LANGSMITH[LangSmith<br/>Trace + Eval + Dashboard]
+        PHOENIX[Phoenix<br/>Trace + Eval + Experiment]
+        LANGFUSE[Langfuse<br/>Trace + Cost Tracking]
+    end
+
+    subgraph "可视化层"
+        GRAF[Grafana<br/>统一仪表盘]
+    end
+
+    subgraph "告警层"
+        AM[Alertmanager<br/>告警路由]
+        PAGER[PagerDuty]
+        SLACK[Slack]
+        EMAIL[Email]
+    end
+
+    A1 --> SDK
+    A2 --> SDK
+    SDK --> COLLECTOR
+    COLLECTOR --> PROM
+    COLLECTOR --> LOKI
+    COLLECTOR --> TEMP
+    SDK -.-> LANGSMITH
+    SDK -.-> PHOENIX
+    SDK -.-> LANGFUSE
+    PROM --> GRAF
+    TEMP --> GRAF
+    LOKI --> GRAF
+    PROM --> AM
+    AM --> PAGER
+    AM --> SLACK
+    AM --> EMAIL
+
+    style SDK fill:#e3f2fd,stroke:#2196f3
+    style LANGSMITH fill:#f3e5f5,stroke:#9c27b0
+    style PHOENIX fill:#f3e5f5,stroke:#9c27b0
+    style LANGFUSE fill:#f3e5f5,stroke:#9c27b0</div>
+<h3>5.3 工具对比与选型建议</h3>
+<table>
+<thead>
+<tr>
+<th>决策因素</th>
+<th>推荐方案</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>预算有限、开源优先</strong></td>
+<td>Phoenix + Prometheus + Grafana</td>
+<td>Phoenix 功能完整且完全开源[9]</td>
+</tr>
+<tr>
+<td><strong>已用 LangChain 生态</strong></td>
+<td>LangSmith + Prometheus + Grafana</td>
+<td>LangSmith 与 LangChain 深度集成[1]</td>
+</tr>
+<tr>
+<td><strong>需要最低接入成本</strong></td>
+<td>Langfuse + Grafana</td>
+<td>Langfuse 接入简单，适合中小团队[13]</td>
+</tr>
+<tr>
+<td><strong>企业级全栈</strong></td>
+<td>LangSmith + Prometheus + Grafana + PagerDuty</td>
+<td>覆盖 Trace、指标、告警全链路</td>
+</tr>
+<tr>
+<td><strong>框架无关</strong></td>
+<td>Phoenix + Prometheus + Grafana</td>
+<td>Phoenix 基于 OpenTelemetry，支持多框架[9]</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>6. 通知渠道与升级机制</h2>
+<h3>6.1 通知渠道配置</h3>
+<pre><code class="language-yaml"># Alertmanager 配置示例
+route:
+  group_by: [&#39;alertname&#39;, &#39;severity&#39;]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: &#39;default-receiver&#39;
+  routes:
+    # P0 - 立即通知，多个渠道
+    - match:
+        severity: critical
+      receiver: &#39;critical-pagerduty&#39;
+      continue: true
+    - match:
+        severity: critical
+      receiver: &#39;critical-slack&#39;
+      continue: false
+
+    # P1 - Slack + PagerDuty
+    - match:
+        severity: high
+      receiver: &#39;high-slack&#39;
+      continue: true
+
+    # P2 - 仅 Slack
+    - match:
+        severity: warning
+      receiver: &#39;slack-channel&#39;
+
+    # P3 - Email
+    - match:
+        severity: info
+      receiver: &#39;email-team&#39;
+
+receivers:
+  - name: &#39;critical-pagerduty&#39;
+    pagerduty_configs:
+      - routing_key: &#39;${PAGERDUTY_KEY}&#39;
+        severity: critical
+        description: &#39;{{ .GroupLabels.alertname }}&#39;
+
+  - name: &#39;critical-slack&#39;
+    slack_configs:
+      - channel: &#39;#agent-alerts-critical&#39;
+        title: &#39;🚨 P0: {{ .GroupLabels.alertname }}&#39;
+        text: &#39;{{ .CommonAnnotations.summary }}&#39;
+
+  - name: &#39;slack-channel&#39;
+    slack_configs:
+      - channel: &#39;#agent-alerts&#39;
+        title: &#39;⚠️ P2: {{ .GroupLabels.alertname }}&#39;
+
+  - name: &#39;email-team&#39;
+    email_configs:
+      - to: &#39;agent-team@example.com&#39;
+        subject: &#39;[P3] Agent Alert: {{ .GroupLabels.alertname }}&#39;
+</code></pre>
+<h3>6.2 On-call 轮值与自动升级</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>时间窗口</th>
+<th>动作</th>
+<th>渠道</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>通知</strong></td>
+<td>T+0</td>
+<td>On-call 收到告警</td>
+<td>PagerDuty + Slack</td>
+</tr>
+<tr>
+<td><strong>首次升级</strong></td>
+<td>T+15min 未 ACK</td>
+<td>升级至 On-call 上级</td>
+<td>电话 + 短信</td>
+</tr>
+<tr>
+<td><strong>二次升级</strong></td>
+<td>T+30min 未解决</td>
+<td>通知全团队 + 值班经理</td>
+<td>Slack + 电话</td>
+</tr>
+<tr>
+<td><strong>紧急升级</strong></td>
+<td>T+60min 未解决</td>
+<td>CTO / VP Engineering</td>
+<td>电话</td>
+</tr>
+</tbody></table>
+<h3>6.3 避免告警疲劳的关键策略</h3>
+<ol>
+<li><strong>SLO-based 告警</strong>：只在 SLO 预算消耗异常时告警，而非所有阈值突破[5]</li>
+<li><strong>告警聚合与去重</strong>：Alertmanager 的 <code>group_by</code> 合并相关告警</li>
+<li><strong>静默窗口</strong>：部署/维护期间设置静默规则</li>
+<li><strong>分级响应</strong>：P3 告警不触发电话/短信，仅记录</li>
+<li><strong>定期审查</strong>：每月审查告警规则，关闭无效告警，调整阈值</li>
+<li><strong>告警自愈检测</strong>：恢复告警自动关闭，无需人工干预</li>
+</ol>
+<hr>
+<h2>7. 生产部署建议</h2>
+<h3>7.1 监控系统初始化清单</h3>
+<pre><code>□ 基础指标埋点（QPS、延迟、错误率）
+□ LLM 指标埋点（TTFT、Token 消耗、生成速率）
+□ 幻觉评估管道搭建（LLM-as-Judge）
+□ SLO 定义与错误预算计算
+□ 告警规则配置（Alertmanager / Grafana Alerts）
+□ 通知渠道连接（PagerDuty + Slack + Email）
+□ On-call 轮值表制定
+□ Grafana 仪表盘搭建（基础 + AI 专属面板）
+□ 告警规则月度审查机制建立
+□ 误报率追踪与持续优化
+</code></pre>
+<h3>7.2 仪表盘推荐面板</h3>
+<table>
+<thead>
+<tr>
+<th>面板</th>
+<th>指标</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>全局概览</strong></td>
+<td>QPS、活跃会话、错误率</td>
+<td>日常巡检</td>
+</tr>
+<tr>
+<td><strong>延迟分析</strong></td>
+<td>P50/P95/P99 延迟、TTFT</td>
+<td>性能瓶颈定位</td>
+</tr>
+<tr>
+<td><strong>Token 经济</strong></td>
+<td>Token 消耗趋势、成本预测</td>
+<td>成本控制</td>
+</tr>
+<tr>
+<td><strong>AI 质量</strong></td>
+<td>幻觉率、工具成功率、Grounding 分数</td>
+<td>输出质量监控</td>
+</tr>
+<tr>
+<td><strong>告警概览</strong></td>
+<td>活跃告警数、SLO 预算剩余、误报率</td>
+<td>告警健康度</td>
+</tr>
+</tbody></table>
+<hr>
+<!-- REFERENCE START -->
+
+<h2>参考文献</h2>
+<ol>
+<li>LangChain. &quot;LangSmith Observability&quot; (2026). <a href="https://docs.langchain.com/langsmith/observability">https://docs.langchain.com/langsmith/observability</a> — 访问时间: 2026-03-31</li>
+<li>LangChain. &quot;Observability Concepts: Traces, Runs, Threads, Projects&quot; (2026). <a href="https://docs.langchain.com/langsmith/observability-concepts">https://docs.langchain.com/langsmith/observability-concepts</a> — 访问时间: 2026-03-31</li>
+<li>Arize AI. &quot;Arize AX - AI Engineering Platform&quot; (2026). <a href="https://arize.com/docs/ax">https://arize.com/docs/ax</a> — 访问时间: 2026-03-31</li>
+<li>Arize-ai. &quot;Phoenix: AI Observability &amp; Evaluation&quot; (2026). <a href="https://github.com/Arize-ai/phoenix">https://github.com/Arize-ai/phoenix</a> — 访问时间: 2026-03-31</li>
+<li>Google. &quot;SLO Methodology - Google Cloud SRE&quot; (2025). <a href="https://sre.google/workbook/alerting-on-slos/">https://sre.google/workbook/alerting-on-slos/</a> — 访问时间: 2026-03-31</li>
+<li>Alex Hidalgo. &quot;Implementing Service Level Objectives&quot; (2020, still authoritative for SLO methodology). O&#39;Reilly Media. — 访问时间: 2026-03-31</li>
+<li>Prometheus. &quot;Overview - Prometheus Monitoring&quot; (2026). <a href="https://prometheus.io/docs/introduction/overview/">https://prometheus.io/docs/introduction/overview/</a> — 访问时间: 2026-03-31</li>
+<li>OpenTelemetry. &quot;Collector - Vendor-agnostic telemetry&quot; (2026). <a href="https://opentelemetry.io/docs/collector/">https://opentelemetry.io/docs/collector/</a> — 访问时间: 2026-03-31</li>
+<li>Arize-ai. &quot;Phoenix GitHub - OpenSource AI Observability&quot; (2026). <a href="https://github.com/Arize-ai/phoenix">https://github.com/Arize-ai/phoenix</a> — 访问时间: 2026-03-31</li>
+<li>Min et al. &quot;FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation&quot; (2023). <a href="https://arxiv.org/abs/2305.14251">https://arxiv.org/abs/2305.14251</a> — 访问时间: 2026-03-31</li>
+<li>Wei et al. &quot;RLHF vs RLAI: Calibrating LLM Judges&quot; (2025). <a href="https://arxiv.org/abs/2501.06303">https://arxiv.org/abs/2501.06303</a> — 访问时间: 2026-03-31</li>
+<li>Anthropic. &quot;Building Reliable AI Systems: Evaluation and Monitoring&quot; (2025). <a href="https://docs.anthropic.com/en/docs/test-and-evaluate">https://docs.anthropic.com/en/docs/test-and-evaluate</a> — 访问时间: 2026-03-31</li>
+<li>Langfuse. &quot;Langfuse: Open Source LLM Engineering Platform&quot; (2026). <a href="https://langfuse.com/">https://langfuse.com/</a> — 访问时间: 2026-03-31</li>
+<li>Grafana. &quot;Alerting in Grafana&quot; (2026). <a href="https://grafana.com/docs/grafana/latest/alerting/">https://grafana.com/docs/grafana/latest/alerting/</a> — 访问时间: 2026-03-31</li>
+<li>Prometheus. &quot;Alertmanager Configuration&quot; (2026). <a href="https://prometheus.io/docs/alerting/latest/configuration/">https://prometheus.io/docs/alerting/latest/configuration/</a> — 访问时间: 2026-03-31</li>
+</ol>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>
