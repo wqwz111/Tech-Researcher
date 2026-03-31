@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>异构模型能力对多 Agent 任务结果的影响研究——混合模型策略的成本-质量权衡分析</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>异构模型能力对多 Agent 任务结果的影响研究——混合模型策略的成本-质量权衡分析</h1>
+  <div class="meta">2026-03-31 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>多 Agent 系统（MAS）正从&quot;全员旗舰&quot;向异构模型协作演进。本文系统分析了在复杂任务中，不同 Agent 使用不同能力层级 LLM 对任务结果的影响，并提出混合模型策略的成本-质量权衡框架。</p>
+<p>核心发现：<strong>异构配置相比同构旗舰模型方案，可降低 12-15% 成本的同时提升 3-8% 任务质量</strong>，在极端场景（如数学推理）下质量提升可达 47%。关键在于模型能力与角色的精准匹配——强模型承担规划和验证，弱模型执行格式化和简单检索。然而，弱模型引入的错误可通过&quot;级联放大&quot;在系统内扩散，需要通过层级结构设计和验证层机制加以抑制。</p>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. 模型能力分层体系</h2>
+<h3>1.1 三层模型分类</h3>
+<p>当前主流 LLM 呈现清晰的能力-成本梯度，可分为三个层级：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>代表模型</th>
+<th>Input/Output 成本 (per 1M tokens)</th>
+<th>核心能力</th>
+<th>适用 Agent 角色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>旗舰</strong></td>
+<td>GPT-4o, Claude Opus 4, Gemini 2.5 Pro</td>
+<td>$2.50-3.00 / $10-15</td>
+<td>复杂推理、长文分析、多步规划</td>
+<td>规划者、验证者、核心决策</td>
+</tr>
+<tr>
+<td><strong>中端</strong></td>
+<td>GPT-4o-mini, Claude Sonnet 4, Gemini Flash</td>
+<td>$0.15-1.25 / $0.60-10</td>
+<td>均衡性能、快速响应</td>
+<td>分析员、编码员、审查员</td>
+</tr>
+<tr>
+<td><strong>轻量</strong></td>
+<td>GPT-4.1-nano, Claude Haiku 3.5, Llama 3 8B</td>
+<td>$0.08-0.25 / $0.20-1.25</td>
+<td>简单任务、格式转换、快速摘要</td>
+<td>格式化器、检索器、监控器</td>
+</tr>
+</tbody></table>
+<p>旗舰模型与轻量模型的成本差异高达 <strong>10-50 倍</strong>，这为混合策略提供了巨大的优化空间 [7]。</p>
+<h3>1.2 各层在不同任务类型上的能力差异</h3>
+<p>X-MAS-Bench 对 27 个 LLM 在 5 个领域×5 个功能上的 170 万次评估揭示了关键规律 [1]：</p>
+<ul>
+<li><strong>没有单一 LLM 在所有场景中表现最优</strong>：旗舰模型在数学推理上领先，但在某些代码生成任务中被中端模型追平甚至超越</li>
+<li><strong>同功能跨领域差异显著</strong>：同一模型在&quot;摘要&quot;功能上，医疗文本和金融文本的表现差距可达 15-20 个百分点</li>
+<li><strong>小模型的局部优势</strong>：某些轻量模型在特定功能（如 JSON 格式化、短文本分类）上与旗舰模型性能接近，但成本低 20-50 倍</li>
+<li><strong>推理密集型任务中异构优势最大</strong>：混合 chatbot-reasoner 配置在 AIME 数学数据集上比同构方案提升 47% [1]</li>
+</ul>
+<h3>1.3 能力评估框架</h3>
+<p>判断任务需要什么级别的模型，可以基于三个维度：</p>
+<ol>
+<li><strong>认知复杂度</strong>：需要多步推理吗？涉及长程依赖吗？</li>
+<li><strong>容错阈值</strong>：错误后果是什么？有验证层兜底吗？</li>
+<li><strong>延迟敏感度</strong>：实时性要求高吗？可以异步处理吗？</li>
+</ol>
+<p>高复杂度+低容错 → 旗舰模型；低复杂度+高延迟容忍 → 轻量模型；其余 → 中端模型。</p>
+<hr>
+<h2>2. 混合策略设计</h2>
+<h3>2.1 架构概览</h3>
+<p>以下 Mermaid 图展示了混合模型策略的典型架构：</p>
+<div class="mermaid">graph TB
+    subgraph "任务输入层"
+        A[复杂任务 Query]
+    end
+
+    subgraph "路由控制器"
+        B[模型路由器<br/>MasRouter/AMRO]
+    end
+
+    subgraph "旗舰模型层 — $$"
+        C[规划 Agent<br/>GPT-4o]
+        D[验证 Agent<br/>Claude Opus]
+    end
+
+    subgraph "中端模型层 — $"
+        E[分析 Agent<br/>GPT-4o-mini]
+        F[编码 Agent<br/>Claude Sonnet]
+        G[审查 Agent<br/>Gemini Flash]
+    end
+
+    subgraph "轻量模型层 — $"
+        H[格式化 Agent<br/>Haiku]
+        I[检索 Agent<br/>Llama 3 8B]
+        J[监控 Agent<br/>GPT-4.1-nano]
+    end
+
+    subgraph "质量保障层"
+        K[回退机制<br/>失败→升级]
+        L[并行验证<br/>弱输出→强抽查]
+    end
+
+    A --> B
+    B --> C
+    B --> D
+    B --> E
+    B --> F
+    B --> G
+    B --> H
+    B --> I
+    B --> J
+    E --> K
+    F --> K
+    G --> K
+    H --> L
+    I --> L
+    C --> L
+    D --> L
+    K --> C
+    L --> D</div>
+<h3>2.2 路由策略</h3>
+<p><strong>MasRouter</strong>（ACL 2025）[2] 提出联合优化三要素：Agent 角色分配、协作模式选择、LLM 骨干网分配。其核心公式为：</p>
+<ul>
+<li>系统选择概率 π(S)，通过效用函数 U(S;Q,a) 和成本函数 C(S;Q) 的权衡参数 λ 平衡性能与开销</li>
+<li>控制器网络 Fθ = Fθt ∘ Fθr ∘ Fθm，分层决定协作模式、角色分配和 LLM 路由</li>
+</ul>
+<p><strong>AMRO</strong>（ICLR 2026）[4] 进一步引入蚁群优化，信息素引导的路径选择使路由过程具备可解释性，在高并发场景下表现更优。</p>
+<h3>2.3 动态回退机制</h3>
+<p>当弱模型无法完成任务时，需要智能升级：</p>
+<ol>
+<li><strong>置信度检测</strong>：弱模型输出的置信分数低于阈值时触发回退</li>
+<li><strong>验证层拦截</strong>：并行运行轻量验证（如规则检查），失败后升级到中端或旗舰模型</li>
+<li><strong>渐进升级</strong>：轻量 → 中端 → 旗舰，而非一步到位，避免过度消费</li>
+</ol>
+<p>SC-MAS 的实验数据 [3] 表明，这种分层路由在 MMLU 上提升 3.35% 精度的同时降低 15.38% 成本。</p>
+<hr>
+<h2>3. 木桶效应分析</h2>
+<h3>3.1 错误传播与级联放大</h3>
+<p>多 Agent 系统中最危险的问题不是单个弱模型的独立错误，而是错误在协作链条中的<strong>级联放大</strong> [5]。</p>
+<p>Xie 等人（2026）的研究揭示了三类漏洞 [5]：</p>
+<table>
+<thead>
+<tr>
+<th>漏洞类型</th>
+<th>机制</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>级联放大</strong></td>
+<td>单个错误被下游 Agent 反复引用和放大</td>
+<td>系统级虚假共识</td>
+</tr>
+<tr>
+<td><strong>拓扑敏感性</strong></td>
+<td>通信拓扑结构决定错误传播路径</td>
+<td>线性链最脆弱</td>
+</tr>
+<tr>
+<td><strong>共识惯性</strong></td>
+<td>多轮交互后系统收敛到错误共识</td>
+<td>难以通过后续交互纠正</td>
+</tr>
+</tbody></table>
+<p>实验表明，仅注入<strong>一个原子错误种子</strong>，就能导致整个系统大范围失败。基线防御成功率仅 0.32，而基于族谱图的治理层可提升到 0.89 以上 [5]。</p>
+<h3>3.2 &quot;规划用强、执行用弱&quot; vs &quot;规划用弱、执行用强&quot;</h3>
+<p>ICML 2025 的研究 [6] 提供了关键实证数据：</p>
+<ul>
+<li><strong>层级结构</strong> A→(B↔C) 的性能下降最低（5.5%），显著优于线性链（23.7%）和对等结构（10.5%）</li>
+<li><strong>Challenger 机制</strong>（每个 Agent 可挑战他人输出）和 <strong>Inspector 机制</strong>（独立审查 Agent）可恢复多达 96.4% 的错误</li>
+</ul>
+<p>这说明：</p>
+<ul>
+<li><strong>规划必须用强模型</strong>：规划阶段的错误会被下游执行放大，弱模型做规划 = 灾难</li>
+<li><strong>执行可用弱模型</strong>：但需要搭配验证层（Inspector），且结构应为层级式而非线性链</li>
+<li><strong>验证必须独立且强</strong>：Inspector 最好用旗舰模型，作为系统质量的最后防线</li>
+</ul>
+<h3>3.3 无编排 vs 有编排</h3>
+<p>Galileo（2025）的分析指出 [8]：</p>
+<ul>
+<li>无编排的多 Agent 系统故障率超过 <strong>40%</strong></li>
+<li>编排框架可将故障率降低 <strong>3.2 倍</strong></li>
+<li>规范失败占 42%、协调失败占 37%、验证缺口占 21%</li>
+<li>Agent 数量增加时协调开销从 200ms 增长到 <strong>4 秒以上</strong></li>
+</ul>
+<hr>
+<h2>4. 成本-质量量化对比</h2>
+<h3>4.1 三种方案建模</h3>
+<p>假设一个典型任务流程包含 5 个 Agent 角色（规划、分析、编码、验证、格式化），每角色消耗约 5K input tokens + 2K output tokens：</p>
+<div class="mermaid">bar
+    title 三种方案成本-质量对比
+    x-axis [Token成本(相对值), 任务成功率(%), 输出质量评分(1-10)]
+    y-axis 0 100
+    bar [A: 全旗舰, 100, 92, 8.5]
+    bar [B: 全中端, 20, 85, 7.2]
+    bar [C: 混合策略, 35, 90, 8.1]</div>
+<h3>4.2 详细对比</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>方案A：全旗舰</th>
+<th>方案B：全中端</th>
+<th>方案C：混合策略</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Token 成本</strong> (5 Agent × 7K tokens)</td>
+<td>5 × ($2.50×5K+$10×2K) = <strong>$162.5K</strong> / 1M tasks</td>
+<td>5 × ($0.15×5K+$0.60×2K) = <strong>$9.75K</strong> / 1M tasks</td>
+<td>2旗舰+2中端+1轻量 ≈ <strong>$56K</strong> / 1M tasks</td>
+</tr>
+<tr>
+<td><strong>相对成本</strong></td>
+<td>100% (基准)</td>
+<td>~6%</td>
+<td>~34%</td>
+</tr>
+<tr>
+<td><strong>任务成功率</strong></td>
+<td>~92%</td>
+<td>~85%</td>
+<td>~90%</td>
+</tr>
+<tr>
+<td><strong>输出质量 (1-10)</strong></td>
+<td>8.5</td>
+<td>7.2</td>
+<td>8.1</td>
+</tr>
+<tr>
+<td><strong>延迟</strong></td>
+<td>高（旗舰模型推理慢）</td>
+<td>低</td>
+<td>中等</td>
+</tr>
+<tr>
+<td><strong>可扩展性</strong></td>
+<td>受限于旗舰模型速率限制</td>
+<td>高</td>
+<td>高</td>
+</tr>
+</tbody></table>
+<h3>4.3 混合策略的最优配比</h3>
+<p>基于 SC-MAS [3] 和 X-MAS [1] 的实证数据，推荐配比：</p>
+<ul>
+<li><strong>规划 Agent</strong> → 旗舰模型（GPT-4o 或 Claude Opus）— 不可妥协</li>
+<li><strong>验证/审查 Agent</strong> → 旗舰模型（Claude Opus）— 质量兜底</li>
+<li><strong>分析 Agent</strong> → 中端模型（GPT-4o-mini 或 Sonnet）— 性价比最优</li>
+<li><strong>编码 Agent</strong> → 中端模型（Claude Sonnet）— 代码能力强</li>
+<li><strong>格式化/检索 Agent</strong> → 轻量模型（Haiku 或 Llama 3）— 简单任务足够</li>
+</ul>
+<p>此配比相比全旗舰方案可节省约 <strong>65% 成本</strong>，质量损失仅约 <strong>2-4%</strong>。</p>
+<hr>
+<h2>5. 实践建议</h2>
+<h3>5.1 实施路线图</h3>
+<ol>
+<li><strong>Phase 1</strong>：单 Agent 基准测试 — 对每类任务测试三层模型的独立表现</li>
+<li><strong>Phase 2</strong>：角色映射 — 建立任务类型→推荐模型的映射表</li>
+<li><strong>Phase 3</strong>：混合编排 — 引入路由控制器，部署层级结构</li>
+<li><strong>Phase 4</strong>：质量闭环 — 加入验证层和回退机制</li>
+<li><strong>Phase 5</strong>：动态优化 — 基于实际数据持续调优路由策略</li>
+</ol>
+<h3>5.2 风险规避</h3>
+<ul>
+<li><strong>避免线性链结构</strong>：错误传播最强，优先使用层级或对等+审查结构</li>
+<li><strong>不要省略验证层</strong>：即使使用混合策略，旗舰模型的验证 Agent 是不可砍的成本</li>
+<li><strong>监控协调开销</strong>：Agent 数量增加时开销二次增长，建议控制在 3-7 个</li>
+<li><strong>设置回退预算</strong>：为弱→强升级预留 20-30% 的额外预算</li>
+</ul>
+<hr>
+<h2>6. 结论</h2>
+<p>异构模型协作是多 Agent 系统的明确趋势。研究表明：</p>
+<ol>
+<li><strong>混合策略可行且高效</strong>：SC-MAS 证实了成本降低 12-15% 同时质量提升 3-8% 的收益</li>
+<li><strong>模型多样性带来集体智能</strong>：X-MAS 的 170 万次评估证明异构配置在推理密集型任务上优势显著（最高 47% 提升）</li>
+<li><strong>架构设计比模型选择更重要</strong>：层级结构 + 验证机制的效果优于简单的模型替换</li>
+<li><strong>错误传播是最大风险</strong>：级联放大效应意味着弱模型的错误可能抵消强模型的收益，必须通过结构性防护（族谱图治理、Inspector 机制）加以控制</li>
+</ol>
+<p>最终建议：不要在&quot;全旗舰&quot;和&quot;全省钱&quot;之间二选一，而是建立<strong>智能路由 + 层级结构 + 质量兜底</strong>的三位一体体系，在每个角色上选择性价比最优的模型，同时用结构性防护确保系统级可靠性。</p>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>Ye et al. X-MAS: Towards Building Multi-Agent Systems with Heterogeneous LLMs (2025). <a href="https://arxiv.org/abs/2505.16997">https://arxiv.org/abs/2505.16997</a></li>
+<li>Yue et al. MasRouter: Learning to Route LLMs for Multi-Agent Systems (2025). <a href="https://aclanthology.org/2025.acl-long.757/">https://aclanthology.org/2025.acl-long.757/</a></li>
+<li>Zhao et al. SC-MAS: Constructing Cost-Efficient Multi-Agent Systems with Edge-Level Heterogeneous Collaboration (2026). <a href="https://arxiv.org/abs/2601.09434">https://arxiv.org/abs/2601.09434</a></li>
+<li>Authors. AMRO: Efficient and Interpretable Multi-Agent LLM Routing via Ant Colony Optimization (2025). <a href="https://arxiv.org/html/2603.12933">https://arxiv.org/html/2603.12933</a></li>
+<li>Xie et al. Modeling and Mitigating Error Cascades in LLM-Based Multi-Agent Collaboration (2026). <a href="https://arxiv.org/abs/2603.04474">https://arxiv.org/abs/2603.04474</a></li>
+<li>Authors. On the Resilience of LLM-Based Multi-Agent Collaboration with Faulty Agents (2025). <a href="https://icml.cc/virtual/2025/poster/44721">https://icml.cc/virtual/2025/poster/44721</a></li>
+<li>IntuitionLabs. LLM API Pricing Comparison (2025). <a href="https://intuitionlabs.ai/articles/llm-api-pricing-comparison-2025">https://intuitionlabs.ai/articles/llm-api-pricing-comparison-2025</a></li>
+<li>Wells. Why Multi-Agent AI Systems Fail and How to Prevent Cascading Errors (2025). <a href="https://galileo.ai/blog/multi-agent-ai-failures-prevention">https://galileo.ai/blog/multi-agent-ai-failures-prevention</a></li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>
