@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 扩缩容与性能优化 — 负载均衡、缓存、批处理</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>Agent 扩缩容与性能优化 — 负载均衡、缓存、批处理</h1>
+  <div class="meta">2026-03-31 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>随着 AI Agent 从原型走向生产，性能和稳定性成为制约规模化部署的核心瓶颈。Agent 系统天然面临 LLM API 速率限制、长延迟推理、高并发请求处理等挑战。本报告系统梳理了 2024-2026 年间 Agent 系统在负载均衡、缓存策略、批处理优化、自动扩缩和性能监控五个维度的最佳实践与技术选型。</p>
+<p>核心发现：</p>
+<ul>
+<li><strong>速率限制是多 Agent 系统的首要约束</strong>：Anthropic、OpenAI 等主流 LLM 提供商以 RPM + TPM（tokens per minute）双重维度限流，多 Agent 场景下需通过 AI Gateway 集中管理请求排队与优先级调度[1][2]。</li>
+<li><strong>五层缓存架构可降低 30-90% 推理成本</strong>：从 Prompt 缓存到语义缓存，每一层解决不同瓶颈，但需警惕缓存过期与语义漂移风险[3][4]。</li>
+<li><strong>Continuous Batching 是推理优化的基石</strong>：vLLM 和 SGLang 通过 PagedAttention 和动态批处理将 GPU 利用率提升至 90%+，配合投机解码可实现 2-3 倍吞吐提升[5][6]。</li>
+<li><strong>自动扩缩需超越 CPU 指标</strong>：基于队列深度（queue_depth）和 P99 延迟的自定义指标 HPA 比传统 CPU 扩缩更适合 Agent 工作负载[7][8]。</li>
+<li><strong>TTFT 是用户体验的关键指标</strong>：首 token 延迟（Time to First Token）直接决定用户感知的响应速度，优化 prompt 长度、KV 缓存复用和流式响应是三大抓手[9][10]。</li>
+</ul>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. Agent 请求负载均衡与速率限制管理</h2>
+<h3>1.1 LLM API 速率限制的本质</h3>
+<p>主流 LLM 提供商采用多维度速率限制机制[1]：</p>
+<table>
+<thead>
+<tr>
+<th>提供商</th>
+<th>限制维度</th>
+<th>免费层典型值</th>
+<th>付费层典型值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>OpenAI</strong></td>
+<td>RPM + TPM</td>
+<td>3 RPM + 40K TPM</td>
+<td>500-10K RPM</td>
+</tr>
+<tr>
+<td><strong>Anthropic</strong></td>
+<td>RPM + ITPM + OTPM</td>
+<td>50 RPM + 40K ITPM</td>
+<td>1000+ RPM</td>
+</tr>
+<tr>
+<td><strong>Google Gemini</strong></td>
+<td>RPM + TPM</td>
+<td>60 RPM + 60K TPM</td>
+<td>2000+ RPM</td>
+</tr>
+<tr>
+<td><strong>Azure OpenAI</strong></td>
+<td>TPM（按部署级别）</td>
+<td>20K TPM</td>
+<td>按合同定制</td>
+</tr>
+</tbody></table>
+<p>速率限制的核心矛盾在于：<strong>Agent 系统通常是 bursty（突发性）负载</strong>——一个 Supervisor 可能在几秒内向多个 Subagent 发送请求，瞬间超出速率限制。</p>
+<h3>1.2 AI Gateway：集中式速率管理</h3>
+<p>AI Gateway 是解决多 Agent 速率限制问题的基础设施层[2]。它在应用与 LLM 提供商之间充当智能代理：</p>
+<div class="mermaid">flowchart TB
+    subgraph "AI Gateway 架构"
+        A1[Agent 1] --> GW[AI Gateway]
+        A2[Agent 2] --> GW
+        A3[Agent N] --> GW
+        
+        GW --> LB{负载均衡器}
+        LB -->|优先级 P0| Q0[紧急队列]
+        LB -->|优先级 P1| Q1[高优先队列]
+        LB -->|优先级 P2| Q2[普通队列]
+        LB -->|优先级 P3| Q3[低优队列]
+        
+        Q0 --> RL[速率限制控制器]
+        Q1 --> RL
+        Q2 --> RL
+        Q3 --> RL
+        
+        RL --> P1a[OpenAI API]
+        RL --> P2a[Anthropic API]
+        RL --> P3a[Google Gemini API]
+        RL --> P4a[自部署 vLLM]
+    end
+
+    style GW fill:#ffeb3b
+    style RL fill:#ff9800</div>
+<p>AI Gateway 的核心能力包括：</p>
+<ul>
+<li><strong>智能路由</strong>：根据模型能力、成本、延迟自动选择最优提供商</li>
+<li><strong>请求排队</strong>：超出速率限制时将请求放入队列，按优先级依次处理</li>
+<li><strong>Fallback</strong>：主提供商失败时自动切换到备用提供商</li>
+<li><strong>缓存层</strong>：在 Gateway 层实现语义缓存，减少 LLM 调用</li>
+</ul>
+<h3>1.3 多 Agent 场景下的优先级调度</h3>
+<p>企业级 Agent 系统通常实现四级优先级队列[1]：</p>
+<table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>场景示例</th>
+<th>调度策略</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>P0（紧急）</strong></td>
+<td>用户实时对话、安全审核</td>
+<td>直接分配，可抢占低优先级任务</td>
+</tr>
+<tr>
+<td><strong>P1（高）</strong></td>
+<td>业务关键流程、数据分析</td>
+<td>排队但设置最长等待时间（如 5s）</td>
+</tr>
+<tr>
+<td><strong>P2（普通）</strong></td>
+<td>批量报告生成、邮件处理</td>
+<td>FIFO 队列，按空闲能力处理</td>
+</tr>
+<tr>
+<td><strong>P3（低）</strong></td>
+<td>后台索引、知识库更新</td>
+<td>系统空闲时处理，可被高优先级抢占</td>
+</tr>
+</tbody></table>
+<p>指数回退（Exponential Backoff）是应对速率限制的标准策略[2]：</p>
+<table>
+<thead>
+<tr>
+<th>重试次数</th>
+<th>等待时间</th>
+<th>调整策略</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>第 1 次</td>
+<td>0s</td>
+<td>正常重试</td>
+</tr>
+<tr>
+<td>第 2 次</td>
+<td>1s</td>
+<td>缩减 prompt 或切换输出格式</td>
+</tr>
+<tr>
+<td>第 3 持</td>
+<td>4s</td>
+<td>降级到更轻量模型</td>
+</tr>
+<tr>
+<td>第 4 次</td>
+<td>16s</td>
+<td>路由到备用提供商</td>
+</tr>
+<tr>
+<td>超过上限</td>
+<td>—</td>
+<td>返回队列 + 通知用户</td>
+</tr>
+</tbody></table>
+<h3>1.4 Token Bucket 与 Sliding Window 算法</h3>
+<p>速率限制的底层实现通常采用两种算法[1]：</p>
+<ul>
+<li><strong>Token Bucket（令牌桶）</strong>：允许一定程度的突发流量，适合 Agent 场景</li>
+<li><strong>Sliding Window（滑动窗口）</strong>：更严格的速率控制，适合对延迟敏感的实时场景</li>
+</ul>
+<p>在多 Agent 系统中，推荐使用 Token Bucket + 优先级队列的组合：令牌桶控制总体速率，优先级队列决定请求顺序。</p>
+<hr>
+<h2>2. 缓存策略：五层缓存架构</h2>
+<h3>2.1 缓存的收益与风险</h3>
+<p><strong>收益</strong>：</p>
+<ul>
+<li><strong>成本降低 30-90%</strong>：Maxim AI 的调研显示，仅 prompt 优化 + 缓存就能降低 30-50% 成本，全面实施可在特定场景降低 90%[3]</li>
+<li><strong>延迟降低 50-80%</strong>：缓存命中时响应时间从秒级降至毫秒级</li>
+<li><strong>速率限制缓解</strong>：减少实际 LLM 调用次数，降低触发 rate limit 的概率</li>
+</ul>
+<p><strong>风险</strong>：</p>
+<ul>
+<li><strong>信息过时</strong>：缓存的响应可能不反映最新数据（如股价、天气）</li>
+<li><strong>语义漂移</strong>：语义缓存可能误匹配，返回不相关的缓存答案</li>
+<li><strong>隐私泄露风险</strong>：缓存中可能包含敏感的用户输入数据</li>
+<li><strong>一致性问题</strong>：多个 Agent 实例可能看到不同版本的缓存</li>
+</ul>
+<h3>2.2 五层缓存架构</h3>
+<p>Fast.io 提出的五层缓存架构是当前最系统的 Agent 缓存模型[4]：</p>
+<div class="mermaid">flowchart TD
+    subgraph "Agent 五层缓存架构"
+        Req[用户请求] --> L1{L1: Prompt 缓存<br/>Context Layer}
+        L1 -->|命中| Ret[返回缓存结果]
+        L1 -->|未命中| L2{L2: 精确匹配缓存<br/>Response Layer}
+        L2 -->|命中| Ret
+        L2 -->|未命中| L3{L3: 语义缓存<br/>Intent Layer}
+        L3 -->|命中| Ret
+        L3 -->|未命中| L4{L4: 工具结果缓存<br/>Execution Layer}
+        L4 -->|命中| Ret
+        L4 -->|未命中| L5{L5: RAG 分块缓存<br/>Knowledge Layer}
+        L5 -->|命中| Ret
+        L5 -->|未命中| LLM[调用 LLM API]
+        LLM -->|响应| Store[写入各层缓存]
+        Store --> Ret
+    end
+
+    style L1 fill:#e8f5e8
+    style L2 fill:#e3f2fd
+    style L3 fill:#fff3e0
+    style L4 fill:#fce4ec
+    style L5 fill:#f3e5f5
+    style LLM fill:#ffcdd2</div>
+<p>各层详解：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>名称</th>
+<th>命中率</th>
+<th>延迟</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>L1</strong></td>
+<td>Prompt 缓存</td>
+<td>高（同一会话内）</td>
+<td>&lt;1ms</td>
+<td>系统 prompt、大段上下文（如代码库、法律文档）</td>
+</tr>
+<tr>
+<td><strong>L2</strong></td>
+<td>精确匹配缓存</td>
+<td>低（用户很少完全重复）</td>
+<td>&lt;1ms</td>
+<td>FAQ、常见指令</td>
+</tr>
+<tr>
+<td><strong>L3</strong></td>
+<td>语义缓存</td>
+<td>中-高</td>
+<td>5-20ms</td>
+<td>变体提问、RAG 应用</td>
+</tr>
+<tr>
+<td><strong>L4</strong></td>
+<td>工具结果缓存</td>
+<td>中</td>
+<td>&lt;1ms</td>
+<td>股价查询、API 调用、文件处理</td>
+</tr>
+<tr>
+<td><strong>L5</strong></td>
+<td>RAG 分块缓存</td>
+<td>中</td>
+<td>2-10ms</td>
+<td>频繁检索的知识库内容</td>
+</tr>
+</tbody></table>
+<h3>2.3 语义缓存的实现细节</h3>
+<p>语义缓存是 LLM 领域特有的缓存类型，与传统 KV 缓存的核心区别在于：<strong>它理解含义，而不仅仅是匹配字符串</strong>[4]。</p>
+<p>实现要点：</p>
+<ol>
+<li><strong>相似度阈值</strong>：通常设置为 0.90-0.95 的余弦相似度。过低（如 0.75）会返回无关答案，过高则失去语义匹配的意义</li>
+<li><strong>嵌入模型选择</strong>：推荐使用 text-embedding-3-small 或 Cohere embed-v3，比大型模型更快且效果接近</li>
+<li><strong>向量数据库</strong>：Redis Vector Store、Pinecone、Chroma 都支持语义缓存的实现</li>
+<li><strong>TTL 管理</strong>：为不同类型的缓存设置不同的过期时间（如股价 1 分钟、法律条文 24 小时）</li>
+</ol>
+<h3>2.4 Microsoft GenCache：结构化提示词缓存</h3>
+<p>Microsoft Research 在 NeurIPS 2025 发表的 GenCache 提出了针对结构化提示词的缓存方案[11]：</p>
+<ul>
+<li><strong>核心洞察</strong>：即使提示词不完全相同，如果它们共享相同的&quot;程序结构&quot;，可以生成缓存的本地程序来回答新的变体</li>
+<li><strong>Cloud-Operations Agent 实测</strong>：在 Company-X 的事故诊断数据上，缓存命中延迟仅 0.112s（vs LLM 调用 3.52s），加速 <strong>31 倍</strong></li>
+<li><strong>适用场景</strong>：高度结构化的 Agent 场景（如客服工单分类、代码审查检查清单）</li>
+</ul>
+<hr>
+<h2>3. 批处理优化</h2>
+<h3>3.1 批处理的三种模式</h3>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>机制</th>
+<th>吞吐量</th>
+<th>延迟</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Static Batching</strong></td>
+<td>固定大小批次</td>
+<td>中等</td>
+<td>高</td>
+<td>离线数据处理</td>
+</tr>
+<tr>
+<td><strong>Dynamic/Continuous Batching</strong></td>
+<td>动态增减请求</td>
+<td>高</td>
+<td>中等</td>
+<td>实时服务</td>
+</tr>
+<tr>
+<td><strong>Request-level Batching</strong></td>
+<td>单请求内多任务</td>
+<td>低-中</td>
+<td>低</td>
+<td>独立子任务聚合</td>
+</tr>
+</tbody></table>
+<h3>3.2 Continuous Batching 与推理引擎</h3>
+<p>Continuous Batching（连续批处理）是现代 LLM 推理引擎的核心优化[5][6]：</p>
+<div class="mermaid">flowchart LR
+    subgraph "传统 Static Batching"
+        S1[请求1] --> SB[等待批次凑满]
+        S2[请求2] --> SB
+        S3[请求3] --> SB
+        SB -->|批次满| GPU1[GPU 处理<br/>固定时长]
+        GPU1 -->|全部完成| O1[输出1+2+3]
+    end
+
+    subgraph "Continuous Batching（vLLM/SGLang）"
+        R1[请求1] --> CB[动态调度器]
+        R2[请求2] --> CB
+        R3[请求3] --> CB
+        R4[请求4] --> CB
+        CB --> G[GPU/PagedAttention]
+        G -->|请求1完成| O2[输出1]
+        G -->|请求2完成| O3[输出2]
+        G -->|请求3仍在生成| --
+        G -->|请求4刚加入| --
+    end
+
+    style SB fill:#ffcdd2
+    style CB fill:#c8e6c9</div>
+<p><strong>vLLM</strong>（2024-2025 年生产部署首选）[5]：</p>
+<ul>
+<li>PagedAttention：将 KV Cache 分页管理，内存利用率提升 2-4x</li>
+<li>Prefix Caching：跨请求共享系统 prompt 的 KV Cache</li>
+<li>投机解码（Speculative Decoding）：EAGLE 集成可达 2.5x 加速</li>
+<li>支持多 GPU 张量并行</li>
+</ul>
+<p><strong>SGLang</strong>（2025-2026 年性能领先）[6]：</p>
+<ul>
+<li>RadixAttention：自动缓存和复用多轮对话的前缀</li>
+<li>Structured Generation：受限解码，支持 JSON Schema 约束</li>
+<li>原生支持 KV Cache 转移（跨节点复用）</li>
+</ul>
+<h3>3.3 请求级别批处理：单 Agent 内多任务聚合</h3>
+<p>在 Agent 场景中，一种实用的批处理策略是在单次 LLM 调用中处理多个独立子任务[1]：</p>
+<pre><code class="language-python"># 批处理提示词模板示例
+def build_batch_prompt(tasks):
+    prompt = &quot;请同时处理以下独立任务：\n\n&quot;
+    for t in tasks:
+        prompt += f&quot;### TASK {t[&#39;task_id&#39;]}\n{t[&#39;description&#39;]}\n\n&quot;
+    prompt += &quot;请为每个任务返回 JSON 格式结果：&quot;
+    return prompt
+</code></pre>
+<p>适用条件：</p>
+<ul>
+<li>任务之间<strong>无依赖关系</strong></li>
+<li>总 token 数不超过模型 context window</li>
+<li>批量请求的延迟可接受（不需要流式返回）</li>
+</ul>
+<h3>3.4 流式响应（Streaming）</h3>
+<p>流式响应不是批处理的替代，而是延迟优化的关键补充[9]：</p>
+<ul>
+<li><strong>感知延迟降低</strong>：用户在首 token 到达后即可开始阅读，无需等待完整生成</li>
+<li><strong>TTFT 优化</strong>：配合 KV Cache 预填充，首 token 延迟可降至 0.3-0.5s</li>
+<li><strong>SSE（Server-Sent Events）</strong>：当前主流的流式传输协议，OpenAI/Anthropic API 均支持</li>
+</ul>
+<hr>
+<h2>4. 自动扩缩策略</h2>
+<h3>4.1 Kubernetes HPA for AI Workloads</h3>
+<p>Agent 系统的自动扩缩与传统 Web 应用有本质区别：<strong>GPU 密集型 + 长推理延迟 + bursty 负载</strong>。传统 CPU/内存指标无法准确反映 Agent 的负载状态[7][8]。</p>
+<div class="mermaid">flowchart TB
+    subgraph "Agent 自动扩缩架构"
+        IN[入站请求] --> Q[消息队列]
+        Q -->|queue_depth > 阈值| HPA[HPA 控制器]
+        Q -->|P99 latency > 阈值| HPA
+        
+        HPA --> SCALE{扩缩决策}
+        SCALE -->|scaleUp| UP[增加 Pod 副本<br/>stabilizationWindow: 0s]
+        SCALE -->|scaleDown| DOWN[减少 Pod 副本<br/>stabilizationWindow: 300s]
+        
+        UP --> P1[Pod 1 + Agent]
+        UP --> P2[Pod 2 + Agent]
+        UP --> Pn[Pod N + Agent]
+        
+        P1 --> LB[负载均衡器]
+        P2 --> LB
+        Pn --> LB
+        LB --> OUT[返回响应]
+    end
+
+    style HPA fill:#ffeb3b
+    style UP fill:#c8e6c9
+    style DOWN fill:#ffcdd2</div>
+<h3>4.2 推荐的 HPA 配置</h3>
+<p>基于 2025 年社区实践，Agent 工作负载的最佳 HPA 配置[7][8]：</p>
+<pre><code class="language-yaml">apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: agent-scaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-agent
+  minReplicas: 2          # 保持最小预热实例
+  maxReplicas: 20         # 根据 GPU 配额设置上限
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0    # burst 场景立即扩缩
+      policies:
+      - type: Percent
+        value: 100                      # 每分钟最多翻倍
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300   # 缩容等待 5 分钟
+  metrics:
+  - type: Pods
+    pods:
+      metric:
+        name: queue_depth               # 自定义指标：队列深度
+      target:
+        type: AverageValue
+        averageValue: &quot;20&quot;              # 每个 Pod 最多 20 个待处理任务
+  - type: Pods
+    pods:
+      metric:
+        name: p99_latency_ms            # 自定义指标：P99 延迟
+      target:
+        type: AverageValue
+        averageValue: &quot;5000&quot;            # P99 延迟超过 5s 触发扩缩
+</code></pre>
+<h3>4.3 KEDA：事件驱动自动扩缩</h3>
+<p>KEDA（Kubernetes Event-Driven Autoscaler）比原生 HPA 更适合 Agent 场景[7]：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>HPA（原生）</th>
+<th>KEDA</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>扩缩触发</td>
+<td>周期性指标轮询</td>
+<td>事件驱动（消息队列、Prometheus）</td>
+</tr>
+<tr>
+<td>伸缩速度</td>
+<td>有 stabilizationWindow 限制</td>
+<td>可做到近实时</td>
+</tr>
+<tr>
+<td>指标来源</td>
+<td>CPU/Memory + 自定义</td>
+<td>丰富的 Scaler（Kafka、RabbitMQ、Prometheus）</td>
+</tr>
+<tr>
+<td>预热支持</td>
+<td>无</td>
+<td>支持 Initial cooldown</td>
+</tr>
+<tr>
+<td>最小值支持</td>
+<td>minReplicas</td>
+<td>支持 0（缩容到零）</td>
+</tr>
+</tbody></table>
+<h3>4.4 预热策略</h3>
+<p>冷启动是 Agent 扩缩的核心痛点。模型加载可能需要 30-120 秒，这对实时应用是不可接受的。推荐策略[7]：</p>
+<ol>
+<li><strong>保持最小 Warm 实例</strong>：设置 minReplicas ≥ 2，确保始终有可用实例</li>
+<li><strong>逐步扩容（Ramp-up）</strong>：不一次性从 2 扩到 20，而是按 2→4→8→16 逐步扩容，避免 GPU 资源争抢</li>
+<li><strong>Provisioned Concurrency</strong>：AWS Lambda / SageMaker 提供的预配置并发，提前加载模型</li>
+<li><strong>模型预加载脚本</strong>：Pod 启动时自动加载模型到 GPU 显存，配合 readinessProbe 确认就绪</li>
+</ol>
+<h3>4.5 基于预测的扩缩（Proactive Scaling）</h3>
+<p>比被动 HPA 更进一步的策略[8]：</p>
+<ul>
+<li><strong>历史流量模式分析</strong>：基于过去 7 天/30 天的流量规律，在预期高峰前 5-10 分钟预扩容</li>
+<li><strong>外部信号驱动</strong>：监控业务指标（如电商大促倒计时、直播开始时间）触发扩容</li>
+<li><strong>混合策略</strong>：被动（HPA）+ 主动（预测扩缩）双保险</li>
+</ul>
+<hr>
+<h2>5. 性能监控与调优</h2>
+<h3>5.1 核心性能指标</h3>
+<p>Anyscale（Ray Serve 开发商）定义了 LLM 推理系统的关键指标体系[9]：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>定义</th>
+<th>交互式应用目标</th>
+<th>批处理目标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>TTFT（首 token 延迟）</strong></td>
+<td>发送请求到收到第一个 token 的时间</td>
+<td>&lt;1s</td>
+<td>不关注</td>
+</tr>
+<tr>
+<td><strong>ITL（token 间延迟）</strong></td>
+<td>相邻两个输出 token 的间隔</td>
+<td>&lt;50ms</td>
+<td>不关注</td>
+</tr>
+<tr>
+<td><strong>E2E Latency</strong></td>
+<td>请求到完整响应的时间</td>
+<td>&lt;5s（短回答）</td>
+<td>可接受 30s+</td>
+</tr>
+<tr>
+<td><strong>TPS（每秒 token 数）</strong></td>
+<td>单个请求的 token 生成速率</td>
+<td>不关注</td>
+<td>&gt;100 TPS</td>
+</tr>
+<tr>
+<td><strong>RPS（每秒请求数）</strong></td>
+<td>系统每秒处理的请求数</td>
+<td>越高越好</td>
+<td>越高越好</td>
+</tr>
+<tr>
+<td><strong>Goodput</strong></td>
+<td>符合 SLO 的请求占比</td>
+<td>&gt;95%</td>
+<td>&gt;90%</td>
+</tr>
+</tbody></table>
+<p><strong>关键洞察</strong>：Goodput（有效吞吐）比 Raw Throughput（原始吞吐）更重要。一个系统可能达到很高的 RPS，但如果大量请求违反延迟 SLO，用户体验仍然很差[9][10]。</p>
+<h3>5.2 性能瓶颈定位矩阵</h3>
+<p>基于多份 2024-2025 年研究报告的综合分析[3][9][10]，Agent 系统的性能瓶颈主要集中在以下区域：</p>
+<table>
+<thead>
+<tr>
+<th>瓶颈区域</th>
+<th>典型表现</th>
+<th>影响指标</th>
+<th>优化方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Prefill 阶段</strong></td>
+<td>TTFT 长（&gt;3s）</td>
+<td>TTFT</td>
+<td>prompt 压缩、KV Cache 预热、Prefix Caching</td>
+</tr>
+<tr>
+<td><strong>Decode 阶段</strong></td>
+<td>TPS 低（&lt;30）</td>
+<td>ITL, TPS</td>
+<td>Continuous Batching、投机解码、量化</td>
+</tr>
+<tr>
+<td><strong>上下文窗口管理</strong></td>
+<td>长 prompt 性能骤降</td>
+<td>所有指标</td>
+<td>滑动窗口、上下文压缩、RAG 替代长文</td>
+</tr>
+<tr>
+<td><strong>API 层</strong></td>
+<td>速率限制错误</td>
+<td>RPS, Goodput</td>
+<td>AI Gateway、Fallback、请求队列</td>
+</tr>
+<tr>
+<td><strong>工具调用</strong></td>
+<td>外部 API 等待时间长</td>
+<td>E2E Latency</td>
+<td>工具结果缓存、并行调用、异步处理</td>
+</tr>
+<tr>
+<td><strong>网络传输</strong></td>
+<td>分布式部署延迟</td>
+<td>TTFT</td>
+<td>就近部署、连接池、gRPC 替代 HTTP</td>
+</tr>
+</tbody></table>
+<h3>5.3 流式响应对 TTFT 的影响</h3>
+<p>IBM 和 Clarifai 的 2025-2026 年研究确认[10]：</p>
+<ul>
+<li><strong>TTFT &lt; 0.5s</strong>：用户感知为&quot;即时响应&quot;</li>
+<li><strong>TTFT 0.5-2s</strong>：可接受，但不如竞品</li>
+<li><strong>TTFT &gt; 4s</strong>：用户开始不耐烦，完成率显著下降</li>
+</ul>
+<p>优化 TTFT 的三大手段：</p>
+<ol>
+<li><strong>Prompt 长度控制</strong>：TTFT 与 prompt 长度近似线性关系，每减少 1000 token，TTFT 可降低 100-300ms</li>
+<li><strong>KV Cache Prefix Caching</strong>：跨请求共享系统 prompt 的预计算结果，SGLang 的 RadixAttention 可将 TTFT 降低 60-80%</li>
+<li><strong>流式传输（SSE）</strong>：首 token 到达后立即开始传输，避免等待完整生成</li>
+</ol>
+<h3>5.4 推理框架选型对比</h3>
+<p>2025-2026 年主流 LLM 推理框架的性能特征[5][6][12]：</p>
+<table>
+<thead>
+<tr>
+<th>框架</th>
+<th>批处理策略</th>
+<th>KV Cache</th>
+<th>投机解码</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>vLLM</strong></td>
+<td>Continuous Batching</td>
+<td>PagedAttention</td>
+<td>EAGLE (2.5x)</td>
+<td>通用生产部署</td>
+</tr>
+<tr>
+<td><strong>SGLang</strong></td>
+<td>Continuous Batching</td>
+<td>RadixAttention</td>
+<td>SpecForge</td>
+<td>多轮对话、结构化输出</td>
+</tr>
+<tr>
+<td><strong>TensorRT-LLM</strong></td>
+<td>Continuous Batching</td>
+<td>自管理</td>
+<td>Native (3.6x)</td>
+<td>NVIDIA GPU 极致优化</td>
+</tr>
+<tr>
+<td><strong>TGI</strong></td>
+<td>Continuous Batching</td>
+<td>自管理</td>
+<td>不支持</td>
+<td>HuggingFace 生态</td>
+</tr>
+<tr>
+<td><strong>llama.cpp</strong></td>
+<td>批处理</td>
+<td>简单 KV</td>
+<td>不支持</td>
+<td>本地/CPU 部署</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>6. 综合架构：高性能 Agent 系统全景</h2>
+<p>将前述策略整合为一个端到端的高性能 Agent 系统架构：</p>
+<div class="mermaid">flowchart TB
+    subgraph "高性能 Agent 系统架构"
+        U[用户请求] --> CDN[CDN / 边缘节点]
+        CDN --> LB2[负载均衡器]
+        
+        LB2 --> GW[AI Gateway<br/>速率限制 + 路由 + 缓存]
+        
+        GW --> Cache{L3 语义缓存}
+        Cache -->|命中| CR[缓存响应<br/>< 20ms]
+        
+        Cache -->|未命中| SUP[Supervisor Agent]
+        
+        SUP --> QM[队列管理器<br/>优先级调度]
+        
+        QM --> A1[Worker Agent 1]
+        QM --> A2[Worker Agent 2]
+        QM --> AN[Worker Agent N]
+        
+        A1 --> VLLM[vLLM / SGLang<br/>Continuous Batching]
+        A2 --> VLLM
+        AN --> VLLM
+        
+        VLLM --> KVC[KV Cache<br/>Prefix Caching]
+        KVC --> GPU[GPU Cluster<br/>自动扩缩]
+        
+        GPU --> MON[监控层<br/>TTFT/ITL/TPS/Goodput]
+        MON -->|队列深度 > 阈值| KEDA[KEDA<br/>自动扩容]
+        KEDA --> GPU
+    end
+
+    style GW fill:#ffeb3b
+    style Cache fill:#e8f5e8
+    style VLLM fill:#e3f2fd
+    style MON fill:#fce4ec
+    style KEDA fill:#f3e5f5</div>
+<hr>
+<h2>7. 结论</h2>
+<h3>选择建议</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐方案</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>速率限制管理</td>
+<td>AI Gateway（LiteLLM / 路由层）</td>
+<td>集中管理多提供商的 rate limit</td>
+</tr>
+<tr>
+<td>缓存策略</td>
+<td>语义缓存 + Prompt 缓存</td>
+<td>命中率最高、延迟最低</td>
+</tr>
+<tr>
+<td>推理优化</td>
+<td>vLLM（通用）或 SGLang（多轮对话）</td>
+<td>PagedAttention + Continuous Batching</td>
+</tr>
+<tr>
+<td>自动扩缩</td>
+<td>KEDA + queue_depth 指标</td>
+<td>事件驱动，适合 bursty 负载</td>
+</tr>
+<tr>
+<td>性能监控</td>
+<td>Prometheus + 自定义 TTFT/Goodput 仪表盘</td>
+<td>开源、可定制、与 K8s 原生集成</td>
+</tr>
+</tbody></table>
+<h3>关键原则</h3>
+<ol>
+<li><strong>速率限制是硬约束，不是软约束</strong> — 必须在架构层面（而非应用层面）管理，AI Gateway 是最佳实践[1][2]</li>
+<li><strong>缓存是收益最高的优化</strong> — 30-90% 成本降低、50-80% 延迟降低，但需要 TTL 和一致性策略[3][4]</li>
+<li><strong>Continuous Batching 是推理优化的基石</strong> — 比任何单点优化都更有效[5][6]</li>
+<li><strong>Goodput &gt; Throughput</strong> — 关注符合 SLO 的有效请求占比，而非原始吞吐量[9][10]</li>
+<li><strong>预热不可跳过</strong> — 冷启动是 Agent 扩缩的最大敌人，保持最小 warm 实例是底线[7][8]</li>
+</ol>
+<h3>趋势展望</h3>
+<ul>
+<li><strong>AI Gateway 成为标配</strong>：从可选组件变为 Agent 系统的基础设施层</li>
+<li><strong>KV Cache 共享</strong>：跨请求、跨 Agent 甚至跨节点的 KV Cache 共享技术（vLLM KV Transfer）成熟</li>
+<li><strong>边缘推理</strong>：轻量化模型部署到边缘节点，降低 TTFT 到 &lt;100ms</li>
+<li><strong>预测式扩缩</strong>：基于流量模式和业务信号的主动扩缩取代被动 HPA</li>
+</ul>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>SuperOrange. Prompt Rate Limits &amp; Batching: How to Stop Your LLM API From Melting Down (2025). <a href="https://dev.to/superorange0707/prompt-rate-limits-batching-how-to-stop-your-llm-api-from-melting-down-56e1">https://dev.to/superorange0707/prompt-rate-limits-batching-how-to-stop-your-llm-api-from-melting-down-56e1</a> (accessed 2026-03-31)</li>
+<li>Radicalbit. Optimizing LLM Performance with Caching, Fallback, and Load Balancing (2025). <a href="https://radicalbit.ai/resources/blog/llm-performance/">https://radicalbit.ai/resources/blog/llm-performance/</a> (accessed 2026-03-31)</li>
+<li>Maxim AI. Top 7 Performance Bottlenecks in LLM Applications and How to Overcome Them (2025). <a href="https://www.getmaxim.ai/articles/top-7-performance-bottlenecks-in-llm-applications-and-how-to-overcome-them/">https://www.getmaxim.ai/articles/top-7-performance-bottlenecks-in-llm-applications-and-how-to-overcome-them/</a> (accessed 2026-03-31)</li>
+<li>Fast.io. AI Agent Caching Strategies: Reduce Latency &amp; Costs (2025). <a href="https://fast.io/resources/ai-agent-caching-strategies/">https://fast.io/resources/ai-agent-caching-strategies/</a> (accessed 2026-03-31)</li>
+<li>vLLM. Inside vLLM: Anatomy of a High-Throughput LLM Inference System (2024). <a href="https://vllm.ai/blog/anatomy-of-vllm">https://vllm.ai/blog/anatomy-of-vllm</a> (accessed 2026-03-31)</li>
+<li>Prem AI. 10 Best vLLM Alternatives for LLM Inference in Production (2026). <a href="https://blog.premai.io/10-best-vllm-alternatives-for-llm-inference-in-production-2026/">https://blog.premai.io/10-best-vllm-alternatives-for-llm-inference-in-production-2026/</a> (accessed 2026-03-31)</li>
+<li>Medium @ThinkingLoop. Kubernetes Autoscaling 2025: 10 HPA &amp; KEDA Recipes for Spiky Traffic (2025). <a href="https://medium.com/@ThinkingLoop/d3-12-kubernetes-autoscaling-2025-10-hpa-keda-recipes-for-spiky-traffic-ef77ce7d27f0">https://medium.com/@ThinkingLoop/d3-12-kubernetes-autoscaling-2025-10-hpa-keda-recipes-for-spiky-traffic-ef77ce7d27f0</a> (accessed 2026-03-31)</li>
+<li>OneUpTime. How to Define and Tune Kubernetes Autoscaling for Bursty Workloads (2025). <a href="https://oneuptime.com/blog/post/2025-12-02-tune-kubernetes-autoscaling-for-bursty-workloads/view">https://oneuptime.com/blog/post/2025-12-02-tune-kubernetes-autoscaling-for-bursty-workloads/view</a> (accessed 2026-03-31)</li>
+<li>Anyscale. Understand LLM Latency and Throughput Metrics (2025). <a href="https://docs.anyscale.com/llm/serving/benchmarking/metrics">https://docs.anyscale.com/llm/serving/benchmarking/metrics</a> (accessed 2026-03-31)</li>
+<li>Clarifai. TTFT vs Throughput: Which Metric Impacts Users More? (2026). <a href="https://www.clarifai.com/blog/ttft-vs-throughput">https://www.clarifai.com/blog/ttft-vs-throughput</a> (accessed 2026-03-31)</li>
+<li>Microsoft Research. GenCache: Generative Caching for Structurally Similar Prompts and Responses — NeurIPS 2025 (2025). <a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2025/09/GenCache_NeurIPS25.pdf">https://www.microsoft.com/en-us/research/wp-content/uploads/2025/09/GenCache_NeurIPS25.pdf</a> (accessed 2026-03-31)</li>
+<li>Introl. Speculative Decoding: Achieving 2-3x LLM Inference Speedup (2025). <a href="https://introl.com/blog/speculative-decoding-llm-inference-speedup-guide-2025">https://introl.com/blog/speculative-decoding-llm-inference-speedup-guide-2025</a> (accessed 2026-03-31)</li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>

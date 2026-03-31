@@ -1,8 +1,12 @@
 URL Validation Report
 =====================
-Total URLs: 12
-Passed (200-399): 12
-Failed: 0
-Pass rate: 100.0%
+Total URLs: 11
+Passed (200-399): 9
+Failed: 2
+Pass rate: 81.8%
 
-✅ All URLs are accessible (100% pass rate).
+❌ Failed URLs:
+  - https://api.openai.com/v1/chat/completions" -> 404
+  - https://12factor.net/ -> ERROR: HTTPSConnectionPool(host='12factor.net', port=443): Max retries exceeded with url: / (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7775fe221ac0>: Failed to establish a new connection: [Errno 101] Network is unreachable'))
+
+Action required: Replace or remove all FAILED URLs before publishing.

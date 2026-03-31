@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 容器化与编排：Docker、K8s、Serverless 生产部署指南</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>Agent 容器化与编排：Docker、K8s、Serverless 生产部署指南</h1>
+  <div class="meta">2026-03-31 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>AI Agent 从原型走向生产，容器化与编排是不可逾越的工程化步骤。本报告系统梳理了 2024-2026 年间将 AI Agent 系统部署到生产环境的主流技术栈与最佳实践，覆盖 Docker 容器化、Kubernetes 编排、Serverless 部署三大路径，以及配置管理、部署流水线等关键基础设施。</p>
+<p>核心发现：</p>
+<ul>
+<li><strong>容器化是 Agent 生产部署的事实标准</strong>：Docker 多阶段构建可将 Agent 镜像压缩至 200MB 以下，遵循 Twelve-Factor App 原则是基础保障[1][2]。</li>
+<li><strong>K8s 编排需区分有状态/无状态</strong>：无状态 Agent 用 Deployment + HPA 实现弹性扩缩；有状态 Agent（含记忆、会话上下文）需 StatefulSet + PVC 保证身份稳定和数据持久[3][4]。</li>
+<li><strong>Serverless 适用场景有限但成本优势明显</strong>：Google Cloud Run 可缩至零且支持自定义容器，是轻量 Agent 的首选；AWS Lambda 受执行时长限制（15min），不适合长对话 Agent[5][6][7]。</li>
+<li><strong>LLM API 的超时与重试是容器化 Agent 的核心工程挑战</strong>：需在应用层实现指数退避 + 断路器模式，而非依赖容器编排层[8]。</li>
+<li><strong>多租户隔离需组合使用 Namespace、ResourceQuota 和 NetworkPolicy</strong>：单纯靠容器隔离无法满足安全需求[4]。</li>
+</ul>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. Docker 容器化 Agent 的最佳实践</h2>
+<h3>1.1 镜像优化策略</h3>
+<p>Agent 系统通常依赖 Python + LLM SDK（如 OpenAI、LangChain），镜像膨胀是首要挑战。Docker 官方推荐的最佳实践包括[1]：</p>
+<p><strong>多阶段构建（Multi-stage Build）</strong>：将构建环境与运行环境分离，最终镜像只包含运行时依赖。</p>
+<pre><code class="language-dockerfile"># 阶段1：构建依赖
+FROM python:3.12-slim AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+# 阶段2：运行时镜像
+FROM python:3.12-slim
+WORKDIR /app
+COPY --from=builder /install /usr/local
+COPY . .
+USER 1000:1000
+EXPOSE 8000
+CMD [&quot;python&quot;, &quot;-m&quot;, &quot;uvicorn&quot;, &quot;main:app&quot;, &quot;--host&quot;, &quot;0.0.0.0&quot;]
+</code></pre>
+<p><strong>基础镜像选择原则</strong>：</p>
+<ul>
+<li>优先使用 Distroless 或 Alpine（减少攻击面）</li>
+<li>固定版本标签（<code>python:3.12.8-slim</code>），禁止使用 <code>latest</code></li>
+<li>使用 <code>.dockerignore</code> 排除 <code>.git</code>、<code>__pycache__</code>、<code>.env</code> 等无关文件</li>
+</ul>
+<p><strong>镜像分层优化</strong>：将变化频率低的层（依赖安装）放在前面，变化频繁的层（代码复制）放在后面，最大化利用 Docker 缓存[1]。</p>
+<h3>1.2 环境变量管理</h3>
+<p>Agent 系统的配置高度依赖环境变量——API 密钥、模型端点、温度参数等。遵循 Twelve-Factor App 原则[2]：</p>
+<pre><code class="language-yaml"># docker-compose.yml 示例
+services:
+  agent:
+    build: .
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - AGENT_MODEL=gpt-4o
+      - AGENT_TEMPERATURE=0.7
+      - LOG_LEVEL=INFO
+    env_file:
+      - .env.production
+    volumes:
+      - ./agent-memory:/data/memory  # 有状态数据持久化
+</code></pre>
+<p><strong>最佳实践</strong>：</p>
+<ul>
+<li>敏感信息通过 Secret 注入，不在镜像中硬编码</li>
+<li>区分配置（Config）与密钥（Secret）的管理策略</li>
+<li>运行时配置与构建时配置分离</li>
+</ul>
+<h3>1.3 Agent 容器化架构</h3>
+<div class="mermaid">graph TB
+    subgraph "Agent 容器化部署架构"
+        LB[负载均衡器 / API Gateway]
+
+        subgraph "Docker Host / K8s Node"
+            subgraph "Agent Container Pool"
+                A1[Agent Pod 1<br/>FastAPI + LangChain]
+                A2[Agent Pod 2<br/>FastAPI + LangChain]
+                A3[Agent Pod N<br/>FastAPI + LangChain]
+            end
+
+            subgraph "Sidecar Containers"
+                S1[日志收集 Fluentbit]
+                S2[指标导出 Prometheus]
+                S3[密钥同步 Vault Agent]
+            end
+
+            subgraph "持久化存储"
+                V1[(Redis<br/>会话缓存)]
+                V2[(PostgreSQL<br/>长期记忆)]
+                V3[(对象存储<br/>文件/向量)]
+            end
+        end
+
+        subgraph "外部服务"
+            LLM[LLM API<br/>OpenAI / Anthropic]
+            TOOLS[外部工具<br/>MCP Servers]
+        end
+    end
+
+    LB --> A1 & A2 & A3
+    A1 & A2 & A3 --> V1 & V2 & V3
+    A1 & A2 & A3 --> LLM
+    A1 & A2 & A3 --> TOOLS
+    A1 & A2 & A3 -.-> S1 & S2
+    S3 -.-> A1 & A2 & A3
+
+    style A1 fill:#e1f5fe
+    style A2 fill:#e1f5fe
+    style A3 fill:#e1f5fe
+    style V1 fill:#fff3e0
+    style V2 fill:#fff3e0
+    style V3 fill:#fff3e0
+    style LLM fill:#fce4ec
+    style TOOLS fill:#fce4ec</div>
+<hr>
+<h2>2. Kubernetes 编排 Agent 集群</h2>
+<h3>2.1 Deployment vs StatefulSet：有状态 vs 无状态 Agent</h3>
+<p>Agent 系统的部署模式选择取决于其<strong>状态持有方式</strong>[3][4]：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>无状态 Agent（Deployment）</th>
+<th>有状态 Agent（StatefulSet）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>会话存储</strong></td>
+<td>外部化（Redis/DB）</td>
+<td>本地 + 外部</td>
+</tr>
+<tr>
+<td><strong>身份标识</strong></td>
+<td>临时 Pod 名</td>
+<td>稳定 DNS（agent-0, agent-1）</td>
+</tr>
+<tr>
+<td><strong>扩缩速度</strong></td>
+<td>快（秒级）</td>
+<td>慢（有序创建）</td>
+</tr>
+<tr>
+<td><strong>存储绑定</strong></td>
+<td>无需 PVC</td>
+<td>需要 PVC（VolumeClaimTemplates）</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>REST API Agent、推理无状态</td>
+<td>长期对话 Agent、记忆持久化 Agent</td>
+</tr>
+<tr>
+<td><strong>滚动更新</strong></td>
+<td>并行替换</td>
+<td>有序替换（默认从 N-1 到 0）</td>
+</tr>
+</tbody></table>
+<p><strong>无状态 Agent Deployment 示例</strong>：</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-api
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: agent-api
+  template:
+    metadata:
+      labels:
+        app: agent-api
+    spec:
+      containers:
+      - name: agent
+        image: registry.example.com/agent:v2.1.0
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: &quot;500m&quot;
+            memory: &quot;1Gi&quot;
+          limits:
+            cpu: &quot;2000m&quot;
+            memory: &quot;2Gi&quot;
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        envFrom:
+        - configMapRef:
+            name: agent-config
+        - secretRef:
+            name: agent-secrets
+</code></pre>
+<p><strong>有状态 Agent StatefulSet 示例</strong>：</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: agent-session
+spec:
+  serviceName: &quot;agent-session&quot;
+  replicas: 3
+  selector:
+    matchLabels:
+      app: agent-session
+  template:
+    metadata:
+      labels:
+        app: agent-session
+    spec:
+      containers:
+      - name: agent
+        image: registry.example.com/agent-stateful:v2.1.0
+        resources:
+          requests:
+            cpu: &quot;1000m&quot;
+            memory: &quot;2Gi&quot;
+          limits:
+            cpu: &quot;4000m&quot;
+            memory: &quot;4Gi&quot;
+        volumeMounts:
+        - name: agent-memory
+          mountPath: /data/memory
+  volumeClaimTemplates:
+  - metadata:
+      name: agent-memory
+    spec:
+      accessModes: [&quot;ReadWriteOnce&quot;]
+      storageClassName: fast-ssd
+      resources:
+        requests:
+          storage: 10Gi
+</code></pre>
+<h3>2.2 HPA 自动扩缩</h3>
+<p>Kubernetes HPA（Horizontal Pod Autoscaler）通过控制循环（默认 15 秒间隔）监控指标并调整副本数[4]。对于 Agent 工作负载，推荐配置：</p>
+<pre><code class="language-yaml">apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: agent-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: agent-api
+  minReplicas: 2
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 120
+</code></pre>
+<p><strong>Agent HPA 的特殊考量</strong>：</p>
+<ul>
+<li><strong>冷启动延迟</strong>：Agent 初始化（加载模型、连接向量库）可能需 10-30 秒，HPA 缩容窗口应设长（300s+）</li>
+<li><strong>自定义指标</strong>：可用 Prometheus Adapter 将&quot;并发请求数&quot;或&quot;Token 消耗率&quot;作为扩缩指标</li>
+<li><strong>扩缩速率限制</strong>：Agent 扩容过快可能导致 LLM API 限流，需设 rate limiting</li>
+</ul>
+<h3>2.3 服务发现与网络</h3>
+<p>Agent 集群内部服务发现推荐模式：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>K8s 资源</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agent API 对外暴露</td>
+<td>Ingress + Service (ClusterIP)</td>
+<td>标准 HTTP/gRPC 入口</td>
+</tr>
+<tr>
+<td>Agent 间通信</td>
+<td>Service (ClusterIP)</td>
+<td>同 namespace 内 DNS 直接可达</td>
+</tr>
+<tr>
+<td>跨 namespace Agent</td>
+<td>Service + NetworkPolicy</td>
+<td>需显式放行流量</td>
+</tr>
+<tr>
+<td>外部 LLM 调用</td>
+<td>ExternalName Service 或直接 HTTPS</td>
+<td>对 LLM API 做 DNS 级别抽象</td>
+</tr>
+</tbody></table>
+<h3>2.4 多租户资源隔离</h3>
+<div class="mermaid">graph LR
+    subgraph "K8s 多租户 Agent 隔离"
+        subgraph "Namespace: tenant-a"
+            RA[Agent Deployment<br/>Replicas: 2]
+            QA[ResourceQuota<br/>CPU: 4 cores<br/>Mem: 8Gi]
+            NA[NetworkPolicy<br/>隔离出站流量]
+        end
+
+        subgraph "Namespace: tenant-b"
+            RB[Agent Deployment<br/>Replicas: 3]
+            QB[ResourceQuota<br/>CPU: 6 cores<br/>Mem: 12Gi]
+            NB[NetworkPolicy<br/>隔离出站流量]
+        end
+
+        subgraph "共享基础设施"
+            CM[Cluster Autoscaler]
+            REG[镜像仓库]
+            MON[监控 Prometheus]
+        end
+    end
+
+    RA -.->|L7 网络策略| NA
+    RB -.->|L7 网络策略| NB
+    CM --> RA & RB
+    REG --> RA & RB
+
+    style Namespace: tenant-a fill:#e8f5e8
+    style Namespace: tenant-b fill:#fff3e0
+    style shared fill:#f3e5f5</div>
+<p>多租户 Agent 的隔离层次[4]：</p>
+<table>
+<thead>
+<tr>
+<th>隔离层级</th>
+<th>K8s 机制</th>
+<th>保护内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>计算资源</td>
+<td>ResourceQuota + LimitRange</td>
+<td>CPU/内存上限，避免互相挤占</td>
+</tr>
+<tr>
+<td>网络</td>
+<td>NetworkPolicy + Namespace</td>
+<td>限制 Agent 间通信，防止跨租户数据泄露</td>
+</tr>
+<tr>
+<td>存储</td>
+<td>PV 绑定特定 StorageClass</td>
+<td>每个租户独立存储卷</td>
+</tr>
+<tr>
+<td>访问控制</td>
+<td>RBAC + ServiceAccount</td>
+<td>细粒度 API 权限</td>
+</tr>
+<tr>
+<td>LLM API 限流</td>
+<td>应用层实现</td>
+<td>每租户独立 API Key + 配额</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>3. Serverless 部署方案对比</h2>
+<h3>3.1 三大 Serverless 平台</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>AWS Lambda</th>
+<th>Google Cloud Run</th>
+<th>Azure Functions</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>执行时长上限</strong></td>
+<td>15 分钟</td>
+<td>60 分钟（可配置）</td>
+<td>无限制（Premium）/ 10 分钟（Consumption）</td>
+</tr>
+<tr>
+<td><strong>最大内存</strong></td>
+<td>10 GB</td>
+<td>32 GB</td>
+<td>14 GB</td>
+</tr>
+<tr>
+<td><strong>冷启动</strong></td>
+<td>较慢（Java/Python 3-10s）</td>
+<td>快（Java 用 GraalVM）</td>
+<td>中等</td>
+</tr>
+<tr>
+<td><strong>容器支持</strong></td>
+<td>有限（镜像部署）</td>
+<td>原生支持（核心功能）</td>
+<td>Container Apps 方案</td>
+</tr>
+<tr>
+<td><strong>缩至零</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>GPU 支持</strong></td>
+<td>❌（仅推理优化实例）</td>
+<td>✅（2025+ 支持）</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Agent 适用性</strong></td>
+<td>轻量推理、事件触发</td>
+<td><strong>最适合</strong>（容器原生 + 长执行）</td>
+<td>工作流编排（Durable Functions）</td>
+</tr>
+<tr>
+<td><strong>定价模型</strong></td>
+<td>按调用次数 + 执行时长</td>
+<td>按 CPU/内存秒数</td>
+<td>按执行次数 + 资源消耗</td>
+</tr>
+</tbody></table>
+<p><strong>关键结论</strong>：Google Cloud Run 因其<strong>原生容器支持、长执行时间、GPU 可用性和快速冷启动</strong>，是 Serverless 部署 Agent 的首选[5]。Azure Functions 的 Durable Functions 适合需要持久编排的工作流[7]。AWS Lambda 受 15 分钟限制，仅适合短任务 Agent[6]。</p>
+<h3>3.2 Cloud Run 部署 Agent 示例</h3>
+<pre><code class="language-yaml"># service.yaml - Cloud Run 服务配置
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: ai-agent
+  annotations:
+    run.googleapis.com/launch-stage: GA
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: &quot;0&quot;
+        autoscaling.knative.dev/maxScale: &quot;100&quot;
+        run.googleapis.com/cpu-throttling: &quot;false&quot;
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 300
+      containers:
+      - image: gcr.io/my-project/agent:latest
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            cpu: &quot;4&quot;
+            memory: &quot;8Gi&quot;
+        env:
+        - name: OPENAI_API_KEY
+          value: &quot;secret://projects/my-project/secrets/openai-key/versions/latest&quot;
+  traffic:
+  - percent: 100
+    latestRevision: true
+</code></pre>
+<h3>3.3 Serverless Agent 架构</h3>
+<div class="mermaid">graph TB
+    subgraph "Serverless Agent 部署架构"
+        CLI[客户端]
+
+        subgraph "事件触发层"
+            APIGW[API Gateway]
+            SQS[消息队列<br/>SQS/Pub/Sub]
+            CRON[定时触发器]
+        end
+
+        subgraph "Serverless Compute"
+            subgraph "Cloud Run / Lambda"
+                A1[Agent 实例 1]
+                A2[Agent 实例 2]
+                AN[Agent 实例 N]
+            end
+        end
+
+        subgraph "外部服务层"
+            LLM[LLM API]
+            KV[(键值存储<br/>Redis/Firestore)]
+            OBJ[(对象存储<br/>S3/GCS)]
+        end
+
+        subgraph "观测层"
+            LOG[Cloud Logging]
+            TRACE[Cloud Trace]
+            METRIC[Cloud Monitoring]
+        end
+    end
+
+    CLI --> APIGW
+    CLI --> SQS
+    CRON --> A1
+    APIGW --> A1 & A2 & AN
+    SQS --> A1 & A2 & AN
+
+    A1 & A2 & AN --> LLM
+    A1 & A2 & AN --> KV
+    A1 & A2 & AN --> OBJ
+
+    A1 & A2 & AN -.-> LOG
+    A1 & A2 & AN -.-> TRACE
+    A1 & A2 & AN -.-> METRIC
+
+    style A1 fill:#e1f5fe
+    style A2 fill:#e1f5fe
+    style AN fill:#e1f5fe</div>
+<hr>
+<h2>4. 生产环境配置管理</h2>
+<h3>4.1 配置热更新</h3>
+<p>Agent 系统需要动态调整参数（模型切换、温度调节、Prompt 更新），不重启容器[4]：</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>工具</th>
+<th>更新延迟</th>
+<th>复杂度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ConfigMap 挂载</td>
+<td>K8s 原生</td>
+<td>秒级（依赖 kubelet 同步）</td>
+<td>低</td>
+</tr>
+<tr>
+<td>Watch + Reload</td>
+<td>应用内实现</td>
+<td>秒级</td>
+<td>中</td>
+</tr>
+<tr>
+<td>外部配置中心</td>
+<td>Consul / etcd / Nacos</td>
+<td>毫秒级</td>
+<td>高</td>
+</tr>
+<tr>
+<td>版本化配置</td>
+<td>GitOps (ArgoCD/Flux)</td>
+<td>分钟级</td>
+<td>中</td>
+</tr>
+</tbody></table>
+<p><strong>推荐方案</strong>：ConfigMap 挂载 + 应用内文件 Watch。Agent 进程监听配置文件变化，收到 SIGHUP 或 inotify 事件后重新加载配置，无需重启。</p>
+<h3>4.2 密钥管理</h3>
+<pre><code class="language-yaml"># K8s Secret + 外部密钥管理器集成
+apiVersion: v1
+kind: Secret
+metadata:
+  name: agent-secrets
+  annotations:
+    # 使用 External Secrets Operator 从 AWS SM / HashiCorp Vault 同步
+    reflector.v1.elpis.tv/autocreate: &quot;true&quot;
+type: Opaque
+stringData:
+  OPENAI_API_KEY: &quot;sk-xxx&quot;
+  DB_PASSWORD: &quot;xxx&quot;
+  JWT_SECRET: &quot;xxx&quot;
+</code></pre>
+<p>K8s Secrets 默认明文存储在 etcd 中，生产环境建议[4][10]：</p>
+<ul>
+<li>启用 etcd 加密（EncryptionConfiguration）</li>
+<li>使用 External Secrets Operator 对接 Vault / AWS Secrets Manager</li>
+<li>RBAC 限制 Secret 读取权限到具体 ServiceAccount</li>
+<li>定期轮换密钥</li>
+</ul>
+<h3>4.3 资源限制</h3>
+<p>Agent 工作负载的资源规划关键点[4]：</p>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>建议</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>CPU Request</strong></td>
+<td>0.5-2 核</td>
+<td>Agent 空闲时较低，处理请求时峰值较高</td>
+</tr>
+<tr>
+<td><strong>CPU Limit</strong></td>
+<td>Request × 2-4</td>
+<td>允许突发，但防止失控</td>
+</tr>
+<tr>
+<td><strong>Memory Request</strong></td>
+<td>1-4 GiB</td>
+<td>包含 Python runtime + SDK + 轻量缓存</td>
+</tr>
+<tr>
+<td><strong>Memory Limit</strong></td>
+<td>Request × 1.5</td>
+<td>Agent 内存使用较稳定，OOM Kill 应避免</td>
+</tr>
+<tr>
+<td><strong>Ephemeral Storage</strong></td>
+<td>5-20 GiB</td>
+<td>日志、临时文件、模型缓存</td>
+</tr>
+<tr>
+<td><strong>超时</strong></td>
+<td>30-300 秒</td>
+<td>取决于 Agent 任务复杂度</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>5. 部署流水线</h2>
+<h3>5.1 CI/CD for Agent</h3>
+<p>Agent 系统的部署流水线与传统微服务类似，但有特殊考量[9]：</p>
+<div class="mermaid">sequenceDiagram
+    participant Dev as 开发者
+    participant Git as Git Repo
+    participant CI as CI Pipeline
+    participant Registry as 镜像仓库
+    participant Staging as Staging K8s
+    participant Prod as Production K8s
+
+    Dev->>Git: Push Code + Tag
+    Git->>CI: Webhook 触发
+
+    par 并行构建
+        CI->>CI: 单元测试 (Agent 逻辑)
+        CI->>CI: 集成测试 (LLM Mock)
+        CI->>CI: 安全扫描 (Trivy)
+    end
+
+    CI->>Registry: Push Multi-stage Image
+    Note over Registry: 标签: v2.1.0-abc123
+
+    CI->>Staging: Deploy to Staging
+    Staging->>Staging: 冒烟测试 (E2E)
+    Staging->>Staging: 性能基准测试
+
+    alt 冒烟测试通过
+        CI->>Prod: Canary 5% 流量
+        Note over Prod: 监控 15 分钟
+        alt 指标正常
+            CI->>Prod: 渐进式 50% → 100%
+        else 指标异常
+            CI->>Prod: 自动回滚
+        end
+    else 冒烟测试失败
+        CI->>Git: 通知失败 + 阻止发布
+    end</div>
+<h3>5.2 蓝绿部署 vs 滚动更新</h3>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>原理</th>
+<th>Agent 适用性</th>
+<th>资源开销</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>滚动更新</strong></td>
+<td>K8s 默认策略，逐步替换 Pod</td>
+<td>✅ 最常用</td>
+<td>低（最多额外 1 个 Pod）</td>
+</tr>
+<tr>
+<td><strong>蓝绿部署</strong></td>
+<td>维护两套环境，切换流量</td>
+<td>✅ 适合大版本升级</td>
+<td>高（2× 资源）</td>
+</tr>
+<tr>
+<td><strong>Canary</strong></td>
+<td>新版本先接收小比例流量</td>
+<td>✅ Agent 风险控制首选</td>
+<td>中（额外 1-2 Pod）</td>
+</tr>
+<tr>
+<td><strong>A/B 测试</strong></td>
+<td>按用户/请求特征分流</td>
+<td>⚠️ 需要 Agent 网关支持</td>
+<td>中</td>
+</tr>
+</tbody></table>
+<p><strong>Agent 特殊考量</strong>：Agent 版本升级可能改变行为模式（Prompt 优化、工具调用逻辑），推荐 Canary 部署 + 业务指标监控（响应质量、用户满意度）+ 自动回滚[9]。</p>
+<h3>5.3 生产检查清单</h3>
+<p>Agent 部署到生产前的必查项：</p>
+<ul>
+<li><input disabled="" type="checkbox"> 镜像已扫描（Trivy/Snyk），无高危漏洞</li>
+<li><input disabled="" type="checkbox"> 资源 Request/Limit 已设置，且经过压测验证</li>
+<li><input disabled="" type="checkbox"> 健康检查端点（liveness/readiness）已实现</li>
+<li><input disabled="" type="checkbox"> LLM API 超时和重试已配置（推荐：30s 超时 + 3 次重试 + 指数退避）</li>
+<li><input disabled="" type="checkbox"> 日志输出为结构化 JSON（便于 ELK/Loki 解析）</li>
+<li><input disabled="" type="checkbox"> 监控告警已配置（CPU、内存、错误率、LLM API 延迟）</li>
+<li><input disabled="" type="checkbox"> 密钥通过 Secret 注入，无硬编码</li>
+<li><input disabled="" type="checkbox"> 配置热更新机制已验证</li>
+<li><input disabled="" type="checkbox"> 回滚脚本已准备且可一键执行</li>
+<li><input disabled="" type="checkbox"> 多租户隔离策略已定义（Namespace/NetworkPolicy）</li>
+</ul>
+<hr>
+<h2>6. 关键问题解答</h2>
+<h3>6.1 Agent 有状态 vs 无状态部署</h3>
+<p><strong>核心区别在于&quot;记忆&quot;存储位置</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>有状态 Agent</th>
+<th>无状态 Agent</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>会话上下文存储在容器本地</td>
+<td>会话上下文存储在外部（Redis/DB）</td>
+</tr>
+<tr>
+<td>需要 StatefulSet + PVC</td>
+<td>可用 Deployment</td>
+</tr>
+<tr>
+<td>Pod 重启 = 数据丢失风险</td>
+<td>Pod 重启 = 无影响</td>
+</tr>
+<tr>
+<td>横向扩缩受限（状态分散）</td>
+<td>自由扩缩</td>
+</tr>
+<tr>
+<td>适用：长期对话、个人化 Agent</td>
+<td>适用：REST API、批处理 Agent</td>
+</tr>
+</tbody></table>
+<p><strong>建议</strong>：生产环境优先设计为无状态，将记忆外部化到 Redis（短期）+ PostgreSQL/向量数据库（长期），保留可选的本地缓存作为性能优化[3]。</p>
+<h3>6.2 LLM API 超时与重试</h3>
+<p>容器环境下的 LLM 调用必须在<strong>应用层</strong>而非基础设施层处理[8]：</p>
+<pre><code class="language-python"># 推荐实现：指数退避 + 断路器
+import httpx
+from tenacity import retry, stop_after_attempt, wait_exponential
+
+class LLMClient:
+    def __init__(self):
+        self.timeout = httpx.Timeout(30.0, connect=5.0)
+        self.circuit_breaker = CircuitBreaker(
+            failure_threshold=5,
+            recovery_timeout=60
+        )
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=30),
+        retry=retry_if_exception_type((httpx.TimeoutException, httpx.HTTPStatusError))
+    )
+    async def call_llm(self, prompt: str) -&gt; str:
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            response = await client.post(
+                &quot;https://api.openai.com/v1/chat/completions&quot;,
+                headers={&quot;Authorization&quot;: f&quot;Bearer {self.api_key}&quot;},
+                json={&quot;model&quot;: &quot;gpt-4o&quot;, &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}]}
+            )
+            response.raise_for_status()
+            return response.json()[&quot;choices&quot;][0][&quot;message&quot;][&quot;content&quot;]
+</code></pre>
+<p><strong>为什么不放在 K8s 层面</strong>：</p>
+<ul>
+<li>LLM API 返回 429（限流）时应等待后重试，K8s 会直接视为失败</li>
+<li>LLM 调用可能耗时 30-120 秒，超过 K8s 默认超时</li>
+<li>断路器需要应用级状态，K8s 无法感知</li>
+</ul>
+<h3>6.3 多租户 Agent 资源隔离</h3>
+<p>分层隔离策略[4]：</p>
+<ol>
+<li><strong>基础设施层</strong>：Namespace 隔离 + ResourceQuota 限制 + LimitRange 设默认值</li>
+<li><strong>网络层</strong>：NetworkPolicy 限制跨租户通信 + 服务网格（Istio）做 L7 流量管理</li>
+<li><strong>数据层</strong>：每个租户独立数据库/Schema + Redis Key 前缀隔离</li>
+<li><strong>LLM API 层</strong>：每个租户独立 API Key + 应用层 Rate Limiting</li>
+<li><strong>审计层</strong>：每个租户独立日志流 + 调用记录追踪</li>
+</ol>
+<hr>
+<h2>7. 技术选型决策树</h2>
+<table>
+<thead>
+<tr>
+<th>决策点</th>
+<th>推荐路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agent 是否需要 GPU 推理？</td>
+<td>是 → K8s（节点池选 GPU 实例）/ 否 → 继续判断</td>
+</tr>
+<tr>
+<td>是否有长时间运行的 Agent？</td>
+<td>是 → K8s Deployment/StatefulSet / 否 → 继续判断</td>
+</tr>
+<tr>
+<td>是否有突发流量、低频调用？</td>
+<td>是 → Cloud Run（缩至零）/ 否 → 继续判断</td>
+</tr>
+<tr>
+<td>是否需要精细的多租户隔离？</td>
+<td>是 → K8s（Namespace + NetworkPolicy）/ 否 → 继续判断</td>
+</tr>
+<tr>
+<td>团队是否有 K8s 运维能力？</td>
+<td>是 → K8s / 否 → Cloud Run 或 Lambda</td>
+</tr>
+</tbody></table>
+<hr>
+<!-- REFERENCE START -->
+
+<h2>参考文献</h2>
+<ol>
+<li>Docker. &quot;Building best practices&quot; (2026). <a href="https://docs.docker.com/build/building/best-practices/">https://docs.docker.com/build/building/best-practices/</a> — 访问时间: 2026-03-31</li>
+<li>The Twelve-Factor App. &quot;Config, Processes, Disposability&quot; (2012, still authoritative). <a href="https://12factor.net/">https://12factor.net/</a> — 访问时间: 2026-03-31</li>
+<li>Kubernetes. &quot;Deployments&quot; (2026). <a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/">https://kubernetes.io/docs/concepts/workloads/controllers/deployment/</a> — 访问时间: 2026-03-31</li>
+<li>Kubernetes. &quot;StatefulSets&quot;, &quot;Horizontal Pod Autoscaling&quot;, &quot;Secrets&quot; (2026). <a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/">https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/</a> — 访问时间: 2026-03-31</li>
+<li>Google Cloud. &quot;What is Cloud Run&quot; (2026). <a href="https://docs.cloud.google.com/run/docs/overview/what-is-cloud-run">https://docs.cloud.google.com/run/docs/overview/what-is-cloud-run</a> — 访问时间: 2026-03-31</li>
+<li>AWS. &quot;Serverless Computing - AWS Lambda&quot; (2026). <a href="https://aws.amazon.com/lambda/">https://aws.amazon.com/lambda/</a> — 访问时间: 2026-03-31</li>
+<li>Microsoft. &quot;Azure Functions overview&quot; (2025-03). <a href="https://learn.microsoft.com/en-us/azure/azure-functions/functions-overview">https://learn.microsoft.com/en-us/azure/azure-functions/functions-overview</a> — 访问时间: 2026-03-31</li>
+<li>Kubernetes. &quot;Horizontal Pod Autoscaling&quot; (2026). <a href="https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/">https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/</a> — 访问时间: 2026-03-31</li>
+<li>Docker. &quot;Multi-stage builds&quot; (2026). <a href="https://docs.docker.com/build/building/multi-stage/">https://docs.docker.com/build/building/multi-stage/</a> — 访问时间: 2026-03-31</li>
+<li>Kubernetes. &quot;Good practices for Kubernetes Secrets&quot; (2026). <a href="https://kubernetes.io/docs/concepts/security/secrets-good-practices/">https://kubernetes.io/docs/concepts/security/secrets-good-practices/</a> — 访问时间: 2026-03-31</li>
+</ol>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>

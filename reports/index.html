@@ -80,6 +80,7 @@
   .report-card .card-cat.case-studies { color:var(--green); }
   .report-card .card-cat.tools { color:var(--blue); }
   .report-card .card-cat.frameworks { color:var(--orange); }
+  .report-card .card-cat.deployment { color:var(--accent); }
 
   .report-card .card-title { font-size:1rem; font-weight:600; color:var(--text); margin-bottom:.5rem; }
   .report-card .card-title a { color:inherit; }
@@ -116,6 +117,7 @@
   <a href="#strategy">📐 策略</a>
   <a href="#tools">🛠️ 工具</a>
   <a href="#frameworks">🏗️ 框架</a>
+  <a href="#deployment">🚀 部署</a>
       <a href="#agent-lifecycle">🔧 Agent 设计</a>
 
   <a href="./team.html">👥 团队</a>
@@ -251,6 +253,23 @@
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/agent-frameworks.html">AI Agent 框架横向对比</a></div><div class="card-desc">AI Agent 框架是 2024-2025 年 AI 领域最活跃的方向之一。本报告对比分析五个主流 Agent 框架——LangGraph、CrewAI、AutoGen、MetaGPT 和 OpenClaw——从编程模型、状态管理、多 Agent 协作、生产就绪度等维度进行系统性评估。</div><div class="card-tags"><span class="card-tag">CrewAI</span><span class="card-tag">AutoGen</span><span class="card-tag">MetaGPT</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/vllm-production.html">vLLM 生产部署完全指南</a></div><div class="card-desc">vLLM 是当前最受欢迎的开源 LLM 推理引擎，以其创新的 PagedAttention 技术和活跃的社区生态著称。本指南从架构原理出发，系统覆盖部署配置、性能调优、多租户管理、监控运维等生产部署的全生命周期。</div><div class="card-tags"><span class="card-tag">vLLM</span><span class="card-tag">推理</span><span class="card-tag">部署</span></div></div>
       <div class="report-card"><div class="card-cat frameworks">框架</div><div class="card-title"><a href="./frameworks/enterprise-deployment.html">OpenClaw 企业级部署模式</a></div><div class="card-desc">OpenClaw 作为开源 AI Agent 框架，在企业级部署中面临多租户隔离、高可用性、安全合规三大核心挑战。本报告系统分析 OpenClaw 在企业环境的部署模式，涵盖架构设计、租户隔离机制、容灾策略与合规要求，为企业技术决策提供参考。</div><div class="card-tags"><span class="card-tag">OpenClaw</span><span class="card-tag">安全</span><span class="card-tag">部署</span></div></div>
+    </div>
+    </div>
+  </div>
+
+  <!-- 部署 Deployment -->
+  <div class="section" id="deployment">
+    <div class="section-header" onclick="toggleSection('deployment')">
+      <span class="section-icon">🚀</span>
+      <span class="section-title">部署 Deployment</span>
+      <span class="section-count">3 篇</span>
+      <span class="section-toggle">▼</span>
+    </div>
+    <div class="section-body">
+    <div class="report-grid">
+      <div class="report-card"><div class="card-cat deployment">部署</div><div class="card-title"><a href="./agent-containerization-orchestration.html">Agent 容器化与编排</a></div><div class="card-desc">Docker、K8s、Serverless 生产部署指南</div><div class="card-tags"><span class="card-tag">Docker</span><span class="card-tag">K8s</span><span class="card-tag">Serverless</span></div></div>
+      <div class="report-card"><div class="card-cat deployment">部署</div><div class="card-title"><a href="./agent-security-sandbox.html">Agent 安全沙箱与权限</a></div><div class="card-desc">执行隔离、工具权限、审计</div><div class="card-tags"><span class="card-tag">沙箱</span><span class="card-tag">权限</span><span class="card-tag">审计</span></div></div>
+      <div class="report-card"><div class="card-cat deployment">部署</div><div class="card-title"><a href="./agent-scaling-performance.html">Agent 扩缩容与性能优化</a></div><div class="card-desc">负载均衡、缓存、批处理</div><div class="card-tags"><span class="card-tag">负载均衡</span><span class="card-tag">缓存</span><span class="card-tag">批处理</span></div></div>
     </div>
     </div>
   </div>

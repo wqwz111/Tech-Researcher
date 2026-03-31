@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 安全沙箱与权限 — 执行隔离、工具权限、审计</title>
+<style>
+  /* ═══════════════════════════════════════════
+     🎨 THEME SYSTEM — GitHub Pages Compatible
+     Single file, no external deps, theme toggle
+     Version: 1.1 | Stability: locked (incremental only)
+     ═══════════════════════════════════════════ */
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Dark Theme (default) ── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f172a;
+    --bg-secondary:  #1e293b;
+    --bg-tertiary:   #334155;
+    --bg-card:       #1e293b;
+    --bg-code:       #0d1117;
+    --bg-callout:    #1a1040;
+
+    --text-primary:  #f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:    #64748b;
+
+    --accent-primary:   #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success:   #34d399;
+    --accent-warning:   #fb923c;
+    --accent-danger:    #f87171;
+
+    --border-color:   #334155;
+    --border-light:   #1e293b;
+
+    --tag-bg:   #3730a3;
+    --tag-text: #c7d2fe;
+
+    --link: #818cf8;
+
+    --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --header-border: #334155;
+  }
+
+  /* ── Light Theme ── */
+  [data-theme="light"] {
+    --bg-primary:    #ffffff;
+    --bg-secondary:  #f8fafc;
+    --bg-tertiary:   #f1f5f9;
+    --bg-card:       #f8fafc;
+    --bg-code:       #f1f5f9;
+    --bg-callout:    #eef2ff;
+
+    --text-primary:  #0f172a;
+    --text-secondary:#475569;
+    --text-muted:    #94a3b8;
+
+    --accent-primary:   #4f46e5;
+    --accent-secondary: #7c3aed;
+    --accent-success:   #059669;
+    --accent-warning:   #ea580c;
+    --accent-danger:    #dc2626;
+
+    --border-color:   #e2e8f0;
+    --border-light:   #f1f5f9;
+
+    --tag-bg:   #e0e7ff;
+    --tag-text: #312e81;
+
+    --link: #4f46e5;
+
+    --header-bg: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    --header-border: #e2e8f0;
+  }
+
+  /* ═══════════════════════════════════════════
+     BASE
+     ═══════════════════════════════════════════ */
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ═══════════════════════════════════════════
+     HEADER / COVER
+     ═══════════════════════════════════════════ */
+  .header {
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--header-border);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .header .meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.3s;
+  }
+
+  .theme-toggle:hover { border-color: var(--accent-primary); }
+  .theme-toggle .icon { font-size: 1.1rem; }
+  .theme-toggle .label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     LAYOUT
+     ═══════════════════════════════════════════ */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ═══════════════════════════════════════════
+     TAGS
+     ═══════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    margin: 0.2rem;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     TYPOGRAPHY
+     ═══════════════════════════════════════════ */
+  h2 {
+    color: var(--accent-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  h3 {
+    color: var(--accent-secondary);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+  }
+
+  h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.4rem 0 0.6rem;
+    color: var(--text-primary);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  strong { color: var(--text-primary); }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 0.5rem 0 1rem 1.5rem;
+    color: var(--text-primary);
+  }
+
+  li { margin-bottom: 0.4rem; }
+
+  /* ═══════════════════════════════════════════
+     CODE
+     ═══════════════════════════════════════════ */
+  code {
+    background: var(--bg-code);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-secondary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  /* ═══════════════════════════════════════════
+     CALLOUT
+     ═══════════════════════════════════════════ */
+  .callout {
+    background: var(--bg-callout);
+    border-left: 3px solid var(--accent-primary);
+    padding: 1rem 1.2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+
+  .callout strong { color: var(--accent-primary); }
+
+  .callout.warn {
+    border-left-color: var(--accent-warning);
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .callout.warn strong { color: var(--accent-warning); }
+
+  .callout.success {
+    border-left-color: var(--accent-success);
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .callout.success strong { color: var(--accent-success); }
+
+  .callout.danger {
+    border-left-color: var(--accent-danger);
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .callout.danger strong { color: var(--accent-danger); }
+
+  /* ═══════════════════════════════════════════
+     TABLE
+     ═══════════════════════════════════════════ */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-code);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  td {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  tr:hover td {
+    background: rgba(129, 140, 248, 0.03);
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS GRID (for key metrics)
+     ═══════════════════════════════════════════ */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+  }
+
+  .stat-card .label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     EXECUTIVE SUMMARY
+     ═══════════════════════════════════════════ */
+  .exec-summary {
+    background: var(--bg-callout);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .exec-summary__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .exec-summary p {
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     REFERENCES
+     ═══════════════════════════════════════════ */
+  .ref {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .ref a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  .ref a:hover { text-decoration: underline; }
+
+  .ref-grade {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+
+  .grade-a { background: rgba(52, 211, 153, 0.15); color: var(--accent-success); }
+  .grade-b { background: rgba(129, 140, 248, 0.15); color: var(--accent-primary); }
+  .grade-c { background: rgba(251, 146, 60, 0.15); color: var(--accent-warning); }
+  .grade-d { background: rgba(100, 116, 139, 0.15); color: var(--text-muted); }
+
+  /* ═══════════════════════════════════════════
+     FIGURE
+     ═══════════════════════════════════════════ */
+  figure { margin: 1.5rem 0; }
+  figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+  figcaption { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: var(--border-color);
+    margin: 2rem 0;
+  }
+
+  /* ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+    margin-top: 3rem;
+    border-top: 1px solid var(--border-light);
+    font-size: 0.85rem;
+  }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+     ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 1.4rem; }
+    .header { padding: 1.5rem 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    h2 { font-size: 1.2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ═══════════════════════════════════════════
+     PRINT
+     ═══════════════════════════════════════════ */
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .theme-toggle { display: none; }
+    a { color: #2563eb; }
+  }
+</style>
+<script>
+  // Theme toggle — uses localStorage for persistence
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('probe-theme', next);
+    updateToggleUI(next);
+  }
+
+  function updateToggleUI(theme) {
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'light' ? '夜间' : '日间';
+  }
+
+  // Apply saved theme on load
+  (function() {
+    const saved = localStorage.getItem('probe-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    // Update UI after DOM ready
+    document.addEventListener('DOMContentLoaded', function() { updateToggleUI(saved); });
+  })();
+</script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════ -->
+<div class="header" style="position:relative">
+  <button class="theme-toggle" onclick="toggleTheme()" title="切换日夜模式">
+    <span class="icon" id="themeIcon">☀️</span>
+    <span class="label" id="themeLabel">日间</span>
+  </button>
+  <h1>Agent 安全沙箱与权限 — 执行隔离、工具权限、审计</h1>
+  <div class="meta">2026-03-31 · 探针 (Probe)</div>
+  <div style="margin-top:0.8rem">
+    <span class="tag">Agent</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">← 返回报告索引</a>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <div class="exec-summary__label">Executive Summary</div>
+    <p>AI Agent 正从&quot;辅助工具&quot;演进为&quot;自主执行者&quot;——它们动态生成代码、调用 API、访问数据库、操作生产系统。OWASP 2025 年将&quot;过度代理&quot;（Excessive Agency）列为 LLM 应用第六大风险，而 82% 的组织已在使用 AI Agent，但仅 44% 制定了安全策略[1][2]。这种安全差距使得 Agent 安全沙箱与权限管理成为生产部署的刚需。</p>
+<p>核心发现：</p>
+<ul>
+<li><strong>沙箱技术形成四级防御体系</strong>：从 Docker 容器（毫秒级启动，共享内核）→ gVisor（syscall 拦截，10-30% I/O 开销）→ Firecracker microVM（硬件级隔离，~125ms 启动）→ Kata Containers（K8s 原生编排 microVM），安全级别递增[3][4]。</li>
+<li><strong>Agent RBAC 尚无成熟标准</strong>：传统 RBAC 无法直接套用，需要&quot;动态角色分配 + 上下文感知权限 + 自主决策边界&quot;三层增强[5][6]。</li>
+<li><strong>MCP 协议带来新攻击面</strong>：Anthropic 2024 年开源的 MCP 正成为 Agent-Tool 交互的事实标准，但也引入了工具投毒、名称欺骗、数据外泄等七类攻击[7][8]。</li>
+<li><strong>审计日志必须记录&quot;推理过程&quot;而非仅&quot;结果&quot;</strong>：生产环境需要三层追踪——LLM 层（token/延迟）、逻辑层（推理步骤/循环）、副作用层（工具调用/文件修改）[9][10]。</li>
+<li><strong>合规压力快速升高</strong>：GDPR、SOC 2、EU AI Act 均对 AI Agent 的数据处理、可追溯性、人类监督提出了明确要求[11]。</li>
+</ul>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CONTENT
+       ═══════════════════════════════════════════ -->
+  <h2>1. Agent 执行沙箱技术</h2>
+<h3>1.1 为什么标准容器不够？</h3>
+<p>AI Agent 的根本区别在于：<strong>它们生成的代码你从未审阅过</strong>[3]。传统容器（Docker/runc）使用 Linux namespace 和 cgroup 隔离进程，但共享宿主机内核。一个内核漏洞即可实现容器逃逸，获得宿主机访问权限[4]。</p>
+<p>对 AI Agent 而言，这意味着：</p>
+<ul>
+<li>Agent 生成的代码可能利用内核漏洞逃逸</li>
+<li>被攻破的 Agent 可以访问宿主机和其他工作负载</li>
+<li>横向移动成为可能——从一个 Agent 蔓延到整个基础设施</li>
+</ul>
+<p><strong>结论：生产环境的 AI Agent 不能仅依赖 Docker 容器隔离。</strong></p>
+<h3>1.2 四级沙箱技术对比</h3>
+<table>
+<thead>
+<tr>
+<th>技术</th>
+<th>隔离模型</th>
+<th>启动速度</th>
+<th>内存开销</th>
+<th>安全级别</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Docker (runc)</strong></td>
+<td>Namespace + Cgroup，共享内核</td>
+<td>~ms</td>
+<td>极低</td>
+<td>⭐⭐</td>
+<td>可信代码、单租户</td>
+</tr>
+<tr>
+<td><strong>gVisor</strong></td>
+<td>用户态内核拦截 syscall</td>
+<td>~100ms</td>
+<td>中等</td>
+<td>⭐⭐⭐</td>
+<td>计算密集型 Agent 工作负载</td>
+</tr>
+<tr>
+<td><strong>Firecracker</strong></td>
+<td>硬件虚拟化，独立内核</td>
+<td>~125ms</td>
+<td>&lt;5 MiB/VM</td>
+<td>⭐⭐⭐⭐</td>
+<td>多租户 Agent 执行、不可信代码</td>
+</tr>
+<tr>
+<td><strong>Kata Containers</strong></td>
+<td>编排 Firecracker/Cloud Hypervisor，K8s 原生</td>
+<td>~200ms</td>
+<td>最小</td>
+<td>⭐⭐⭐⭐</td>
+<td>生产 K8s 工作负载需要 VM 安全</td>
+</tr>
+</tbody></table>
+<div class="mermaid">graph TB
+    subgraph "Agent 执行沙箱 — 四级防御体系"
+        direction TB
+        A[Agent 生成代码] --> B{选择隔离级别}
+
+        B -->|可信代码<br/>单租户| C1[Docker 容器<br/>共享内核<br/>ms 级启动]
+        B -->|计算密集<br/>需增强安全| C2[gVisor<br/>用户态内核<br/>拦截 syscall]
+        B -->|不可信代码<br/>多租户| C3[Firecracker<br/>microVM<br/>硬件级隔离]
+        B -->|K8s 生产环境<br/>需 VM 安全| C4[Kata Containers<br/>K8s 原生编排<br/>Firecracker/CH]
+
+        C1 --> D1[⚠️ 内核共享风险<br/>容器逃逸可能]
+        C2 --> D2[✅ syscall 过滤<br/>I/O 开销 10-30%]
+        C3 --> D3[✅✅ 独立内核<br/>150 VM/s/宿主机]
+        C4 --> D4[✅✅ K8s 集成<br/>运维透明]
+    end
+
+    style C1 fill:#fff3e0
+    style C2 fill:#e8f5e8
+    style C3 fill:#e1f5fe
+    style C4 fill:#e1f5fe</div>
+<h3>1.3 gVisor：用户态内核拦截</h3>
+<p>gVisor 由 Google 开源，在用户空间实现了一个 Linux 内核（Sentry），拦截容器的所有 syscall 并在 Sentry 中处理，只有极少数经过验证的请求才会到达宿主机内核[4]。</p>
+<p><strong>核心优势</strong>：</p>
+<ul>
+<li>大幅减少宿主机内核攻击面（数百个 syscall 缩减为最小子集）</li>
+<li>与现有 Docker/K8s 工具链兼容</li>
+<li>不需要硬件虚拟化支持</li>
+</ul>
+<p><strong>已知局限</strong>：</p>
+<ul>
+<li>I/O 密集型工作负载有 10-30% 性能损失[3]</li>
+<li>非完整 VM 级隔离，仍有共享部分主机资源</li>
+</ul>
+<h3>1.4 Firecracker microVM：硬件级隔离</h3>
+<p>Firecracker 由 AWS 开源，专为 Serverless 和多租户场景设计。每个 microVM 拥有独立的 Linux 内核，运行在 KVM 虚拟化之上[3]。</p>
+<p><strong>关键指标</strong>：</p>
+<ul>
+<li>启动时间 ~125ms</li>
+<li>每个 VM 内存开销 &lt;5 MiB</li>
+<li>单台宿主机每秒可启动 150 个 VM</li>
+</ul>
+<p><strong>实际应用</strong>：</p>
+<ul>
+<li>AWS Lambda 和 Fargate 的底层技术</li>
+<li>E2B（专为 AI Agent 设计的代码沙箱服务）底层使用 Firecracker[12]</li>
+<li>AWS Bedrock AgentCore（2025 年发布）面向 Agent 代码执行和浏览器操作[12]</li>
+</ul>
+<h3>1.5 Kata Containers：K8s 原生 microVM</h3>
+<p>Kata Containers 的核心价值在于<strong>将 microVM 的安全级别带给标准 K8s 工作流</strong>。从 Kubernetes 视角看，它是一个普通容器；底层实际运行的是完整 VM[4]。</p>
+<p>支持多种 VMM 后端（Firecracker、Cloud Hypervisor、QEMU），允许根据安全需求灵活选择。</p>
+<h3>1.6 产品化沙箱服务</h3>
+<table>
+<thead>
+<tr>
+<th>服务</th>
+<th>底层技术</th>
+<th>启动速度</th>
+<th>特色</th>
+<th>定价模式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>E2B</strong></td>
+<td>Firecracker</td>
+<td>~1s</td>
+<td>专为 AI Agent 设计的代码解释器</td>
+<td>免费额度 + 按量</td>
+</tr>
+<tr>
+<td><strong>Modal</strong></td>
+<td>容器</td>
+<td>亚秒级</td>
+<td>Python SDK，一行代码定义沙箱</td>
+<td>按 CPU/秒</td>
+</tr>
+<tr>
+<td><strong>Northflank</strong></td>
+<td>Kata + gVisor</td>
+<td>秒级</td>
+<td>生产级基础设施，BYOC</td>
+<td>企业定价</td>
+</tr>
+<tr>
+<td><strong>Together AI</strong></td>
+<td>VM snapshot</td>
+<td>500ms 恢复</td>
+<td>GPU 云扩展，快照恢复</td>
+<td>按 CPU/秒</td>
+</tr>
+<tr>
+<td><strong>Fly.io Sprites</strong></td>
+<td>Firecracker</td>
+<td>秒级</td>
+<td>有状态持久存储，长时 Agent</td>
+<td>按量</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>2. 工具调用权限控制</h2>
+<h3>2.1 Agent 权限的特殊性</h3>
+<p>Agent 不同于传统应用的关键在于：<strong>它的行为是非确定性的</strong>。你无法预知 Agent 在下一轮推理中会调用哪个工具、执行什么操作。这使得传统的静态权限模型不够用[5][6]。</p>
+<p>OWASP 2025 明确指出：Agent 权限控制必须遵循&quot;<strong>最小权限原则</strong>&quot;——如果任务需要不同级别的访问权限，应使用<strong>多个 Agent</strong>，每个配置完成任务所需的最少权限[1]。</p>
+<h3>2.2 Agent RBAC 三层增强</h3>
+<p>传统 RBAC（基于角色的访问控制）需要三层增强才能适配 Agent[5]：</p>
+<div class="mermaid">graph TB
+    subgraph "Agent RBAC 三层增强架构"
+        subgraph "第一层：身份认证"
+            A1[Agent 身份] --> A2[OAuth 2.0 / mTLS]
+            A2 --> A3[短期凭证<br/>自动轮换]
+        end
+
+        subgraph "第二层：动态权限"
+            B1[角色定义] --> B2[工具级权限<br/>细粒度到 API]
+            B2 --> B3[上下文感知<br/>基于任务/用户/时间]
+            B3 --> B4[权限委派<br/>用户→Agent]
+        end
+
+        subgraph "第三层：执行控制"
+            C1[操作审批] --> C2{风险等级}
+            C2 -->|低风险| C3[自动执行]
+            C2 -->|中风险| C4[执行前通知]
+            C2 -->|高风险| C5[人工审批]
+            C5 -->|批准| C3
+            C5 -->|拒绝| C6[中止并记录]
+        end
+
+        A3 --> B1
+        B4 --> C1
+    end
+
+    style A1 fill:#e8f5e8
+    style B1 fill:#e1f5fe
+    style C1 fill:#fff3e0</div>
+<p><strong>第一层：Agent 身份认证</strong></p>
+<ul>
+<li>每个 Agent 必须有独立身份，如同微服务一样</li>
+<li>使用 OAuth 2.0 客户端凭证流或 mTLS 进行认证</li>
+<li>凭证短期有效、自动轮换</li>
+</ul>
+<p><strong>第二层：动态权限</strong></p>
+<ul>
+<li><strong>工具级权限</strong>：精确到每个 API/工具，而非粗粒度的角色</li>
+<li><strong>上下文感知</strong>：权限根据任务类型、请求用户、时间段动态调整</li>
+<li><strong>权限委派</strong>：用户授权 Agent 代表自己操作，权限范围由用户定义</li>
+</ul>
+<p><strong>第三层：执行控制</strong></p>
+<ul>
+<li>按风险等级分级处理：低风险自动执行、中风险通知、高风险人工审批</li>
+<li>关键操作（删除数据、发送外部请求、修改权限）必须触发 Human-in-the-Loop</li>
+</ul>
+<h3>2.3 MCP 协议的安全挑战</h3>
+<p>Model Context Protocol（MCP）由 Anthropic 于 2024 年底开源，已成为 Agent 连接外部工具的事实标准[7]。但 MCP 引入了一系列新的安全挑战：</p>
+<table>
+<thead>
+<tr>
+<th>攻击类型</th>
+<th>描述</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>工具投毒（Tool Poisoning）</strong></td>
+<td>恶意 MCP Server 注入危险工具描述</td>
+<td>Agent 被诱导执行恶意操作</td>
+</tr>
+<tr>
+<td><strong>名称欺骗（Name Spoofing）</strong></td>
+<td>仿冒合法工具名称</td>
+<td>Agent 调用错误工具</td>
+</tr>
+<tr>
+<td><strong>数据外泄</strong></td>
+<td>通过工具返回值隐式传输数据</td>
+<td>敏感信息泄露</td>
+</tr>
+<tr>
+<td><strong>Prompt 注入</strong></td>
+<td>工具描述中嵌入恶意指令</td>
+<td>劫持 Agent 行为</td>
+</tr>
+<tr>
+<td><strong>CSRF 攻击</strong></td>
+<td>如 CVE-2025-49596（MCP Inspector 远程代码执行）</td>
+<td>宿主机被攻破</td>
+</tr>
+</tbody></table>
+<p><strong>防御措施</strong>：</p>
+<ul>
+<li>MCP 规范要求 Host 在调用工具前获取用户明确同意[7]</li>
+<li>实施 MCP Gateway 作为中间层：隐藏敏感工具、阻止危险行为[8]</li>
+<li>MCP Server 实现 OAuth 2.0 认证/授权（MCP 2025-03-26 规范要求）[13]</li>
+<li>定期轮换 MCP Server 注册表，扫描工具投毒</li>
+</ul>
+<h3>2.4 权限边界定义框架</h3>
+<p><strong>Agent 工具调用的权限边界应从五个维度定义</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>定义内容</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>数据范围</strong></td>
+<td>Agent 可以访问哪些数据源</td>
+<td>只读客户表，不可访问薪资表</td>
+</tr>
+<tr>
+<td><strong>操作类型</strong></td>
+<td>允许的 CRUD 操作</td>
+<td>只允许 SELECT，不允许 DROP</td>
+</tr>
+<tr>
+<td><strong>API 范围</strong></td>
+<td>可调用的 API 列表及其限制</td>
+<td>/api/v1/search（无限制）+ /api/v1/delete（需审批）</td>
+</tr>
+<tr>
+<td><strong>网络边界</strong></td>
+<td>可访问的网络端点</td>
+<td>仅内网 API，禁止外网请求</td>
+</tr>
+<tr>
+<td><strong>资源配额</strong></td>
+<td>CPU/内存/执行时间/调用次数限制</td>
+<td>最大 30s 执行时间，100 次/小时 API 调用</td>
+</tr>
+</tbody></table>
+<h3>2.5 Zero Trust Agent 安全架构</h3>
+<p>AccuKnox 等安全厂商提出&quot;Zero Trust Agentic AI&quot;框架，核心原则[14]：</p>
+<ol>
+<li><strong>每次请求都验证身份</strong>：Agent 的每个工具调用都需要认证</li>
+<li><strong>从不信任，始终验证</strong>：即使是内部 Agent 间通信也要加密和授权</li>
+<li><strong>最小权限</strong>：Agent 只获得完成当前任务所需的最少权限</li>
+<li><strong>假设已被攻破</strong>：设计时假设 Agent 可能被恶意利用，限制其爆炸半径</li>
+</ol>
+<hr>
+<h2>3. 代码执行隔离</h2>
+<h3>3.1 Python 沙箱方案</h3>
+<p>Python 代码执行是 Agent 最常见的代码运行场景。主要隔离方案：</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>隔离级别</th>
+<th>限制能力</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Python <code>restrictedpython</code></strong></td>
+<td>解释器级</td>
+<td>拦截危险 AST 节点</td>
+<td>轻量级用户脚本</td>
+</tr>
+<tr>
+<td><strong>Pyodide (WASM)</strong></td>
+<td>浏览器/VM 级</td>
+<td>在 WebAssembly 中运行 Python</td>
+<td>浏览器端 Agent</td>
+</tr>
+<tr>
+<td><strong>gVisor + Python</strong></td>
+<td>syscall 级</td>
+<td>拦截系统调用</td>
+<td>服务端代码执行</td>
+</tr>
+<tr>
+<td><strong>Firecracker + Python</strong></td>
+<td>VM 级</td>
+<td>独立内核</td>
+<td>生产级多租户</td>
+</tr>
+</tbody></table>
+<p><strong>关键洞察</strong>：纯解释器级的 Python 沙箱（如 <code>restrictedpython</code>、<code>ast.NodeTransformer</code>）可以被绕过。研究表明，没有任何纯 Python 沙箱是 100% 安全的——必须依赖操作系统级隔离[3][4]。</p>
+<h3>3.2 WebAssembly (WASM) 运行时</h3>
+<p>WASM 正在成为 Agent 代码执行的重要选项：</p>
+<p><strong>优势</strong>：</p>
+<ul>
+<li>沙箱化设计——WASM 模块默认只能访问明确声明的宿主函数</li>
+<li>跨平台——一次编译，到处运行</li>
+<li>性能接近原生——比解释型 Python 快 10-100 倍</li>
+</ul>
+<p><strong>运行时选择</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>运行时</th>
+<th>特色</th>
+<th>语言支持</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Wasmtime</strong></td>
+<td>Bytecode Alliance 标准实现</td>
+<td>Rust/C/C++/Python</td>
+</tr>
+<tr>
+<td><strong>Wasmer</strong></td>
+<td>易用性优先，多语言 SDK</td>
+<td>40+ 语言</td>
+</tr>
+<tr>
+<td><strong>WASI</strong></td>
+<td>WASI Preview 2 标准化系统接口</td>
+<td>系统调用抽象</td>
+</tr>
+<tr>
+<td><strong>Pyodide</strong></td>
+<td>在 WASM 中运行完整 CPython</td>
+<td>Python</td>
+</tr>
+</tbody></table>
+<p><strong>局限</strong>：WASM 原生不支持文件系统、网络等系统资源，需要通过 WASI 显式授予。这对 Agent 安全是优势（默认无权限），但也意味着复杂 Agent 任务的支持不够完整。</p>
+<h3>3.3 Jupyter 沙箱</h3>
+<p>Jupyter Notebook 是数据科学 Agent 的常用执行环境。安全隔离方案：</p>
+<ol>
+<li><strong>JupyterHub + DockerSpawner</strong>：每个用户/Agent 在独立 Docker 容器中运行</li>
+<li><strong>JupyterHub + KubeSpawner</strong>：K8s 级隔离，可结合 Kata/gVisor</li>
+<li><strong>E2B Code Interpreter</strong>：云端托管的 Jupyter 沙箱，底层 Firecracker，专为 AI Agent 设计[12]</li>
+</ol>
+<p><strong>生产建议</strong>：Jupyter 沙箱必须配置：</p>
+<ul>
+<li>超时限制（防止无限循环）</li>
+<li>内存/CPU 配额</li>
+<li>网络出口控制（禁止非预期外连）</li>
+<li>文件系统只读挂载（除临时工作目录）</li>
+</ul>
+<hr>
+<h2>4. 网络隔离与访问控制</h2>
+<h3>4.1 Agent 网络策略</h3>
+<p>Agent 的网络行为与传统应用不同——它可能在推理过程中动态发现并调用新端点[15]。传统的 API 白名单不足以覆盖。</p>
+<p><strong>防御纵深架构</strong>：</p>
+<div class="mermaid">graph TB
+    subgraph "Agent 网络隔离 — 防御纵深"
+        A[Agent 执行环境] --> B[Network Policy<br/>K8s NetworkPolicy]
+        B --> C[API Gateway<br/>速率限制 + 认证]
+        C --> D[MCP Gateway<br/>工具可见性控制]
+        D --> E[mTLS<br/>Agent→服务加密]
+        E --> F[目标服务]
+
+        B --> B1[出口白名单<br/>禁止非预期外连]
+        C --> C1[请求审计<br/>每个 API 调用记录]
+        D --> D1[工具过滤<br/>隐藏危险工具]
+        E --> E1[双向认证<br/>防止仿冒]
+    end
+
+    style B fill:#e8f5e8
+    style C fill:#e1f5fe
+    style D fill:#fff3e0
+    style E fill:#fce4ec</div>
+<p><strong>K8s NetworkPolicy</strong>：</p>
+<ul>
+<li>Agent Pod 设置出口白名单，只允许访问已授权的 API 端点</li>
+<li>默认拒绝所有网络流量（default-deny），显式允许已知通信</li>
+</ul>
+<p><strong>API Gateway 增强</strong>：</p>
+<ul>
+<li>速率限制（防止 Agent 滥用 API）</li>
+<li>请求验证（每个 API 调用必须携带有效凭证）</li>
+<li>请求/响应审计日志</li>
+</ul>
+<p><strong>MCP Gateway</strong>（Palo Alto Networks 2025 年提出）[8]：</p>
+<ul>
+<li>传统 API Gateway 管理标准流量</li>
+<li>MCP Gateway 专门处理 Agent 与 Tool 之间的交互</li>
+<li>能&quot;看到&quot;Agent 选择使用哪个工具的决策过程</li>
+<li>在工具被调用前隐藏敏感工具、阻止危险行为</li>
+</ul>
+<h3>4.2 mTLS（双向 TLS）</h3>
+<p>Agent 与后端服务之间的通信应使用 mTLS 加密：</p>
+<ul>
+<li><strong>Agent 身份</strong>：每个 Agent 持有独立证书，证明自己的身份</li>
+<li><strong>服务身份</strong>：后端服务也持有证书，Agent 验证服务身份</li>
+<li><strong>加密传输</strong>：所有通信加密，防止中间人攻击</li>
+<li><strong>短期证书</strong>：Agent 证书短生命周期（小时级），自动轮换</li>
+</ul>
+<h3>4.3 Zero Trust 出口控制</h3>
+<p>传统安全模型允许内部网络自由通信，但 Agent 可能被诱导发起非预期的外部连接。Zero Trust 模型要求[15]：</p>
+<ol>
+<li><strong>默认拒绝所有出口流量</strong></li>
+<li><strong>显式白名单允许的目标端点</strong></li>
+<li><strong>DNS 层面阻断已知恶意域名</strong></li>
+<li><strong>实时监控异常网络行为</strong>（如 Agent 突然连接从未访问过的外部 IP）</li>
+</ol>
+<hr>
+<h2>5. 审计与合规</h2>
+<h3>5.1 Agent 审计日志应记录什么？</h3>
+<p>Agent 审计日志需要覆盖<strong>三层可观测性</strong>[9][10]：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>记录内容</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>LLM 层</strong></td>
+<td>输入 prompt、模型输出、token 使用量、延迟</td>
+<td>&quot;GPT-4o 输入 2,400 tokens，输出 580 tokens，延迟 1.2s&quot;</td>
+</tr>
+<tr>
+<td><strong>逻辑层</strong></td>
+<td>推理步骤、工具选择、条件分支、循环检测</td>
+<td>&quot;Step 3: 选择 tool=database_query, reason=&#39;需要客户数据&#39;&quot;</td>
+</tr>
+<tr>
+<td><strong>副作用层</strong></td>
+<td>工具调用参数、返回值、文件操作、网络请求</td>
+<td>&quot;调用 DELETE /api/users/123, 参数 {...}, 返回 200&quot;</td>
+</tr>
+</tbody></table>
+<p><strong>每条审计记录必须包含的元数据</strong>：</p>
+<ul>
+<li>Agent 标识（Agent ID + 版本）</li>
+<li>时间戳（毫秒级）</li>
+<li>关联的用户/会话</li>
+<li>执行的沙箱环境</li>
+<li>输入 prompt 摘要</li>
+<li>每一步的工具调用详情</li>
+<li>最终结果 / 错误信息</li>
+<li>Token 消耗和成本</li>
+</ul>
+<h3>5.2 可追溯性设计</h3>
+<p><strong>端到端追溯链</strong>：</p>
+<pre><code>用户请求 → Agent 推理 → 工具选择 → 工具执行 → 结果返回
+   ↓            ↓           ↓           ↓           ↓
+ Session ID → Trace ID → Span ID → Operation ID → Response ID
+</code></pre>
+<p>使用 OpenTelemetry 标准进行分布式追踪，将 Agent 推理的每一步与工具执行关联[10]。</p>
+<p><strong>主流可观测性工具</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>定位</th>
+<th>特色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>LangSmith</strong></td>
+<td>端到端 LLM 可观测性</td>
+<td>推理追踪、评估、Klarna 等企业生产部署[10]</td>
+</tr>
+<tr>
+<td><strong>Langfuse</strong></td>
+<td>开源 Agent 可观测性</td>
+<td>OpenTelemetry 原生、支持 LangGraph/CrewAI/Pydantic AI[16]</td>
+</tr>
+<tr>
+<td><strong>LangWatch</strong></td>
+<td>开源 LLMOps</td>
+<td>可观测性+评估+优化一体化，OTel 集成[17]</td>
+</tr>
+<tr>
+<td><strong>Maxim AI</strong></td>
+<td>端到端 Agent 生命周期</td>
+<td>仿真+评估+可观测性，5x 加速 Agent 交付[18]</td>
+</tr>
+<tr>
+<td><strong>AgentShield</strong></td>
+<td>Agent 安全可观测性</td>
+<td>执行追踪、风险检测、预算告警、Human-in-the-Loop[9]</td>
+</tr>
+</tbody></table>
+<h3>5.3 合规框架要求</h3>
+<table>
+<thead>
+<tr>
+<th>合规框架</th>
+<th>对 Agent 的要求</th>
+<th>关键控制点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>GDPR</strong></td>
+<td>处理 EU 居民数据时遵守</td>
+<td>数据最小化、同意管理、数据主体权利（访问/删除/更正）、数据处理记录[11]</td>
+</tr>
+<tr>
+<td><strong>SOC 2</strong></td>
+<td>服务组织安全控制</td>
+<td>访问控制、变更管理、安全监控、审计日志保留[11]</td>
+</tr>
+<tr>
+<td><strong>EU AI Act</strong></td>
+<td>高风险 AI 系统（教育评估、招聘等）</td>
+<td>人类监督、透明度、数据治理、技术稳健性[11]</td>
+</tr>
+<tr>
+<td><strong>PCI DSS</strong></td>
+<td>Agent 访问支付数据</td>
+<td>数据加密、访问控制、监控、安全开发[19]</td>
+</tr>
+<tr>
+<td><strong>HIPAA</strong></td>
+<td>Agent 处理健康信息</td>
+<td>PHI 访问控制、审计日志、加密、BA 协议[19]</td>
+</tr>
+</tbody></table>
+<h3>5.4 审计日志保留策略</h3>
+<table>
+<thead>
+<tr>
+<th>日志类型</th>
+<th>保留期限</th>
+<th>存储要求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>执行日志（推理步骤）</td>
+<td>30-90 天</td>
+<td>温存储（可查询）</td>
+</tr>
+<tr>
+<td>安全事件日志</td>
+<td>1-7 年</td>
+<td>冷存储（合规要求）</td>
+</tr>
+<tr>
+<td>工具调用审计</td>
+<td>1-3 年</td>
+<td>不可变存储（WORM）</td>
+</tr>
+<tr>
+<td>合规审计快照</td>
+<td>5-7 年</td>
+<td>归档存储</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>6. 自主性与安全的平衡</h2>
+<h3>6.1 核心矛盾</h3>
+<p>Agent 的价值在于自主性——它能独立推理、决策、执行。但安全的核心在于约束——限制 Agent 能做什么、能访问什么。</p>
+<p><strong>OWASP 的答案</strong>：如果任务需要不同级别的访问权限，使用<strong>多个 Agent</strong>，每个配置最小权限[1]。而不是给一个 Agent 所有权限。</p>
+<h3>6.2 分层自主性模型</h3>
+<table>
+<thead>
+<tr>
+<th>自主性等级</th>
+<th>权限范围</th>
+<th>审批要求</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>L0: 全自动</strong></td>
+<td>只读、无副作用操作</td>
+<td>无</td>
+<td>搜索、总结、分析</td>
+</tr>
+<tr>
+<td><strong>L1: 受限自动</strong></td>
+<td>写入已授权数据源</td>
+<td>执行后通知</td>
+<td>创建工单、更新状态</td>
+</tr>
+<tr>
+<td><strong>L2: 半自动</strong></td>
+<td>涉及外部操作</td>
+<td>关键步骤审批</td>
+<td>发送邮件、调用付费 API</td>
+</tr>
+<tr>
+<td><strong>L3: 辅助</strong></td>
+<td>仅建议，不执行</td>
+<td>每步人工确认</td>
+<td>安全事件响应、生产变更</td>
+</tr>
+</tbody></table>
+<h3>6.3 关键决策清单</h3>
+<p><strong>回答以下问题，决定你的 Agent 安全架构</strong>：</p>
+<ol>
+<li>Agent 是否执行不可信代码？→ 是 → Firecracker/Kata 沙箱</li>
+<li>Agent 是否访问生产数据？→ 是 → RBAC + 网络隔离 + 审计</li>
+<li>Agent 是否调用外部 API？→ 是 → MCP Gateway + 速率限制</li>
+<li>是否有合规要求？→ 是 → 完整审计链 + 数据加密 + 保留策略</li>
+<li>Agent 失败的后果是什么？→ 高 → Human-in-the-Loop + 熔断机制</li>
+</ol>
+<hr>
+<h2>7. 结论</h2>
+<h3>技术选型建议</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐方案</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agent 执行不可信代码</td>
+<td>Firecracker microVM / E2B</td>
+<td>硬件级隔离，125ms 启动</td>
+</tr>
+<tr>
+<td>K8s 生产环境</td>
+<td>Kata Containers</td>
+<td>VM 安全 + K8s 原生运维</td>
+</tr>
+<tr>
+<td>增强容器安全（已用 Docker）</td>
+<td>gVisor</td>
+<td>最小改动，syscall 拦截</td>
+</tr>
+<tr>
+<td>Agent-Tool 交互安全</td>
+<td>MCP Gateway + OAuth 2.1</td>
+<td>工具可见性控制 + 标准认证</td>
+</tr>
+<tr>
+<td>Agent 可观测性</td>
+<td>LangSmith / Langfuse</td>
+<td>端到端追踪 + OpenTelemetry</td>
+</tr>
+<tr>
+<td>Agent 合规审计</td>
+<td>审计链 + WORM 存储</td>
+<td>GDPR/SOC2/EU AI Act 要求</td>
+</tr>
+</tbody></table>
+<h3>关键原则</h3>
+<ol>
+<li><strong>沙箱不是可选项</strong> — 就像你不会在没有防火墙的情况下暴露服务器一样，你不应该在没有沙箱的情况下让 Agent 执行代码[3]</li>
+<li><strong>默认拒绝</strong> — Agent 的所有行为都应该是显式允许的，而不是隐式允许的（Zero Trust）</li>
+<li><strong>最小权限 + 多 Agent 拆分</strong> — 不要给一个 Agent 所有权限，按任务需求拆分为多个 Agent[1]</li>
+<li><strong>审计一切</strong> — 审计日志记录推理过程，不只是结果。每一步工具调用都要可追溯[9][10]</li>
+<li><strong>Human-in-the-Loop 是核心功能</strong> — 高风险操作必须有人类审批点，不是&quot;额外功能&quot;[15]</li>
+<li><strong>MCP 需要 Gateway</strong> — 直接暴露 MCP Server 给 Agent 是不安全的，需要 Gateway 层做中间控制[8]</li>
+</ol>
+<h3>趋势展望</h3>
+<ul>
+<li><strong>MCP 安全标准化</strong>：MCP 规范正在快速迭代 OAuth/授权支持，2025-11-25 版本引入异步任务和改进的 OAuth[13]</li>
+<li><strong>Agent 安全即代码</strong>：安全策略将像 IaC 一样被版本化和自动化部署</li>
+<li><strong>AI 原生安全产品</strong>：Zenity、AccuKnox 等推出专为 Agent 设计的安全平台[14][19]</li>
+<li><strong>合规自动化</strong>：Agent 合规检查将集成到 CI/CD 流程中</li>
+</ul>
+
+
+  <!-- ═══════════════════════════════════════════
+       REFERENCES
+       ═══════════════════════════════════════════ -->
+  <h2>📚 参考资料</h2>
+  <ol>
+<li>OWASP. 2025 Top 10 Risk &amp; Mitigations for LLMs and Gen AI Apps (2025). <a href="https://genai.owasp.org/llm-top-10/">https://genai.owasp.org/llm-top-10/</a></li>
+<li>Okta. AI Agent Security: The Authorization Gap in Shared Workspaces (2025). <a href="https://www.okta.com/en-gb/blog/ai/ai-agent-authorization-gap/">https://www.okta.com/en-gb/blog/ai/ai-agent-authorization-gap/</a></li>
+<li>CodeAnt.ai. How to Sandbox LLMs &amp; AI Shell Tools: Docker, gVisor, Firecracker (2025). <a href="https://www.codeant.ai/blogs/agentic-rag-shell-sandboxing">https://www.codeant.ai/blogs/agentic-rag-shell-sandboxing</a></li>
+<li>Northflank. How to Sandbox AI Agents in 2026: MicroVMs, gVisor &amp; Isolation Strategies (2026). <a href="https://northflank.com/blog/how-to-sandbox-ai-agents">https://northflank.com/blog/how-to-sandbox-ai-agents</a></li>
+<li>WorkOS. AI Agent Access Control: How to Manage Permissions Safely (2025). <a href="https://workos.com/blog/ai-agent-access-control">https://workos.com/blog/ai-agent-access-control</a></li>
+<li>Prefactor. 5 Best Practices for AI Agent Access Control (2025). <a href="https://prefactor.tech/blog/5-best-practices-for-ai-agent-access-control/">https://prefactor.tech/blog/5-best-practices-for-ai-agent-access-control/</a></li>
+<li>Model Context Protocol. Specification (2025). <a href="https://modelcontextprotocol.io/specification/2025-06-18">https://modelcontextprotocol.io/specification/2025-06-18</a></li>
+<li>Palo Alto Networks. Understanding the Prisma AIRS MCP Server (2025). <a href="https://docs.paloaltonetworks.com/content/techdocs/en_US/ai-runtime-security/activation-and-onboarding/prisma-airs-mcp-server-for-centralized-ai-agent-security/understanding-the-prisma-airs-mcp-server">https://docs.paloaltonetworks.com/content/techdocs/en_US/ai-runtime-security/activation-and-onboarding/prisma-airs-mcp-server-for-centralized-ai-agent-security/understanding-the-prisma-airs-mcp-server</a></li>
+<li>LangChain. LangSmith: AI Agent &amp; LLM Observability Platform (2025). <a href="https://www.langchain.com/langsmith/observability">https://www.langchain.com/langsmith/observability</a></li>
+<li>Articsledge. What is LangSmith? Complete Guide to LLM Observability (2025). <a href="https://www.articsledge.com/post/langsmith">https://www.articsledge.com/post/langsmith</a></li>
+<li>MindStudio. AI Agent Compliance: GDPR SOC 2 and Beyond (2025). <a href="https://www.mindstudio.ai/blog/ai-agent-compliance/">https://www.mindstudio.ai/blog/ai-agent-compliance/</a></li>
+<li>EastonDev. Agent Sandbox Guide: A Complete Solution for Safely Running AI Code (2026). <a href="https://eastondev.com/blog/en/posts/ai/20260323-agent-sandbox-guide-en/">https://eastondev.com/blog/en/posts/ai/20260323-agent-sandbox-guide-en/</a></li>
+<li>WorkOS. MCP 2025-11-25 Spec Update: Async Tasks, Better OAuth, Extensions (2025). <a href="https://workos.com/blog/mcp-2025-11-25-spec-update">https://workos.com/blog/mcp-2025-11-25-spec-update</a></li>
+<li>AccuKnox. Zero Trust Agentic AI Security eBook (2025). <a href="https://accuknox.com/wp-content/uploads/Zero_Trust_Agentic_AI_Security_eBook.pdf">https://accuknox.com/wp-content/uploads/Zero_Trust_Agentic_AI_Security_eBook.pdf</a></li>
+<li>Kiteworks. Zero Trust AI Privacy Protection: 2025 Implementation Guide (2025). <a href="https://www.kiteworks.com/cybersecurity-risk-management/zero-trust-ai-data-privacy-protection-guide/">https://www.kiteworks.com/cybersecurity-risk-management/zero-trust-ai-data-privacy-protection-guide/</a></li>
+<li>Langfuse. AI Agent Observability, Tracing &amp; Evaluation with Langfuse (2024). <a href="https://langfuse.com/blog/2024-07-ai-agent-observability-with-langfuse">https://langfuse.com/blog/2024-07-ai-agent-observability-with-langfuse</a></li>
+<li>LangWatch. Top 8 LLM Observability Tools: Complete Guide for 2025 (2025). <a href="https://langwatch.ai/blog/top-10-llm-observability-tools-complete-guide-for-2025">https://langwatch.ai/blog/top-10-llm-observability-tools-complete-guide-for-2025</a></li>
+<li>Maxim AI. Top 5 Agent Observability Tools in December 2025 (2025). <a href="https://www.getmaxim.ai/articles/top-5-agent-observability-tools-in-december-2025/">https://www.getmaxim.ai/articles/top-5-agent-observability-tools-in-december-2025/</a></li>
+<li>Zenity. AI Agents&#39; Compliance: Automate Governance &amp; Stay Audit-Ready (2025). <a href="https://zenity.io/use-cases/business-needs/ai-agents-compliance">https://zenity.io/use-cases/business-needs/ai-agents-compliance</a></li>
+</ol>
+
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<div class="footer">
+  🔬 由探针 (Probe) 研究 · 🎨 调色板 (Palette) 设计<br>
+  <span style="font-size:0.75rem">Generated with OpenClaw Agent</span>
+</div>
+
+<!-- Mermaid CDN -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  (function() {
+    const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: theme, themeVariables: {primaryColor:'#818cf8',primaryTextColor:'#f1f5f9',primaryBorderColor:'#334155',lineColor:'#94a3b8',secondaryColor:'#1e293b',tertiaryColor:'#0f172a',fontSize:'14px'} });
+    mermaid.run();
+  })();
+</script>
+
+</body>
+</html>
