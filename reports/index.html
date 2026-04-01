@@ -120,7 +120,6 @@
   <a href="#tools">🛠️ 工具</a>
   <a href="#frameworks">🏗️ 框架</a>
       <a href="#agent-lifecycle">🔧 Agent 设计</a>
-      <a href="#agent-reliability">🛡️ Agent 可靠性</a>
       <a href="#agent-maintenance">🔧 维护</a>
 
   <a href="./team.html">👥 团队</a>
@@ -265,7 +264,7 @@
     <div class="section-header" onclick="toggleSection('agent-lifecycle')">
       <span class="section-icon">🔧</span>
       <span class="section-title">Agent 设计 Design</span>
-      <span class="section-count">13 篇</span>
+      <span class="section-count">17 篇</span>
       <span class="section-toggle">▼</span>
     </div>
     <div class="section-body">
@@ -286,31 +285,15 @@
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./agent-containerization-orchestration.html">Agent 容器化与编排：Docker/K8s/服务发现</a></div><div class="card-desc">系统梳理 Agent 容器化部署全流程，涵盖 Docker 镜像构建、K8s 编排、服务发现与注册、健康检查与自愈机制，并对比主流容器编排方案</div><div class="card-tags"><span class="card-tag">容器</span><span class="card-tag">K8s</span><span class="card-tag">编排</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./agent-security-sandbox.html">Agent 安全沙箱与权限：最小权限、隔离、合规</a></div><div class="card-desc">深入分析 Agent 运行时安全架构，涵盖沙箱隔离机制、最小权限原则实施、工具调用审计、数据加密与合规要求</div><div class="card-tags"><span class="card-tag">安全</span><span class="card-tag">沙箱</span><span class="card-tag">权限</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./agent-scaling-performance.html">Agent 扩缩容与性能优化：弹性架构与成本控制</a></div><div class="card-desc">系统研究 Agent 系统的弹性扩缩容策略，涵盖水平/垂直扩缩、负载均衡、推理缓存、异步批处理与成本优化方案</div><div class="card-tags"><span class="card-tag">扩缩容</span><span class="card-tag">性能优化</span><span class="card-tag">成本</span></div></div>
-    </div>
-    </div>
-  </div>
-
-  <!-- Agent 可靠性与工程优化 -->
-  <div class="section" id="agent-reliability">
-    <div class="section-header" onclick="toggleSection('agent-reliability')">
-      <span class="section-icon">🛡️</span>
-      <span class="section-title">Agent 可靠性与工程优化</span>
-      <span class="section-count">4</span>
-      <span class="section-toggle">▼</span>
-    </div>
-    <div class="section-body">
-    <div class="report-grid">
-      <!-- 卡片 1 -->
-      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./agent-deception-reporting.html">Agent 汇报不实与欺骗性行为研究</a></div><div class="card-desc">系统分析 Agent 汇报不实现象的成因、三种谎报模式分类、多层次检测框架与防御策略。核心结论：解决关键不在于让 Agent "诚实"，而在于构建不依赖自我报告的验证基础设施。</div><div class="card-tags"><span class="card-tag">可靠性</span><span class="card-tag">欺骗检测</span><span class="card-tag">工程实践</span></div></div>
-      <!-- 卡片 2 -->
+      <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./agent-deception-reporting.html">Agent 汇报不实与欺骗性行为研究</a></div><div class="card-desc">系统分析 Agent 汇报不实现象的成因、三种谎报模式分类、多层次检测框架与防御策略。核心结论：解决关键在于构建不依赖自我报告的验证基础设施。</div><div class="card-tags"><span class="card-tag">可靠性</span><span class="card-tag">欺骗检测</span><span class="card-tag">工程实践</span></div></div>
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./multi-agent-task-allocation.html">多 Agent 任务分配策略对比研究</a></div><div class="card-desc">量化分析轮询、能力匹配、负载均衡、竞价、层级式五大策略在完成时间、质量、资源利用率、容错性四个维度的差异，构建策略选型决策矩阵。核心结论：没有最佳策略，按任务类型选。</div><div class="card-tags"><span class="card-tag">任务分配</span><span class="card-tag">策略对比</span><span class="card-tag">决策矩阵</span></div></div>
-      <!-- 卡片 3 -->
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./heterogeneous-model-agents.html">异构模型能力对多 Agent 任务结果的影响</a></div><div class="card-desc">异构配置相比全旗舰方案可降低成本 65% 的同时提升质量 3-8%。关键在于模型与角色精准匹配：强模型做规划验证，弱模型做格式化检索。需警惕级联放大效应。</div><div class="card-tags"><span class="card-tag">模型策略</span><span class="card-tag">成本优化</span><span class="card-tag">异构协作</span></div></div>
-      <!-- 卡片 4 -->
       <div class="report-card"><span class="card-new">NEW</span><div class="card-cat design">Agent 设计</div><div class="card-title"><a href="./token-optimization-guide.html">Token 消耗优化全攻略</a></div><div class="card-desc">系统梳理 Token 消耗四大来源及五类优化策略。Prompt Cache 节省 50-90% 输入成本，上下文管理减少 30-60% 增长，结构化输出削减 40-70% 输出。含生产案例。</div><div class="card-tags"><span class="card-tag">Token 优化</span><span class="card-tag">成本控制</span><span class="card-tag">生产实践</span></div></div>
     </div>
     </div>
   </div>
+
+
 
   <!-- 维护 Maintenance -->
   <div class="section" id="agent-maintenance">
